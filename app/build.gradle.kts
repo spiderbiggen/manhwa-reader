@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.com.android.application)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.com.google.hilt.android)
+    alias(libs.plugins.com.google.ksp)
 }
 
 android {
@@ -56,6 +57,7 @@ dependencies {
 
     implementation(libs.core.ktx)
     implementation(libs.hilt)
+    implementation(libs.reflect)
     kapt(libs.hilt.compiler)
 
     implementation(libs.viewmodel.compose)
@@ -73,6 +75,9 @@ dependencies {
     androidTestImplementation(libs.ui.test.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
+
+    implementation(libs.glide)
+    ksp(libs.glide.compiler)
 }
 
 kapt {

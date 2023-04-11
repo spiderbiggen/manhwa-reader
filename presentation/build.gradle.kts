@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.com.android.library)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.com.google.hilt.android)
+    alias(libs.plugins.com.google.ksp)
 }
 
 android {
@@ -75,6 +76,8 @@ dependencies {
     debugImplementation(libs.ui.test.manifest)
 
     implementation(libs.landscapist)
+    implementation(libs.glide)
+    ksp(libs.glide.compiler)
 }
 
 kapt {

@@ -28,12 +28,6 @@ class ManhwaViewModel @Inject constructor(
         }
     }
 
-    private fun mapResponse(response: List<Manhwa>): List<Manhwa> {
-        val map = response.groupBy {it.status}
-        return buildList {
-            addAll(map["Ongoing"].orEmpty())
-            addAll(map["Completed"].orEmpty())
-            addAll(map["Dropped"].orEmpty())
-        }
-    }
+    private fun mapResponse(response: List<Manhwa>): List<Manhwa> =
+        response.sortedBy { it.status == "Dropped" }
 }

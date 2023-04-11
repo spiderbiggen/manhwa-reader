@@ -28,8 +28,8 @@ viewmodel-savedstate = { group = "androidx.lifecycle", name = "lifecycle-viewmod
 
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
-foundation = {group = "androidx.compose.foundation", name = "foundation"}
-foundation-layout = {group = "androidx.compose.foundation", name = "foundation"}
+foundation = { group = "androidx.compose.foundation", name = "foundation" }
+foundation-layout = { group = "androidx.compose.foundation", name = "foundation" }
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
@@ -53,10 +53,15 @@ kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-seria
 jakewharton-retrofit = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "0.8.0" }
 
 landscapist = { group = "com.github.skydoves", name = "landscapist-glide", version = "2.1.9" }
+glide = { group = "com.github.bumptech.glide", name = "glide", version = "4.15.1" }
+glide-compiler = { group = "com.github.bumptech.glide", name = "ksp", version = "4.14.2" }
+
+reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "com-android-application" }
 com-android-library = { id = "com.android.library", version.ref = "com-android-library" }
+com-google-ksp = {id = "com.google.devtools.ksp", version = "1.8.10-1.0.9"}
 com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

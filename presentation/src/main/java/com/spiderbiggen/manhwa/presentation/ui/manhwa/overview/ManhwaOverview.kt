@@ -37,9 +37,13 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bumptech.glide.request.RequestOptions
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
+import com.skydoves.landscapist.glide.LocalGlideRequestOptions
 import com.spiderbiggen.manhwa.presentation.R
+import com.spiderbiggen.manhwa.presentation.glide.ItemSignature
+import com.spiderbiggen.manhwa.presentation.glide.ItemType
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -107,6 +111,15 @@ fun ManhwaOverview(
                                             modifier = Modifier
                                                 .height(96.dp)
                                                 .widthIn(max = 96.dp),
+                                            requestOptions = {
+                                                val options = LocalGlideRequestOptions.current ?: RequestOptions()
+                                                options.signature(
+                                                    ItemSignature(
+                                                        ItemType.COVER,
+                                                        it.coverImage.toExternalForm()
+                                                    )
+                                                )
+                                            },
                                             imageOptions = ImageOptions(
                                                 contentScale = ContentScale.Fit,
                                                 requestSize = IntSize(256, 256)

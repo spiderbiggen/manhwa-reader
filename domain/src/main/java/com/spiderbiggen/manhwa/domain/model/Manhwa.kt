@@ -7,7 +7,7 @@ data class Manhwa(
     val id: String,
     val title: String,
     val baseUrl: URL,
-    val coverImage: URL?,
+    val coverImage: URL,
     val description: String?,
     val status: String,
 )

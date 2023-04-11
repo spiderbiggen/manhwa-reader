@@ -35,9 +35,12 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.bumptech.glide.request.RequestOptions
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 import com.spiderbiggen.manhwa.domain.model.Chapter
+import com.spiderbiggen.manhwa.presentation.glide.ItemSignature
+import com.spiderbiggen.manhwa.presentation.glide.ItemType
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -92,6 +95,14 @@ fun ChapterOverview(
                             modifier = Modifier.fillMaxWidth(),
                             imageModel = { state.manhwa.coverImage },
                             imageOptions = ImageOptions(contentScale = ContentScale.Fit),
+                            requestOptions = {
+                                RequestOptions().signature(
+                                    ItemSignature(
+                                        ItemType.COVER,
+                                        state.manhwa.coverImage.toExternalForm()
+                                    )
+                                )
+                            },
                             loading = {
                                 Box(
                                     modifier = Modifier
