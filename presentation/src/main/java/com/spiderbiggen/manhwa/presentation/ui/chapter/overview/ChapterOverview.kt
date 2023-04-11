@@ -13,9 +13,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -45,6 +49,7 @@ import com.spiderbiggen.manhwa.presentation.glide.ItemType
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChapterOverview(
+    onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     viewModel: ChapterViewModel = viewModel()
 ) {
@@ -54,12 +59,13 @@ fun ChapterOverview(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
-    ChapterOverview(navigateToChapter, state, lazyListState, topAppBarState)
+    ChapterOverview(onBackClick, navigateToChapter, state, lazyListState, topAppBarState)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChapterOverview(
+    onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     state: ChapterScreenState,
     lazyListState: LazyListState = rememberLazyListState(),
@@ -70,6 +76,11 @@ fun ChapterOverview(
     Scaffold(
         topBar = {
             TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.Rounded.ArrowBack, "Back")
+                    }
+                },
                 title = { Text((state as? ChapterScreenState.Ready)?.manhwa?.title ?: "Manhwa") },
                 scrollBehavior = scrollBehavior,
             )

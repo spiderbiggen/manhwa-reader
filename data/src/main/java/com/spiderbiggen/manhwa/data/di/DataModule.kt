@@ -1,6 +1,8 @@
 package com.spiderbiggen.manhwa.data.di
 
+import com.spiderbiggen.manhwa.data.source.remote.repository.FavoritesRepositoryImpl
 import com.spiderbiggen.manhwa.data.source.remote.repository.ManhwaRepositoryImpl
+import com.spiderbiggen.manhwa.domain.repository.FavoritesRepository
 import com.spiderbiggen.manhwa.domain.repository.ManhwaRepository
 import dagger.Binds
 import dagger.Module
@@ -14,4 +16,7 @@ abstract class DataModule {
 
     @Binds
     abstract fun bindManhwaRepository(repository: ManhwaRepositoryImpl): ManhwaRepository
+
+    @Binds
+    abstract fun bindFavoritesRepository(repository: FavoritesRepositoryImpl): FavoritesRepository
 }

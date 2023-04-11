@@ -17,13 +17,14 @@ class ChapterViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
+
     private val mutableState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
     val state
         get() = mutableState.asStateFlow()
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            manhwaRepository.getSingleFlow(manhwaId).collect { (manhwa, list) ->
+            manhwaRepository.flowSingleManhwa(manhwaId).collect { (manhwa, list) ->
                 mutableState.emit(ChapterScreenState.Ready(manhwa, list))
             }
         }

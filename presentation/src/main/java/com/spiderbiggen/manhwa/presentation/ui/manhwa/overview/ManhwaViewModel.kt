@@ -2,6 +2,7 @@ package com.spiderbiggen.manhwa.presentation.ui.manhwa.overview
 
 import androidx.lifecycle.ViewModel
 import com.spiderbiggen.manhwa.domain.model.Manhwa
+import com.spiderbiggen.manhwa.domain.repository.FavoritesRepository
 import com.spiderbiggen.manhwa.domain.repository.ManhwaRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ManhwaViewModel @Inject constructor(
     private val manhwaRepository: ManhwaRepository,
+    private val favoritesRepository: FavoritesRepository,
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow<ManhwaScreenState>(ManhwaScreenState.Loading)
@@ -22,8 +24,13 @@ class ManhwaViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            manhwaRepository.getAll().collectLatest {
-                mutableState.emit(ManhwaScreenState.Ready(mapResponse(it)))
+            manhwaRepository.flowAllManhwa().collectLatest {
+                mutableState.emit(
+                    ManhwaScreenState.Ready(
+                        mapResponse(it),
+                        favoritesRepository.favorites()
+                    )
+                )
             }
         }
     }

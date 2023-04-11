@@ -32,21 +32,31 @@ fun MainContent() {
                 arguments = listOf(
                     navArgument("manhwaId") { type = NavType.StringType }
                 )
-            ) {
+            ) { backStackEntry ->
                 val viewModel: ChapterViewModel = hiltViewModel()
+                val manhwaId = checkNotNull(backStackEntry.arguments?.getString("manhwaId"))
                 ChapterOverview(
-                    navigateToChapter = { navController.navigate("chapter/${it}") },
+                    onBackClick = { navController.navigate("overview") { popUpTo("overview") } },
+                    navigateToChapter = { navController.navigate("manhwa/$manhwaId/chapter/$it") },
                     viewModel = viewModel
                 )
             }
             composable(
-                route = "chapter/{chapterId}",
+                route = "manhwa/{manhwaId}/chapter/{chapterId}",
                 arguments = listOf(
+                    navArgument("manhwaId") { type = NavType.StringType },
                     navArgument("chapterId") { type = NavType.StringType }
                 )
-            ) {
+            ) { backStackEntry ->
                 val viewModel: ImagesViewModel = hiltViewModel()
+                val manhwaId = checkNotNull(backStackEntry.arguments?.getString("manhwaId"))
                 ImagesOverview(
+                    onBackClick = {
+                        navController.navigate("manhwa/$manhwaId") {
+                            popUpTo("manhwa/$manhwaId")
+                        }
+                    },
+                    toChapterClicked = { navController.navigate("manhwa/$manhwaId/chapter/$it") },
                     viewModel = viewModel
                 )
             }

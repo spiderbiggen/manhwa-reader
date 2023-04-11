@@ -28,7 +28,7 @@ class ManhwaRepositoryImpl @Inject constructor(
     private val chapters: MutableMap<String, Chapter> = mutableMapOf()
     private val chapterImages: MutableMap<String, List<URL>> = mutableMapOf()
 
-    override fun getAll(): Flow<List<Manhwa>> = flow {
+    override fun flowAllManhwa(): Flow<List<Manhwa>> = flow {
         emit(manhwas.values.sortedBy { it.title }.toList())
         service.get().getAllManhwas().body()?.map(::mapManhwaToDomain)?.let { list ->
             emit(list.sortedBy { it.title })
@@ -36,7 +36,7 @@ class ManhwaRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getSingleFlow(id: String): Flow<Pair<Manhwa, List<Chapter>>> = flow {
+    override fun flowSingleManhwa(id: String): Flow<Pair<Manhwa, List<Chapter>>> = flow {
         manhwas[id]?.let { manhwa ->
             val chapters = manhwaHasChapters[id]?.let { chapterList ->
                 chapterList.mapNotNull { chapters[it] }
@@ -51,14 +51,22 @@ class ManhwaRepositoryImpl @Inject constructor(
 
     }
 
-    override fun getChapterById(chapterId: String): Flow<ChapterWithImageChunks> = flow {
-        chapters[chapterId]?.let {
-            emit(mapToWithChunks(it, chapterImages[chapterId]))
-        }
-        service.get().getChapter(chapterId).body()?.let(::mapWithChunksToDomain)?.let {
-            emit(it)
-            chapterImages[chapterId] = it.imageChunks
-        }
+    override fun getChapters(manhwaId: String): List<Chapter> =
+        manhwaHasChapters[manhwaId].orEmpty().mapNotNull { chapters[it] }
+
+    override fun getChapterById(chapterId: String): Chapter? =
+        chapters[chapterId]
+
+    override suspend fun getChapterImages(chapterId: String): List<URL> =
+        chapterImages[chapterId]
+            ?: getChapterWithImageChunks(chapterId)?.imageChunks
+            ?: emptyList()
+
+    private suspend fun getChapterWithImageChunks(chapterId: String): ChapterWithImageChunks? {
+        val body = service.get().getChapter(chapterId).body() ?: return null
+        val withChunks = mapWithChunksToDomain(body)
+        chapterImages[chapterId] = withChunks.imageChunks
+        return withChunks
     }
 
     private fun mapManhwaToDomain(manhwa: ManhwaEntity) = Manhwa(

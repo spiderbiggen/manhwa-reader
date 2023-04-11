@@ -1,6 +1,5 @@
 package com.spiderbiggen.manhwa.presentation.ui.manhwa.overview
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,9 +13,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -29,10 +33,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,7 +43,6 @@ import com.bumptech.glide.request.RequestOptions
 import com.skydoves.landscapist.ImageOptions
 import com.skydoves.landscapist.glide.GlideImage
 import com.skydoves.landscapist.glide.LocalGlideRequestOptions
-import com.spiderbiggen.manhwa.presentation.R
 import com.spiderbiggen.manhwa.presentation.glide.ItemSignature
 import com.spiderbiggen.manhwa.presentation.glide.ItemType
 
@@ -65,7 +66,7 @@ fun ManhwaOverview(
     navigateToManhwa: (String) -> Unit,
     state: ManhwaScreenState,
     lazyListState: LazyListState = rememberLazyListState(),
-    topAppBarState: TopAppBarState = rememberTopAppBarState()
+    topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
     Scaffold(
@@ -105,37 +106,40 @@ fun ManhwaOverview(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                                 ) {
-                                    Box(contentAlignment = Alignment.BottomEnd) {
-                                        GlideImage(
-                                            imageModel = { it.coverImage },
-                                            modifier = Modifier
-                                                .height(96.dp)
-                                                .widthIn(max = 96.dp),
-                                            requestOptions = {
-                                                val options = LocalGlideRequestOptions.current ?: RequestOptions()
-                                                options.signature(
-                                                    ItemSignature(
-                                                        ItemType.COVER,
-                                                        it.coverImage.toExternalForm()
-                                                    )
+                                    GlideImage(
+                                        imageModel = { it.coverImage },
+                                        modifier = Modifier
+                                            .height(96.dp)
+                                            .widthIn(max = 96.dp),
+                                        requestOptions = {
+                                            val options =
+                                                LocalGlideRequestOptions.current ?: RequestOptions()
+                                            options.signature(
+                                                ItemSignature(
+                                                    ItemType.COVER,
+                                                    it.coverImage.toExternalForm()
                                                 )
-                                            },
-                                            imageOptions = ImageOptions(
-                                                contentScale = ContentScale.Fit,
-                                                requestSize = IntSize(256, 256)
                                             )
+                                        },
+                                        imageOptions = ImageOptions(
+                                            contentScale = ContentScale.Fit,
+                                            requestSize = IntSize(256, 256)
                                         )
-                                        if (it.status == "Dropped") {
-                                            Image(
-                                                painter = painterResource(id = R.drawable.ic_warning),
-                                                contentDescription = null,
-                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
-                                            )
-                                        }
+                                    )
+                                    Text(it.title, Modifier.weight(1F))
+                                    if (it.status == "Dropped") {
+                                        Icon(
+                                            Icons.Rounded.Warning,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
                                     }
-                                    Text(it.title)
+                                    Icon(
+                                        if (it.id in state.favorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                                        contentDescription = null,
+                                        modifier = Modifier.padding(end = 16.dp)
+                                    )
                                 }
-
                             }
                         }
                     }

@@ -59,10 +59,8 @@ class ManhwaDiskCache(coverDir: File, chapterDir: File) : DiskCache {
     }
 
     private fun getCacheForKey(key: Key): DiskCache {
-        val signature = runCatching {
-            signatureInDataCacheKey.get(key) ?: signatureInResourceCacheKey.get(key)
-        }.onFailure { Log.e(TAG, "failed to get signature from key", it) }
-            .getOrNull()
+        val signature = runCatching { signatureInDataCacheKey.get(key) }.getOrNull()
+            ?: runCatching { signatureInResourceCacheKey.get(key) }.getOrNull()
         return when (signature) {
             is ItemSignature -> when (signature.type) {
                 ItemType.COVER -> coverCache
