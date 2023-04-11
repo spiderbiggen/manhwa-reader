@@ -23,6 +23,10 @@ object DataProvider {
     }
 
     @Provides
+    @BaseUrl
+    fun baseUrl(): String = "https://api.spiderbiggen.com/manhwa/"
+
+    @Provides
     fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
@@ -34,11 +38,12 @@ object DataProvider {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .addConverterFactory(json.asConverterFactory(contentType))
+            .client(okHttpClient)
     }
 
     @Provides
-    fun provideManhwaService(builder: Retrofit.Builder): ManhwaService =
-        builder.baseUrl("https://api.spiderbiggen.com/manhwa/")
+    fun provideManhwaService(builder: Retrofit.Builder, @BaseUrl baseUrl: String): ManhwaService =
+        builder.baseUrl(baseUrl)
             .build()
             .create(ManhwaService::class.java)
 }

@@ -8,5 +8,5 @@ data class ChapterWithImageChunks(
     val decimal: Int?,
     val title: String?,
     val url: URL,
-    val imageChunks: Int,
+    val imageChunks: List<URL>,
 )

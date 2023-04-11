@@ -6,7 +6,7 @@ import com.spiderbiggen.manhwa.domain.model.Manhwa
 import kotlinx.coroutines.flow.Flow
 
 interface ManhwaRepository {
-    fun getAll(): Flow<List<Manhwa>?>
-    fun getById(id: String): Flow<Pair<Manhwa, List<Chapter>>?>
-    fun getChapterById(chapterId: String): Flow<ChapterWithImageChunks?>
+    fun getAll(): Flow<List<Manhwa>>
+    fun getSingleFlow(id: String): Flow<Pair<Manhwa, List<Chapter>>>
+    fun getChapterById(chapterId: String): Flow<ChapterWithImageChunks>
 }

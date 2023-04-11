@@ -10,7 +10,7 @@ compose-bom = "2023.04.00"
 com-android-library = "8.1.0-alpha11"
 appcompat = "1.6.1"
 material = "1.8.0"
-hilt = "2.44.2"
+hilt = "2.45"
 compose-hilt = "1.0.0"
 dagger = "2.45"
 kotlin = "1.8.10"
@@ -28,6 +28,8 @@ viewmodel-savedstate = { group = "androidx.lifecycle", name = "lifecycle-viewmod
 
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+foundation = {group = "androidx.compose.foundation", name = "foundation"}
+foundation-layout = {group = "androidx.compose.foundation", name = "foundation"}
 ui = { group = "androidx.compose.ui", name = "ui" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
