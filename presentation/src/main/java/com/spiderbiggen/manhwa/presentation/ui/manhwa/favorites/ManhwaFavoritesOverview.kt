@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
@@ -55,6 +56,7 @@ import java.net.URL
 fun ManhwaFavoritesOverview(
     navigateToManhwa: (String) -> Unit,
     navigateToOverview: () -> Unit,
+    navigateToDropped: () -> Unit,
     viewModel: ManhwaFavoritesViewModel = viewModel()
 ) {
     LaunchedEffect(null) {
@@ -67,6 +69,7 @@ fun ManhwaFavoritesOverview(
     ManhwaFavoritesOverview(
         navigateToManhwa = navigateToManhwa,
         navigateToOverview = navigateToOverview,
+        navigateToDropped = navigateToDropped,
         state = state,
         lazyListState = lazyListState,
         topAppBarState = topAppBarState
@@ -78,6 +81,7 @@ fun ManhwaFavoritesOverview(
 fun ManhwaFavoritesOverview(
     navigateToManhwa: (String) -> Unit,
     navigateToOverview: () -> Unit,
+    navigateToDropped: () -> Unit,
     state: ManhwaFavoritesScreenState,
     lazyListState: LazyListState = rememberLazyListState(),
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
@@ -104,6 +108,13 @@ fun ManhwaFavoritesOverview(
                     {},
                     icon = {
                         Icon(Icons.Rounded.Favorite, null)
+                    }
+                )
+                NavigationBarItem(
+                    false,
+                    navigateToDropped,
+                    icon = {
+                        Icon(Icons.Rounded.Lock, null)
                     }
                 )
             }
@@ -188,7 +199,7 @@ fun ManhwaFavoritesOverview(
 @OptIn(ExperimentalMaterial3Api::class)
 fun PreviewManhwa(@PreviewParameter(ManhwaOverviewScreenStateProvider::class) state: ManhwaFavoritesScreenState) {
     ManhwaReaderTheme {
-        ManhwaFavoritesOverview({}, {}, state = state)
+        ManhwaFavoritesOverview({}, {}, {}, state = state)
     }
 }
 

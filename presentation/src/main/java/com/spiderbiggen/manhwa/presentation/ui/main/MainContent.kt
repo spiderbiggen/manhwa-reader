@@ -13,6 +13,8 @@ import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesViewModel
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterViewModel
+import com.spiderbiggen.manhwa.presentation.ui.manhwa.dropped.ManhwaDroppedOverview
+import com.spiderbiggen.manhwa.presentation.ui.manhwa.dropped.ManhwaDroppedViewModel
 import com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites.ManhwaFavoritesOverview
 import com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites.ManhwaFavoritesViewModel
 import com.spiderbiggen.manhwa.presentation.ui.manhwa.overview.ManhwaOverview
@@ -29,6 +31,7 @@ fun MainContent() {
                     ManhwaOverview(
                         navigateToManhwa = { navController.navigate("manhwa/${it}") },
                         navigateToFavorites = { navController.navigate("favorites") },
+                        navigateToDropped = { navController.navigate("dropped") },
                         viewModel = viewModel
                     )
                 }
@@ -37,6 +40,16 @@ fun MainContent() {
                     ManhwaFavoritesOverview(
                         navigateToManhwa = { navController.navigate("manhwa/${it}") },
                         navigateToOverview = { navController.navigate("overview") },
+                        navigateToDropped = { navController.navigate("dropped") },
+                        viewModel = viewModel
+                    )
+                }
+                composable("dropped") {
+                    val viewModel: ManhwaDroppedViewModel = hiltViewModel()
+                    ManhwaDroppedOverview(
+                        navigateToManhwa = { navController.navigate("manhwa/${it}") },
+                        navigateToOverview = { navController.navigate("overview") },
+                        navigateToFavorites = { navController.navigate("favorites") },
                         viewModel = viewModel
                     )
                 }

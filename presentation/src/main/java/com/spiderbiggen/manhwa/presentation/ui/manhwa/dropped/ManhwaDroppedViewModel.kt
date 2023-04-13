@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.manhwa.overview
+package com.spiderbiggen.manhwa.presentation.ui.manhwa.dropped
 
 import androidx.lifecycle.ViewModel
 import com.spiderbiggen.manhwa.domain.model.Manhwa
@@ -13,12 +13,12 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
-class ManhwaViewModel @Inject constructor(
+class ManhwaDroppedViewModel @Inject constructor(
     private val manhwaRepository: ManhwaRepository,
     private val favoritesRepository: FavoritesRepository,
 ) : ViewModel() {
 
-    private val mutableState = MutableStateFlow<ManhwaScreenState>(ManhwaScreenState.Loading)
+    private val mutableState = MutableStateFlow<ManhwaDroppedScreenState>(ManhwaDroppedScreenState.Loading)
     val state
         get() = mutableState.asStateFlow()
 
@@ -26,7 +26,7 @@ class ManhwaViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             manhwaRepository.flowAllManhwa().collectLatest {
                 mutableState.emit(
-                    ManhwaScreenState.Ready(
+                    ManhwaDroppedScreenState.Ready(
                         mapResponse(it),
                         favoritesRepository.favorites()
                     )
@@ -36,5 +36,5 @@ class ManhwaViewModel @Inject constructor(
     }
 
     private fun mapResponse(response: List<Manhwa>): List<Manhwa> =
-        response.filterNot { it.status == "Dropped" }
+        response.filter { it.status == "Dropped" }
 }

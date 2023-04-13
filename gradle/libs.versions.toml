@@ -14,7 +14,7 @@ material = "1.8.0"
 hilt = "2.45"
 compose-hilt = "1.0.0"
 dagger = "2.45"
-kotlin = "1.8.10"
+kotlin = "1.8.20"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
