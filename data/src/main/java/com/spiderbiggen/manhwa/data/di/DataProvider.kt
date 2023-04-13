@@ -12,10 +12,14 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
+import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
+import javax.inject.Singleton
+
+private const val CACHE_SIZE: Long = 20 * 1024 * 1024
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -32,8 +36,14 @@ object DataProvider {
 //    fun baseUrl(): String = "http://192.168.2.21:8000/"
 
     @Provides
-    fun provideOkHttpClient(): OkHttpClient =
+    @Singleton
+    fun provideCache(@ApplicationContext context: Context) = Cache(context.cacheDir, CACHE_SIZE)
+
+
+    @Provides
+    fun provideOkHttpClient(cache: Cache): OkHttpClient =
         OkHttpClient.Builder()
+            .cache(cache)
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
 

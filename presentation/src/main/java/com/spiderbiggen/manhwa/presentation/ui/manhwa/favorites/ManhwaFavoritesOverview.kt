@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.manhwa.overview
+package com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
@@ -53,10 +52,10 @@ import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManhwaOverview(
+fun ManhwaFavoritesOverview(
     navigateToManhwa: (String) -> Unit,
-    navigateToFavorites: () -> Unit,
-    viewModel: ManhwaViewModel = viewModel()
+    navigateToOverview: () -> Unit,
+    viewModel: ManhwaFavoritesViewModel = viewModel()
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
@@ -65,9 +64,9 @@ fun ManhwaOverview(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
-    ManhwaOverview(
+    ManhwaFavoritesOverview(
         navigateToManhwa = navigateToManhwa,
-        navigateToFavorites = navigateToFavorites,
+        navigateToOverview = navigateToOverview,
         state = state,
         lazyListState = lazyListState,
         topAppBarState = topAppBarState
@@ -76,10 +75,10 @@ fun ManhwaOverview(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManhwaOverview(
+fun ManhwaFavoritesOverview(
     navigateToManhwa: (String) -> Unit,
-    navigateToFavorites: () -> Unit,
-    state: ManhwaScreenState,
+    navigateToOverview: () -> Unit,
+    state: ManhwaFavoritesScreenState,
     lazyListState: LazyListState = rememberLazyListState(),
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
@@ -87,22 +86,22 @@ fun ManhwaOverview(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Manhwa") },
+                title = { Text("Favorites") },
                 scrollBehavior = scrollBehavior,
             )
         },
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    true,
-                    {},
+                    false,
+                    navigateToOverview,
                     icon = {
                         Icon(Icons.Rounded.Search, null)
                     }
                 )
                 NavigationBarItem(
-                    false,
-                    navigateToFavorites,
+                    true,
+                    {},
                     icon = {
                         Icon(Icons.Rounded.Favorite, null)
                     }
@@ -111,22 +110,21 @@ fun ManhwaOverview(
         }
     ) { padding ->
         when (state) {
-            is ManhwaScreenState.Error,
-            ManhwaScreenState.Loading -> Box(
+            is ManhwaFavoritesScreenState.Error,
+            ManhwaFavoritesScreenState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
 
-            is ManhwaScreenState.Ready -> {
+            is ManhwaFavoritesScreenState.Ready -> {
                 LazyColumn(
                     Modifier
                         .padding(padding)
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                     state = lazyListState,
                 ) {
-
                     items(state.manhwa, key = { it.id }) {
                         Card(
                             Modifier
@@ -156,7 +154,7 @@ fun ManhwaOverview(
                                         )
                                     }
                                     Icon(
-                                        if (it.id in state.favorites) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                                        Icons.Rounded.Favorite,
                                         contentDescription = null,
                                         modifier = Modifier.padding(end = 16.dp)
                                     )
@@ -188,22 +186,18 @@ fun ManhwaOverview(
 )
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewManhwa(@PreviewParameter(ManhwaOverviewScreenStateProvider::class) state: ManhwaScreenState) {
+fun PreviewManhwa(@PreviewParameter(ManhwaOverviewScreenStateProvider::class) state: ManhwaFavoritesScreenState) {
     ManhwaReaderTheme {
-        ManhwaOverview({}, {}, state = state)
+        ManhwaFavoritesOverview({}, {}, state = state)
     }
 }
 
-class ManhwaOverviewScreenStateProvider : PreviewParameterProvider<ManhwaScreenState> {
+class ManhwaOverviewScreenStateProvider : PreviewParameterProvider<ManhwaFavoritesScreenState> {
     override val values
         get() = sequenceOf(
-            ManhwaScreenState.Loading,
-            ManhwaScreenState.Error(Throwable()),
-            ManhwaScreenState.Ready(ManhwaProvider.values.take(2).toList(), emptySet()),
-            ManhwaScreenState.Ready(
-                ManhwaProvider.values.take(2).toList(),
-                ManhwaProvider.values.take(1).map { it.id }.toSet()
-            )
+            ManhwaFavoritesScreenState.Loading,
+            ManhwaFavoritesScreenState.Error(Throwable()),
+            ManhwaFavoritesScreenState.Ready(ManhwaProvider.values.take(2).toList()),
         )
 }
 
@@ -218,7 +212,6 @@ object ManhwaProvider {
                 coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
                 description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands! There is no one that is my equal! I was drowning in futility and emptiness because there was no more that I could accomplish in the human realm. To reach the peak of martial arts, I must become a saint! “I finally succeeded!!!” “Stop! Your ascension is not permitted!” The other saints refused my ascension due to my karma after much slaughter, and I fell, just like that.\nWhen I woke up, I was 60 years in the future. I was reborn as the second lord of the Namgoong family, Namgoong Hyuk. Where has all the internal energy that I’ve accumulated gone?! Moreover, I have the Nine yin energy blockage?",
                 status = "Ongoing"
-
             )
         )
 }

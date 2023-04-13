@@ -57,7 +57,6 @@ dependencies {
 
     implementation(libs.core.ktx)
     implementation(libs.hilt)
-    implementation(libs.reflect)
     kapt(libs.hilt.compiler)
 
     implementation(libs.viewmodel.compose)
