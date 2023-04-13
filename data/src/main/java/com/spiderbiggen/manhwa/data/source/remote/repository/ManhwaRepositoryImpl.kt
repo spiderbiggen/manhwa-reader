@@ -3,11 +3,8 @@ package com.spiderbiggen.manhwa.data.source.remote.repository
 import com.spiderbiggen.manhwa.data.di.BaseUrl
 import com.spiderbiggen.manhwa.data.source.remote.ManhwaService
 import com.spiderbiggen.manhwa.data.source.remote.model.ChapterEntity
-import com.spiderbiggen.manhwa.data.source.remote.model.ChapterWithImageChunksEntity
-import com.spiderbiggen.manhwa.data.source.remote.model.ManhwaChaptersResponseEntity
 import com.spiderbiggen.manhwa.data.source.remote.model.ManhwaEntity
 import com.spiderbiggen.manhwa.domain.model.Chapter
-import com.spiderbiggen.manhwa.domain.model.ChapterWithImageChunks
 import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.domain.repository.ManhwaRepository
 import kotlinx.coroutines.flow.Flow
@@ -25,49 +22,64 @@ class ManhwaRepositoryImpl @Inject constructor(
 
     private val manhwas: MutableMap<String, Manhwa> = mutableMapOf()
     private val manhwaHasChapters: MutableMap<String, List<String>> = mutableMapOf()
-    private val chapters: MutableMap<String, Chapter> = mutableMapOf()
-    private val chapterImages: MutableMap<String, List<URL>> = mutableMapOf()
+    private val chaptersCache: MutableMap<String, Chapter> = mutableMapOf()
+
+    private suspend fun getAllManhwa(): List<Manhwa> {
+        val response = service.get().getAllManhwas()
+        if (!response.isSuccessful) {
+            return manhwas.values.toList()
+        }
+        val manhwa = response.body()?.map(::mapManhwaToDomain).orEmpty()
+        manhwa.associateByTo(manhwas, Manhwa::id)
+        return manhwa
+    }
+
+    private suspend fun getManhwa(id: String): Manhwa? =
+        manhwas[id] ?: service.get().getManhwa(id).body()
+            ?.let(::mapManhwaToDomain)
+            ?.also { manhwas[id] = it }
+
+    private suspend fun getChapters(manhwaId: String): List<Chapter> {
+        val newChapters = service.get().getManhwaChapters(manhwaId).body()
+            ?.map(::mapChapterToDomain)
+            ?: return manhwaHasChapters[manhwaId]?.mapNotNull(chaptersCache::get).orEmpty()
+        manhwaHasChapters[manhwaId] = newChapters.map(Chapter::id)
+        newChapters.associateByTo(chaptersCache, Chapter::id)
+        return newChapters
+    }
+
+    override suspend fun getChapter(manhwaId: String, chapterId: String): Chapter? =
+        chaptersCache[chapterId] ?: run {
+            getChapters(manhwaId)
+            chaptersCache[chapterId]
+        }
 
     override fun flowAllManhwa(): Flow<List<Manhwa>> = flow {
         emit(manhwas.values.sortedBy { it.title }.toList())
-        service.get().getAllManhwas().body()?.map(::mapManhwaToDomain)?.let { list ->
-            emit(list.sortedBy { it.title })
-            list.associateByTo(manhwas, Manhwa::id)
-        }
+        emit(getAllManhwa().sortedBy { it.title })
     }
 
     override fun flowSingleManhwa(id: String): Flow<Pair<Manhwa, List<Chapter>>> = flow {
-        manhwas[id]?.let { manhwa ->
-            val chapters = manhwaHasChapters[id]?.let { chapterList ->
-                chapterList.mapNotNull { chapters[it] }
-            }.orEmpty()
+        var manhwa = manhwas[id]
+        var chapters = manhwaHasChapters[id]?.mapNotNull(chaptersCache::get).orEmpty()
+        if (manhwa != null) {
             emit(manhwa to chapters)
         }
-        service.get().getManhwaChapters(id).body()?.let(::mapWithChaptersToManhwa)?.let {
-            emit(it)
-            manhwaHasChapters[id] = it.second.map(Chapter::id)
-            it.second.associateByTo(chapters, Chapter::id)
+        manhwa = getManhwa(id)
+        manhwa?.let {
+            emit(it to chapters)
         }
-
+        chapters = getChapters(id)
+        manhwa?.let {
+            emit(it to chapters)
+        }
     }
 
-    override fun getChapters(manhwaId: String): List<Chapter> =
-        manhwaHasChapters[manhwaId].orEmpty().mapNotNull { chapters[it] }
+    override fun getCachedChapters(manhwaId: String): List<Chapter> =
+        manhwaHasChapters[manhwaId]?.mapNotNull(chaptersCache::get).orEmpty()
 
-    override fun getChapterById(chapterId: String): Chapter? =
-        chapters[chapterId]
-
-    override suspend fun getChapterImages(chapterId: String): List<URL> =
-        chapterImages[chapterId]
-            ?: getChapterWithImageChunks(chapterId)?.imageChunks
-            ?: emptyList()
-
-    private suspend fun getChapterWithImageChunks(chapterId: String): ChapterWithImageChunks? {
-        val body = service.get().getChapter(chapterId).body() ?: return null
-        val withChunks = mapWithChunksToDomain(body)
-        chapterImages[chapterId] = withChunks.imageChunks
-        return withChunks
-    }
+    override fun getCachedChapter(chapterId: String): Chapter? =
+        chaptersCache[chapterId]
 
     private fun mapManhwaToDomain(manhwa: ManhwaEntity) = Manhwa(
         source = manhwa.source,
@@ -79,47 +91,16 @@ class ManhwaRepositoryImpl @Inject constructor(
         status = manhwa.status,
     )
 
-    private fun mapWithChaptersToManhwa(entity: ManhwaChaptersResponseEntity): Pair<Manhwa, List<Chapter>> {
-        val manhwa = Manhwa(
-            source = entity.source,
-            id = entity.id,
-            title = entity.title,
-            baseUrl = URL(entity.baseUrl),
-            coverImage = URL("${baseUrl}manhwas/${entity.id}/image"),
-            description = entity.description,
-            status = entity.status,
-        )
-        val chapters = entity.chapters.map(::mapChapterToDomain)
-        return manhwa to chapters
-    }
-
     private fun mapChapterToDomain(entity: ChapterEntity) = Chapter(
         id = entity.id,
         number = entity.number,
         decimal = entity.decimal,
         title = entity.title,
         url = URL(entity.url),
-    )
-
-    private fun mapWithChunksToDomain(entity: ChapterWithImageChunksEntity) =
-        ChapterWithImageChunks(
-            id = entity.id,
-            number = entity.number,
-            decimal = entity.decimal,
-            title = entity.title,
-            url = URL(entity.url),
-            imageChunks = (0 until entity.imageChunks).map {
+        images = entity.imageChunks?.let { chunks ->
+            (0 until chunks).map {
                 URL("${baseUrl}chapters/${entity.id}/images/$it")
-            },
-        )
-
-    private fun mapToWithChunks(entity: Chapter, chunks: List<URL>?) =
-        ChapterWithImageChunks(
-            id = entity.id,
-            number = entity.number,
-            decimal = entity.decimal,
-            title = entity.title,
-            url = entity.url,
-            imageChunks = chunks.orEmpty(),
-        )
+            }
+        }.orEmpty()
+    )
 }

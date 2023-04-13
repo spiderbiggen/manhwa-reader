@@ -5,6 +5,7 @@ package com.spiderbiggen.manhwa.presentation.ui.chapter.images
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -44,13 +44,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.skydoves.landscapist.glide.GlideImage
+import coil.compose.SubcomposeAsyncImage
+import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -159,6 +163,16 @@ fun ImagesOverview(
             }
 
             is ImagesScreenState.Ready -> {
+                val boxModifier = Modifier
+                    .fillMaxWidth()
+                    .height(360.dp)
+
+                ListImagePreloader(
+                    items = state.images,
+                    lazyListState = lazyListState,
+                    scope = scope,
+                    itemTransform = { it.toExternalForm() }
+                )
                 LazyColumn(
                     Modifier
                         .consumeWindowInsets(padding)
@@ -167,22 +181,22 @@ fun ImagesOverview(
                     state = lazyListState,
                 ) {
                     items(state.images) { url ->
-                        GlideImage(
-                            imageModel = { url },
+                        SubcomposeAsyncImage(
+                            model = url.toExternalForm(),
+                            contentDescription = null,
+                            modifier = Modifier.fillParentMaxWidth(),
+                            contentScale = ContentScale.FillWidth,
                             loading = {
                                 Box(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(360.dp),
+                                    boxModifier,
                                     contentAlignment = Alignment.Center
-                                ) { CircularProgressIndicator(Modifier.padding(8.dp)) }
+                                ) {
+                                    CircularProgressIndicator()
+                                }
                             },
-                            failure = {
+                            error = {
                                 Box(
-                                    Modifier
-                                        .fillMaxWidth()
-                                        .height(360.dp)
-                                        .background(MaterialTheme.colorScheme.error)
+                                    boxModifier.background(MaterialTheme.colorScheme.error)
                                 )
                             }
                         )

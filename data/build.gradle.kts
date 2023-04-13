@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.hilt)
     kapt(libs.hilt.compiler)
+
     implementation(libs.appcompat)
     implementation(libs.material)
     testImplementation(libs.junit)

@@ -8,4 +8,5 @@ data class Chapter(
     val decimal: Int?,
     val title: String?,
     val url: URL,
+    val images: List<URL>
 )

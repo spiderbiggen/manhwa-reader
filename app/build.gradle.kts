@@ -76,8 +76,8 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-    implementation(libs.glide)
-    ksp(libs.glide.compiler)
+    implementation(libs.coil.bom)
+    implementation(libs.coil)
 }
 
 kapt {

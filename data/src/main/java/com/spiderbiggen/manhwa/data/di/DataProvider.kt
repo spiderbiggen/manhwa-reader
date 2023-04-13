@@ -29,6 +29,7 @@ object DataProvider {
     @Provides
     @BaseUrl
     fun baseUrl(): String = "https://api.spiderbiggen.com/manhwa/"
+//    fun baseUrl(): String = "http://192.168.2.21:8000/"
 
     @Provides
     fun provideOkHttpClient(): OkHttpClient =

@@ -9,7 +9,7 @@ interface ManhwaRepository {
     fun flowAllManhwa(): Flow<List<Manhwa>>
     fun flowSingleManhwa(id: String): Flow<Pair<Manhwa, List<Chapter>>>
 
-    fun getChapters(manhwaId: String): List<Chapter>
-    fun getChapterById(chapterId: String): Chapter?
-    suspend fun getChapterImages(chapterId: String): List<URL>
+    fun getCachedChapters(manhwaId: String): List<Chapter>
+    fun getCachedChapter(chapterId: String): Chapter?
+    suspend fun getChapter(manhwaId: String, chapterId: String): Chapter?
 }

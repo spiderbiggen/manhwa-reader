@@ -22,23 +22,24 @@ class ImagesViewModel @Inject constructor(
 
     private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
     private val chapterId: String = checkNotNull(savedStateHandle["chapterId"])
-    private val title: String = getTitle()
     private var favorite: Boolean = favoritesRepository.isFavorite(manhwaId)
+    private lateinit var surrounding: SurroundingChapters
     private val previous: String?
+        get() = surrounding.previous
     private val next: String?
+        get() = surrounding.next
+
 
     init {
-        val surrounding = getSurroundingChapters()
-        previous = surrounding.first
-        next = surrounding.second
+        updateSurroundingChapters()
     }
 
-    private val mutableState =
+    private val mutableState by lazy {
         MutableStateFlow<ImagesScreenState>(
-            ImagesScreenState.Loading(
-                title, previous, next, favorite
-            )
+            ImagesScreenState.Loading(getTitle(), previous, next, favorite)
         )
+    }
+
     val state
         get() = mutableState.asStateFlow()
 
@@ -46,8 +47,17 @@ class ImagesViewModel @Inject constructor(
     suspend fun collect() {
         withContext(Dispatchers.IO) {
             launch {
-                val images = manhwaRepository.getChapterImages(chapterId)
-                mutableState.emit(ImagesScreenState.Ready(title, previous, next, favorite, images))
+                val images = manhwaRepository.getChapter(manhwaId, chapterId)?.images.orEmpty()
+                updateSurroundingChapters()
+                mutableState.emit(
+                    ImagesScreenState.Ready(
+                        title = getTitle(),
+                        previous = previous,
+                        next = next,
+                        isFavorite = favorite,
+                        images = images
+                    )
+                )
             }
         }
     }
@@ -64,17 +74,19 @@ class ImagesViewModel @Inject constructor(
         }
     }
 
-    private fun getSurroundingChapters(): Pair<String?, String?> {
-        val chapters = manhwaRepository.getChapters(manhwaId)
-        val index = chapters.indexOfFirst { it.id == chapterId }.takeUnless { it < 0 }
-            ?: return null to null
+    private fun updateSurroundingChapters() {
+        val chapters = manhwaRepository.getCachedChapters(manhwaId)
+        val index = chapters.indexOfFirst { it.id == chapterId }
+        if (index < 0) {
+            surrounding = SurroundingChapters()
+        }
 
         val previous = chapters.getOrNull(index + 1)
         val next = chapters.getOrNull(index - 1)
-        return previous?.id to next?.id
+        surrounding = SurroundingChapters(previous?.id, next?.id)
     }
 
-    private fun getTitle(): String = manhwaRepository.getChapterById(chapterId)?.let { item ->
+    private fun getTitle(): String = manhwaRepository.getCachedChapter(chapterId)?.let { item ->
         StringBuilder("Chapter ").apply {
             append(item.number)
             item.decimal?.let {
@@ -85,4 +97,6 @@ class ImagesViewModel @Inject constructor(
             }
         }.toString()
     } ?: "Chapter ?"
+
+    private data class SurroundingChapters(val previous: String? = null, val next: String? = null)
 }
