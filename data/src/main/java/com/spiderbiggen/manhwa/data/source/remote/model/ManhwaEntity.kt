@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.data.source.remote.model
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -14,4 +15,6 @@ data class ManhwaEntity(
     val coverImage: String,
     val description: String? = null,
     val status: String,
+    @SerialName("updated_at")
+    val updatedAt: LocalDate? = null,
 )

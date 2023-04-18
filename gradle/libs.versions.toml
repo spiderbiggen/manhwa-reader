@@ -51,6 +51,7 @@ dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", versi
 okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version = "4.10.0" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version = "2.9.0" }
 kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.5.0" }
+kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.4.0" }
 jakewharton-retrofit = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "0.8.0" }
 
 coil-bom = { group = "io.coil-kt", name = "coil-bom", version.ref = "coil-bom" }
@@ -62,7 +63,7 @@ reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "com-android-application" }
 com-android-library = { id = "com.android.library", version.ref = "com-android-library" }
-com-google-ksp = {id = "com.google.devtools.ksp", version = "1.8.10-1.0.9"}
+com-google-ksp = {id = "com.google.devtools.ksp", version = "1.8.20-1.0.10"}
 com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

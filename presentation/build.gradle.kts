@@ -3,7 +3,6 @@ plugins {
     alias(libs.plugins.com.android.library)
     alias(libs.plugins.org.jetbrains.kotlin.android)
     alias(libs.plugins.com.google.hilt.android)
-    alias(libs.plugins.com.google.ksp)
 }
 
 android {
@@ -78,6 +77,8 @@ dependencies {
     implementation(libs.coil.bom)
     implementation(libs.coil)
     implementation(libs.coil.compose)
+
+    implementation(libs.kotlinx.datetime)
 }
 
 kapt {

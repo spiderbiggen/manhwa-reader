@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.domain.model
 
+import kotlinx.datetime.LocalDate
 import java.net.URL
 
 data class Manhwa(
@@ -10,4 +11,5 @@ data class Manhwa(
     val coverImage: URL,
     val description: String?,
     val status: String,
+    val updatedAt: LocalDate?
 )

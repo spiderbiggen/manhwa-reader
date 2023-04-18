@@ -51,6 +51,7 @@ dependencies {
     implementation(libs.okhttp3.logging)
     implementation(libs.retrofit)
     implementation(libs.kotlinx.serialization)
+    implementation(libs.kotlinx.datetime)
     implementation(libs.jakewharton.retrofit)
 }
 

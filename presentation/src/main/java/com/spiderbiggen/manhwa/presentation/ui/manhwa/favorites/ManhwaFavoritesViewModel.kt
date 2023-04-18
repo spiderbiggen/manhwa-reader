@@ -18,7 +18,8 @@ class ManhwaFavoritesViewModel @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
 ) : ViewModel() {
 
-    private val mutableState = MutableStateFlow<ManhwaFavoritesScreenState>(ManhwaFavoritesScreenState.Loading)
+    private val mutableState =
+        MutableStateFlow<ManhwaFavoritesScreenState>(ManhwaFavoritesScreenState.Loading)
     val state
         get() = mutableState.asStateFlow()
 
@@ -35,5 +36,7 @@ class ManhwaFavoritesViewModel @Inject constructor(
     }
 
     private fun mapResponse(response: List<Manhwa>, favorites: Set<String>): List<Manhwa> =
-        response.filter { it.id in favorites }.sortedBy { it.status == "Dropped" }
+        response.filter { it.id in favorites }
+            .sortedByDescending { it.updatedAt }
+            .sortedBy { it.status == "Dropped" }
 }

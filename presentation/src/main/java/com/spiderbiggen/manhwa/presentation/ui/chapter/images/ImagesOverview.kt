@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalLayoutApi::class)
-
 package com.spiderbiggen.manhwa.presentation.ui.chapter.images
 
 import androidx.compose.foundation.background
@@ -24,11 +22,9 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -36,15 +32,16 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -52,9 +49,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import java.net.URL
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,8 +57,7 @@ fun ImagesOverview(
     toChapterClicked: (String) -> Unit,
     viewModel: ImagesViewModel = viewModel()
 ) {
-    val scope = rememberCoroutineScope()
-    LaunchedEffect(null) {
+    LaunchedEffect(true) {
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -76,7 +69,6 @@ fun ImagesOverview(
         toChapterClicked,
         viewModel::toggleFavorite,
         state,
-        scope,
         lazyListState,
         topAppBarState
     )
@@ -89,7 +81,6 @@ fun ImagesOverview(
     toChapterClicked: (String) -> Unit,
     toggleFavorite: () -> Unit,
     state: ImagesScreenState,
-    scope: CoroutineScope = rememberCoroutineScope(),
     lazyListState: LazyListState = rememberLazyListState(),
     topAppBarState: TopAppBarState = rememberTopAppBarState()
 ) {
@@ -134,18 +125,6 @@ fun ImagesOverview(
                         Icon(Icons.Rounded.KeyboardArrowRight, null)
                     }
                 },
-                floatingActionButton = {
-                    FloatingActionButton(
-                        onClick = {
-                            scope.launch {
-                                topAppBarState.heightOffset = 0F
-                                lazyListState.animateScrollToItem(0)
-                            }
-                        }
-                    ) {
-                        Icon(Icons.Rounded.KeyboardArrowUp, null)
-                    }
-                }
             )
         },
         contentWindowInsets = WindowInsets.navigationBars,
@@ -162,49 +141,68 @@ fun ImagesOverview(
                 }
             }
 
-            is ImagesScreenState.Ready -> {
-                val boxModifier = Modifier
-                    .fillMaxWidth()
-                    .height(360.dp)
+            is ImagesScreenState.Ready -> ReadyImagesOverview(
+                state,
+                lazyListState,
+                padding,
+                scrollBehavior
+            )
 
-                ListImagePreloader(
-                    items = state.images,
-                    lazyListState = lazyListState,
-                    scope = scope,
-                    itemTransform = { it.toExternalForm() }
-                )
-                LazyColumn(
-                    Modifier
-                        .consumeWindowInsets(padding)
-                        .nestedScroll(scrollBehavior.nestedScrollConnection),
-                    contentPadding = padding,
-                    state = lazyListState,
-                ) {
-                    items(state.images) { url ->
-                        SubcomposeAsyncImage(
-                            model = url.toExternalForm(),
-                            contentDescription = null,
-                            modifier = Modifier.fillParentMaxWidth(),
-                            contentScale = ContentScale.FillWidth,
-                            loading = {
-                                Box(
-                                    boxModifier,
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            },
-                            error = {
-                                Box(
-                                    boxModifier.background(MaterialTheme.colorScheme.error)
-                                )
-                            }
-                        )
-                    }
-                }
-            }
-
-            else -> {}
+            is ImagesScreenState.Error -> {}
         }
     }
 }
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+private fun ReadyImagesOverview(
+    state: ImagesScreenState.Ready,
+    lazyListState: LazyListState,
+    padding: PaddingValues,
+    scrollBehavior: TopAppBarScrollBehavior
+) {
+    val images by remember { derivedStateOf { state.images.map { it.toExternalForm() } } }
+    ListImagePreloader(
+        items = images,
+        lazyListState = lazyListState
+    )
+    LazyColumn(
+        Modifier
+            .consumeWindowInsets(padding)
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        contentPadding = padding,
+        state = lazyListState,
+    ) {
+        items(images) {
+            ListImage(it, Modifier.fillParentMaxWidth())
+        }
+    }
+}
+
+private val boxModifier = Modifier
+    .fillMaxWidth()
+    .height(360.dp)
+
+@Composable
+private fun ListImage(model: String, modifier: Modifier = Modifier) {
+    SubcomposeAsyncImage(
+        model = model,
+        contentDescription = null,
+        modifier = modifier,
+        contentScale = ContentScale.FillWidth,
+        loading = {
+            Box(
+                boxModifier,
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        },
+        error = {
+            Box(
+                boxModifier.background(MaterialTheme.colorScheme.error)
+            )
+        }
+    )
+}
+

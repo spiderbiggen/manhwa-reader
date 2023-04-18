@@ -1,0 +1,75 @@
+package com.spiderbiggen.manhwa.presentation.components
+
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Favorite
+import androidx.compose.material.icons.rounded.FavoriteBorder
+import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.Card
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import com.spiderbiggen.manhwa.domain.model.Manhwa
+
+@Composable
+fun ManhwaRow(manhwa: Manhwa, isFavorite: Boolean, navigateToManhwa: (String) -> Unit) {
+    Card(
+        Modifier
+            .padding(8.dp)
+            .fillMaxWidth()
+            .clickable { navigateToManhwa(manhwa.id) }
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            AsyncImage(
+                model = manhwa.coverImage.toExternalForm(),
+                contentDescription = null,
+                modifier = Modifier
+                    .height(96.dp)
+                    .width(72.dp),
+                alignment = Alignment.CenterStart
+            )
+            Column(
+                Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
+            ) {
+                Text(
+                    manhwa.title,
+                    style = MaterialTheme.typography.bodyLarge,
+                )
+                manhwa.updatedAt?.let {
+                    Text(
+                        it.toString(),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
+                }
+            }
+            if (manhwa.status == "Dropped") {
+                Icon(
+                    Icons.Rounded.Warning,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+            Icon(
+                if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                contentDescription = null,
+                modifier = Modifier.padding(end = 16.dp)
+            )
+        }
+    }
+}

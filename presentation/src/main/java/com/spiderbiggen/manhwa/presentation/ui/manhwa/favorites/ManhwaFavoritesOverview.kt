@@ -1,15 +1,9 @@
 package com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -18,12 +12,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.Warning
-import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -42,12 +33,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
 import com.spiderbiggen.manhwa.domain.model.Manhwa
+import com.spiderbiggen.manhwa.presentation.components.ManhwaRow
 import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.net.URL
 
 
@@ -136,42 +129,8 @@ fun ManhwaFavoritesOverview(
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                     state = lazyListState,
                 ) {
-                    items(state.manhwa, key = { it.id }) {
-                        Card(
-                            Modifier
-                                .padding(8.dp)
-                                .fillMaxWidth()
-                                .clickable { navigateToManhwa(it.id) }
-                        ) {
-                            Box(contentAlignment = Alignment.CenterEnd) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(16.dp)
-                                ) {
-                                    AsyncImage(
-                                        model = it.coverImage.toExternalForm(),
-                                        contentDescription = null,
-                                        modifier = Modifier
-                                            .height(96.dp)
-                                            .width(72.dp),
-                                        alignment = Alignment.CenterStart
-                                    )
-                                    Text(it.title, Modifier.weight(1F))
-                                    if (it.status == "Dropped") {
-                                        Icon(
-                                            Icons.Rounded.Warning,
-                                            contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.error,
-                                        )
-                                    }
-                                    Icon(
-                                        Icons.Rounded.Favorite,
-                                        contentDescription = null,
-                                        modifier = Modifier.padding(end = 16.dp)
-                                    )
-                                }
-                            }
-                        }
+                    items(state.manhwa, key = { it.id }) { manhwa ->
+                        ManhwaRow(manhwa, true, navigateToManhwa)
                     }
                 }
             }
@@ -222,7 +181,8 @@ object ManhwaProvider {
                 baseUrl = URL("https://www.asurascans.com/manga/1672760368-heavenly-martial-god/"),
                 coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
                 description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands! There is no one that is my equal! I was drowning in futility and emptiness because there was no more that I could accomplish in the human realm. To reach the peak of martial arts, I must become a saint! “I finally succeeded!!!” “Stop! Your ascension is not permitted!” The other saints refused my ascension due to my karma after much slaughter, and I fell, just like that.\nWhen I woke up, I was 60 years in the future. I was reborn as the second lord of the Namgoong family, Namgoong Hyuk. Where has all the internal energy that I’ve accumulated gone?! Moreover, I have the Nine yin energy blockage?",
-                status = "Ongoing"
+                status = "Ongoing",
+                updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
             )
         )
 }

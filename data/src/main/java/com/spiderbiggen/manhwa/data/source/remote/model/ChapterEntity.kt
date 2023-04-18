@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.data.source.remote.model
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -10,6 +11,7 @@ data class ChapterEntity(
     val decimal: Int? = null,
     val title: String? = null,
     val url: String,
+    val date: LocalDate? = null,
     @SerialName("indexed_images")
-    val imageChunks: Int?
+    val imageChunks: Int? = null
 )

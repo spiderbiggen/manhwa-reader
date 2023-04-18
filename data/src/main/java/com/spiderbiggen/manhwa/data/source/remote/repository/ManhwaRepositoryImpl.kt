@@ -89,6 +89,7 @@ class ManhwaRepositoryImpl @Inject constructor(
         coverImage = URL("${baseUrl}manhwas/${manhwa.id}/image"),
         description = manhwa.description?.trim(),
         status = manhwa.status.trim(),
+        updatedAt = manhwa.updatedAt
     )
 
     private fun mapChapterToDomain(entity: ChapterEntity) = Chapter(
@@ -96,7 +97,7 @@ class ManhwaRepositoryImpl @Inject constructor(
         number = entity.number,
         decimal = entity.decimal,
         title = entity.title?.trim(),
-        url = URL(entity.url),
+        date = entity.date,
         images = entity.imageChunks?.let { chunks ->
             (0 until chunks).map {
                 URL("${baseUrl}chapters/${entity.id}/images/$it")
