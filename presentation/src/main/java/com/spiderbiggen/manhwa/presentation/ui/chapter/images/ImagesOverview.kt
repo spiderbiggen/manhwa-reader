@@ -92,33 +92,11 @@ fun ImagesOverview(
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
 
-    val title by remember {
-        derivedStateOf {
-            when (state) {
-                is ImagesScreenState.Error -> ""
-                ImagesScreenState.Loading -> ""
-                is ImagesScreenState.Ready -> state.title
-            }
-        }
-    }
-
-    val isFavorite by remember {
-        derivedStateOf {
-            when (state) {
-                is ImagesScreenState.Error -> false
-                ImagesScreenState.Loading -> false
-                is ImagesScreenState.Ready -> state.isFavorite
-            }
-        }
-    }
-
-    val surrounding by remember {
-        derivedStateOf {
-            when (state) {
-                is ImagesScreenState.Error -> null
-                ImagesScreenState.Loading -> null
-                is ImagesScreenState.Ready -> state.surrounding
-            }
+    val (title, isFavorite, surrounding) = remember(state) {
+        when (state) {
+            is ImagesScreenState.Error,
+            ImagesScreenState.Loading -> Triple("", false, null)
+            is ImagesScreenState.Ready -> Triple(state.title, state.isFavorite, state.surrounding)
         }
     }
 
