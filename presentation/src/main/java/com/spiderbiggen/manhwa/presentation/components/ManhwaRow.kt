@@ -22,9 +22,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.spiderbiggen.manhwa.domain.model.Manhwa
+import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 
 @Composable
 fun ManhwaRow(manhwa: Manhwa, isFavorite: Boolean, navigateToManhwa: (String) -> Unit) {
+
+}
+
+
+
+@Composable
+fun ManhwaRow(manhwa: ManhwaViewData, navigateToManhwa: (String) -> Unit) {
     Card(
         Modifier
             .padding(8.dp)
@@ -36,7 +44,7 @@ fun ManhwaRow(manhwa: Manhwa, isFavorite: Boolean, navigateToManhwa: (String) ->
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             AsyncImage(
-                model = manhwa.coverImage.toExternalForm(),
+                model = manhwa.coverImage,
                 contentDescription = null,
                 modifier = Modifier
                     .height(96.dp)
@@ -53,7 +61,7 @@ fun ManhwaRow(manhwa: Manhwa, isFavorite: Boolean, navigateToManhwa: (String) ->
                 )
                 manhwa.updatedAt?.let {
                     Text(
-                        it.toString(),
+                        it,
                         style = MaterialTheme.typography.bodySmall,
                     )
                 }
@@ -66,7 +74,7 @@ fun ManhwaRow(manhwa: Manhwa, isFavorite: Boolean, navigateToManhwa: (String) ->
                 )
             }
             Icon(
-                if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                if (manhwa.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                 contentDescription = null,
                 modifier = Modifier.padding(end = 16.dp)
             )

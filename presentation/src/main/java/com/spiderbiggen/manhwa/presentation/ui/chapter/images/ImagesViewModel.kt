@@ -2,101 +2,84 @@ package com.spiderbiggen.manhwa.presentation.ui.chapter.images
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import com.spiderbiggen.manhwa.domain.repository.FavoritesRepository
-import com.spiderbiggen.manhwa.domain.repository.ManhwaRepository
+import com.spiderbiggen.manhwa.domain.model.AppError
+import com.spiderbiggen.manhwa.domain.model.Chapter
+import com.spiderbiggen.manhwa.domain.model.Either
+import com.spiderbiggen.manhwa.domain.model.SurroundingChapters
+import com.spiderbiggen.manhwa.domain.model.leftOr
+import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapter
+import com.spiderbiggen.manhwa.domain.usecase.chapter.GetSurroundingChapters
+import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
+import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ImagesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val manhwaRepository: ManhwaRepository,
-    private val favoritesRepository: FavoritesRepository,
+    private val getChapter: GetChapter,
+    private val getSurroundingChapters: GetSurroundingChapters,
+    private val isFavorite: IsFavorite,
+    private val toggleFavorite: ToggleFavorite,
 ) : ViewModel() {
 
     private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
     private val chapterId: String = checkNotNull(savedStateHandle["chapterId"])
-    private var favorite: Boolean = favoritesRepository.isFavorite(manhwaId)
-    private lateinit var surrounding: SurroundingChapters
-    private val previous: String?
-        get() = surrounding.previous
-    private val next: String?
-        get() = surrounding.next
+    private var surrounding = SurroundingChapters()
 
 
-    init {
-        updateSurroundingChapters()
-    }
-
-    private val mutableState by lazy {
-        MutableStateFlow<ImagesScreenState>(
-            ImagesScreenState.Loading(getTitle(), previous, next, favorite)
-        )
-    }
+    private val mutableState = MutableStateFlow<ImagesScreenState>(ImagesScreenState.Loading)
 
     val state
         get() = mutableState.asStateFlow()
 
 
     suspend fun collect() {
+        updateScreenState()
+    }
+
+    suspend fun toggleFavorite() {
+        toggleFavorite(manhwaId)
+        updateScreenState()
+    }
+
+    private suspend fun updateScreenState() {
         withContext(Dispatchers.IO) {
-            launch {
-                val images = manhwaRepository.getChapter(manhwaId, chapterId)?.images.orEmpty()
-                updateSurroundingChapters()
-                mutableState.emit(
+            val eitherChapter = getChapter(manhwaId, chapterId)
+            mutableState.emit(when (eitherChapter) {
+                is Either.Left -> {
+                    surrounding = getSurroundingChapters(manhwaId, chapterId).leftOr(surrounding)
+                    val isFavorite = isFavorite(manhwaId).leftOr(false)
+
                     ImagesScreenState.Ready(
-                        title = getTitle(),
-                        previous = previous,
-                        next = next,
-                        isFavorite = favorite,
-                        images = images
+                        title = getTitle(eitherChapter.left),
+                        surrounding = surrounding,
+                        isFavorite = isFavorite,
+                        images = eitherChapter.left.images.map { it.toExternalForm() }
                     )
-                )
-            }
+                }
+
+                is Either.Right -> mapError(eitherChapter.right)
+            })
         }
     }
 
-    fun toggleFavorite() {
-        favorite = !favoritesRepository.isFavorite(manhwaId)
-        favoritesRepository.setFavorite(manhwaId, favorite)
-        mutableState.update {
-            when (it) {
-                is ImagesScreenState.Error -> it.copy(isFavorite = favorite)
-                is ImagesScreenState.Loading -> it.copy(isFavorite = favorite)
-                is ImagesScreenState.Ready -> it.copy(isFavorite = favorite)
-            }
-        }
-    }
-
-    private fun updateSurroundingChapters() {
-        val chapters = manhwaRepository.getCachedChapters(manhwaId)
-        val index = chapters.indexOfFirst { it.id == chapterId }
-        if (index < 0) {
-            surrounding = SurroundingChapters()
-        }
-
-        val previous = chapters.getOrNull(index + 1)
-        val next = chapters.getOrNull(index - 1)
-        surrounding = SurroundingChapters(previous?.id, next?.id)
-    }
-
-    private fun getTitle(): String = manhwaRepository.getCachedChapter(chapterId)?.let { item ->
+    private fun getTitle(chapter: Chapter): String =
         StringBuilder("Chapter ").apply {
-            append(item.number)
-            item.decimal?.let {
+            append(chapter.number)
+            chapter.decimal?.let {
                 append('.').append(it)
             }
-            item.title?.let {
+            chapter.title?.let {
                 append(" - ").append(it)
             }
         }.toString()
-    } ?: "Chapter ?"
 
-    private data class SurroundingChapters(val previous: String? = null, val next: String? = null)
+    private fun mapError(error: AppError): ImagesScreenState.Error =
+        ImagesScreenState.Error("An error occurred")
+
 }

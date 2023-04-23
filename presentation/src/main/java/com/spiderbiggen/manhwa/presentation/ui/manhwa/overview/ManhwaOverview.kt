@@ -37,14 +37,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
 import com.spiderbiggen.manhwa.presentation.components.ManhwaRow
+import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import java.net.URL
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -126,7 +122,7 @@ fun ManhwaOverview(
             }
 
             is ManhwaScreenState.Ready -> {
-                val images by remember { derivedStateOf { state.manhwa.map { it.coverImage.toExternalForm() } } }
+                val images by remember { derivedStateOf { state.manhwa.map { it.coverImage } } }
                 ListImagePreloader(
                     items = images,
                     visibleCount = 7,
@@ -140,10 +136,7 @@ fun ManhwaOverview(
                     state = lazyListState,
                 ) {
                     items(state.manhwa, key = { it.id }) { manhwa ->
-                        val isFavorite by remember {
-                            derivedStateOf { state.favorites.contains(manhwa.id) }
-                        }
-                        ManhwaRow(manhwa, isFavorite, navigateToManhwa)
+                        ManhwaRow(manhwa, navigateToManhwa)
                     }
                 }
             }
@@ -179,11 +172,10 @@ class ManhwaOverviewScreenStateProvider : PreviewParameterProvider<ManhwaScreenS
     override val values
         get() = sequenceOf(
             ManhwaScreenState.Loading,
-            ManhwaScreenState.Error(Throwable()),
-            ManhwaScreenState.Ready(ManhwaProvider.values.take(2).toList(), emptySet()),
+            ManhwaScreenState.Error("An error occurred"),
+            ManhwaScreenState.Ready(ManhwaProvider.values.take(2).toList()),
             ManhwaScreenState.Ready(
-                ManhwaProvider.values.take(2).toList(),
-                ManhwaProvider.values.take(1).map { it.id }.toSet()
+                ManhwaProvider.values.toList()
             )
         )
 }
@@ -191,25 +183,23 @@ class ManhwaOverviewScreenStateProvider : PreviewParameterProvider<ManhwaScreenS
 object ManhwaProvider {
     val values
         get() = sequenceOf(
-            Manhwa(
+            ManhwaViewData(
                 source = "Asura",
                 id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
                 title = "Heavenly Martial God",
-                baseUrl = URL("https://www.asurascans.com/manga/1672760368-heavenly-martial-god/"),
-                coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
-                description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands! There is no one that is my equal! I was drowning in futility and emptiness because there was no more that I could accomplish in the human realm. To reach the peak of martial arts, I must become a saint! “I finally succeeded!!!” “Stop! Your ascension is not permitted!” The other saints refused my ascension due to my karma after much slaughter, and I fell, just like that.\nWhen I woke up, I was 60 years in the future. I was reborn as the second lord of the Namgoong family, Namgoong Hyuk. Where has all the internal energy that I’ve accumulated gone?! Moreover, I have the Nine yin energy blockage?",
+                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Ongoing",
-                updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+                updatedAt = "2023-04-23",
+                isFavorite = false
             ),
-            Manhwa(
+            ManhwaViewData(
                 source = "Asura",
                 id = "7df204a8-2d37-42d1-a2e0-e795ae618389",
                 title = "Heavenly Martial God",
-                baseUrl = URL("https://www.asurascans.com/manga/1672760368-heavenly-martial-god/"),
-                coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
-                description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands! There is no one that is my equal! I was drowning in futility and emptiness because there was no more that I could accomplish in the human realm. To reach the peak of martial arts, I must become a saint! “I finally succeeded!!!” “Stop! Your ascension is not permitted!” The other saints refused my ascension due to my karma after much slaughter, and I fell, just like that.\nWhen I woke up, I was 60 years in the future. I was reborn as the second lord of the Namgoong family, Namgoong Hyuk. Where has all the internal energy that I’ve accumulated gone?! Moreover, I have the Nine yin energy blockage?",
+                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Dropped",
-                updatedAt = null
+                updatedAt = null,
+                isFavorite = true
             )
         )
 }

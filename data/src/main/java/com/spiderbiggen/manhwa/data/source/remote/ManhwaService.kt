@@ -8,14 +8,14 @@ import retrofit2.http.Path
 
 interface ManhwaService {
     @GET("manhwas")
-    suspend fun getAllManhwas(): Response<List<ManhwaEntity>>
+    suspend fun getAllManhwas(): List<ManhwaEntity>
 
     @GET("manhwas/{id}")
-    suspend fun getManhwa(@Path("id") id: String): Response<ManhwaEntity>
+    suspend fun getManhwa(@Path("id") id: String): ManhwaEntity
 
     @GET("manhwas/{id}/chapters")
-    suspend fun getManhwaChapters(@Path("id") id: String): Response<List<ChapterEntity>>
+    suspend fun getManhwaChapters(@Path("id") id: String): List<ChapterEntity>
 
     @GET("chapters/{id}")
-    suspend fun getChapter(@Path("id") id: String): Response<ChapterEntity>
+    suspend fun getChapter(@Path("id") id: String): ChapterEntity
 }

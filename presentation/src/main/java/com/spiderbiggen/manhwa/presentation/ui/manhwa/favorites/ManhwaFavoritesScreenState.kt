@@ -1,9 +1,9 @@
 package com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites
 
-import com.spiderbiggen.manhwa.domain.model.Manhwa
+import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 
 sealed interface ManhwaFavoritesScreenState {
     object Loading : ManhwaFavoritesScreenState
-    data class Ready(val manhwa: List<Manhwa>) : ManhwaFavoritesScreenState
-    data class Error(val error: Throwable) : ManhwaFavoritesScreenState
+    data class Ready(val manhwa: List<ManhwaViewData>) : ManhwaFavoritesScreenState
+    data class Error(val message: String) : ManhwaFavoritesScreenState
 }

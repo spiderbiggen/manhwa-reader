@@ -231,7 +231,7 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
     override val values
         get() = sequenceOf(
             ChapterScreenState.Loading,
-            ChapterScreenState.Error(Throwable()),
+            ChapterScreenState.Error("An error occurred"),
             ChapterScreenState.Ready(ManhwaProvider.value, ChapterProvider.values.toList()),
         )
 }
