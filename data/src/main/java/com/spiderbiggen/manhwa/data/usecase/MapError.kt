@@ -1,26 +1,31 @@
 package com.spiderbiggen.manhwa.data.usecase
 
 import com.spiderbiggen.manhwa.domain.model.AppError
+import com.spiderbiggen.manhwa.domain.model.Either
 import okhttp3.internal.http2.ConnectionShutdownException
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import javax.inject.Inject
 
-class MapError @Inject constructor() {
-    operator fun invoke(throwable: Throwable): AppError = when (throwable) {
-        is HttpException -> {
-            when (val code = throwable.code()) {
-                404 -> AppError.Remote.NotFound
-                else -> AppError.Remote.Http(code, throwable.message)
-            }
+fun Throwable.toAppError(): AppError = when (this) {
+    is HttpException -> {
+        when (val code = this.code()) {
+            404 -> AppError.Remote.NotFound
+            else -> AppError.Remote.Http(code, this.message)
         }
-
-        is SocketTimeoutException -> AppError.Remote.NoConnection
-        is UnknownHostException -> AppError.Remote.NoConnection
-        is ConnectionShutdownException -> AppError.Remote.NoConnection
-
-        is Exception -> AppError.Unknown(throwable)
-        else -> throw throwable
     }
+
+    is SocketTimeoutException -> AppError.Remote.NoConnection
+    is UnknownHostException -> AppError.Remote.NoConnection
+    is ConnectionShutdownException -> AppError.Remote.NoConnection
+
+    is Exception -> AppError.Unknown(this)
+    else -> throw this
+}
+
+fun <L> Result<L>.either(): Either<L, AppError> {
+    return fold(
+        { Either.Left(it) },
+        { Either.Right(it.toAppError()) }
+    )
 }

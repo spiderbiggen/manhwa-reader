@@ -60,6 +60,8 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose" }
 
 reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
+accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version = "0.30.1" }
+
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "com-android-application" }
 com-android-library = { id = "com.android.library", version.ref = "com-android-library" }

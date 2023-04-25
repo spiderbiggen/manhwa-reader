@@ -79,6 +79,8 @@ dependencies {
     implementation(libs.coil.compose)
 
     implementation(libs.kotlinx.datetime)
+
+    implementation(libs.accompanist.systemui)
 }
 
 kapt {

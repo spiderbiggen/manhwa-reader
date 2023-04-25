@@ -21,19 +21,19 @@ class ManhwaRepository @Inject constructor(
     private val manhwaHasChapters: MutableMap<String, List<String>> = mutableMapOf()
     private val chaptersCache: MutableMap<String, Chapter> = mutableMapOf()
 
-    suspend fun getManhwa(): Result<List<Manhwa>> {
+    suspend fun getManhwas(): Result<List<Manhwa>> {
         return if (manhwas.isNotEmpty()) {
             Result.success(manhwas.values.toList())
         } else {
-            loadManhwa()
+            loadManhwas()
         }
     }
 
     suspend fun getManhwa(manhwaId: String): Result<Manhwa?> {
-        return getManhwa().map { manhwa -> manhwa.find { it.id == manhwaId } }
+        return getManhwas().map { manhwa -> manhwa.find { it.id == manhwaId } }
     }
 
-    suspend fun loadManhwa(): Result<List<Manhwa>> = runCatching {
+    suspend fun loadManhwas(): Result<List<Manhwa>> = runCatching {
         val manhwa = service.get().getAllManhwas().map(::mapManhwaToDomain)
         manhwa.associateByTo(manhwas, Manhwa::id)
         manhwa

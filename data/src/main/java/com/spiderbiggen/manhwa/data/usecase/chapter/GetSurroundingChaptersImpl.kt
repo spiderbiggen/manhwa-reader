@@ -1,6 +1,5 @@
 package com.spiderbiggen.manhwa.data.usecase.chapter
 
-import com.spiderbiggen.manhwa.data.usecase.MapError
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.SurroundingChapters
@@ -10,8 +9,7 @@ import com.spiderbiggen.manhwa.domain.usecase.chapter.GetSurroundingChapters
 import javax.inject.Inject
 
 class GetSurroundingChaptersImpl @Inject constructor(
-    private val getChapters: GetChapters,
-    private val mapError: MapError
+    private val getChapters: GetChapters
 ) : GetSurroundingChapters {
     override suspend fun invoke(
         manhwaId: String,

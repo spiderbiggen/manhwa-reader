@@ -5,9 +5,15 @@ sealed interface Either<L, R> {
     data class Right<L, R>(val right: R) : Either<L, R>
 }
 
-inline fun <L, O, R> Either<L, R>.mapLeft(crossinline block: (L) -> O): Either<O, R> =
+inline fun <L, O, R> Either<L, R>.mapLeft(block: (L) -> O): Either<O, R> =
     when (this) {
         is Either.Left -> Either.Left(block(this.left))
+        is Either.Right -> Either.Right(this.right)
+    }
+
+inline fun <L, O, R> Either<L, R>.andThenLeft(block: (L) -> Either<O, R>): Either<O, R> =
+    when (this) {
+        is Either.Left -> block(this.left)
         is Either.Right -> Either.Right(this.right)
     }
 
@@ -17,19 +23,19 @@ fun <L, R> Either<L, R>.leftOr(default: L): L =
         is Either.Right -> default
     }
 
-inline fun <L, R> Either<L, R>.leftOrElse(crossinline block: () -> L): L =
+inline fun <L, R> Either<L, R>.leftOrElse(block: () -> L): L =
     when (this) {
         is Either.Left -> this.left
         is Either.Right -> block()
     }
 
-inline fun <L, R> Either<L, R>.leftFlip(crossinline block: (L) -> R): R =
+inline fun <L, R> Either<L, R>.leftFlip(block: (L) -> R): R =
     when (this) {
         is Either.Left -> block(this.left)
         is Either.Right -> this.right
     }
 
-inline fun <L, R, O> Either<L, R>.mapRight(crossinline block: (R) -> O): Either<L, O> =
+inline fun <L, R, O> Either<L, R>.mapRight(block: (R) -> O): Either<L, O> =
     when (this) {
         is Either.Left -> Either.Left(this.left)
         is Either.Right -> Either.Right(block(this.right))
@@ -41,13 +47,13 @@ fun <L, R> Either<L, R>.rightOr(default: R): R =
         is Either.Right -> this.right
     }
 
-inline fun <L, R> Either<L, R>.rightOrElse(crossinline block: () -> R): R =
+inline fun <L, R> Either<L, R>.rightOrElse(block: () -> R): R =
     when (this) {
         is Either.Left -> block()
         is Either.Right -> this.right
     }
 
-inline fun <L, R> Either<L, R>.rightFlip(crossinline block: (R) -> L): L =
+inline fun <L, R> Either<L, R>.rightFlip(block: (R) -> L): L =
     when (this) {
         is Either.Left -> this.left
         is Either.Right -> block(this.right)
