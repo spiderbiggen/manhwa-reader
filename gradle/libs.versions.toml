@@ -1,20 +1,21 @@
 [versions]
-com-android-application = "8.1.0-beta01"
-core-ktx = "1.10.0"
-junit = "4.13.2"
+activity-compose = "1.7.2"
 androidx-test-ext-junit = "1.1.5"
-espresso-core = "3.5.1"
-lifecycle = "2.6.1"
-activity-compose = "1.7.1"
-compose-bom = "2023.04.01"
-coil-bom = "2.3.0"
-com-android-library = "8.1.0-beta01"
 appcompat = "1.6.1"
-material = "1.8.0"
-hilt = "2.45"
+coil-bom = "2.3.0"
+com-android-application = "8.2.0-alpha06"
+com-android-library = "8.2.0-alpha06"
+compose-bom = "2023.05.01"
 compose-hilt = "1.0.0"
-dagger = "2.45"
-kotlin = "1.8.20"
+core-ktx = "1.10.1"
+dagger = "2.46.1"
+espresso-core = "3.5.1"
+hilt = "2.46.1"
+junit = "4.13.2"
+kotlin = "1.8.21"
+lifecycle = "2.6.1"
+material = "1.9.0"
+room = "2.5.1"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -42,17 +43,23 @@ navigation-hilt = { group = "androidx.hilt", name = "hilt-navigation-compose", v
 material3 = { group = "androidx.compose.material3", name = "material3" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.6.4" }
+
+room = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+room-processing = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
+room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
+room-test = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.7.1" }
 hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
 
-okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version = "4.10.0" }
+okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version = "4.11.0" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version = "2.9.0" }
-kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.5.0" }
+kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.5.1" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.4.0" }
-jakewharton-retrofit = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "0.8.0" }
+jakewharton-retrofit = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
 
 coil-bom = { group = "io.coil-kt", name = "coil-bom", version.ref = "coil-bom" }
 coil = { group = "io.coil-kt", name = "coil" }
@@ -65,7 +72,7 @@ accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-s
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "com-android-application" }
 com-android-library = { id = "com.android.library", version.ref = "com-android-library" }
-com-google-ksp = {id = "com.google.devtools.ksp", version = "1.8.20-1.0.10"}
+com-google-ksp = { id = "com.google.devtools.ksp", version = "1.8.20-1.0.10" }
 com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

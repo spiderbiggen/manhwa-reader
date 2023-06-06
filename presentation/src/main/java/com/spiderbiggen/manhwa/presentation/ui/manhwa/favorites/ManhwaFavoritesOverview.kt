@@ -2,6 +2,7 @@ package com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -92,6 +93,7 @@ fun ManhwaFavoritesOverview(
                         Icon(Icons.Rounded.Search, null)
                     }
                 )
+                Spacer(modifier = Modifier.weight(1f))
                 NavigationBarItem(
                     true,
                     {},
