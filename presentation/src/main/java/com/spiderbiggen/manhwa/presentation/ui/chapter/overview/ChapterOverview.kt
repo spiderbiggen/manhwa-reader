@@ -1,6 +1,13 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +23,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
@@ -34,9 +42,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -49,6 +60,7 @@ import coil.compose.SubcomposeAsyncImage
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -65,10 +77,19 @@ fun ChapterOverview(
     LaunchedEffect(null) {
         viewModel.collect()
     }
+    val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
-    ChapterOverview(onBackClick, navigateToChapter, state, lazyListState, topAppBarState)
+    ChapterOverview(
+        onBackClick = onBackClick,
+        navigateToChapter = navigateToChapter,
+        state = state,
+        refreshing = viewModel.refreshing.value,
+        onRefreshClicked = { scope.launch { viewModel.onClickRefresh() } },
+        lazyListState = lazyListState,
+        topAppBarState = topAppBarState
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -77,6 +98,8 @@ fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     state: ChapterScreenState,
+    refreshing: Boolean = false,
+    onRefreshClicked: () -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     topAppBarState: TopAppBarState = rememberTopAppBarState()
 ) {
@@ -92,6 +115,29 @@ fun ChapterOverview(
                 },
                 title = { Text((state as? ChapterScreenState.Ready)?.manhwa?.title ?: "Manhwa") },
                 scrollBehavior = scrollBehavior,
+                actions = {
+                    val rotation = if (refreshing) {
+                        val infiniteTransition = rememberInfiniteTransition()
+                        infiniteTransition.animateFloat(
+                            label = "Refresh Rotation",
+                            initialValue = 0f,
+                            targetValue = 360f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1000, easing = LinearEasing),
+                                repeatMode = RepeatMode.Restart
+                            )
+                        )
+                    } else {
+                        remember { mutableStateOf(0f) }
+                    }
+                    IconButton(onRefreshClicked) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = "Refresh",
+                            modifier = Modifier.rotate(rotation.value)
+                        )
+                    }
+                }
             )
         }
     ) { padding ->
@@ -244,7 +290,7 @@ object ChapterProvider {
             decimal = null,
             title = null,
             date = LocalDate(2023, 4, 16),
-            images = emptyList()
+            hasImages = true
         ),
         Chapter(
             id = "000001",
@@ -252,7 +298,7 @@ object ChapterProvider {
             decimal = 5,
             title = null,
             date = LocalDate(2023, 4, 12),
-            images = emptyList()
+            hasImages = true
         ),
         Chapter(
             id = "000002",
@@ -260,7 +306,7 @@ object ChapterProvider {
             decimal = null,
             title = null,
             date = LocalDate(2023, 3, 15),
-            images = emptyList()
+            hasImages = true
         ),
         Chapter(
             id = "000003",
@@ -268,7 +314,7 @@ object ChapterProvider {
             decimal = null,
             title = "Long title to make the title take two lines at least",
             date = LocalDate(2023, 2, 28),
-            images = emptyList()
+            hasImages = true
         )
     )
 }
@@ -278,7 +324,6 @@ object ManhwaProvider {
         source = "Asura",
         id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
         title = "Heavenly Martial God",
-        baseUrl = URL("https://www.asurascans.com/manga/1672760368-heavenly-martial-god/"),
         coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
         description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands!",
         status = "Ongoing",

@@ -175,7 +175,7 @@ fun ImagesOverview(
                 scrollBehavior
             )
 
-            is ImagesScreenState.Error -> {}
+            is ImagesScreenState.Error -> Text(state.errorMessage)
         }
     }
 }

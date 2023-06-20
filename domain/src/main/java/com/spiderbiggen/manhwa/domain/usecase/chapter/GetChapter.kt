@@ -5,5 +5,5 @@ import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Either
 
 interface GetChapter {
-    suspend operator fun invoke(manhwaId: String, chapterId: String): Either<Chapter, AppError>
+    suspend operator fun invoke(chapterId: String): Either<Chapter, AppError>
 }

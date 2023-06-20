@@ -46,7 +46,10 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.core.ktx)
     implementation(libs.hilt)
-    kapt(libs.hilt.compiler)
+    kapt(libs.android.hilt.compiler)
+    kapt(libs.dagger.hilt.compiler)
+
+    implementation(libs.work)
 
     implementation(libs.room)
     implementation(libs.room.ktx)

@@ -1,6 +1,6 @@
 package com.spiderbiggen.manhwa.data.usecase.favorite
 
-import com.spiderbiggen.manhwa.data.source.remote.repository.FavoritesRepository
+import com.spiderbiggen.manhwa.data.repository.FavoritesRepository
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite

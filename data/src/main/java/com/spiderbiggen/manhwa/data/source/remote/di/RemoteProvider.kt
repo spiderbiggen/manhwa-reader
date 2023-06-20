@@ -1,16 +1,14 @@
-package com.spiderbiggen.manhwa.data.di
+package com.spiderbiggen.manhwa.data.source.remote.di
 
 import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import android.content.SharedPreferences
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
+import com.spiderbiggen.manhwa.data.di.BaseUrl
 import com.spiderbiggen.manhwa.data.source.remote.ManhwaService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
@@ -19,35 +17,33 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import javax.inject.Singleton
 
-private const val CACHE_SIZE: Long = 20 * 1024 * 1024
-
 @Module
 @InstallIn(SingletonComponent::class)
-object DataProvider {
+object RemoteProvider {
+    private const val CACHE_SIZE: Long = 20 * 1024 * 1024
 
     @Provides
-    fun provideJson(): Json = Json {
-        ignoreUnknownKeys = true
-    }
+    fun provideJson(): Json =
+        Json { ignoreUnknownKeys = true }
 
     @Provides
     @BaseUrl
-    fun baseUrl(): String = "https://api.spiderbiggen.com/manhwa/"
-//    fun baseUrl(): String = "http://192.168.2.21:8000/"
+    fun baseUrl(): String =
+        "https://api.spiderbiggen.com/manhwa/"
 
     @Provides
     @Singleton
-    fun provideCache(@ApplicationContext context: Context) = Cache(context.cacheDir, CACHE_SIZE)
+    fun provideCache(@ApplicationContext context: Context): Cache? = null
+//        Cache(context.cacheDir, CACHE_SIZE)
 
 
     @Provides
-    fun provideOkHttpClient(cache: Cache): OkHttpClient =
+    fun provideOkHttpClient(cache: Cache?): OkHttpClient =
         OkHttpClient.Builder()
             .cache(cache)
             .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             .build()
 
-    @OptIn(ExperimentalSerializationApi::class)
     @Provides
     fun provideRetrofitBuilder(okHttpClient: OkHttpClient, json: Json): Retrofit.Builder {
         val contentType = "application/json".toMediaType()
@@ -61,8 +57,4 @@ object DataProvider {
         builder.baseUrl(baseUrl)
             .build()
             .create(ManhwaService::class.java)
-
-    @Provides
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
-        context.getSharedPreferences("manhwa", MODE_PRIVATE)
 }

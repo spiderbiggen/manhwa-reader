@@ -4,7 +4,8 @@ import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Either
 import kotlinx.coroutines.flow.Flow
+import java.net.URL
 
-interface GetChapters {
-    suspend operator fun invoke(manhwaId: String): Either<Flow<List<Chapter>>, AppError>
+interface GetChapterImages {
+    suspend operator fun invoke(chapterId: String): Either<List<URL>, AppError>
 }

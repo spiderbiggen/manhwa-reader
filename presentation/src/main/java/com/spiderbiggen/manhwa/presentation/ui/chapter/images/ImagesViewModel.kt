@@ -6,13 +6,16 @@ import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.SurroundingChapters
+import com.spiderbiggen.manhwa.domain.model.andLeft
 import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapter
+import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetSurroundingChapters
 import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
@@ -23,6 +26,7 @@ class ImagesViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val getChapter: GetChapter,
     private val getSurroundingChapters: GetSurroundingChapters,
+    private val getChapterImages: GetChapterImages,
     private val isFavorite: IsFavorite,
     private val toggleFavorite: ToggleFavorite,
 ) : ViewModel() {
@@ -49,22 +53,25 @@ class ImagesViewModel @Inject constructor(
 
     private suspend fun updateScreenState() {
         withContext(Dispatchers.IO) {
-            val eitherChapter = getChapter(manhwaId, chapterId)
-            mutableState.emit(when (eitherChapter) {
+            val deferredEitherChapter = async { getChapter(chapterId) }
+            val deferredEitherImages = async { getChapterImages(chapterId) }
+            val data = deferredEitherChapter.await().andLeft(deferredEitherImages.await())
+            when (data) {
                 is Either.Left -> {
-                    surrounding = getSurroundingChapters(manhwaId, chapterId).leftOr(surrounding)
+                    val (chapter, images) = data.left
+                    surrounding = getSurroundingChapters(chapterId).leftOr(surrounding)
                     val isFavorite = isFavorite(manhwaId).leftOr(false)
 
-                    ImagesScreenState.Ready(
-                        title = getTitle(eitherChapter.left),
+                    mutableState.emit(ImagesScreenState.Ready(
+                        title = getTitle(chapter),
                         surrounding = surrounding,
                         isFavorite = isFavorite,
-                        images = eitherChapter.left.images.map { it.toExternalForm() }
-                    )
+                        images = images.map { it.toExternalForm() }
+                    ))
                 }
 
-                is Either.Right -> mapError(eitherChapter.right)
-            })
+                is Either.Right -> mutableState.emit(mapError(data.right))
+            }
         }
     }
 

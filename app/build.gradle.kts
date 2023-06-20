@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "com.spiderbiggen.manhwa"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "com.spiderbiggen.manhwa"
         minSdk = 26
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 2
         versionName = "1.0.1"
 
@@ -63,7 +63,7 @@ dependencies {
 
     implementation(libs.core.ktx)
     implementation(libs.hilt)
-    kapt(libs.hilt.compiler)
+    kapt(libs.dagger.hilt.compiler)
 
     implementation(libs.viewmodel.compose)
 

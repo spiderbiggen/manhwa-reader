@@ -3,7 +3,8 @@ package com.spiderbiggen.manhwa.domain.usecase.manhwa
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.domain.model.Either
+import kotlinx.coroutines.flow.Flow
 
 interface GetFavoriteManhwa {
-    suspend operator fun invoke(): Either<List<Manhwa>, AppError>
+    suspend operator fun invoke(): Either<Flow<List<Manhwa>>, AppError>
 }

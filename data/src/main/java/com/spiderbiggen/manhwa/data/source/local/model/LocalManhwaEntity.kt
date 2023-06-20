@@ -4,7 +4,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.datetime.LocalDate
 
-@Entity
+@Entity("manhwa")
 data class LocalManhwaEntity(
     @PrimaryKey
     val id: String,

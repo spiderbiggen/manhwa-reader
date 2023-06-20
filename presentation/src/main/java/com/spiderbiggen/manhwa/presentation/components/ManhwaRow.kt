@@ -25,13 +25,6 @@ import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 
 @Composable
-fun ManhwaRow(manhwa: Manhwa, isFavorite: Boolean, navigateToManhwa: (String) -> Unit) {
-
-}
-
-
-
-@Composable
 fun ManhwaRow(manhwa: ManhwaViewData, navigateToManhwa: (String) -> Unit) {
     Card(
         Modifier

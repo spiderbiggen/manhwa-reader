@@ -1,7 +1,6 @@
 package com.spiderbiggen.manhwa.domain.model
 
 import kotlinx.datetime.LocalDate
-import java.net.URL
 
 data class Chapter(
     val id: String,
@@ -9,5 +8,5 @@ data class Chapter(
     val decimal: Int?,
     val title: String?,
     val date: LocalDate?,
-    val images: List<URL>
+    val hasImages: Boolean,
 )

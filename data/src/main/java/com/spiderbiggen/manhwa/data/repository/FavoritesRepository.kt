@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.data.source.remote.repository
+package com.spiderbiggen.manhwa.data.repository
 
 import android.content.SharedPreferences
 import androidx.core.content.edit

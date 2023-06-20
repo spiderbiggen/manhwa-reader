@@ -1,6 +1,13 @@
 package com.spiderbiggen.manhwa.presentation.ui.manhwa.overview
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -9,12 +16,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -27,9 +36,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -41,6 +53,7 @@ import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
 import com.spiderbiggen.manhwa.presentation.components.ManhwaRow
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +67,7 @@ fun ManhwaOverview(
     LaunchedEffect(null) {
         viewModel.collect()
     }
-
+    val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
@@ -63,6 +76,8 @@ fun ManhwaOverview(
         navigateToFavorites = navigateToFavorites,
         navigateToDropped = navigateToDropped,
         state = state,
+        refreshing = viewModel.refreshing.value,
+        onRefreshClicked = { scope.launch { viewModel.onClickRefresh() } },
         lazyListState = lazyListState,
         topAppBarState = topAppBarState
     )
@@ -75,6 +90,8 @@ fun ManhwaOverview(
     navigateToFavorites: () -> Unit,
     navigateToDropped: () -> Unit,
     state: ManhwaScreenState,
+    refreshing: Boolean = false,
+    onRefreshClicked: () -> Unit = {},
     lazyListState: LazyListState = rememberLazyListState(),
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
@@ -84,6 +101,29 @@ fun ManhwaOverview(
             TopAppBar(
                 title = { Text("Manhwa") },
                 scrollBehavior = scrollBehavior,
+                actions = {
+                    val rotation = if (refreshing) {
+                        val infiniteTransition = rememberInfiniteTransition()
+                        infiniteTransition.animateFloat(
+                            label = "Refresh Rotation",
+                            initialValue = 0f,
+                            targetValue = 360f,
+                            animationSpec = infiniteRepeatable(
+                                animation = tween(1000, easing = LinearEasing),
+                                repeatMode = RepeatMode.Restart
+                            )
+                        )
+                    } else {
+                        remember { mutableStateOf(0f) }
+                    }
+                    IconButton(onRefreshClicked) {
+                        Icon(
+                            imageVector = Icons.Outlined.Refresh,
+                            contentDescription = "Refresh",
+                            modifier = Modifier.rotate(rotation.value)
+                        )
+                    }
+                }
             )
         },
         bottomBar = {

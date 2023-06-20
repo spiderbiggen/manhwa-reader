@@ -1,27 +1,28 @@
 package com.spiderbiggen.manhwa.data.usecase.chapter
 
+import com.spiderbiggen.manhwa.data.source.local.repository.ChapterRepository
+import com.spiderbiggen.manhwa.data.usecase.either
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.SurroundingChapters
-import com.spiderbiggen.manhwa.domain.model.mapLeft
-import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetSurroundingChapters
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class GetSurroundingChaptersImpl @Inject constructor(
-    private val getChapters: GetChapters
+    private val chapterRepository: ChapterRepository
 ) : GetSurroundingChapters {
-    override suspend fun invoke(
-        manhwaId: String,
-        chapterId: String
-    ): Either<SurroundingChapters, AppError> = getChapters(manhwaId).mapLeft { chapters ->
-        val index = chapters.indexOfFirst { it.id == chapterId }
-        if (index < 0) {
-            SurroundingChapters()
-        } else {
-            val previous = chapters.getOrNull(index + 1)
-            val next = chapters.getOrNull(index - 1)
-            SurroundingChapters(previous?.id, next?.id)
+    override suspend fun invoke(chapterId: String): Either<SurroundingChapters, AppError> {
+        return withContext(Dispatchers.IO) {
+            runCatching {
+                val deferredPrev = async { chapterRepository.getPreviousChapter(chapterId) }
+                val deferredNext = async { chapterRepository.getNextChapter(chapterId) }
+                val prev = deferredPrev.await().getOrThrow()
+                val next = deferredNext.await().getOrThrow()
+                SurroundingChapters(prev?.id, next?.id)
+            }.either()
         }
     }
 }

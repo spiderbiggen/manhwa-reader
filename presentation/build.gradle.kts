@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.core.ktx)
     implementation(libs.hilt)
-    kapt(libs.hilt.compiler)
+    kapt(libs.dagger.hilt.compiler)
 
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.runtime.compose)

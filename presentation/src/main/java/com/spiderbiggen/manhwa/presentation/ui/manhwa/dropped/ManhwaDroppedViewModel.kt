@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.presentation.ui.manhwa.dropped
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
@@ -10,8 +11,10 @@ import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetDroppedManhwa
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -33,18 +36,16 @@ class ManhwaDroppedViewModel @Inject constructor(
     }
 
     private suspend fun updateScreenState() {
-        mutableState.emit(
-            when (val result = getDroppedManhwa()) {
-                is Either.Left -> mapSuccess(result.left)
-                is Either.Right -> mapError(result.right)
-            }
-        )
+        when (val result = getDroppedManhwa()) {
+            is Either.Left -> mapSuccess(result.left)
+            is Either.Right -> mutableState.emit(mapError(result.right))
+        }
     }
 
-    private suspend fun mapSuccess(manhwaList: List<Manhwa>): ManhwaDroppedScreenState.Ready {
-        return withContext(Dispatchers.IO) {
-            val viewData = manhwaList.sortedBy(Manhwa::title)
-                .map {
+    private suspend fun mapSuccess(flow: Flow<List<Manhwa>>) {
+        withContext(Dispatchers.IO) {
+            flow.collectLatest { manhwaList ->
+                val viewData = manhwaList.sortedBy(Manhwa::title).map {
                     ManhwaViewData(
                         id = it.id,
                         source = it.source,
@@ -55,10 +56,13 @@ class ManhwaDroppedViewModel @Inject constructor(
                         isFavorite = isFavorite(it.id).leftOr(false),
                     )
                 }
-            ManhwaDroppedScreenState.Ready(viewData)
+                mutableState.emit(ManhwaDroppedScreenState.Ready(viewData))
+            }
         }
     }
 
-    private fun mapError(error: AppError): ManhwaDroppedScreenState.Error =
-        ManhwaDroppedScreenState.Error("An error occurred")
+    private fun mapError(error: AppError): ManhwaDroppedScreenState.Error {
+        Log.e("ManhwaViewModel", "failed to get manhwa $error")
+        return ManhwaDroppedScreenState.Error("An error occurred")
+    }
 }
