@@ -54,8 +54,7 @@ class ChapterViewModel @Inject constructor(
         withContext(Dispatchers.IO) {
             val eitherManhwa = getManhwa(manhwaId)
             val eitherChapters = getChapters(manhwaId)
-            val data = eitherManhwa.andLeft(eitherChapters)
-            when (data) {
+            when (val data = eitherManhwa.andLeft(eitherChapters)) {
                 is Either.Left -> {
                     val (manhwa, chaptersFlow) = data.left
                     mutableScreenState.emit(ChapterScreenState.Ready(manhwa, emptyList()))

@@ -1,16 +1,14 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.images
 
-import androidx.compose.foundation.Indication
-import androidx.compose.foundation.IndicationInstance
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -48,7 +46,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.drawscope.ContentDrawScope
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
@@ -203,7 +200,7 @@ private fun ReadyImagesOverview(
                 indication = null
             ) {
                 scope.launch {
-                    lazyListState.scrollBy(-scrollBehavior.state.heightOffset)
+                    lazyListState.scrollBy(-(scrollBehavior.state.heightOffset))
                     scrollBehavior.state.heightOffset = 0f
                 }
             }
@@ -211,7 +208,7 @@ private fun ReadyImagesOverview(
         contentPadding = padding,
         state = lazyListState,
     ) {
-        items(images) {
+        items(images, key = { it }) {
             ListImage(it, Modifier.fillParentMaxWidth())
         }
     }
@@ -219,7 +216,7 @@ private fun ReadyImagesOverview(
 
 private val boxModifier = Modifier
     .fillMaxWidth()
-    .height(360.dp)
+    .aspectRatio(1f)
 
 @Composable
 private fun ListImage(model: String, modifier: Modifier = Modifier) {
@@ -243,17 +240,3 @@ private fun ListImage(model: String, modifier: Modifier = Modifier) {
         }
     )
 }
-
-private object NoIndication : Indication {
-    private object NoIndicationInstance : IndicationInstance {
-        override fun ContentDrawScope.drawIndication() {
-            drawContent()
-        }
-    }
-
-    @Composable
-    override fun rememberUpdatedInstance(interactionSource: InteractionSource): IndicationInstance {
-        return NoIndicationInstance
-    }
-}
-

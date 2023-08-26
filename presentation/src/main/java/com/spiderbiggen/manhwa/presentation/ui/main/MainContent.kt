@@ -62,7 +62,7 @@ fun MainContent() {
                     val viewModel: ChapterViewModel = hiltViewModel()
                     val manhwaId = checkNotNull(backStackEntry.arguments?.getString("manhwaId"))
                     ChapterOverview(
-                        onBackClick = { navController.navigate("overview") { popUpTo("overview") } },
+                        onBackClick = { navController.popBackStack() },
                         navigateToChapter = { navController.navigate("manhwa/$manhwaId/chapter/$it") },
                         viewModel = viewModel
                     )
@@ -78,9 +78,7 @@ fun MainContent() {
                     val manhwaId = checkNotNull(backStackEntry.arguments?.getString("manhwaId"))
                     ImagesOverview(
                         onBackClick = {
-                            navController.navigate("manhwa/$manhwaId") {
-                                popUpTo("manhwa/$manhwaId")
-                            }
+                            navController.popBackStack(route = "manhwa/$manhwaId", false)
                         },
                         toChapterClicked = { navController.navigate("manhwa/$manhwaId/chapter/$it") },
                         viewModel = viewModel

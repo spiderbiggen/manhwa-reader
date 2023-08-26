@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -117,7 +118,7 @@ fun ChapterOverview(
                 scrollBehavior = scrollBehavior,
                 actions = {
                     val rotation = if (refreshing) {
-                        val infiniteTransition = rememberInfiniteTransition()
+                        val infiniteTransition = rememberInfiniteTransition(label = "Refresh")
                         infiniteTransition.animateFloat(
                             label = "Refresh Rotation",
                             initialValue = 0f,
@@ -128,7 +129,7 @@ fun ChapterOverview(
                             )
                         )
                     } else {
-                        remember { mutableStateOf(0f) }
+                        remember { mutableFloatStateOf(0f) }
                     }
                     IconButton(onRefreshClicked) {
                         Icon(
@@ -156,34 +157,7 @@ fun ChapterOverview(
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                     state = lazyListState,
                 ) {
-                    item(contentType = "header-image") {
-                        SubcomposeAsyncImage(
-                            model = state.manhwa.coverImage.toExternalForm(),
-                            null,
-                            modifier = Modifier.fillMaxWidth(),
-                            loading = {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(128.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        )
-                    }
-                    state.manhwa.description?.let {
-                        item(contentType = "header") {
-                            Surface(
-                                tonalElevation = 4.dp
-                            ) {
-                                Text(it, Modifier.padding(16.dp))
-                            }
-                        }
-                    }
-
-                    itemsIndexed(state.chapters, key = { _, it -> it.id }) { index, item ->
+                    itemsIndexed(state.chapters) { index, item ->
                         ChapterRow(index, item, navigateToChapter)
                     }
                 }

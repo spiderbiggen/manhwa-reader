@@ -4,18 +4,19 @@ androidx-test-ext-junit = "1.1.5"
 androidx-hilt = "1.0.0"
 appcompat = "1.6.1"
 coil-bom = "2.3.0"
-com-android-application = "8.2.0-alpha08"
-com-android-library = "8.2.0-alpha08"
-compose-bom = "2023.06.00"
+com-android-application = "8.3.0-alpha01"
+com-android-library = "8.3.0-alpha01"
+compose-compiler = "1.5.2"
+compose-bom = "2023.08.00"
 compose-hilt = "1.0.0"
 core-ktx = "1.10.1"
 dagger = "2.46.1"
 espresso-core = "3.5.1"
 hilt = "2.46.1"
 junit = "4.13.2"
-kotlin = "1.8.21"
+kotlin = "1.9.0"
 lifecycle = "2.6.1"
-room = "2.5.1"
+room = "2.5.2"
 work = "2.8.1"
 hilt-common = "1.0.0"
 
@@ -40,7 +41,7 @@ ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
 ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version = "2.6.0" }
+navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version = "2.7.1" }
 navigation-hilt = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "compose-hilt" }
 material3 = { group = "androidx.compose.material3", name = "material3" }
 appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -78,7 +79,7 @@ accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-s
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "com-android-application" }
 com-android-library = { id = "com.android.library", version.ref = "com-android-library" }
-com-google-ksp = { id = "com.google.devtools.ksp", version = "1.8.20-1.0.10" }
+com-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.0-1.0.13" }
 com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
