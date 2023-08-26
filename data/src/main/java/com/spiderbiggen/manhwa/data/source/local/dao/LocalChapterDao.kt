@@ -29,6 +29,22 @@ interface LocalChapterDao {
             ) 
         )
         ORDER BY c1.number DESC
+        """
+    )
+    suspend fun getPreviousChapters(id: String): List<LocalChapterEntity>
+
+    @Query(
+        """
+        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manhwa_id)
+        WHERE c2.id = :id 
+        AND (
+            c1.number < c2.number 
+            OR (
+                c1.number = c2.number 
+                AND COALESCE(c1.decimal, 0) < COALESCE(c2.decimal, 0)
+            ) 
+        )
+        ORDER BY c1.number DESC
         LIMIT 1
         """
     )

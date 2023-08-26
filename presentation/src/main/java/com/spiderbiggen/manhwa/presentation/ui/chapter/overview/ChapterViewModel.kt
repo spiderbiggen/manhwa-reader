@@ -3,17 +3,21 @@ package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.andLeft
+import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manhwa.domain.usecase.chapter.UpdateChapters
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetManhwa
+import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -23,6 +27,7 @@ class ChapterViewModel @Inject constructor(
     private val getManhwa: GetManhwa,
     private val getChapters: GetChapters,
     private val updateChapters: UpdateChapters,
+    private val isRead: IsRead,
 ) : ViewModel() {
 
     private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
@@ -34,7 +39,7 @@ class ChapterViewModel @Inject constructor(
     var refreshing = mutableStateOf(false)
 
     suspend fun collect() {
-        runCatching { updateChapters(manhwaId) }
+        viewModelScope.launch { updateChapters(manhwaId) }
         updateScreenState()
     }
 
@@ -56,8 +61,14 @@ class ChapterViewModel @Inject constructor(
                 is Either.Left -> {
                     val (manhwa, chaptersFlow) = data.left
                     mutableScreenState.emit(ChapterScreenState.Ready(manhwa, emptyList()))
-                    chaptersFlow.collectLatest {
-                        mutableScreenState.emit(ChapterScreenState.Ready(manhwa, it))
+                    chaptersFlow.collectLatest { list ->
+                        val data = list.map {
+                            ChapterRowData(
+                                chapter = it,
+                                isRead = isRead(it.id).leftOr(false)
+                            )
+                        }
+                        mutableScreenState.emit(ChapterScreenState.Ready(manhwa, data))
                     }
                 }
 

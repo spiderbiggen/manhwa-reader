@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.domain.usecase
+package com.spiderbiggen.manhwa.domain.usecase.read
 
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either

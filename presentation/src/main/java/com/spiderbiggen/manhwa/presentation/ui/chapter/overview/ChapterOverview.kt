@@ -154,7 +154,7 @@ fun ChapterOverview(
                     state = lazyListState,
                 ) {
                     itemsIndexed(state.chapters) { index, item ->
-                        ChapterRow(index, item, navigateToChapter)
+                        ChapterRow(index > 0, item.chapter, item.isRead, navigateToChapter)
                     }
                 }
             }
@@ -164,8 +164,9 @@ fun ChapterOverview(
 
 @Composable
 private fun ChapterRow(
-    index: Int,
+    showDivider: Boolean,
     item: Chapter,
+    isRead: Boolean,
     navigateToChapter: (String) -> Unit
 ) {
     val title by remember(item) {
@@ -186,11 +187,10 @@ private fun ChapterRow(
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp)
             .clickable { navigateToChapter(item.id) },
+        tonalElevation = if (isRead) 0.dp else 1.dp
     ) {
         Column(Modifier.fillMaxWidth()) {
-            if (index > 0) {
-                Divider()
-            }
+            if (showDivider) Divider()
             Row(
                 Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -254,38 +254,50 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
 
 object ChapterProvider {
     val values = sequenceOf(
-        Chapter(
-            id = "000000",
-            number = 30,
-            decimal = null,
-            title = null,
-            date = LocalDate(2023, 4, 16),
-            hasImages = true
+        ChapterRowData(
+            chapter = Chapter(
+                id = "000000",
+                number = 30,
+                decimal = null,
+                title = null,
+                date = LocalDate(2023, 4, 16),
+                hasImages = true
+            ),
+            isRead = false,
         ),
-        Chapter(
-            id = "000001",
-            number = 29,
-            decimal = 5,
-            title = null,
-            date = LocalDate(2023, 4, 12),
-            hasImages = true
+        ChapterRowData(
+            chapter = Chapter(
+                id = "000001",
+                number = 29,
+                decimal = 5,
+                title = null,
+                date = LocalDate(2023, 4, 12),
+                hasImages = true
+            ),
+            isRead = true,
         ),
-        Chapter(
-            id = "000002",
-            number = 39,
-            decimal = null,
-            title = null,
-            date = LocalDate(2023, 3, 15),
-            hasImages = true
+        ChapterRowData(
+            chapter = Chapter(
+                id = "000002",
+                number = 39,
+                decimal = null,
+                title = null,
+                date = LocalDate(2023, 3, 15),
+                hasImages = true
+            ),
+            isRead = true,
         ),
-        Chapter(
-            id = "000003",
-            number = 30,
-            decimal = null,
-            title = "Long title to make the title take two lines at least",
-            date = LocalDate(2023, 2, 28),
-            hasImages = true
-        )
+        ChapterRowData(
+            chapter = Chapter(
+                id = "000003",
+                number = 30,
+                decimal = null,
+                title = "Long title to make the title take two lines at least",
+                date = LocalDate(2023, 2, 28),
+                hasImages = true
+            ),
+            isRead = true,
+        ),
     )
 }
 

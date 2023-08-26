@@ -30,6 +30,10 @@ class ChapterRepository @Inject constructor(
         chapterDao.get(id)?.imageChunks
     }
 
+    suspend fun getPreviousChapters(id: String): Result<List<Chapter>> = runCatching {
+        chapterDao.getPreviousChapters(id).map(toDomain::invoke)
+    }
+
     suspend fun getPreviousChapter(id: String): Result<Chapter?> = runCatching {
         chapterDao.getPrevChapterId(id)?.let(toDomain::invoke)
     }

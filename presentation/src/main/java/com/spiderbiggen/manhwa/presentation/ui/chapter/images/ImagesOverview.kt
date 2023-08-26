@@ -20,6 +20,9 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Bookmark
+import androidx.compose.material.icons.outlined.BookmarkAdded
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.rounded.ArrowBack
@@ -79,6 +82,8 @@ fun ImagesOverview(
         onBackClick = onBackClick,
         toChapterClicked = toChapterClicked,
         toggleFavorite = viewModel::toggleFavorite,
+        setRead = viewModel::updateReadState,
+        setReadUpToHere = viewModel::setReadUpToHere,
         state = state,
         scope = scope,
         systemUiController = systemUiController,
@@ -93,6 +98,8 @@ fun ImagesOverview(
     onBackClick: () -> Unit,
     toChapterClicked: (String) -> Unit,
     toggleFavorite: suspend () -> Unit,
+    setRead: () -> Unit,
+    setReadUpToHere: suspend () -> Unit,
     state: ImagesScreenState,
     scope: CoroutineScope = rememberCoroutineScope(),
     systemUiController: SystemUiController = rememberSystemUiController(),
@@ -103,15 +110,7 @@ fun ImagesOverview(
     DisposableEffect(systemUiController) {
         onDispose { systemUiController.isSystemBarsVisible = true }
     }
-
-    val (title, isFavorite, surrounding) = remember(state) {
-        when (state) {
-            is ImagesScreenState.Error,
-            ImagesScreenState.Loading -> Triple("", false, null)
-
-            is ImagesScreenState.Ready -> Triple(state.title, state.isFavorite, state.surrounding)
-        }
-    }
+    val ready = state.ifReady()
 
     Scaffold(
         topBar = {
@@ -121,7 +120,7 @@ fun ImagesOverview(
                         Icon(Icons.Rounded.ArrowBack, "Back")
                     }
                 },
-                title = { Text(title) },
+                title = { Text(ready?.title.orEmpty()) },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -132,26 +131,36 @@ fun ImagesOverview(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                 ) {
+
                     IconButton(
                         onClick = { scope.launch { toggleFavorite() } }
                     ) {
                         Icon(
-                            imageVector = if (isFavorite) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                            imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favorite"
                         )
                     }
                     IconButton(
-                        onClick = { surrounding?.previous?.let { toChapterClicked(it) } },
-                        enabled = surrounding?.previous != null
+                        onClick = { scope.launch { setReadUpToHere() } }
+                    ) {
+                        Icon(
+                            imageVector = if (ready?.isRead == true) Icons.Outlined.BookmarkAdded else Icons.Outlined.BookmarkBorder,
+                            contentDescription = "Read"
+                        )
+                    }
+                    IconButton(
+                        onClick = { ready?.surrounding?.previous?.let { toChapterClicked(it) } },
+                        enabled = ready?.surrounding?.previous != null
                     ) {
                         Icon(Icons.Rounded.KeyboardArrowLeft, null)
                     }
                     IconButton(
-                        onClick = { surrounding?.next?.let { toChapterClicked(it) } },
-                        enabled = surrounding?.next != null
+                        onClick = { ready?.surrounding?.next?.let { toChapterClicked(it) } },
+                        enabled = ready?.surrounding?.next != null
                     ) {
                         Icon(Icons.Rounded.KeyboardArrowRight, null)
                     }
+
                 }
             }
         },
@@ -174,7 +183,8 @@ fun ImagesOverview(
                 state,
                 lazyListState,
                 scope,
-                scrollBehavior
+                scrollBehavior,
+                setRead,
             )
 
             is ImagesScreenState.Error -> Text(state.errorMessage)
@@ -189,7 +199,8 @@ private fun ReadyImagesOverview(
     state: ImagesScreenState.Ready,
     lazyListState: LazyListState,
     scope: CoroutineScope,
-    scrollBehavior: TopAppBarScrollBehavior
+    scrollBehavior: TopAppBarScrollBehavior,
+    setRead: () -> Unit,
 ) {
     val images by remember { derivedStateOf { state.images } }
     val interactionSource = remember { MutableInteractionSource() }
@@ -215,6 +226,11 @@ private fun ReadyImagesOverview(
     ) {
         items(images, key = { it }) {
             ListImage(it, Modifier.fillParentMaxWidth())
+        }
+        item {
+            LaunchedEffect(true) {
+                setRead()
+            }
         }
     }
 }
