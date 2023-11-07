@@ -10,6 +10,8 @@ import com.spiderbiggen.manhwa.domain.model.andLeft
 import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manhwa.domain.usecase.chapter.UpdateChapters
+import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
+import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetManhwa
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,12 +29,15 @@ class ChapterViewModel @Inject constructor(
     private val getManhwa: GetManhwa,
     private val getChapters: GetChapters,
     private val updateChapters: UpdateChapters,
+    private val isFavorite: IsFavorite,
+    private val toggleFavorite: ToggleFavorite,
     private val isRead: IsRead,
 ) : ViewModel() {
 
     private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
 
-    private val mutableScreenState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
+    private val mutableScreenState =
+        MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
     val state
         get() = mutableScreenState.asStateFlow()
 
@@ -53,6 +58,14 @@ class ChapterViewModel @Inject constructor(
         }
     }
 
+    suspend fun toggleFavorite() {
+        toggleFavorite(manhwaId)
+        val state = mutableScreenState.value
+        if (state is ChapterScreenState.Ready) {
+            mutableScreenState.compareAndSet(state, state.copy(isFavorite = !state.isFavorite))
+        }
+    }
+
     private suspend fun updateScreenState() {
         withContext(Dispatchers.IO) {
             val eitherManhwa = getManhwa(manhwaId)
@@ -60,15 +73,28 @@ class ChapterViewModel @Inject constructor(
             when (val data = eitherManhwa.andLeft(eitherChapters)) {
                 is Either.Left -> {
                     val (manhwa, chaptersFlow) = data.left
-                    mutableScreenState.emit(ChapterScreenState.Ready(manhwa, emptyList()))
+                    mutableScreenState.emit(
+                        ChapterScreenState.Ready(
+                            manhwa = manhwa,
+                            isFavorite = isFavorite(manhwaId).leftOr(false),
+                            chapters = emptyList()
+                        )
+                    )
+
                     chaptersFlow.collectLatest { list ->
-                        val data = list.map {
+                        val chapters = list.map {
                             ChapterRowData(
                                 chapter = it,
                                 isRead = isRead(it.id).leftOr(false)
                             )
                         }
-                        mutableScreenState.emit(ChapterScreenState.Ready(manhwa, data))
+                        mutableScreenState.emit(
+                            ChapterScreenState.Ready(
+                                manhwa = manhwa,
+                                isFavorite = isFavorite(manhwaId).leftOr(false),
+                                chapters = chapters
+                            )
+                        )
                     }
                 }
 

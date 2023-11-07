@@ -13,24 +13,32 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
+
+private const val aspectRatio = 1.35F
+private val aspectModifier = Modifier
+    .height(96.dp)
+    .width(96.dp / aspectRatio)
 
 @Composable
 fun ManhwaRow(manhwa: ManhwaViewData, navigateToManhwa: (String) -> Unit) {
     Card(
         Modifier
-            .padding(8.dp)
             .fillMaxWidth()
-            .clickable { navigateToManhwa(manhwa.id) }
+            .clickable { navigateToManhwa(manhwa.id) },
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = if (manhwa.readAll) 0.dp else 1.dp
+        ),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -39,10 +47,9 @@ fun ManhwaRow(manhwa: ManhwaViewData, navigateToManhwa: (String) -> Unit) {
             AsyncImage(
                 model = manhwa.coverImage,
                 contentDescription = null,
-                modifier = Modifier
-                    .height(96.dp)
-                    .width(72.dp),
-                alignment = Alignment.CenterStart
+                contentScale = ContentScale.Crop,
+                modifier = aspectModifier,
+                alignment = Alignment.Center
             )
             Column(
                 Modifier.weight(1f),

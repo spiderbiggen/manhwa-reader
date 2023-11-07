@@ -70,6 +70,7 @@ class ManhwaViewModel @Inject constructor(
                         coverImage = it.coverImage.toExternalForm(),
                         updatedAt = it.updatedAt.toString(),
                         isFavorite = isFavorite(it.id).leftOr(false),
+                        readAll = false,
                     )
                 }
                 mutableState.emit(ManhwaScreenState.Ready(viewData))

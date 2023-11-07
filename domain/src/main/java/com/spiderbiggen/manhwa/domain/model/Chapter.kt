@@ -7,6 +7,5 @@ data class Chapter(
     val number: Int,
     val decimal: Int?,
     val title: String?,
-    val date: LocalDate?,
-    val hasImages: Boolean,
+    val date: LocalDate,
 )

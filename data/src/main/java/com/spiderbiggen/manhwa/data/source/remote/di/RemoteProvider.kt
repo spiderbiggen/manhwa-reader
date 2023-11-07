@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
 import okhttp3.MediaType.Companion.toMediaType
@@ -22,14 +23,18 @@ import javax.inject.Singleton
 object RemoteProvider {
     private const val CACHE_SIZE: Long = 20 * 1024 * 1024
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Provides
     fun provideJson(): Json =
-        Json { ignoreUnknownKeys = true }
+        Json {
+            ignoreUnknownKeys = true
+            explicitNulls = false
+        }
 
     @Provides
     @BaseUrl
     fun baseUrl(): String =
-        "https://api.spiderbiggen.com/manhwa/"
+        "https://api.spiderbiggen.com/manhwa"
 
     @Provides
     @Singleton
@@ -54,7 +59,7 @@ object RemoteProvider {
 
     @Provides
     fun provideManhwaService(builder: Retrofit.Builder, @BaseUrl baseUrl: String): ManhwaService =
-        builder.baseUrl(baseUrl)
+        builder.baseUrl("$baseUrl/")
             .build()
             .create(ManhwaService::class.java)
 }

@@ -7,8 +7,9 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -18,7 +19,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.Lock
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.presentation.components.ManhwaRow
@@ -59,7 +60,6 @@ import kotlinx.coroutines.launch
 fun ManhwaFavoritesOverview(
     navigateToManhwa: (String) -> Unit,
     navigateToOverview: () -> Unit,
-    navigateToDropped: () -> Unit,
     viewModel: ManhwaFavoritesViewModel = viewModel()
 ) {
     LaunchedEffect(null) {
@@ -72,7 +72,6 @@ fun ManhwaFavoritesOverview(
     ManhwaFavoritesOverview(
         navigateToManhwa = navigateToManhwa,
         navigateToOverview = navigateToOverview,
-        navigateToDropped = navigateToDropped,
         state = state,
         refreshing = viewModel.refreshing.value,
         onRefreshClicked = { scope.launch { viewModel.onClickRefresh() } },
@@ -86,7 +85,6 @@ fun ManhwaFavoritesOverview(
 fun ManhwaFavoritesOverview(
     navigateToManhwa: (String) -> Unit,
     navigateToOverview: () -> Unit,
-    navigateToDropped: () -> Unit,
     state: ManhwaFavoritesScreenState,
     refreshing: Boolean = false,
     onRefreshClicked: () -> Unit = {},
@@ -101,7 +99,7 @@ fun ManhwaFavoritesOverview(
                 scrollBehavior = scrollBehavior,
                 actions = {
                     val rotation = if (refreshing) {
-                        val infiniteTransition = rememberInfiniteTransition()
+                        val infiniteTransition = rememberInfiniteTransition("loading")
                         infiniteTransition.animateFloat(
                             label = "Refresh Rotation",
                             initialValue = 0f,
@@ -140,13 +138,6 @@ fun ManhwaFavoritesOverview(
                         Icon(Icons.Rounded.Favorite, null)
                     }
                 )
-                NavigationBarItem(
-                    false,
-                    navigateToDropped,
-                    icon = {
-                        Icon(Icons.Rounded.Lock, null)
-                    }
-                )
             }
         }
     ) { padding ->
@@ -165,9 +156,11 @@ fun ManhwaFavoritesOverview(
                         .padding(padding)
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                     state = lazyListState,
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    items(state.manhwa, key = { it.id }) { manhwa ->
-                        ManhwaRow(manhwa, navigateToManhwa)
+                    items(state.manhwa) {
+                        ManhwaRow(it, navigateToManhwa)
                     }
                 }
             }
@@ -195,7 +188,7 @@ fun ManhwaFavoritesOverview(
 @OptIn(ExperimentalMaterial3Api::class)
 fun PreviewManhwa(@PreviewParameter(ManhwaOverviewScreenStateProvider::class) state: ManhwaFavoritesScreenState) {
     ManhwaReaderTheme {
-        ManhwaFavoritesOverview({}, {}, {}, state = state)
+        ManhwaFavoritesOverview({}, {}, state = state)
     }
 }
 
@@ -218,7 +211,8 @@ object ManhwaProvider {
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Ongoing",
                 updatedAt = "2023-04-34",
-                isFavorite = true
+                isFavorite = true,
+                readAll = false,
             ),
             ManhwaViewData(
                 source = "Asura",
@@ -227,7 +221,8 @@ object ManhwaProvider {
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Dropped",
                 updatedAt = "2023-04-34",
-                isFavorite = true
+                isFavorite = true,
+                readAll = true,
             )
         )
 }

@@ -17,12 +17,11 @@ class GetChapterImagesImpl @Inject constructor(
         val either = chapterRepository.getChapterImages(chapterId).either()
         return when (either) {
             is Either.Left -> {
-                either.left?.let { chunks ->
-                    val images = (0 until chunks).map { index ->
-                        URL("${baseUrl}chapters/${chapterId}/images/$index")
-                    }
-                    Either.Left(images)
-                } ?: Either.Right(AppError.Remote.NotFound)
+                val chunks = either.left
+                val images = (0 until chunks).map { index ->
+                    URL("$baseUrl/chapters/${chapterId}/images/$index")
+                }
+                Either.Left(images)
             }
 
             is Either.Right -> Either.Right(either.right)

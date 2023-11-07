@@ -22,10 +22,10 @@ data class LocalChapterEntity(
     @ColumnInfo("manhwa_id")
     val manhwaId: String,
     val number: Int,
-    val decimal: Int? = null,
+    @ColumnInfo(defaultValue = "0")
+    val decimal: Int,
     val title: String? = null,
-    val url: String,
-    val date: LocalDate? = null,
-    @ColumnInfo("image_chunks")
-    val imageChunks: Int? = null
+    val date: LocalDate,
+    @ColumnInfo("image_chunks", defaultValue = "0")
+    val imageChunks: Int
 )

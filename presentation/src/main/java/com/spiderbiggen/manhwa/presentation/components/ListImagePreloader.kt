@@ -5,7 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
@@ -17,10 +17,10 @@ fun <T : Any> ListImagePreloader(
     items: List<T>,
     lazyListState: LazyListState,
     visibleCount: Int = 3,
-    preloadCount: Int = 10,
+    preloadCount: Int = 5,
 ) {
     val context = LocalContext.current
-    var preloaded by remember { mutableStateOf(0) }
+    var preloaded by remember { mutableIntStateOf(0) }
     val firstVisibleIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
     val limited by remember {
         derivedStateOf {
@@ -30,7 +30,7 @@ fun <T : Any> ListImagePreloader(
         }
     }
 
-    LaunchedEffect(limited) {
+    LaunchedEffect(context, limited) {
         items.slice((preloaded + 1)..limited).forEach {
             val request = ImageRequest.Builder(context)
                 .data(it)

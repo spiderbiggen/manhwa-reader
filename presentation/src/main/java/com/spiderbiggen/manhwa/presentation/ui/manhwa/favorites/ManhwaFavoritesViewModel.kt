@@ -9,7 +9,6 @@ import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetFavoriteManhwa
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.UpdateManhwa
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.overview.ManhwaScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -67,6 +66,7 @@ class ManhwaFavoritesViewModel @Inject constructor(
                         coverImage = it.coverImage.toExternalForm(),
                         updatedAt = it.updatedAt.toString(),
                         isFavorite = true,
+                        readAll = false,
                     )
                 }
                 mutableState.emit(ManhwaFavoritesScreenState.Ready(viewData))

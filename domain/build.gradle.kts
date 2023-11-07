@@ -1,7 +1,7 @@
 plugins {
-    kotlin("kapt")
     id("java-library")
     alias(libs.plugins.org.jetbrains.kotlin.jvm)
+    alias(libs.plugins.com.google.ksp)
 }
 
 java {
@@ -17,10 +17,6 @@ dependencies {
     implementation(libs.coroutines.core)
 
     implementation(libs.dagger)
-    kapt(libs.dagger.compiler)
+    ksp(libs.dagger.compiler)
     implementation(libs.kotlinx.datetime)
-}
-
-kapt {
-    correctErrorTypes = true
 }

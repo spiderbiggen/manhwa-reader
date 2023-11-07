@@ -8,10 +8,9 @@ import kotlinx.serialization.Serializable
 data class ChapterEntity(
     val id: String,
     val number: Int,
-    val decimal: Int? = null,
-    val title: String? = null,
-    val url: String,
-    val date: LocalDate? = null,
-    @SerialName("indexed_images")
-    val imageChunks: Int? = null
+    val decimal: Int?,
+    val title: String?,
+    val date: LocalDate,
+    @SerialName("images")
+    val images: Int
 )

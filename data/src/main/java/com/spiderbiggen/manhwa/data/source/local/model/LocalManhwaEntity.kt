@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.data.source.local.model
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.datetime.LocalDate
@@ -10,8 +11,10 @@ data class LocalManhwaEntity(
     val id: String,
     val source: String,
     val title: String,
-    val coverImage: String,
-    val description: String?,
+    @ColumnInfo("cover")
+    val cover: String,
+    val description: String,
     val status: String,
-    val updatedAt: LocalDate?,
+    @ColumnInfo("updated_at")
+    val updatedAt: LocalDate,
 )

@@ -20,7 +20,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Bookmark
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Favorite
@@ -131,7 +130,6 @@ fun ImagesOverview(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                 ) {
-
                     IconButton(
                         onClick = { scope.launch { toggleFavorite() } }
                     ) {
@@ -160,7 +158,6 @@ fun ImagesOverview(
                     ) {
                         Icon(Icons.Rounded.KeyboardArrowRight, null)
                     }
-
                 }
             }
         },
@@ -170,7 +167,7 @@ fun ImagesOverview(
             is ImagesScreenState.Loading -> {
                 Box(
                     modifier = Modifier
-                        .consumeWindowInsets(padding)
+                        .padding(padding)
                         .fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
@@ -227,10 +224,8 @@ private fun ReadyImagesOverview(
         items(images, key = { it }) {
             ListImage(it, Modifier.fillParentMaxWidth())
         }
-        item {
-            LaunchedEffect(true) {
-                setRead()
-            }
+        item(key = "setReadEffect", contentType = "Effect") {
+            LaunchedEffect(true) { setRead() }
         }
     }
 }

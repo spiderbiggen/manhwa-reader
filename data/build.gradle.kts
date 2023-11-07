@@ -1,15 +1,14 @@
 plugins {
-    kotlin("kapt")
-    alias(libs.plugins.com.google.ksp)
     alias(libs.plugins.com.android.library)
     alias(libs.plugins.org.jetbrains.kotlin.android)
+    alias(libs.plugins.com.google.ksp)
     alias(libs.plugins.com.google.hilt.android)
     alias(libs.plugins.org.jetbrains.kotlin.serialization)
 }
 
 android {
     namespace = "com.spiderbiggen.manhwa.data"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 26
@@ -46,8 +45,8 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.core.ktx)
     implementation(libs.hilt)
-    kapt(libs.android.hilt.compiler)
-    kapt(libs.dagger.hilt.compiler)
+    ksp(libs.android.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
 
     implementation(libs.work)
 
@@ -66,8 +65,4 @@ dependencies {
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.datetime)
     implementation(libs.jakewharton.retrofit)
-}
-
-kapt {
-    correctErrorTypes = true
 }

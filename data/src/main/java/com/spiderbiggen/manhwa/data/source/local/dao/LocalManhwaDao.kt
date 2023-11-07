@@ -1,11 +1,8 @@
 package com.spiderbiggen.manhwa.data.source.local.dao
 
 import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Upsert
-import com.spiderbiggen.manhwa.data.source.local.model.LocalChapterEntity
 import com.spiderbiggen.manhwa.data.source.local.model.LocalManhwaEntity
 import kotlinx.coroutines.flow.Flow
 
@@ -20,6 +17,6 @@ interface LocalManhwaDao {
     @Query("SELECT * FROM manhwa WHERE source = :source")
     suspend fun getForSource(source: String): List<LocalManhwaEntity>
 
-    @Query("SELECT * FROM manhwa ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM manhwa ORDER BY updated_at DESC")
     fun getAll(): Flow<List<LocalManhwaEntity>>
 }

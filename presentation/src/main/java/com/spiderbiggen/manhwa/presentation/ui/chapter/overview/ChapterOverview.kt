@@ -21,6 +21,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +38,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -57,6 +60,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.LocalDate
@@ -81,11 +85,12 @@ fun ChapterOverview(
     ChapterOverview(
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
-        state = state,
         refreshing = viewModel.refreshing.value,
         onRefreshClicked = { scope.launch { viewModel.onClickRefresh() } },
+        toggleFavorite = { scope.launch { viewModel.toggleFavorite() } },
+        state = state,
         lazyListState = lazyListState,
-        topAppBarState = topAppBarState
+        topAppBarState = topAppBarState,
     )
 }
 
@@ -94,14 +99,17 @@ fun ChapterOverview(
 fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
+    refreshing: Boolean,
+    onRefreshClicked: () -> Unit,
+    toggleFavorite: () -> Unit,
     state: ChapterScreenState,
-    refreshing: Boolean = false,
-    onRefreshClicked: () -> Unit = {},
+    scope: CoroutineScope = rememberCoroutineScope(),
     lazyListState: LazyListState = rememberLazyListState(),
-    topAppBarState: TopAppBarState = rememberTopAppBarState()
+    topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
 
+    val ready = state.ifReady()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -110,9 +118,20 @@ fun ChapterOverview(
                         Icon(Icons.Rounded.ArrowBack, "Back")
                     }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
+                ),
                 title = { Text((state as? ChapterScreenState.Ready)?.manhwa?.title ?: "Manhwa") },
                 scrollBehavior = scrollBehavior,
                 actions = {
+                    IconButton(
+                        onClick = { scope.launch { toggleFavorite() } }
+                    ) {
+                        Icon(
+                            imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Favorite"
+                        )
+                    }
                     val rotation = if (refreshing) {
                         val infiniteTransition = rememberInfiniteTransition(label = "Refresh")
                         infiniteTransition.animateFloat(
@@ -177,7 +196,8 @@ private fun ChapterRow(
                     append('.').append(it)
                 }
                 item.title?.let {
-                    append(" - ").append(it)
+                    if (it[0].isLetterOrDigit()) append(" - ")
+                    append(it)
                 }
             }.toString()
         }
@@ -187,14 +207,14 @@ private fun ChapterRow(
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp)
             .clickable { navigateToChapter(item.id) },
-        tonalElevation = if (isRead) 0.dp else 1.dp
+        tonalElevation = if (isRead) 0.dp else 3.dp,
     ) {
         Column(Modifier.fillMaxWidth()) {
             if (showDivider) Divider()
             Row(
                 Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Column(
                     Modifier
@@ -206,12 +226,10 @@ private fun ChapterRow(
                         title,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    item.date?.let {
-                        Text(
-                            item.date.toString(),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
+                    Text(
+                        item.date.toString(),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
             }
         }
@@ -239,7 +257,13 @@ private fun ChapterRow(
 @OptIn(ExperimentalMaterial3Api::class)
 fun PreviewManhwa(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     ManhwaReaderTheme {
-        ChapterOverview({}, {}, state = state)
+        ChapterOverview(
+            onBackClick = {},
+            navigateToChapter = {},
+            refreshing = false,
+            onRefreshClicked = {},
+            toggleFavorite = {}, state = state
+        )
     }
 }
 
@@ -248,7 +272,16 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
         get() = sequenceOf(
             ChapterScreenState.Loading,
             ChapterScreenState.Error("An error occurred"),
-            ChapterScreenState.Ready(ManhwaProvider.value, ChapterProvider.values.toList()),
+            ChapterScreenState.Ready(
+                manhwa = ManhwaProvider.value,
+                isFavorite = false,
+                chapters = ChapterProvider.values.toList()
+            ),
+            ChapterScreenState.Ready(
+                manhwa = ManhwaProvider.value,
+                isFavorite = true,
+                chapters = ChapterProvider.values.toList()
+            ),
         )
 }
 
@@ -261,7 +294,6 @@ object ChapterProvider {
                 decimal = null,
                 title = null,
                 date = LocalDate(2023, 4, 16),
-                hasImages = true
             ),
             isRead = false,
         ),
@@ -272,7 +304,6 @@ object ChapterProvider {
                 decimal = 5,
                 title = null,
                 date = LocalDate(2023, 4, 12),
-                hasImages = true
             ),
             isRead = true,
         ),
@@ -283,7 +314,6 @@ object ChapterProvider {
                 decimal = null,
                 title = null,
                 date = LocalDate(2023, 3, 15),
-                hasImages = true
             ),
             isRead = true,
         ),
@@ -294,7 +324,6 @@ object ChapterProvider {
                 decimal = null,
                 title = "Long title to make the title take two lines at least",
                 date = LocalDate(2023, 2, 28),
-                hasImages = true
             ),
             isRead = true,
         ),

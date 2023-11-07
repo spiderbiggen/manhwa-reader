@@ -3,7 +3,6 @@ package com.spiderbiggen.manhwa.data.source.local.repository
 import com.spiderbiggen.manhwa.data.source.local.dao.LocalChapterDao
 import com.spiderbiggen.manhwa.data.usecase.chapter.mapper.ToDomainChapterUseCase
 import com.spiderbiggen.manhwa.domain.model.Chapter
-import com.spiderbiggen.manhwa.domain.model.Manhwa
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -23,11 +22,11 @@ class ChapterRepository @Inject constructor(
     }
 
     suspend fun getChapter(id: String): Result<Chapter?> = runCatching {
-        chapterDao.get(id)?.let(toDomain::invoke)
+        chapterDao.get(id)!!.let(toDomain::invoke)
     }
 
-    suspend fun getChapterImages(id: String): Result<Int?> = runCatching {
-        chapterDao.get(id)?.imageChunks
+    suspend fun getChapterImages(id: String): Result<Int> = runCatching {
+        chapterDao.get(id)!!.imageChunks
     }
 
     suspend fun getPreviousChapters(id: String): Result<List<Chapter>> = runCatching {

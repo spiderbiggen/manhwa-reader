@@ -9,12 +9,10 @@ data class ManhwaEntity(
     val source: String,
     val id: String,
     val title: String,
-    @SerialName("base_url")
-    val baseUrl: String,
-    @SerialName("cover_image")
-    val coverImage: String,
-    val description: String? = null,
+    @SerialName("cover")
+    val cover: String,
+    val description: String,
     val status: String,
-    @SerialName("updated_at")
-    val updatedAt: LocalDate? = null,
+    @SerialName("last_release_date")
+    val lastReleaseDate: LocalDate,
 )

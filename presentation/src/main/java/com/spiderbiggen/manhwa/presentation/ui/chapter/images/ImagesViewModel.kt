@@ -105,7 +105,8 @@ class ImagesViewModel @Inject constructor(
                 append('.').append(it)
             }
             chapter.title?.let {
-                append(" - ").append(it)
+                if (it[0].isLetterOrDigit()) append(" - ")
+                    .append(it)
             }
         }.toString()
 

@@ -1,13 +1,13 @@
 plugins {
-    kotlin("kapt")
     alias(libs.plugins.com.android.library)
     alias(libs.plugins.org.jetbrains.kotlin.android)
+    alias(libs.plugins.com.google.ksp)
     alias(libs.plugins.com.google.hilt.android)
 }
 
 android {
     namespace = "com.spiderbiggen.manhwa.presentation"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         minSdk = 26
@@ -39,7 +39,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.2"
+        kotlinCompilerExtensionVersion = "1.5.3"
     }
 }
 
@@ -48,7 +48,7 @@ dependencies {
     implementation(libs.coroutines.core)
     implementation(libs.core.ktx)
     implementation(libs.hilt)
-    kapt(libs.dagger.hilt.compiler)
+    ksp(libs.dagger.hilt.compiler)
 
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.runtime.compose)
@@ -76,15 +76,11 @@ dependencies {
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 
-    implementation(libs.coil.bom)
+    implementation(platform(libs.coil.bom))
     implementation(libs.coil)
     implementation(libs.coil.compose)
 
     implementation(libs.kotlinx.datetime)
 
     implementation(libs.accompanist.systemui)
-}
-
-kapt {
-    correctErrorTypes = true
 }

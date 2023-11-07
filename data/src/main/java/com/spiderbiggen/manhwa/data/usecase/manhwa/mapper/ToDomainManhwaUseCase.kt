@@ -11,17 +11,17 @@ class ToDomainManhwaUseCase @Inject constructor() {
         source = entity.source,
         id = entity.id,
         title = entity.title,
-        coverImage = URL(entity.coverImage),
+        coverImage = URL(entity.cover),
         description = entity.description,
         status = entity.status,
-        updatedAt = entity.updatedAt
+        updatedAt = entity.lastReleaseDate
     )
 
     operator fun invoke(entity: LocalManhwaEntity): Manhwa = Manhwa(
         source = entity.source,
         id = entity.id,
         title = entity.title,
-        coverImage = URL(entity.coverImage),
+        coverImage = URL(entity.cover),
         description = entity.description,
         status = entity.status,
         updatedAt = entity.updatedAt

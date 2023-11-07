@@ -8,4 +8,5 @@ data class ManhwaViewData(
     val coverImage: String,
     val updatedAt: String?,
     val isFavorite: Boolean,
+    val readAll: Boolean,
 )

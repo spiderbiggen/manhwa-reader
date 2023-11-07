@@ -14,7 +14,7 @@ interface LocalChapterDao {
     @Query("SELECT * FROM chapter where id = :id")
     suspend fun get(id: String): LocalChapterEntity?
 
-    @Query("SELECT * FROM chapter WHERE manhwa_id = :manhwaId ORDER BY number DESC, COALESCE(decimal, 0) DESC")
+    @Query("SELECT * FROM chapter WHERE manhwa_id = :manhwaId ORDER BY number DESC, decimal DESC")
     fun getForManhwaId(manhwaId: String): Flow<List<LocalChapterEntity>>
 
     @Query(
@@ -23,12 +23,9 @@ interface LocalChapterDao {
         WHERE c2.id = :id 
         AND (
             c1.number < c2.number 
-            OR (
-                c1.number = c2.number 
-                AND COALESCE(c1.decimal, 0) < COALESCE(c2.decimal, 0)
-            ) 
+            OR (c1.number = c2.number AND c1.decimal < c2.decimal) 
         )
-        ORDER BY c1.number DESC
+        ORDER BY c1.number DESC, c1.decimal DESC
         """
     )
     suspend fun getPreviousChapters(id: String): List<LocalChapterEntity>
@@ -39,12 +36,9 @@ interface LocalChapterDao {
         WHERE c2.id = :id 
         AND (
             c1.number < c2.number 
-            OR (
-                c1.number = c2.number 
-                AND COALESCE(c1.decimal, 0) < COALESCE(c2.decimal, 0)
-            ) 
+            OR (c1.number = c2.number AND c1.decimal < c2.decimal) 
         )
-        ORDER BY c1.number DESC
+        ORDER BY c1.number DESC, c1.decimal DESC
         LIMIT 1
         """
     )
@@ -56,12 +50,9 @@ interface LocalChapterDao {
         WHERE c2.id = :id 
         AND (
             c1.number > c2.number 
-            OR (
-                c1.number = c2.number 
-                AND COALESCE(c1.decimal, 0) > COALESCE(c2.decimal, 0)
-            )
+            OR (c1.number = c2.number AND c1.decimal > c2.decimal)
         )
-        ORDER BY c1.number ASC
+        ORDER BY c1.number ASC, c1.decimal ASC
         LIMIT 1
         """
     )

@@ -9,9 +9,9 @@ class ToLocalManhwaUseCase @Inject constructor() {
         id = entity.id,
         source = entity.source,
         title = entity.title,
-        coverImage = entity.coverImage,
+        cover = entity.cover,
         description = entity.description,
         status = entity.status,
-        updatedAt = entity.updatedAt,
+        updatedAt = entity.lastReleaseDate,
     )
 }
