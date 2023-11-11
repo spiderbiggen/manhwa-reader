@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.data.di
 
+import com.spiderbiggen.manhwa.data.usecase.StartRemoteUpdateImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetChapterImagesImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetChaptersImpl
@@ -16,6 +17,7 @@ import com.spiderbiggen.manhwa.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.read.ToggleReadImpl
+import com.spiderbiggen.manhwa.domain.usecase.StartRemoteUpdate
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
@@ -89,4 +91,7 @@ abstract class DataModule {
 
     @Binds
     abstract fun bindSetReadUptToChapter(useCase: SetReadUpToChapterImpl): SetReadUpToChapter
+
+    @Binds
+    abstract fun bindStartRemoteUpdate(useCase: StartRemoteUpdateImpl): StartRemoteUpdate
 }

@@ -24,4 +24,8 @@ class ManhwaRepository @Inject constructor(
     suspend fun getManhwa(id: String): Result<Manhwa?> = runCatching {
         manhwaDao.get(id)?.let(toDomain::invoke)
     }
+
+    suspend fun getManhwaForUpdate(): Result<List<String>> = runCatching {
+        manhwaDao.getForUpdate()
+    }
 }

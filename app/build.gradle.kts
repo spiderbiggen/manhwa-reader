@@ -70,6 +70,7 @@ dependencies {
 
     implementation(libs.core.ktx)
     implementation(libs.hilt)
+    implementation(libs.android.hilt.work)
     ksp(libs.dagger.hilt.compiler)
 
     implementation(libs.viewmodel.compose)

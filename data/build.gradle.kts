@@ -49,6 +49,8 @@ dependencies {
     ksp(libs.dagger.hilt.compiler)
 
     implementation(libs.work)
+    implementation(libs.android.hilt.work)
+    implementation(libs.android.hilt.common)
 
     implementation(libs.room)
     implementation(libs.room.ktx)

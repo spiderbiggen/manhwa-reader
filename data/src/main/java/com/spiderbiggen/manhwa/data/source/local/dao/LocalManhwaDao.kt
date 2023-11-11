@@ -19,4 +19,13 @@ interface LocalManhwaDao {
 
     @Query("SELECT * FROM manhwa ORDER BY updated_at DESC")
     fun getAll(): Flow<List<LocalManhwaEntity>>
+
+    @Query(
+        """
+        SELECT DISTINCT(m.id) FROM manhwa m
+        WHERE m.updated_at = (SELECT MAX(updated_at) FROM manhwa) 
+        OR m.updated_at > (SELECT MAX(date) FROM chapter where manhwa_id = m.id) 
+        """
+    )
+    suspend fun getForUpdate(): List<String>
 }

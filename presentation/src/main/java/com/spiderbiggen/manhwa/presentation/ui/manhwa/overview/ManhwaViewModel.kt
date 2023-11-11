@@ -9,7 +9,6 @@ import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetActiveManhwa
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.UpdateManhwa
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +24,6 @@ import javax.inject.Inject
 class ManhwaViewModel @Inject constructor(
     private val getActiveManhwa: GetActiveManhwa,
     private val isFavorite: IsFavorite,
-    private val updateManhwa: UpdateManhwa,
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow<ManhwaScreenState>(ManhwaScreenState.Loading)
@@ -44,11 +42,7 @@ class ManhwaViewModel @Inject constructor(
     suspend fun onClickRefresh() {
         if (refreshing.value) return
         refreshing.value = true
-        try {
-            updateManhwa()
-        } finally {
-            refreshing.value = false
-        }
+        refreshing.value = false
     }
 
     private suspend fun updateScreenState() {

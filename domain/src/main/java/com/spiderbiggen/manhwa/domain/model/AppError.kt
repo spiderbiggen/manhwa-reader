@@ -5,8 +5,8 @@ import java.io.IOException
 sealed interface AppError {
     sealed interface Remote : AppError {
 
-        object NotFound : Remote
-        object NoConnection : Remote
+        data object NotFound : Remote
+        data object NoConnection : Remote
 
 
         /**
@@ -21,8 +21,8 @@ sealed interface AppError {
     }
 
     sealed interface Local : AppError {
-        object NoCache : Local
-        object Unknown : Local
+        data object NoCache : Local
+        data object Unknown : Local
     }
 
     class Unknown(val exception: Exception) : AppError
