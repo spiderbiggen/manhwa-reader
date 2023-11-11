@@ -9,6 +9,7 @@ import com.spiderbiggen.manhwa.domain.model.Manhwa
 import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetActiveManhwa
+import com.spiderbiggen.manhwa.domain.usecase.manhwa.UpdateManhwa
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +17,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -24,6 +24,7 @@ import javax.inject.Inject
 class ManhwaViewModel @Inject constructor(
     private val getActiveManhwa: GetActiveManhwa,
     private val isFavorite: IsFavorite,
+    private val updateManhwa: UpdateManhwa,
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow<ManhwaScreenState>(ManhwaScreenState.Loading)
@@ -34,7 +35,6 @@ class ManhwaViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            launch { onClickRefresh() }
             updateScreenState()
         }
     }
@@ -42,7 +42,11 @@ class ManhwaViewModel @Inject constructor(
     suspend fun onClickRefresh() {
         if (refreshing.value) return
         refreshing.value = true
-        refreshing.value = false
+        try {
+            updateManhwa()
+        } finally {
+            refreshing.value = false
+        }
     }
 
     private suspend fun updateScreenState() {
