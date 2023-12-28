@@ -16,6 +16,6 @@ class IsManhwaReadImpl @Inject constructor(
     override suspend fun invoke(manhwaId: String): Either<Boolean, AppError> {
         // TODO improve performance
         val chapters = getChapters.once(manhwaId).leftOrElse { return Either.Right(it) }
-        return Either.Left(chapters.all { isRead(it.id).leftOr(false) })
+        return Either.Left(chapters.isNotEmpty() && chapters.all { isRead(it.id).leftOr(false) })
     }
 }
