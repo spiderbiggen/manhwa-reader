@@ -14,6 +14,6 @@ data class ManhwaEntity(
     val cover: String,
     val description: String,
     val status: String,
-    @SerialName("last_image_updated_at")
+    @SerialName("updated_at")
     val updatedAt: Instant,
 )

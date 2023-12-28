@@ -23,8 +23,7 @@ interface LocalManhwaDao {
     @Query(
         """
         SELECT DISTINCT(m.id) FROM manhwa m
-        WHERE m.updated_at = (SELECT MAX(updated_at) FROM manhwa) 
-        OR m.updated_at > (SELECT MAX(date) FROM chapter where manhwa_id = m.id) 
+        WHERE m.updated_at > (SELECT MAX(updated_at) FROM chapter where manhwa_id = m.id)
         """
     )
     suspend fun getForUpdate(): List<String>
