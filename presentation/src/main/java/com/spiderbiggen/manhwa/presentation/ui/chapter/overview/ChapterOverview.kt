@@ -172,9 +172,12 @@ fun ChapterOverview(
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                     state = lazyListState,
                 ) {
+                    item(key = "header", contentType = { "header" }) { Box {} }
                     itemsIndexed(
-                        state.chapters,
-                        key = { _, item -> item.chapter.id }) { index, item ->
+                        items = state.chapters,
+                        key = { _, item -> item.chapter.id },
+                        contentType = { _, _ -> "row" },
+                    ) { index, item ->
                         ChapterRow(
                             index > 0,
                             item.chapter,
