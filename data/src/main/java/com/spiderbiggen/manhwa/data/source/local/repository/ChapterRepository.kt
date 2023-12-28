@@ -15,10 +15,14 @@ class ChapterRepository @Inject constructor(
     private val chapterDao
         get() = chapterDaoProvider.get()
 
-    fun getChapters(manhwaId: String): Result<Flow<List<Chapter>>> = runCatching {
-        chapterDao.getForManhwaId(manhwaId).map { entities ->
+    fun getChapterFlow(manhwaId: String): Result<Flow<List<Chapter>>> = runCatching {
+        chapterDao.getFlowForManhwaId(manhwaId).map { entities ->
             entities.map(toDomain::invoke)
         }
+    }
+
+    suspend fun getChapters(manhwaId: String): Result<List<Chapter>> = runCatching {
+        chapterDao.getForManhwaId(manhwaId).map(toDomain::invoke)
     }
 
     suspend fun getChapter(id: String): Result<Chapter?> = runCatching {

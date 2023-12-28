@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -63,6 +64,7 @@ import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -94,7 +96,7 @@ fun ChapterOverview(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ChapterOverview(
     onBackClick: () -> Unit,
@@ -172,8 +174,16 @@ fun ChapterOverview(
                         .nestedScroll(scrollBehavior.nestedScrollConnection),
                     state = lazyListState,
                 ) {
-                    itemsIndexed(state.chapters) { index, item ->
-                        ChapterRow(index > 0, item.chapter, item.isRead, navigateToChapter)
+                    itemsIndexed(
+                        state.chapters,
+                        key = { _, item -> item.chapter.id }) { index, item ->
+                        ChapterRow(
+                            index > 0,
+                            item.chapter,
+                            item.isRead,
+                            navigateToChapter,
+                            Modifier.animateItemPlacement()
+                        )
                     }
                 }
             }
@@ -186,7 +196,8 @@ private fun ChapterRow(
     showDivider: Boolean,
     item: Chapter,
     isRead: Boolean,
-    navigateToChapter: (String) -> Unit
+    navigateToChapter: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val title by remember(item) {
         derivedStateOf {
@@ -203,7 +214,7 @@ private fun ChapterRow(
         }
     }
     Surface(
-        Modifier
+        modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp)
             .clickable { navigateToChapter(item.id) },
@@ -294,6 +305,7 @@ object ChapterProvider {
                 decimal = null,
                 title = null,
                 date = LocalDate(2023, 4, 16),
+                updatedAt = Instant.DISTANT_PAST,
             ),
             isRead = false,
         ),
@@ -304,6 +316,7 @@ object ChapterProvider {
                 decimal = 5,
                 title = null,
                 date = LocalDate(2023, 4, 12),
+                updatedAt = Instant.DISTANT_PAST,
             ),
             isRead = true,
         ),
@@ -314,6 +327,7 @@ object ChapterProvider {
                 decimal = null,
                 title = null,
                 date = LocalDate(2023, 3, 15),
+                updatedAt = Instant.DISTANT_PAST,
             ),
             isRead = true,
         ),
@@ -324,6 +338,7 @@ object ChapterProvider {
                 decimal = null,
                 title = "Long title to make the title take two lines at least",
                 date = LocalDate(2023, 2, 28),
+                updatedAt = Instant.DISTANT_PAST,
             ),
             isRead = true,
         ),
@@ -338,6 +353,6 @@ object ManhwaProvider {
         coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
         description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands!",
         status = "Ongoing",
-        updatedAt = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
+        updatedAt = Clock.System.now()
     )
 }

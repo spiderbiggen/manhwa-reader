@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites
+package com.spiderbiggen.manhwa.presentation.ui.manhwa
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.LinearEasing
@@ -7,6 +7,7 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material.icons.rounded.Favorite
@@ -30,12 +33,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -49,57 +54,58 @@ import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
 import com.spiderbiggen.manhwa.presentation.components.ManhwaRow
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManhwaFavoritesOverview(
+fun ManhwaOverview(
     navigateToManhwa: (String) -> Unit,
-    navigateToOverview: () -> Unit,
-    viewModel: ManhwaFavoritesViewModel = viewModel()
+    viewModel: ManhwaViewModel = viewModel()
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
     val scope = rememberCoroutineScope()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
-    ManhwaFavoritesOverview(
+    ManhwaOverview(
         navigateToManhwa = navigateToManhwa,
-        navigateToOverview = navigateToOverview,
         state = state,
         refreshing = viewModel.refreshing.value,
         onRefreshClicked = { scope.launch { viewModel.onClickRefresh() } },
-        lazyListState = lazyListState,
-        topAppBarState = topAppBarState
+        topAppBarState = topAppBarState,
+        scope = scope,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
-fun ManhwaFavoritesOverview(
+fun ManhwaOverview(
     navigateToManhwa: (String) -> Unit,
-    navigateToOverview: () -> Unit,
-    state: ManhwaFavoritesScreenState,
+    state: ManhwaScreenState,
     refreshing: Boolean = false,
     onRefreshClicked: () -> Unit = {},
-    lazyListState: LazyListState = rememberLazyListState(),
     topAppBarState: TopAppBarState = rememberTopAppBarState(),
+    scope: CoroutineScope = rememberCoroutineScope(),
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
+    val pagerState = rememberPagerState(pageCount = { 2 })
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Favorites") },
+                title = { Text("Manhwa") },
                 scrollBehavior = scrollBehavior,
                 actions = {
                     val rotation = if (refreshing) {
-                        val infiniteTransition = rememberInfiniteTransition("loading")
+                        val infiniteTransition = rememberInfiniteTransition(
+                            label = "Refresh indicator animation"
+                        )
                         infiniteTransition.animateFloat(
                             label = "Refresh Rotation",
                             initialValue = 0f,
@@ -110,7 +116,7 @@ fun ManhwaFavoritesOverview(
                             )
                         )
                     } else {
-                        remember { mutableStateOf(0f) }
+                        remember { mutableFloatStateOf(0f) }
                     }
                     IconButton(onRefreshClicked) {
                         Icon(
@@ -125,15 +131,15 @@ fun ManhwaFavoritesOverview(
         bottomBar = {
             NavigationBar {
                 NavigationBarItem(
-                    false,
-                    navigateToOverview,
+                    pagerState.currentPage == 0,
+                    { scope.launch { pagerState.animateScrollToPage(0) } },
                     icon = {
                         Icon(Icons.Rounded.Search, null)
                     }
                 )
                 NavigationBarItem(
-                    true,
-                    {},
+                    pagerState.currentPage == 1,
+                    { scope.launch { pagerState.animateScrollToPage(1) } },
                     icon = {
                         Icon(Icons.Rounded.Favorite, null)
                     }
@@ -142,28 +148,56 @@ fun ManhwaFavoritesOverview(
         }
     ) { padding ->
         when (state) {
-            is ManhwaFavoritesScreenState.Error,
-            ManhwaFavoritesScreenState.Loading -> Box(
+            is ManhwaScreenState.Error,
+            ManhwaScreenState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
                 CircularProgressIndicator()
             }
 
-            is ManhwaFavoritesScreenState.Ready -> {
-                LazyColumn(
-                    Modifier
-                        .padding(padding)
-                        .nestedScroll(scrollBehavior.nestedScrollConnection),
-                    state = lazyListState,
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    items(state.manhwa) {
-                        ManhwaRow(it, navigateToManhwa)
-                    }
+            is ManhwaScreenState.Ready -> {
+                HorizontalPager(state = pagerState) { index ->
+                    val manhwas by remember { derivedStateOf { state.manhwa.filter { index == 0 || it.isFavorite } } }
+                    ManhwaList(
+                        manhwas = manhwas,
+                        padding = padding,
+                        navigateToManhwa = navigateToManhwa,
+                        scrollBehavior = scrollBehavior
+                    )
                 }
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@Composable
+private fun ManhwaList(
+    manhwas: List<ManhwaViewData>,
+    padding: PaddingValues,
+    navigateToManhwa: (String) -> Unit,
+    scrollBehavior: TopAppBarScrollBehavior,
+    lazyListState: LazyListState = rememberLazyListState(),
+) {
+    val images by remember { derivedStateOf { manhwas.map { it.coverImage } } }
+    ListImagePreloader(
+        items = images,
+        visibleCount = 7,
+        preloadCount = 15,
+        lazyListState = lazyListState
+    )
+    LazyColumn(
+        Modifier
+            .padding(padding)
+            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        state = lazyListState,
+        contentPadding = PaddingValues(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        item(key = "header", contentType = { "header" }) { Box {} }
+        items(manhwas, key = { it.id }, contentType = { "row" }) {
+            ManhwaRow(it, navigateToManhwa, modifier = Modifier.animateItemPlacement())
         }
     }
 }
@@ -186,18 +220,21 @@ fun ManhwaFavoritesOverview(
 )
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewManhwa(@PreviewParameter(ManhwaOverviewScreenStateProvider::class) state: ManhwaFavoritesScreenState) {
+fun PreviewManhwa(@PreviewParameter(ManhwaOverviewScreenStateProvider::class) state: ManhwaScreenState) {
     ManhwaReaderTheme {
-        ManhwaFavoritesOverview({}, {}, state = state)
+        ManhwaOverview({}, state = state)
     }
 }
 
-class ManhwaOverviewScreenStateProvider : PreviewParameterProvider<ManhwaFavoritesScreenState> {
+class ManhwaOverviewScreenStateProvider : PreviewParameterProvider<ManhwaScreenState> {
     override val values
         get() = sequenceOf(
-            ManhwaFavoritesScreenState.Loading,
-            ManhwaFavoritesScreenState.Error("An error occurred"),
-            ManhwaFavoritesScreenState.Ready(ManhwaProvider.values.toList()),
+            ManhwaScreenState.Loading,
+            ManhwaScreenState.Error("An error occurred"),
+            ManhwaScreenState.Ready(ManhwaProvider.values.take(2).toList()),
+            ManhwaScreenState.Ready(
+                ManhwaProvider.values.toList()
+            )
         )
 }
 
@@ -210,17 +247,27 @@ object ManhwaProvider {
                 title = "Heavenly Martial God",
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Ongoing",
-                updatedAt = "2023-04-34",
+                updatedAt = "2023-04-23",
+                isFavorite = false,
+                readAll = false,
+            ),
+            ManhwaViewData(
+                source = "Asura",
+                id = "7df204a8-2d37-42d1-a2e0-e795ae618389",
+                title = "Heavenly Martial God",
+                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+                status = "Dropped",
+                updatedAt = "2023-04-23",
                 isFavorite = true,
                 readAll = false,
             ),
             ManhwaViewData(
                 source = "Asura",
-                id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
+                id = "7df204a8-2d37-42d1-a2e0-e795ae618310",
                 title = "Heavenly Martial God",
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-                status = "Dropped",
-                updatedAt = "2023-04-34",
+                status = "Ongoing",
+                updatedAt = "2023-04-23",
                 isFavorite = true,
                 readAll = true,
             )

@@ -7,4 +7,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface GetChapters {
     suspend operator fun invoke(manhwaId: String): Either<Flow<List<Chapter>>, AppError>
+    suspend fun once(manhwaId: String): Either<List<Chapter>, AppError>
 }

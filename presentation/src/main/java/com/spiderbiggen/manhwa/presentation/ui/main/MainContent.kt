@@ -13,10 +13,8 @@ import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesViewModel
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterViewModel
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites.ManhwaFavoritesOverview
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.favorites.ManhwaFavoritesViewModel
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.overview.ManhwaOverview
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.overview.ManhwaViewModel
+import com.spiderbiggen.manhwa.presentation.ui.manhwa.ManhwaOverview
+import com.spiderbiggen.manhwa.presentation.ui.manhwa.ManhwaViewModel
 
 @Composable
 fun MainContent() {
@@ -28,15 +26,6 @@ fun MainContent() {
                     val viewModel: ManhwaViewModel = hiltViewModel()
                     ManhwaOverview(
                         navigateToManhwa = { navController.navigate("manhwa/${it}") },
-                        navigateToFavorites = { navController.navigate("favorites") },
-                        viewModel = viewModel
-                    )
-                }
-                composable("favorites") {
-                    val viewModel: ManhwaFavoritesViewModel = hiltViewModel()
-                    ManhwaFavoritesOverview(
-                        navigateToManhwa = { navController.navigate("manhwa/${it}") },
-                        navigateToOverview = { navController.navigate("overview") },
                         viewModel = viewModel
                     )
                 }

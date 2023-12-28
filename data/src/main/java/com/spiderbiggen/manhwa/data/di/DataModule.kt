@@ -13,6 +13,7 @@ import com.spiderbiggen.manhwa.data.usecase.manhwa.GetDroppedManhwaImpl
 import com.spiderbiggen.manhwa.data.usecase.manhwa.GetFavoriteManhwaImpl
 import com.spiderbiggen.manhwa.data.usecase.manhwa.GetManhwaImpl
 import com.spiderbiggen.manhwa.data.usecase.manhwa.UpdateManhwaImpl
+import com.spiderbiggen.manhwa.data.usecase.read.IsManhwaReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadUpToChapterImpl
@@ -30,6 +31,7 @@ import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetDroppedManhwa
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetFavoriteManhwa
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetManhwa
 import com.spiderbiggen.manhwa.domain.usecase.manhwa.UpdateManhwa
+import com.spiderbiggen.manhwa.domain.usecase.read.IsManhwaRead
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetReadUpToChapter
@@ -79,6 +81,9 @@ abstract class DataModule {
 
     @Binds
     abstract fun bindToggleFavorite(useCase: ToggleFavoriteImpl): ToggleFavorite
+
+    @Binds
+    abstract fun bindIsManhwaRead(useCase: IsManhwaReadImpl): IsManhwaRead
 
     @Binds
     abstract fun bindIsRead(useCase: IsReadImpl): IsRead

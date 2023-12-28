@@ -12,6 +12,7 @@ class ToLocalChapterUseCase @Inject constructor() {
         decimal = entity.decimal ?: 0,
         title = entity.title,
         date = entity.date,
+        updatedAt = entity.updatedAt,
         imageChunks = entity.images,
     )
 }

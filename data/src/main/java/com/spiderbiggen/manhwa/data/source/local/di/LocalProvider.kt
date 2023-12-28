@@ -26,10 +26,6 @@ object LocalProvider {
     fun provideDatabase(@ApplicationContext context: Context): ManhwaDatabase =
         Room.databaseBuilder(context, ManhwaDatabase::class.java, "manhwa")
             .fallbackToDestructiveMigration()
-            .addMigrations(
-                ManhwaDatabase.Migration1To2(),
-                ManhwaDatabase.Migration2To3(),
-            )
             .build()
 
     @Provides

@@ -31,13 +31,20 @@ private val aspectModifier = Modifier
     .width(96.dp / aspectRatio)
 
 @Composable
-fun ManhwaRow(manhwa: ManhwaViewData, navigateToManhwa: (String) -> Unit) {
+fun ManhwaRow(
+    manhwa: ManhwaViewData,
+    navigateToManhwa: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
     Card(
-        Modifier
+        modifier
             .fillMaxWidth()
             .clickable { navigateToManhwa(manhwa.id) },
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface,
+        ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (manhwa.readAll) 0.dp else 1.dp
+            defaultElevation = if (manhwa.readAll) 0.24.dp else 2.dp
         ),
     ) {
         Row(

@@ -15,7 +15,10 @@ interface LocalChapterDao {
     suspend fun get(id: String): LocalChapterEntity?
 
     @Query("SELECT * FROM chapter WHERE manhwa_id = :manhwaId ORDER BY number DESC, decimal DESC")
-    fun getForManhwaId(manhwaId: String): Flow<List<LocalChapterEntity>>
+    fun getFlowForManhwaId(manhwaId: String): Flow<List<LocalChapterEntity>>
+
+    @Query("SELECT * FROM chapter WHERE manhwa_id = :manhwaId ORDER BY number DESC, decimal DESC")
+    suspend fun getForManhwaId(manhwaId: String): List<LocalChapterEntity>
 
     @Query(
         """

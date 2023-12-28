@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.manhwa.overview
+package com.spiderbiggen.manhwa.presentation.ui.manhwa
 
 import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
 

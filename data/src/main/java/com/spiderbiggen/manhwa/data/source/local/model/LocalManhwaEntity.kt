@@ -2,10 +2,17 @@ package com.spiderbiggen.manhwa.data.source.local.model
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
-@Entity("manhwa")
+@Entity(
+    tableName = "manhwa",
+    indices = [
+        Index("updated_at"),
+    ]
+)
 data class LocalManhwaEntity(
     @PrimaryKey
     val id: String,
@@ -16,5 +23,5 @@ data class LocalManhwaEntity(
     val description: String,
     val status: String,
     @ColumnInfo("updated_at")
-    val updatedAt: LocalDate,
+    val updatedAt: Instant,
 )

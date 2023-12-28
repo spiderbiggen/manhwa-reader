@@ -5,6 +5,7 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 @Entity(
@@ -13,7 +14,8 @@ import kotlinx.datetime.LocalDate
         ForeignKey(LocalManhwaEntity::class, ["id"], ["manhwa_id"])
     ],
     indices = [
-        Index("manhwa_id")
+        Index("manhwa_id"),
+        Index("number", "decimal"),
     ]
 )
 data class LocalChapterEntity(
@@ -26,6 +28,8 @@ data class LocalChapterEntity(
     val decimal: Int,
     val title: String? = null,
     val date: LocalDate,
+    @ColumnInfo("updated_at")
+    val updatedAt: Instant? = null,
     @ColumnInfo("image_chunks", defaultValue = "0")
     val imageChunks: Int
 )

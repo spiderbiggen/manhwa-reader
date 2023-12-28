@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.domain.model
 
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
 data class Chapter(
@@ -8,4 +9,5 @@ data class Chapter(
     val decimal: Int?,
     val title: String?,
     val date: LocalDate,
+    val updatedAt: Instant,
 )

@@ -14,7 +14,7 @@ class ToDomainManhwaUseCase @Inject constructor() {
         coverImage = URL(entity.cover),
         description = entity.description,
         status = entity.status,
-        updatedAt = entity.lastReleaseDate
+        updatedAt = entity.updatedAt
     )
 
     operator fun invoke(entity: LocalManhwaEntity): Manhwa = Manhwa(

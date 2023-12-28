@@ -2,67 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "db46b5503603e5a250ca55865b62096d",
+    "identityHash": "c94ecc8b27a0bbc0e99528ca869681c9",
     "entities": [
       {
-        "tableName": "manhwa",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `coverImage` TEXT NOT NULL, `description` TEXT, `status` TEXT NOT NULL, `updatedAt` TEXT, PRIMARY KEY(`id`))",
-        "fields": [
-          {
-            "fieldPath": "id",
-            "columnName": "id",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "source",
-            "columnName": "source",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "title",
-            "columnName": "title",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "coverImage",
-            "columnName": "coverImage",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "description",
-            "columnName": "description",
-            "affinity": "TEXT",
-            "notNull": false
-          },
-          {
-            "fieldPath": "status",
-            "columnName": "status",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "updatedAt",
-            "columnName": "updatedAt",
-            "affinity": "TEXT",
-            "notNull": false
-          }
-        ],
-        "primaryKey": {
-          "autoGenerate": false,
-          "columnNames": [
-            "id"
-          ]
-        },
-        "indices": [],
-        "foreignKeys": []
-      },
-      {
         "tableName": "chapter",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `manhwa_id` TEXT NOT NULL, `number` INTEGER NOT NULL, `decimal` INTEGER, `title` TEXT, `url` TEXT NOT NULL, `date` TEXT, `image_chunks` INTEGER, PRIMARY KEY(`id`), FOREIGN KEY(`manhwa_id`) REFERENCES `manhwa`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `manhwa_id` TEXT NOT NULL, `number` INTEGER NOT NULL, `decimal` INTEGER NOT NULL DEFAULT 0, `title` TEXT, `date` TEXT NOT NULL, `updated_at` TEXT, `image_chunks` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`manhwa_id`) REFERENCES `manhwa`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -86,7 +30,8 @@
             "fieldPath": "decimal",
             "columnName": "decimal",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true,
+            "defaultValue": "0"
           },
           {
             "fieldPath": "title",
@@ -95,14 +40,14 @@
             "notNull": false
           },
           {
-            "fieldPath": "url",
-            "columnName": "url",
+            "fieldPath": "date",
+            "columnName": "date",
             "affinity": "TEXT",
             "notNull": true
           },
           {
-            "fieldPath": "date",
-            "columnName": "date",
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
             "affinity": "TEXT",
             "notNull": false
           },
@@ -110,7 +55,8 @@
             "fieldPath": "imageChunks",
             "columnName": "image_chunks",
             "affinity": "INTEGER",
-            "notNull": false
+            "notNull": true,
+            "defaultValue": "0"
           }
         ],
         "primaryKey": {
@@ -128,6 +74,16 @@
             ],
             "orders": [],
             "createSql": "CREATE INDEX IF NOT EXISTS `index_chapter_manhwa_id` ON `${TABLE_NAME}` (`manhwa_id`)"
+          },
+          {
+            "name": "index_chapter_number_decimal",
+            "unique": false,
+            "columnNames": [
+              "number",
+              "decimal"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_chapter_number_decimal` ON `${TABLE_NAME}` (`number`, `decimal`)"
           }
         ],
         "foreignKeys": [
@@ -143,12 +99,78 @@
             ]
           }
         ]
+      },
+      {
+        "tableName": "manhwa",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `cover` TEXT NOT NULL, `description` TEXT NOT NULL, `status` TEXT NOT NULL, `updated_at` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "source",
+            "columnName": "source",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "title",
+            "columnName": "title",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cover",
+            "columnName": "cover",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "description",
+            "columnName": "description",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "updatedAt",
+            "columnName": "updated_at",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        },
+        "indices": [
+          {
+            "name": "index_manhwa_updated_at",
+            "unique": false,
+            "columnNames": [
+              "updated_at"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_manhwa_updated_at` ON `${TABLE_NAME}` (`updated_at`)"
+          }
+        ],
+        "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'db46b5503603e5a250ca55865b62096d')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c94ecc8b27a0bbc0e99528ca869681c9')"
     ]
   }
 }
