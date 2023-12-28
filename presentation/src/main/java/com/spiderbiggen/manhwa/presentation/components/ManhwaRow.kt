@@ -44,7 +44,7 @@ fun ManhwaRow(
             containerColor = MaterialTheme.colorScheme.surface,
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = if (manhwa.readAll) 0.24.dp else 2.dp
+            defaultElevation = if (manhwa.readAll) 0.24.dp else 3.dp
         ),
     ) {
         Row(
