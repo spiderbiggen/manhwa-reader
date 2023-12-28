@@ -95,7 +95,7 @@ fun ManhwaOverview(
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
-    val pagerState = rememberPagerState(pageCount = { 2 })
+    val pagerState = rememberPagerState(initialPage = 1, pageCount = { 2 })
     Scaffold(
         topBar = {
             TopAppBar(
