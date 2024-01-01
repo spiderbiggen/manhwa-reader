@@ -15,9 +15,13 @@ import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalAbsoluteTonalElevation
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -36,55 +40,60 @@ fun ManhwaRow(
     navigateToManhwa: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Card(
-        modifier
-            .fillMaxWidth()
-            .clickable { navigateToManhwa(manhwa.id) },
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surface,
-        ),
-        elevation = CardDefaults.cardElevation(
-            defaultElevation = if (manhwa.readAll) 0.24.dp else 3.dp
-        ),
+    val readElevation = remember(manhwa.readAll) {
+        if (manhwa.readAll) 0.24.dp else 3.dp
+    }
+    val localElevation = LocalAbsoluteTonalElevation.current + readElevation
+    CompositionLocalProvider(
+        LocalAbsoluteTonalElevation provides localElevation
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        Card(
+            modifier
+                .fillMaxWidth()
+                .clickable { navigateToManhwa(manhwa.id) },
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surface,
+            ),
         ) {
-            AsyncImage(
-                model = manhwa.coverImage,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = aspectModifier,
-                alignment = Alignment.Center
-            )
-            Column(
-                Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(
-                    manhwa.title,
-                    style = MaterialTheme.typography.bodyLarge,
+                AsyncImage(
+                    model = manhwa.coverImage,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = aspectModifier,
+                    alignment = Alignment.Center
                 )
-                manhwa.updatedAt?.let {
+                Column(
+                    Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
+                ) {
                     Text(
-                        it,
-                        style = MaterialTheme.typography.bodySmall,
+                        manhwa.title,
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                    manhwa.updatedAt?.let {
+                        Text(
+                            it,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+                if (manhwa.status == "Dropped") {
+                    Icon(
+                        Icons.Rounded.Warning,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
                     )
                 }
-            }
-            if (manhwa.status == "Dropped") {
                 Icon(
-                    Icons.Rounded.Warning,
+                    if (manhwa.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(end = 16.dp)
                 )
             }
-            Icon(
-                if (manhwa.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 16.dp)
-            )
         }
     }
 }

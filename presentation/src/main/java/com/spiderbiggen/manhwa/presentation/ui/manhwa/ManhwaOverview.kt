@@ -158,7 +158,7 @@ fun ManhwaOverview(
 
             is ManhwaScreenState.Ready -> {
                 HorizontalPager(state = pagerState) { index ->
-                    val manhwas by remember { derivedStateOf { state.manhwa.filter { index == 0 || it.isFavorite } } }
+                    val manhwas = remember(key1 = state.manhwa) { state.manhwa.filter { index == 0 || it.isFavorite } }
                     ManhwaList(
                         manhwas = manhwas,
                         padding = padding,
