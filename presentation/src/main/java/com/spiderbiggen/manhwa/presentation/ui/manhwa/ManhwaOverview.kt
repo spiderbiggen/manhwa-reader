@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -158,7 +158,8 @@ fun ManhwaOverview(
 
             is ManhwaScreenState.Ready -> {
                 HorizontalPager(state = pagerState) { index ->
-                    val manhwas = remember(key1 = state.manhwa) { state.manhwa.filter { index == 0 || it.isFavorite } }
+                    val manhwas =
+                        remember(key1 = state.manhwa) { state.manhwa.filter { index == 0 || it.isFavorite } }
                     ManhwaList(
                         manhwas = manhwas,
                         padding = padding,
@@ -195,9 +196,16 @@ private fun ManhwaList(
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item(key = "header", contentType = { "header" }) { Box {} }
-        items(manhwas, key = { it.id }, contentType = { "row" }) {
-            ManhwaRow(it, navigateToManhwa, modifier = Modifier.animateItemPlacement())
+        itemsIndexed(
+            manhwas,
+            key = { index, item -> if (index == 0) "first" else item.id },
+        ) { _, item ->
+            ManhwaRow(
+                manhwa = item,
+                navigateToManhwa = navigateToManhwa,
+                modifier = Modifier
+                    .animateItemPlacement()
+            )
         }
     }
 }

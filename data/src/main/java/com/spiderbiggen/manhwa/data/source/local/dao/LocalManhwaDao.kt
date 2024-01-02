@@ -17,7 +17,7 @@ interface LocalManhwaDao {
     @Query("SELECT * FROM manhwa WHERE source = :source")
     suspend fun getForSource(source: String): List<LocalManhwaEntity>
 
-    @Query("SELECT * FROM manhwa ORDER BY updated_at DESC")
+    @Query("SELECT m.* FROM manhwa m LEFT JOIN chapter c on c.manhwa_id = m.id AND c.updated_at = m.updated_at ORDER BY updated_at DESC")
     fun getAll(): Flow<List<LocalManhwaEntity>>
 
     @Query(

@@ -40,7 +40,7 @@ fun ManhwaRow(
     modifier: Modifier = Modifier
 ) {
     val readElevation = remember(manhwa.readAll) {
-        if (manhwa.readAll) 0.24.dp else 3.dp
+        if (manhwa.readAll) 1.dp else 4.dp
     }
     val localElevation = LocalAbsoluteTonalElevation.current + readElevation
     CompositionLocalProvider(
