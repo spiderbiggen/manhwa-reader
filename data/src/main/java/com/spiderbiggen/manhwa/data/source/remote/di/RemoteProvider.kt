@@ -34,7 +34,7 @@ object RemoteProvider {
     @Provides
     @BaseUrl
     fun baseUrl(): String =
-        "https://api.spiderbiggen.com/manhwa"
+        "https://manga.spiderbiggen.com"
 
     @Provides
     @Singleton

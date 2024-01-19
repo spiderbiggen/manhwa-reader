@@ -23,13 +23,16 @@ fun MainContent() {
     val navController = rememberNavController()
     ManhwaReaderTheme {
         Surface {
-            NavHost(navController = navController, startDestination = "overview") {
+            NavHost(
+                navController = navController,
+                startDestination = "overview",
+            ) {
                 composable("overview") { backStackEntry ->
                     val viewModel: ManhwaViewModel = hiltViewModel()
                     ManhwaOverview(
                         navigateToManhwa = {
                             if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manhwa/${it}") {
+                                navController.navigate("manhwa/$it") {
                                     restoreState = true
                                 }
                             }
@@ -70,21 +73,17 @@ fun MainContent() {
                         onBackClick = {
                             if (backStackEntry.lifecycleIsResumed()) {
                                 navController.navigate("manhwa/$manhwaId") {
-                                    restoreState = true
                                     popUpTo("manhwa/$manhwaId") {
                                         inclusive = true
                                         saveState = true
                                     }
+                                    restoreState = true
                                 }
                             }
                         },
                         toChapterClicked = {
                             if (backStackEntry.lifecycleIsResumed()) {
                                 navController.navigate("manhwa/$manhwaId/chapter/$it") {
-                                    popUpTo("manhwa/$manhwaId") {
-                                        inclusive = true
-                                        saveState = true
-                                    }
                                     restoreState = true
                                 }
                             }

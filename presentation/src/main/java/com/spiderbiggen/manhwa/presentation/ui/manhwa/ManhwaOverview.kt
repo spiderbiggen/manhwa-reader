@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -196,10 +196,13 @@ private fun ManhwaList(
         contentPadding = PaddingValues(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        itemsIndexed(
-            manhwas,
-            key = { index, item -> if (index == 0) "first" else item.id },
-        ) { _, item ->
+        item(key = "header", contentType = "header") {
+            Text(text = "Header")
+        }
+        items(
+            items = manhwas,
+            key = { item -> item.id },
+        ) { item ->
             ManhwaRow(
                 manhwa = item,
                 navigateToManhwa = navigateToManhwa,

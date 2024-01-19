@@ -7,13 +7,13 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface ManhwaService {
-    @GET("manhwas")
+    @GET("mangas")
     suspend fun getAllManhwas(): Response<List<ManhwaEntity>>
 
-    @GET("manhwas/{id}")
+    @GET("mangas/{id}")
     suspend fun getManhwa(@Path("id") id: String): Response<ManhwaEntity>
 
-    @GET("manhwas/{id}/chapters")
+    @GET("mangas/{id}/chapters")
     suspend fun getManhwaChapters(@Path("id") id: String): Response<List<ChapterEntity>>
 
     @GET("chapters/{id}")

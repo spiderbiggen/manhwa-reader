@@ -2,18 +2,17 @@
 activity-compose = "1.8.2"
 androidx-test-ext-junit = "1.1.5"
 androidx-hilt = "1.1.0"
+android-gradle-plugin = "8.4.0-alpha04"
 appcompat = "1.6.1"
-coil-bom = "2.4.0"
-com-android-application = "8.4.0-alpha02"
-com-android-library = "8.4.0-alpha02"
+coil-bom = "2.5.0"
 compose-bom = "2023.10.01"
 core-ktx = "1.12.0"
 dagger = "2.50"
 espresso-core = "3.5.1"
 hilt = "2.50"
 junit = "4.13.2"
-kotlin = "1.9.21"
-lifecycle = "2.6.2"
+kotlin = "1.9.22"
+lifecycle = "2.7.0"
 room = "2.6.1"
 work = "2.9.0"
 
@@ -51,7 +50,7 @@ room-processing = { group = "androidx.room", name = "room-compiler", version.ref
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-test = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.7.1" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.7.3" }
 hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 android-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "androidx-hilt" }
 android-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "androidx-hilt" }
@@ -73,9 +72,9 @@ coil-compose = { group = "io.coil-kt", name = "coil-compose" }
 accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version = "0.30.1" }
 
 [plugins]
-com-android-application = { id = "com.android.application", version.ref = "com-android-application" }
-com-android-library = { id = "com.android.library", version.ref = "com-android-library" }
-com-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.21-1.0.16" }
+com-android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
+com-android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
+com-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17" }
 com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

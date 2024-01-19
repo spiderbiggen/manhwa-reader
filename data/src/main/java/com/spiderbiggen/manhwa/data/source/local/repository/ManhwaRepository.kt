@@ -1,7 +1,6 @@
 package com.spiderbiggen.manhwa.data.source.local.repository
 
 import com.spiderbiggen.manhwa.data.source.local.dao.LocalManhwaDao
-import com.spiderbiggen.manhwa.data.source.local.model.LocalManhwaEntity
 import com.spiderbiggen.manhwa.data.usecase.manhwa.mapper.ToDomainManhwaUseCase
 import com.spiderbiggen.manhwa.domain.model.Manhwa
 import kotlinx.coroutines.flow.Flow
@@ -18,7 +17,10 @@ class ManhwaRepository @Inject constructor(
         get() = manhwaDaoProvider.get()
 
     fun getManhwas(): Result<Flow<List<Manhwa>>> = runCatching {
-        manhwaDao.getAll().map { entities -> entities.map(toDomain::invoke) }
+        manhwaDao.getAll().map { entities ->
+            entities.map(toDomain::invoke)
+                .distinctBy { it.id }
+        }
     }
 
     suspend fun getManhwa(id: String): Result<Manhwa?> = runCatching {
