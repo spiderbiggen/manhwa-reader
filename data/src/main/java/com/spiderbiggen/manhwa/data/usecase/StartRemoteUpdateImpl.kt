@@ -7,7 +7,7 @@ import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequest
 import androidx.work.WorkManager
 import com.spiderbiggen.manhwa.data.worker.ManhwaUpdateWorker
-import com.spiderbiggen.manhwa.domain.usecase.StartRemoteUpdate
+import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteUpdate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 

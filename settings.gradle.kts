@@ -13,7 +13,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Manhwa Reader"
+rootProject.name = "Manga Reader"
 include(":app")
 include(":data")
 include(":domain")

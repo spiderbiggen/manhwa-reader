@@ -18,7 +18,7 @@ import com.spiderbiggen.manhwa.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.read.ToggleReadImpl
-import com.spiderbiggen.manhwa.domain.usecase.StartRemoteUpdate
+import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteUpdate
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
