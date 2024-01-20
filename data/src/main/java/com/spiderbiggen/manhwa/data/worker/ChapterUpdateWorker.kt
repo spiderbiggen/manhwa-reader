@@ -29,7 +29,7 @@ class ChapterUpdateWorker @AssistedInject constructor(
     appContext, params
 ) {
     override suspend fun doWork(): Result {
-        val mangaId = params.inputData.getString(UPDATED_MANGA_ID) ?: run {
+        val mangaId = params.inputData.getString(KEY_UPDATED_MANGA_ID) ?: run {
             Log.e(TAG, "Manga id not found")
             return Result.failure()
         }
@@ -49,9 +49,9 @@ class ChapterUpdateWorker @AssistedInject constructor(
     }
 
     companion object {
-        private const val UNIQUE_KEY_PREFIX = "manga-update"
-        private const val KEY_SKIP_CACHE = "skip-cache"
-        private const val UPDATED_MANGA_ID = "UpdatedMangaId"
+        private const val UNIQUE_KEY_PREFIX = "chaptersUpdate"
+        private const val KEY_SKIP_CACHE = "skipCache"
+        private const val KEY_UPDATED_MANGA_ID = "updatedMangaId"
         private const val TAG = "ChapterUpdateWorker"
 
         private val constraints =
@@ -61,11 +61,13 @@ class ChapterUpdateWorker @AssistedInject constructor(
             enqueueUniqueWork(
                 "$UNIQUE_KEY_PREFIX-$mangaId",
                 ExistingWorkPolicy.KEEP,
-                OneTimeWorkRequestBuilder<MangaUpdateWorker>()
-                    .setInputData(workDataOf(
-                        UPDATED_MANGA_ID to mangaId,
-                        KEY_SKIP_CACHE to skipCache,
-                    ))
+                OneTimeWorkRequestBuilder<ChapterUpdateWorker>()
+                    .setInputData(
+                        workDataOf(
+                            KEY_UPDATED_MANGA_ID to mangaId,
+                            KEY_SKIP_CACHE to skipCache,
+                        )
+                    )
                     .addTag(MANGA_UPDATE_TAG)
                     .setConstraints(constraints)
                     .build()

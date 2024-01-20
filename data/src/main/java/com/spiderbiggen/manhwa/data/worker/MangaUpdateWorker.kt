@@ -60,8 +60,8 @@ class MangaUpdateWorker @AssistedInject constructor(
     }
 
     companion object {
-        private const val WORKER_UNIQUE_ID = "manga-update"
-        private const val KEY_SKIP_CACHE = "skip_cache"
+        private const val WORKER_UNIQUE_ID = "mangaUpdate"
+        private const val KEY_SKIP_CACHE = "skipCache"
         private const val TAG = "MangaUpdateWorker"
 
 
