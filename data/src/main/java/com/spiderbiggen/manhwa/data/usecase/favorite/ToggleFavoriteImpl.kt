@@ -9,9 +9,9 @@ import javax.inject.Inject
 class ToggleFavoriteImpl @Inject constructor(
     private val favoritesRepository: FavoritesRepository
 ) : ToggleFavorite {
-    override suspend fun invoke(manhwaId: String): Either<Boolean, AppError> {
-        val newState = !favoritesRepository.isFavorite(manhwaId)
-        favoritesRepository.setFavorite(manhwaId, newState)
+    override fun invoke(mangaId: String): Either<Boolean, AppError> {
+        val newState = !favoritesRepository.isFavorite(mangaId)
+        favoritesRepository.setFavorite(mangaId, newState)
         return Either.Left(newState)
     }
 }

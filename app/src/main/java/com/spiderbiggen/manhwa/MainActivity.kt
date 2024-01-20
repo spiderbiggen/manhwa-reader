@@ -25,6 +25,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onPostResume() {
         super.onPostResume()
-        startRemoteUpdate.get().invoke()
+        startRemoteUpdate.get().invoke(skipCache = false)
     }
 }

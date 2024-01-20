@@ -5,9 +5,9 @@ import com.spiderbiggen.manhwa.data.source.remote.model.ChapterEntity
 import javax.inject.Inject
 
 class ToLocalChapterUseCase @Inject constructor() {
-    operator fun invoke(manhwaId: String, entity: ChapterEntity) = LocalChapterEntity(
+    operator fun invoke(mangaId: String, entity: ChapterEntity) = LocalChapterEntity(
         id = entity.id,
-        manhwaId = manhwaId,
+        mangaId = mangaId,
         number = entity.number,
         decimal = entity.decimal ?: 0,
         title = entity.title,

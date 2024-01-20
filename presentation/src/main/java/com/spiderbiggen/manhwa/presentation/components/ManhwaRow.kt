@@ -26,7 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.spiderbiggen.manhwa.presentation.model.ManhwaViewData
+import com.spiderbiggen.manhwa.presentation.model.MangaViewData
 
 private const val aspectRatio = 1.35F
 private val aspectModifier = Modifier
@@ -34,13 +34,13 @@ private val aspectModifier = Modifier
     .width(96.dp / aspectRatio)
 
 @Composable
-fun ManhwaRow(
-    manhwa: ManhwaViewData,
-    navigateToManhwa: (String) -> Unit,
+fun MangaRow(
+    manga: MangaViewData,
+    navigateToManga: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val readElevation = remember(manhwa.readAll) {
-        if (manhwa.readAll) 1.dp else 4.dp
+    val readElevation = remember(manga.readAll) {
+        if (manga.readAll) 1.dp else 4.dp
     }
     val localElevation = LocalAbsoluteTonalElevation.current + readElevation
     CompositionLocalProvider(
@@ -49,7 +49,7 @@ fun ManhwaRow(
         Card(
             modifier
                 .fillMaxWidth()
-                .clickable { navigateToManhwa(manhwa.id) },
+                .clickable { navigateToManga(manga.id) },
             colors = CardDefaults.cardColors(
                 containerColor = MaterialTheme.colorScheme.surface,
             ),
@@ -59,7 +59,7 @@ fun ManhwaRow(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 AsyncImage(
-                    model = manhwa.coverImage,
+                    model = manga.coverImage,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = aspectModifier,
@@ -70,17 +70,17 @@ fun ManhwaRow(
                     verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
                 ) {
                     Text(
-                        manhwa.title,
+                        manga.title,
                         style = MaterialTheme.typography.bodyLarge,
                     )
-                    manhwa.updatedAt?.let {
+                    manga.updatedAt?.let {
                         Text(
                             it,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
                 }
-                if (manhwa.status == "Dropped") {
+                if (manga.status == "Dropped") {
                     Icon(
                         Icons.Rounded.Warning,
                         contentDescription = null,
@@ -88,7 +88,7 @@ fun ManhwaRow(
                     )
                 }
                 Icon(
-                    if (manhwa.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                    if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                     contentDescription = null,
                     modifier = Modifier.padding(end = 16.dp)
                 )

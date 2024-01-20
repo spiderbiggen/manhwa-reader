@@ -14,15 +14,15 @@ interface LocalChapterDao {
     @Query("SELECT * FROM chapter where id = :id")
     suspend fun get(id: String): LocalChapterEntity?
 
-    @Query("SELECT * FROM chapter WHERE manhwa_id = :manhwaId ORDER BY number DESC, decimal DESC")
-    fun getFlowForManhwaId(manhwaId: String): Flow<List<LocalChapterEntity>>
+    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC, decimal DESC")
+    fun getFlowForMangaId(mangaId: String): Flow<List<LocalChapterEntity>>
 
-    @Query("SELECT * FROM chapter WHERE manhwa_id = :manhwaId ORDER BY number DESC, decimal DESC")
-    suspend fun getForManhwaId(manhwaId: String): List<LocalChapterEntity>
+    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC, decimal DESC")
+    suspend fun getForMangaId(mangaId: String): List<LocalChapterEntity>
 
     @Query(
         """
-        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manhwa_id)
+        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
         WHERE c2.id = :id 
         AND (
             c1.number < c2.number 
@@ -35,7 +35,7 @@ interface LocalChapterDao {
 
     @Query(
         """
-        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manhwa_id)
+        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
         WHERE c2.id = :id 
         AND (
             c1.number < c2.number 
@@ -49,7 +49,7 @@ interface LocalChapterDao {
 
     @Query(
         """
-        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manhwa_id)
+        SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
         WHERE c2.id = :id 
         AND (
             c1.number > c2.number 

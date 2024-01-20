@@ -12,9 +12,9 @@ import javax.inject.Inject
 class GetChaptersImpl @Inject constructor(
     private val chapterRepository: ChapterRepository,
 ) : GetChapters {
-    override suspend fun invoke(manhwaId: String): Either<Flow<List<Chapter>>, AppError> =
-        chapterRepository.getChapterFlow(manhwaId).either()
+    override suspend fun invoke(mangaId: String): Either<Flow<List<Chapter>>, AppError> =
+        chapterRepository.getChapterFlow(mangaId).either()
 
-    override suspend fun once(manhwaId: String): Either<List<Chapter>, AppError> =
-        chapterRepository.getChapters(manhwaId).either()
+    override suspend fun once(mangaId: String): Either<List<Chapter>, AppError> =
+        chapterRepository.getChapters(mangaId).either()
 }

@@ -59,8 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.domain.model.Chapter
-import com.spiderbiggen.manhwa.domain.model.Manhwa
-import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import com.spiderbiggen.manhwa.domain.model.Manga
+import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -78,16 +78,16 @@ fun ChapterOverview(
     LaunchedEffect(null) {
         viewModel.collect()
     }
-    val scope = rememberCoroutineScope()
+    val refreshingState by viewModel.updatingState.collectAsStateWithLifecycle(false)
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
     ChapterOverview(
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
-        refreshing = viewModel.refreshing.value,
-        onRefreshClicked = { scope.launch { viewModel.onClickRefresh() } },
-        toggleFavorite = { scope.launch { viewModel.toggleFavorite() } },
+        refreshing = refreshingState,
+        onRefreshClicked = viewModel::onClickRefresh,
+        toggleFavorite = viewModel::toggleFavorite,
         state = state,
         lazyListState = lazyListState,
         topAppBarState = topAppBarState,
@@ -121,7 +121,7 @@ fun ChapterOverview(
                 colors = TopAppBarDefaults.topAppBarColors(
                     scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
                 ),
-                title = { Text((state as? ChapterScreenState.Ready)?.manhwa?.title ?: "Manhwa") },
+                title = { Text((state as? ChapterScreenState.Ready)?.manga?.title ?: "Manga") },
                 scrollBehavior = scrollBehavior,
                 actions = {
                     IconButton(
@@ -265,8 +265,8 @@ private fun ChapterRow(
 )
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
-fun PreviewManhwa(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
-    ManhwaReaderTheme {
+fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
+    MangaReaderTheme {
         ChapterOverview(
             onBackClick = {},
             navigateToChapter = {},
@@ -283,12 +283,12 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
             ChapterScreenState.Loading,
             ChapterScreenState.Error("An error occurred"),
             ChapterScreenState.Ready(
-                manhwa = ManhwaProvider.value,
+                manga = MangaProvider.value,
                 isFavorite = false,
                 chapters = ChapterProvider.values.toList()
             ),
             ChapterScreenState.Ready(
-                manhwa = ManhwaProvider.value,
+                manga = MangaProvider.value,
                 isFavorite = true,
                 chapters = ChapterProvider.values.toList()
             ),
@@ -344,8 +344,8 @@ object ChapterProvider {
     )
 }
 
-object ManhwaProvider {
-    val value = Manhwa(
+object MangaProvider {
+    val value = Manga(
         source = "Asura",
         id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
         title = "Heavenly Martial God",

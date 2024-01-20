@@ -4,9 +4,9 @@ import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.spiderbiggen.manhwa.data.source.local.ManhwaDatabase
+import com.spiderbiggen.manhwa.data.source.local.MangaDatabase
 import com.spiderbiggen.manhwa.data.source.local.dao.LocalChapterDao
-import com.spiderbiggen.manhwa.data.source.local.dao.LocalManhwaDao
+import com.spiderbiggen.manhwa.data.source.local.dao.LocalMangaDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -23,14 +23,14 @@ object LocalProvider {
 
     @Singleton
     @Provides
-    fun provideDatabase(@ApplicationContext context: Context): ManhwaDatabase =
-        Room.databaseBuilder(context, ManhwaDatabase::class.java, "manhwa")
+    fun provideDatabase(@ApplicationContext context: Context): MangaDatabase =
+        Room.databaseBuilder(context, MangaDatabase::class.java, "manga")
             .fallbackToDestructiveMigration()
             .build()
 
     @Provides
-    fun provideManhwaDao(database: ManhwaDatabase): LocalManhwaDao = database.localManhwaDao()
+    fun provideMangaDao(database: MangaDatabase): LocalMangaDao = database.localMangaDao()
 
     @Provides
-    fun provideChapterDao(database: ManhwaDatabase): LocalChapterDao = database.localChapterDao()
+    fun provideChapterDao(database: MangaDatabase): LocalChapterDao = database.localChapterDao()
 }

@@ -10,29 +10,29 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.spiderbiggen.manhwa.presentation.theme.ManhwaReaderTheme
+import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesViewModel
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterViewModel
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.ManhwaOverview
-import com.spiderbiggen.manhwa.presentation.ui.manhwa.ManhwaViewModel
+import com.spiderbiggen.manhwa.presentation.ui.manga.MangaOverview
+import com.spiderbiggen.manhwa.presentation.ui.manga.MangaViewModel
 
 @Composable
 fun MainContent() {
     val navController = rememberNavController()
-    ManhwaReaderTheme {
+    MangaReaderTheme {
         Surface {
             NavHost(
                 navController = navController,
                 startDestination = "overview",
             ) {
                 composable("overview") { backStackEntry ->
-                    val viewModel: ManhwaViewModel = hiltViewModel()
-                    ManhwaOverview(
-                        navigateToManhwa = {
+                    val viewModel: MangaViewModel = hiltViewModel()
+                    MangaOverview(
+                        navigateToManga = {
                             if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manhwa/$it") {
+                                navController.navigate("manga/$it") {
                                     restoreState = true
                                 }
                             }
@@ -41,18 +41,18 @@ fun MainContent() {
                     )
                 }
                 composable(
-                    route = "manhwa/{manhwaId}",
+                    route = "manga/{mangaId}",
                     arguments = listOf(
-                        navArgument("manhwaId") { type = NavType.StringType }
+                        navArgument("mangaId") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
                     val viewModel: ChapterViewModel = hiltViewModel()
-                    val manhwaId = checkNotNull(backStackEntry.arguments?.getString("manhwaId"))
+                    val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                     ChapterOverview(
                         onBackClick = { navController.popBackStack() },
                         navigateToChapter = {
                             if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manhwa/$manhwaId/chapter/$it") {
+                                navController.navigate("manga/$mangaId/chapter/$it") {
                                     restoreState = true
                                 }
                             }
@@ -61,19 +61,19 @@ fun MainContent() {
                     )
                 }
                 composable(
-                    route = "manhwa/{manhwaId}/chapter/{chapterId}",
+                    route = "manga/{mangaId}/chapter/{chapterId}",
                     arguments = listOf(
-                        navArgument("manhwaId") { type = NavType.StringType },
+                        navArgument("mangaId") { type = NavType.StringType },
                         navArgument("chapterId") { type = NavType.StringType }
                     )
                 ) { backStackEntry ->
-                    val manhwaId = checkNotNull(backStackEntry.arguments?.getString("manhwaId"))
+                    val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                     val viewModel: ImagesViewModel = hiltViewModel()
                     ImagesOverview(
                         onBackClick = {
                             if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manhwa/$manhwaId") {
-                                    popUpTo("manhwa/$manhwaId") {
+                                navController.navigate("manga/$mangaId") {
+                                    popUpTo("manga/$mangaId") {
                                         inclusive = true
                                         saveState = true
                                     }
@@ -83,7 +83,7 @@ fun MainContent() {
                         },
                         toChapterClicked = {
                             if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manhwa/$manhwaId/chapter/$it") {
+                                navController.navigate("manga/$mangaId/chapter/$it") {
                                     restoreState = true
                                 }
                             }

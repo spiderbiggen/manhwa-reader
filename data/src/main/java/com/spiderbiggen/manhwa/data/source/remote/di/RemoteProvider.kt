@@ -3,7 +3,7 @@ package com.spiderbiggen.manhwa.data.source.remote.di
 import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.spiderbiggen.manhwa.data.di.BaseUrl
-import com.spiderbiggen.manhwa.data.source.remote.ManhwaService
+import com.spiderbiggen.manhwa.data.source.remote.MangaService
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,6 +21,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object RemoteProvider {
+    /**
+     * Given the small size of the api responses,
+     * 20MB should be enough for almost all manga + chapters.
+     */
     private const val CACHE_SIZE: Long = 20 * 1024 * 1024
 
     @OptIn(ExperimentalSerializationApi::class)
@@ -58,8 +62,8 @@ object RemoteProvider {
     }
 
     @Provides
-    fun provideManhwaService(builder: Retrofit.Builder, @BaseUrl baseUrl: String): ManhwaService =
+    fun provideMangaService(builder: Retrofit.Builder, @BaseUrl baseUrl: String): MangaService =
         builder.baseUrl("$baseUrl/")
             .build()
-            .create(ManhwaService::class.java)
+            .create(MangaService::class.java)
 }

@@ -1,65 +1,61 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 
-import androidx.compose.runtime.mutableStateOf
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.andLeft
 import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
-import com.spiderbiggen.manhwa.domain.usecase.chapter.UpdateChapters
 import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetManhwa
+import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
+import com.spiderbiggen.manhwa.domain.usecase.remote.GetUpdatingState
+import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteChapterUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getManhwa: GetManhwa,
+    private val getManga: GetManga,
     private val getChapters: GetChapters,
-    private val updateChapters: UpdateChapters,
     private val isFavorite: IsFavorite,
     private val toggleFavorite: ToggleFavorite,
     private val isRead: IsRead,
+    private val getUpdatingState: GetUpdatingState,
+    private val startRemoteChapterUpdate: StartRemoteChapterUpdate,
 ) : ViewModel() {
 
-    private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
+    private val mangaId: String = checkNotNull(savedStateHandle["mangaId"])
 
     private val mutableScreenState =
         MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
     val state
         get() = mutableScreenState.asStateFlow()
 
-    var refreshing = mutableStateOf(false)
+    val updatingState
+        get() = getUpdatingState().map { it.leftOr(false) }
 
     suspend fun collect() {
-        viewModelScope.launch { updateChapters(manhwaId) }
+        startRemoteChapterUpdate(mangaId, skipCache = false)
         updateScreenState()
     }
 
-    suspend fun onClickRefresh() {
-        if (refreshing.value) return
-        refreshing.value = true
-        try {
-            updateChapters(manhwaId)
-        } finally {
-            refreshing.value = false
-        }
+    fun onClickRefresh() {
+        startRemoteChapterUpdate(mangaId, skipCache = true)
     }
 
-    suspend fun toggleFavorite() {
-        toggleFavorite(manhwaId)
+    fun toggleFavorite() {
+        toggleFavorite(mangaId)
         val state = mutableScreenState.value
         if (state is ChapterScreenState.Ready) {
             mutableScreenState.compareAndSet(state, state.copy(isFavorite = !state.isFavorite))
@@ -68,15 +64,15 @@ class ChapterViewModel @Inject constructor(
 
     private suspend fun updateScreenState() {
         withContext(Dispatchers.IO) {
-            val eitherManhwa = getManhwa(manhwaId)
-            val eitherChapters = getChapters(manhwaId)
-            when (val data = eitherManhwa.andLeft(eitherChapters)) {
+            val eitherManga = getManga(mangaId)
+            val eitherChapters = getChapters(mangaId)
+            when (val data = eitherManga.andLeft(eitherChapters)) {
                 is Either.Left -> {
-                    val (manhwa, chaptersFlow) = data.left
+                    val (manga, chaptersFlow) = data.left
                     mutableScreenState.emit(
                         ChapterScreenState.Ready(
-                            manhwa = manhwa,
-                            isFavorite = isFavorite(manhwaId).leftOr(false),
+                            manga = manga,
+                            isFavorite = isFavorite(mangaId).leftOr(false),
                             chapters = emptyList()
                         )
                     )
@@ -90,8 +86,8 @@ class ChapterViewModel @Inject constructor(
                         }
                         mutableScreenState.emit(
                             ChapterScreenState.Ready(
-                                manhwa = manhwa,
-                                isFavorite = isFavorite(manhwaId).leftOr(false),
+                                manga = manga,
+                                isFavorite = isFavorite(mangaId).leftOr(false),
                                 chapters = chapters
                             )
                         )
@@ -104,6 +100,8 @@ class ChapterViewModel @Inject constructor(
     }
 
 
-    private fun mapError(error: AppError): ChapterScreenState.Error =
-        ChapterScreenState.Error("An error occurred")
+    private fun mapError(error: AppError): ChapterScreenState.Error {
+        Log.e("ChapterViewModel", "failed to get chapters $error")
+        return ChapterScreenState.Error("An error occurred")
+    }
 }

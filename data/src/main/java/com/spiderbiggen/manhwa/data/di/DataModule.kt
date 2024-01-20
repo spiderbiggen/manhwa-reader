@@ -1,41 +1,41 @@
 package com.spiderbiggen.manhwa.data.di
 
-import com.spiderbiggen.manhwa.data.usecase.StartRemoteUpdateImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetChapterImagesImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetChaptersImpl
 import com.spiderbiggen.manhwa.data.usecase.chapter.GetSurroundingChaptersImpl
-import com.spiderbiggen.manhwa.data.usecase.chapter.UpdateChaptersImpl
 import com.spiderbiggen.manhwa.data.usecase.favorite.IsFavoriteImpl
 import com.spiderbiggen.manhwa.data.usecase.favorite.ToggleFavoriteImpl
-import com.spiderbiggen.manhwa.data.usecase.manhwa.GetActiveManhwaImpl
-import com.spiderbiggen.manhwa.data.usecase.manhwa.GetDroppedManhwaImpl
-import com.spiderbiggen.manhwa.data.usecase.manhwa.GetFavoriteManhwaImpl
-import com.spiderbiggen.manhwa.data.usecase.manhwa.GetManhwaImpl
-import com.spiderbiggen.manhwa.data.usecase.manhwa.UpdateManhwaImpl
-import com.spiderbiggen.manhwa.data.usecase.read.IsManhwaReadImpl
+import com.spiderbiggen.manhwa.data.usecase.manga.GetActiveMangaImpl
+import com.spiderbiggen.manhwa.data.usecase.manga.GetDroppedMangaImpl
+import com.spiderbiggen.manhwa.data.usecase.manga.GetFavoriteMangaImpl
+import com.spiderbiggen.manhwa.data.usecase.manga.GetMangaImpl
+import com.spiderbiggen.manhwa.data.usecase.read.MangaIsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.read.ToggleReadImpl
-import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteUpdate
+import com.spiderbiggen.manhwa.data.usecase.remote.GetUpdatingStateImpl
+import com.spiderbiggen.manhwa.data.usecase.remote.StartRemoteChapterUpdateImpl
+import com.spiderbiggen.manhwa.data.usecase.remote.StartRemoteUpdateImpl
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetSurroundingChapters
-import com.spiderbiggen.manhwa.domain.usecase.chapter.UpdateChapters
 import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetActiveManhwa
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetDroppedManhwa
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetFavoriteManhwa
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.GetManhwa
-import com.spiderbiggen.manhwa.domain.usecase.manhwa.UpdateManhwa
-import com.spiderbiggen.manhwa.domain.usecase.read.IsManhwaRead
+import com.spiderbiggen.manhwa.domain.usecase.manga.GetActiveManga
+import com.spiderbiggen.manhwa.domain.usecase.manga.GetDroppedManga
+import com.spiderbiggen.manhwa.domain.usecase.manga.GetFavoriteManga
+import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
+import com.spiderbiggen.manhwa.domain.usecase.read.MangaIsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manhwa.domain.usecase.read.ToggleRead
+import com.spiderbiggen.manhwa.domain.usecase.remote.GetUpdatingState
+import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteChapterUpdate
+import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteUpdate
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -47,16 +47,16 @@ import dagger.hilt.components.SingletonComponent
 abstract class DataModule {
 
     @Binds
-    abstract fun bindGetActiveManhwa(useCase: GetActiveManhwaImpl): GetActiveManhwa
+    abstract fun bindGetActiveManga(useCase: GetActiveMangaImpl): GetActiveManga
 
     @Binds
-    abstract fun bindGetDroppedManhwa(useCase: GetDroppedManhwaImpl): GetDroppedManhwa
+    abstract fun bindGetDroppedManga(useCase: GetDroppedMangaImpl): GetDroppedManga
 
     @Binds
-    abstract fun bindGetFavoriteManhwa(useCase: GetFavoriteManhwaImpl): GetFavoriteManhwa
+    abstract fun bindGetFavoriteManga(useCase: GetFavoriteMangaImpl): GetFavoriteManga
 
     @Binds
-    abstract fun bindGetManhwa(useCase: GetManhwaImpl): GetManhwa
+    abstract fun bindGetManga(useCase: GetMangaImpl): GetManga
 
     @Binds
     abstract fun bindGetChapter(useCase: GetChapterImpl): GetChapter
@@ -71,19 +71,13 @@ abstract class DataModule {
     abstract fun bindIsFavorite(useCase: IsFavoriteImpl): IsFavorite
 
     @Binds
-    abstract fun bindUpdateChapters(useCase: UpdateChaptersImpl): UpdateChapters
-
-    @Binds
-    abstract fun bindUpdateManhwa(useCase: UpdateManhwaImpl): UpdateManhwa
-
-    @Binds
     abstract fun bindGetChapterImages(useCase: GetChapterImagesImpl): GetChapterImages
 
     @Binds
     abstract fun bindToggleFavorite(useCase: ToggleFavoriteImpl): ToggleFavorite
 
     @Binds
-    abstract fun bindIsManhwaRead(useCase: IsManhwaReadImpl): IsManhwaRead
+    abstract fun bindIsMangaRead(useCase: MangaIsReadImpl): MangaIsRead
 
     @Binds
     abstract fun bindIsRead(useCase: IsReadImpl): IsRead
@@ -95,8 +89,14 @@ abstract class DataModule {
     abstract fun bindToggleRead(useCase: ToggleReadImpl): ToggleRead
 
     @Binds
-    abstract fun bindSetReadUptToChapter(useCase: SetReadUpToChapterImpl): SetReadUpToChapter
+    abstract fun bindSetReadUptoToChapter(useCase: SetReadUpToChapterImpl): SetReadUpToChapter
+
+    @Binds
+    abstract fun bindGetUpdatingState(useCase: GetUpdatingStateImpl): GetUpdatingState
 
     @Binds
     abstract fun bindStartRemoteUpdate(useCase: StartRemoteUpdateImpl): StartRemoteUpdate
+
+    @Binds
+    abstract fun bindStartRemoteChapterUpdate(useCase: StartRemoteChapterUpdateImpl): StartRemoteChapterUpdate
 }

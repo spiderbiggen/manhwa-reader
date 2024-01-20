@@ -1,5 +1,6 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.images
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -39,7 +40,7 @@ class ImagesViewModel @Inject constructor(
     private val setReadUpToChapter: SetReadUpToChapter
 ) : ViewModel() {
 
-    private val manhwaId: String = checkNotNull(savedStateHandle["manhwaId"])
+    private val mangaId: String = checkNotNull(savedStateHandle["mangaId"])
     private val chapterId: String = checkNotNull(savedStateHandle["chapterId"])
     private var surrounding = SurroundingChapters()
 
@@ -55,7 +56,7 @@ class ImagesViewModel @Inject constructor(
     }
 
     suspend fun toggleFavorite() {
-        toggleFavorite(manhwaId)
+        toggleFavorite(mangaId)
         updateScreenState()
     }
 
@@ -79,7 +80,7 @@ class ImagesViewModel @Inject constructor(
                 is Either.Left -> {
                     val (chapter, images) = data.left
                     surrounding = getSurroundingChapters(chapterId).leftOr(surrounding)
-                    val isFavorite = isFavorite(manhwaId).leftOr(false)
+                    val isFavorite = isFavorite(mangaId).leftOr(false)
                     val isRead = isRead(chapterId).leftOr(false)
 
                     mutableState.emit(
@@ -106,11 +107,13 @@ class ImagesViewModel @Inject constructor(
             }
             chapter.title?.let {
                 if (it[0].isLetterOrDigit()) append(" - ")
-                    .append(it)
+                append(it)
             }
         }.toString()
 
-    private fun mapError(error: AppError): ImagesScreenState.Error =
-        ImagesScreenState.Error("An error occurred")
+    private fun mapError(error: AppError): ImagesScreenState.Error {
+        Log.e("ImagesViewModel", "failed to get images $error")
+        return ImagesScreenState.Error("An error occurred")
+    }
 
 }

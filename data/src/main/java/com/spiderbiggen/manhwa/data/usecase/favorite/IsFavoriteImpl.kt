@@ -10,7 +10,7 @@ class IsFavoriteImpl @Inject constructor(
     private val favoritesRepository: FavoritesRepository
 ): IsFavorite {
 
-    override suspend fun invoke(manhwaId: String): Either<Boolean, AppError> {
-        return Either.Left(favoritesRepository.isFavorite(manhwaId))
+    override suspend fun invoke(mangaId: String): Either<Boolean, AppError> {
+        return Either.Left(favoritesRepository.isFavorite(mangaId))
     }
 }

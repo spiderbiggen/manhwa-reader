@@ -6,6 +6,6 @@ import com.spiderbiggen.manhwa.domain.model.Either
 import kotlinx.coroutines.flow.Flow
 
 interface GetChapters {
-    suspend operator fun invoke(manhwaId: String): Either<Flow<List<Chapter>>, AppError>
-    suspend fun once(manhwaId: String): Either<List<Chapter>, AppError>
+    suspend operator fun invoke(mangaId: String): Either<Flow<List<Chapter>>, AppError>
+    suspend fun once(mangaId: String): Either<List<Chapter>, AppError>
 }

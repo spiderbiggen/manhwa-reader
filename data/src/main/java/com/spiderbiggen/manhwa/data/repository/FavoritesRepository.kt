@@ -15,25 +15,25 @@ class FavoritesRepository @Inject constructor(
     fun getFavorites(): Set<String> =
         sharedPreferences.getStringSet(FAVORITES_KEY, emptySet()).orEmpty()
 
-    fun isFavorite(manhwaId: String) =
-        manhwaId in getFavorites()
+    fun isFavorite(mangaId: String) =
+        mangaId in getFavorites()
 
-    fun setFavorite(manhwaId: String, isFavorite: Boolean) {
-        if (isFavorite) setFavorite(manhwaId)
-        else clearFavorite(manhwaId)
+    fun setFavorite(mangaId: String, isFavorite: Boolean) {
+        if (isFavorite) setFavorite(mangaId)
+        else clearFavorite(mangaId)
     }
 
-    private fun setFavorite(manhwaId: String) {
+    private fun setFavorite(mangaId: String) {
         val old = getFavorites()
         sharedPreferences.edit {
-            putStringSet(FAVORITES_KEY, old + manhwaId)
+            putStringSet(FAVORITES_KEY, old + mangaId)
         }
     }
 
-    private fun clearFavorite(manhwaId: String) {
+    private fun clearFavorite(mangaId: String) {
         val old = getFavorites()
         sharedPreferences.edit {
-            putStringSet(FAVORITES_KEY, old - manhwaId)
+            putStringSet(FAVORITES_KEY, old - mangaId)
         }
     }
 }

@@ -3,10 +3,19 @@ package com.spiderbiggen.manhwa.data.worker
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
+import androidx.work.Constraints
 import androidx.work.CoroutineWorker
+import androidx.work.ExistingWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import androidx.work.WorkerParameters
+import androidx.work.workDataOf
+import com.spiderbiggen.manhwa.data.KEY_OUTPUT_FAILURE_REASON
+import com.spiderbiggen.manhwa.data.MANGA_UPDATE_TAG
+import com.spiderbiggen.manhwa.data.usecase.chapter.UpdateChapters
+import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
-import com.spiderbiggen.manhwa.domain.usecase.chapter.UpdateChapters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -20,21 +29,47 @@ class ChapterUpdateWorker @AssistedInject constructor(
     appContext, params
 ) {
     override suspend fun doWork(): Result {
-        val manhwaId = params.inputData.getString(UPDATED_MANHWA_ID) ?: run {
-            Log.e(TAG, "Manhwa id not found")
+        val mangaId = params.inputData.getString(UPDATED_MANGA_ID) ?: run {
+            Log.e(TAG, "Manga id not found")
             return Result.failure()
         }
-        return when (updateChapters(manhwaId)) {
+        val skipCache = params.inputData.getBoolean(KEY_SKIP_CACHE, false)
+        return when (val result = updateChapters(mangaId, skipCache)) {
             is Either.Left -> Result.success()
-            is Either.Right -> when {
-                runAttemptCount < 5 -> Result.retry()
-                else -> Result.failure()
-            }
+            is Either.Right -> retryOrFail(result.right)
+        }
+    }
+
+    private fun retryOrFail(err: AppError): Result = when {
+        runAttemptCount < 5 -> Result.retry()
+        else -> {
+            Log.e(TAG, err.toString())
+            Result.failure(workDataOf(KEY_OUTPUT_FAILURE_REASON to err))
         }
     }
 
     companion object {
-        const val UPDATED_MANHWA_ID = "UpdatedManhwaId"
-        const val TAG = "ChapterUpdateWorker"
+        private const val UNIQUE_KEY_PREFIX = "manga-update"
+        private const val KEY_SKIP_CACHE = "skip-cache"
+        private const val UPDATED_MANGA_ID = "UpdatedMangaId"
+        private const val TAG = "ChapterUpdateWorker"
+
+        private val constraints =
+            Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
+
+        fun WorkManager.startChapterUpdate(mangaId: String, skipCache: Boolean) {
+            enqueueUniqueWork(
+                "$UNIQUE_KEY_PREFIX-$mangaId",
+                ExistingWorkPolicy.KEEP,
+                OneTimeWorkRequestBuilder<MangaUpdateWorker>()
+                    .setInputData(workDataOf(
+                        UPDATED_MANGA_ID to mangaId,
+                        KEY_SKIP_CACHE to skipCache,
+                    ))
+                    .addTag(MANGA_UPDATE_TAG)
+                    .setConstraints(constraints)
+                    .build()
+            )
+        }
     }
 }

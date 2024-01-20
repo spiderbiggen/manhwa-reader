@@ -4,5 +4,5 @@ import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 
 interface ToggleFavorite {
-    suspend operator fun invoke(manhwaId: String): Either<Boolean, AppError>
+    operator fun invoke(mangaId: String): Either<Boolean, AppError>
 }
