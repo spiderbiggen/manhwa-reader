@@ -1,6 +1,7 @@
 package com.spiderbiggen.manhwa.presentation.ui.manga
 
 import android.content.res.Configuration
+import android.util.Log
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -8,7 +9,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -27,26 +27,25 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalAbsoluteTonalElevation
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.TopAppBarState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -62,25 +61,23 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MangaOverview(
     navigateToManga: (String) -> Unit,
-    viewModel: MangaViewModel = viewModel()
+    viewModel: MangaViewModel = viewModel(),
+    refreshing: State<Boolean> = remember { mutableStateOf(false) },
+    onRefreshClicked: () -> Unit = {},
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
     val scope = rememberCoroutineScope()
-    val refreshingState by viewModel.updatingState.collectAsStateWithLifecycle(false)
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val topAppBarState = rememberTopAppBarState()
+    val state = viewModel.state.collectAsStateWithLifecycle()
     MangaOverview(
         navigateToManga = navigateToManga,
         state = state,
-        refreshing = refreshingState,
-        onRefreshClicked = viewModel::onClickRefresh,
-        topAppBarState = topAppBarState,
+        refreshing = refreshing,
+        onRefreshClicked = onRefreshClicked,
         scope = scope,
     )
 }
@@ -89,45 +86,44 @@ fun MangaOverview(
 @Composable
 fun MangaOverview(
     navigateToManga: (String) -> Unit,
-    state: MangaScreenState,
-    refreshing: Boolean = false,
+    state: State<MangaScreenState>,
+    refreshing: State<Boolean> = remember { mutableStateOf(false) },
     onRefreshClicked: () -> Unit = {},
-    topAppBarState: TopAppBarState = rememberTopAppBarState(),
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
     val pagerState = rememberPagerState(initialPage = 1, pageCount = { 2 })
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Manga") },
-                scrollBehavior = scrollBehavior,
-                actions = {
-                    val rotation = if (refreshing) {
-                        val infiniteTransition = rememberInfiniteTransition(
-                            label = "Refresh indicator animation"
-                        )
-                        infiniteTransition.animateFloat(
-                            label = "Refresh Rotation",
-                            initialValue = 0f,
-                            targetValue = 360f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart
+            CompositionLocalProvider(LocalAbsoluteTonalElevation provides 4.dp) {
+                TopAppBar(
+                    title = { Text("Manga") },
+                    actions = {
+                        val rotation = if (refreshing.value) {
+                            val infiniteTransition = rememberInfiniteTransition(
+                                label = "Refresh indicator animation"
                             )
-                        )
-                    } else {
-                        remember { mutableFloatStateOf(0f) }
+                            infiniteTransition.animateFloat(
+                                label = "Refresh Rotation",
+                                initialValue = 0f,
+                                targetValue = 360f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(1000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Restart
+                                )
+                            )
+                        } else {
+                            remember { mutableFloatStateOf(0f) }
+                        }
+                        IconButton(onRefreshClicked) {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = "Refresh",
+                                modifier = Modifier.rotate(rotation.value)
+                            )
+                        }
                     }
-                    IconButton(onRefreshClicked) {
-                        Icon(
-                            imageVector = Icons.Outlined.Refresh,
-                            contentDescription = "Refresh",
-                            modifier = Modifier.rotate(rotation.value)
-                        )
-                    }
-                }
-            )
+                )
+            }
         },
         bottomBar = {
             NavigationBar {
@@ -148,7 +144,7 @@ fun MangaOverview(
             }
         }
     ) { padding ->
-        when (state) {
+        when (val screenState = state.value) {
             is MangaScreenState.Error,
             is MangaScreenState.Loading -> Box(
                 modifier = Modifier.fillMaxSize(),
@@ -160,12 +156,11 @@ fun MangaOverview(
             is MangaScreenState.Ready -> {
                 HorizontalPager(state = pagerState) { index ->
                     val mangas =
-                        remember(key1 = state.manga) { state.manga.filter { index == 0 || it.isFavorite } }
+                        remember(screenState.manga) { screenState.manga.filter { index == 0 || it.isFavorite } }
                     MangaList(
                         mangas = mangas,
                         padding = padding,
                         navigateToManga = navigateToManga,
-                        scrollBehavior = scrollBehavior
                     )
                 }
             }
@@ -173,13 +168,12 @@ fun MangaOverview(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun MangaList(
     mangas: List<MangaViewData>,
     padding: PaddingValues,
     navigateToManga: (String) -> Unit,
-    scrollBehavior: TopAppBarScrollBehavior,
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
     val images by remember { derivedStateOf { mangas.map { it.coverImage } } }
@@ -191,15 +185,10 @@ private fun MangaList(
     )
     LazyColumn(
         Modifier
-            .padding(padding)
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+            .padding(padding),
         state = lazyListState,
-        contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        item(key = "header", contentType = "header") {
-            Text(text = "Header")
-        }
+        item(key = "header", contentType = "header") { }
         items(
             items = mangas,
             key = { item -> item.id },
@@ -231,10 +220,9 @@ private fun MangaList(
     wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE
 )
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {
     MangaReaderTheme {
-        MangaOverview({}, state = state)
+        MangaOverview({}, state = remember { derivedStateOf { state } })
     }
 }
 

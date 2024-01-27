@@ -64,6 +64,7 @@ android {
     }
 }
 
+val stagingImplementation by configurations
 dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
@@ -76,20 +77,22 @@ dependencies {
 
     implementation(libs.viewmodel.compose)
 
-    implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
+    implementation(libs.activity.compose)
     implementation(libs.ui)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
+    debugImplementation(libs.ui.tooling)
+    stagingImplementation(libs.ui.tooling)
+    debugImplementation(libs.ui.test.manifest)
+
+    implementation(platform(libs.coil.bom))
+    implementation(libs.coil)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
-    debugImplementation(libs.ui.tooling)
-    debugImplementation(libs.ui.test.manifest)
-
-    implementation(platform(libs.coil.bom))
-    implementation(libs.coil)
 }

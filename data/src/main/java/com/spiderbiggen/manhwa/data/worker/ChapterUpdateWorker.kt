@@ -41,7 +41,7 @@ class ChapterUpdateWorker @AssistedInject constructor(
     }
 
     private fun retryOrFail(err: AppError): Result = when {
-        runAttemptCount < 5 -> Result.retry()
+        runAttemptCount < 3 -> Result.retry()
         else -> {
             Log.e(TAG, err.toString())
             Result.failure(workDataOf(KEY_OUTPUT_FAILURE_REASON to err))

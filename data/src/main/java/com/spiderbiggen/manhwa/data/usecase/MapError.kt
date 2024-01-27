@@ -6,8 +6,10 @@ import okhttp3.internal.http2.ConnectionShutdownException
 import retrofit2.HttpException
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
+import kotlin.coroutines.cancellation.CancellationException
 
 fun Throwable.toAppError(): AppError = when (this) {
+    is CancellationException -> throw this
     is HttpException -> {
         when (val code = this.code()) {
             404 -> AppError.Remote.NotFound

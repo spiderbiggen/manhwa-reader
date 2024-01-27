@@ -31,7 +31,6 @@ class ChapterViewModel @Inject constructor(
     private val isFavorite: IsFavorite,
     private val toggleFavorite: ToggleFavorite,
     private val isRead: IsRead,
-    private val getUpdatingState: GetUpdatingState,
     private val startRemoteChapterUpdate: StartRemoteChapterUpdate,
 ) : ViewModel() {
 
@@ -42,16 +41,9 @@ class ChapterViewModel @Inject constructor(
     val state
         get() = mutableScreenState.asStateFlow()
 
-    val updatingState
-        get() = getUpdatingState().map { it.leftOr(false) }
-
     suspend fun collect() {
         startRemoteChapterUpdate(mangaId, skipCache = false)
         updateScreenState()
-    }
-
-    fun onClickRefresh() {
-        startRemoteChapterUpdate(mangaId, skipCache = true)
     }
 
     fun toggleFavorite() {

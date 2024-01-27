@@ -56,13 +56,13 @@ dependencies {
     implementation(libs.viewmodel.compose)
     implementation(libs.viewmodel.savedstate)
 
-    implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
+    implementation(libs.activity.compose)
     implementation(libs.ui)
     implementation(libs.ui.graphics)
-    implementation(libs.ui.tooling.preview)
     implementation(libs.material3)
     implementation(libs.material.icons)
+    implementation(libs.ui.tooling.preview)
 
     implementation(libs.navigation.hilt)
     implementation(libs.navigation.compose)

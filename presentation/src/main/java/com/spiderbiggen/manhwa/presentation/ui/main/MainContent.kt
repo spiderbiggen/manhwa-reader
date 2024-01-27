@@ -2,6 +2,7 @@ package com.spiderbiggen.manhwa.presentation.ui.main
 
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
@@ -21,6 +22,8 @@ import com.spiderbiggen.manhwa.presentation.ui.manga.MangaViewModel
 @Composable
 fun MainContent() {
     val navController = rememberNavController()
+    val mainViewModel = hiltViewModel<MainViewModel>()
+    val refreshing = mainViewModel.updatingState.collectAsState(initial = false)
     MangaReaderTheme {
         Surface {
             NavHost(
@@ -30,14 +33,16 @@ fun MainContent() {
                 composable("overview") { backStackEntry ->
                     val viewModel: MangaViewModel = hiltViewModel()
                     MangaOverview(
+                        viewModel = viewModel,
+                        refreshing = refreshing,
+                        onRefreshClicked = mainViewModel::onClickRefresh,
                         navigateToManga = {
                             if (backStackEntry.lifecycleIsResumed()) {
                                 navController.navigate("manga/$it") {
                                     restoreState = true
                                 }
                             }
-                        },
-                        viewModel = viewModel
+                        }
                     )
                 }
                 composable(
@@ -49,6 +54,7 @@ fun MainContent() {
                     val viewModel: ChapterViewModel = hiltViewModel()
                     val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                     ChapterOverview(
+                        viewModel = viewModel,
                         onBackClick = { navController.popBackStack() },
                         navigateToChapter = {
                             if (backStackEntry.lifecycleIsResumed()) {
@@ -56,8 +62,7 @@ fun MainContent() {
                                     restoreState = true
                                 }
                             }
-                        },
-                        viewModel = viewModel
+                        }
                     )
                 }
                 composable(
@@ -70,15 +75,14 @@ fun MainContent() {
                     val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                     val viewModel: ImagesViewModel = hiltViewModel()
                     ImagesOverview(
+                        viewModel = viewModel,
                         onBackClick = {
                             if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manga/$mangaId") {
-                                    popUpTo("manga/$mangaId") {
-                                        inclusive = true
-                                        saveState = true
-                                    }
-                                    restoreState = true
-                                }
+                                navController.popBackStack(
+                                    "manga/$mangaId",
+                                    inclusive = true,
+                                    saveState = true
+                                )
                             }
                         },
                         toChapterClicked = {
@@ -88,7 +92,7 @@ fun MainContent() {
                                 }
                             }
                         },
-                        viewModel = viewModel
+
                     )
                 }
             }

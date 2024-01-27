@@ -20,13 +20,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
+import androidx.compose.material.icons.automirrored.rounded.ArrowRightAlt
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.KeyboardArrowLeft
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -116,7 +116,7 @@ fun ImagesOverview(
             TopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 },
                 title = { Text(ready?.title.orEmpty()) },
@@ -150,13 +150,13 @@ fun ImagesOverview(
                         onClick = { ready?.surrounding?.previous?.let { toChapterClicked(it) } },
                         enabled = ready?.surrounding?.previous != null
                     ) {
-                        Icon(Icons.Rounded.KeyboardArrowLeft, null)
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBackIos, null)
                     }
                     IconButton(
                         onClick = { ready?.surrounding?.next?.let { toChapterClicked(it) } },
                         enabled = ready?.surrounding?.next != null
                     ) {
-                        Icon(Icons.Rounded.KeyboardArrowRight, null)
+                        Icon(Icons.AutoMirrored.Rounded.ArrowRightAlt, null)
                     }
                 }
             }
@@ -190,7 +190,7 @@ fun ImagesOverview(
 }
 
 @Composable
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 private fun ReadyImagesOverview(
     padding: PaddingValues,
     state: ImagesScreenState.Ready,

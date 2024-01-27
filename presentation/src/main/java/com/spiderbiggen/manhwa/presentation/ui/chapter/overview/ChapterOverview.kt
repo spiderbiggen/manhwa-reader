@@ -8,7 +8,6 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,15 +21,18 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalAbsoluteTonalElevation
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -41,10 +43,13 @@ import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -73,20 +78,21 @@ import java.net.URL
 fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
-    viewModel: ChapterViewModel = viewModel()
+    viewModel: ChapterViewModel = viewModel(),
+    refreshing: State<Boolean> = remember { mutableStateOf(false) },
+    onRefreshClicked: () -> Unit = {},
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
-    val refreshingState by viewModel.updatingState.collectAsStateWithLifecycle(false)
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
     ChapterOverview(
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
-        refreshing = refreshingState,
-        onRefreshClicked = viewModel::onClickRefresh,
+        refreshing = refreshing,
+        onRefreshClicked = onRefreshClicked,
         toggleFavorite = viewModel::toggleFavorite,
         state = state,
         lazyListState = lazyListState,
@@ -99,7 +105,7 @@ fun ChapterOverview(
 fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
-    refreshing: Boolean,
+    refreshing: State<Boolean>,
     onRefreshClicked: () -> Unit,
     toggleFavorite: () -> Unit,
     state: ChapterScreenState,
@@ -112,49 +118,51 @@ fun ChapterOverview(
     val ready = state.ifReady()
     Scaffold(
         topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.Rounded.ArrowBack, "Back")
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
-                ),
-                title = { Text((state as? ChapterScreenState.Ready)?.manga?.title ?: "Manga") },
-                scrollBehavior = scrollBehavior,
-                actions = {
-                    IconButton(
-                        onClick = { scope.launch { toggleFavorite() } }
-                    ) {
-                        Icon(
-                            imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favorite"
-                        )
-                    }
-                    val rotation = if (refreshing) {
-                        val infiniteTransition = rememberInfiniteTransition(label = "Refresh")
-                        infiniteTransition.animateFloat(
-                            label = "Refresh Rotation",
-                            initialValue = 0f,
-                            targetValue = 360f,
-                            animationSpec = infiniteRepeatable(
-                                animation = tween(1000, easing = LinearEasing),
-                                repeatMode = RepeatMode.Restart
+            CompositionLocalProvider(LocalAbsoluteTonalElevation provides 4.dp) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                        }
+                    },
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
+                    ),
+                    title = { Text((state as? ChapterScreenState.Ready)?.manga?.title ?: "Manga") },
+                    scrollBehavior = scrollBehavior,
+                    actions = {
+                        IconButton(
+                            onClick = { scope.launch { toggleFavorite() } }
+                        ) {
+                            Icon(
+                                imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                                contentDescription = "Favorite"
                             )
-                        )
-                    } else {
-                        remember { mutableFloatStateOf(0f) }
+                        }
+                        val rotation = if (refreshing.value) {
+                            val infiniteTransition = rememberInfiniteTransition(label = "Refresh")
+                            infiniteTransition.animateFloat(
+                                label = "Refresh Rotation",
+                                initialValue = 0f,
+                                targetValue = 360f,
+                                animationSpec = infiniteRepeatable(
+                                    animation = tween(1000, easing = LinearEasing),
+                                    repeatMode = RepeatMode.Restart
+                                )
+                            )
+                        } else {
+                            remember { mutableFloatStateOf(0f) }
+                        }
+                        IconButton(onRefreshClicked) {
+                            Icon(
+                                imageVector = Icons.Outlined.Refresh,
+                                contentDescription = "Refresh",
+                                modifier = Modifier.rotate(rotation.value)
+                            )
+                        }
                     }
-                    IconButton(onRefreshClicked) {
-                        Icon(
-                            imageVector = Icons.Outlined.Refresh,
-                            contentDescription = "Refresh",
-                            modifier = Modifier.rotate(rotation.value)
-                        )
-                    }
-                }
-            )
+                )
+            }
         }
     ) { padding ->
         when (state) {
@@ -213,14 +221,13 @@ private fun ChapterRow(
         }
     }
     Surface(
-        modifier
+        onClick = { navigateToChapter(item.id) },
+        modifier = modifier
             .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp)
-            .clickable { navigateToChapter(item.id) },
-        tonalElevation = if (isRead) 0.dp else 3.dp,
+            .defaultMinSize(minHeight = 48.dp),
     ) {
         Column(Modifier.fillMaxWidth()) {
-            if (showDivider) Divider()
+            if (showDivider) HorizontalDivider()
             Row(
                 Modifier
                     .padding(horizontal = 16.dp, vertical = 8.dp),
@@ -232,14 +239,19 @@ private fun ChapterRow(
                     horizontalAlignment = Alignment.Start,
                     verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
                 ) {
-                    Text(
-                        title,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    Text(
-                        item.date.toString(),
-                        style = MaterialTheme.typography.bodySmall,
-                    )
+                    val contentColor = LocalContentColor.current.let {
+                        if (isRead) it.copy(alpha = 0.7f) else it
+                    }
+                    CompositionLocalProvider(LocalContentColor provides contentColor) {
+                        Text(
+                            title,
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
+                        Text(
+                            item.date.toString(),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
                 }
             }
         }
@@ -270,7 +282,7 @@ fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) st
         ChapterOverview(
             onBackClick = {},
             navigateToChapter = {},
-            refreshing = false,
+            refreshing = remember { mutableStateOf(false) },
             onRefreshClicked = {},
             toggleFavorite = {}, state = state
         )

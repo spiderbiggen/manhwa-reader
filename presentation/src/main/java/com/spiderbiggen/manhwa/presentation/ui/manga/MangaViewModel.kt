@@ -29,25 +29,16 @@ class MangaViewModel @Inject constructor(
     private val getActiveManga: GetActiveManga,
     private val isFavorite: IsFavorite,
     private val mangaIsRead: MangaIsRead,
-    private val startRemoteUpdate: StartRemoteUpdate,
-    private val getUpdatingState: GetUpdatingState,
 ) : ViewModel() {
 
     private val mutableState = MutableStateFlow<MangaScreenState>(MangaScreenState.Loading)
     val state
         get() = mutableState.asStateFlow()
 
-    val updatingState
-        get() = getUpdatingState().map { it.leftOr(false) }
-
     suspend fun collect() {
         withContext(Dispatchers.IO) {
             updateScreenState()
         }
-    }
-
-    fun onClickRefresh() {
-        startRemoteUpdate(skipCache = true)
     }
 
     private suspend fun updateScreenState() {

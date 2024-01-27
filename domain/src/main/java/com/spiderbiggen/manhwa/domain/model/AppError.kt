@@ -12,12 +12,12 @@ sealed interface AppError {
         /**
          * Fall back http error
          */
-        class Http(val code: Int, val message: String?) : Remote
+        data class Http(val code: Int, val message: String?) : Remote
 
         /**
          * Fall back http error
          */
-        class Io(val exception: IOException) : Remote
+        data class Io(val exception: IOException) : Remote
     }
 
     sealed interface Local : AppError {
@@ -25,5 +25,5 @@ sealed interface AppError {
         data object Unknown : Local
     }
 
-    class Unknown(val exception: Exception) : AppError
+    data class Unknown(val exception: Exception) : AppError
 }
