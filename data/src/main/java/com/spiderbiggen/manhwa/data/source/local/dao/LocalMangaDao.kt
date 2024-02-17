@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.spiderbiggen.manhwa.data.source.local.model.LocalMangaEntity
+import com.spiderbiggen.manhwa.data.source.local.model.LocalMangaWithLastChapterIdEntity
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -17,13 +18,22 @@ interface LocalMangaDao {
     @Query("SELECT * FROM manga WHERE source = :source")
     suspend fun getForSource(source: String): List<LocalMangaEntity>
 
-    @Query("SELECT m.* FROM manga m LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at ORDER BY updated_at DESC")
-    fun getAll(): Flow<List<LocalMangaEntity>>
+    @Query(
+        """
+        SELECT m.*, c.id as chapter_id
+        FROM manga m 
+            LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
+        ORDER BY updated_at DESC
+        """
+    )
+    fun getAll(): Flow<List<LocalMangaWithLastChapterIdEntity>>
 
     @Query(
         """
-        SELECT DISTINCT(m.id) FROM manga m
-        WHERE m.updated_at > (SELECT MAX(updated_at) FROM chapter where manga_id = m.id)
+        SELECT DISTINCT(m.id) 
+        FROM manga m
+            LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
+        WHERE c.id IS NULL
         """
     )
     suspend fun getForUpdate(): List<String>

@@ -14,10 +14,10 @@ import javax.inject.Inject
 class GetDroppedMangaImpl @Inject constructor(
     private val mangaRepository: MangaRepository,
 ) : GetDroppedManga {
-    override suspend fun invoke(): Either<Flow<List<Manga>>, AppError> =
+    override suspend fun invoke() =
         mangaRepository.getMangas()
             .either()
             .mapLeft { flow ->
-                flow.map { mangas -> mangas.filter { it.status == "Dropped" } }
+                flow.map { it.filter { (manga, _) -> manga.status == "Dropped" } }
             }
 }

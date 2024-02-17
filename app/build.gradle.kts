@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.spiderbiggen.manhwa"
-        minSdk = 26
+        minSdk = 31
         targetSdk = 34
         versionCode = 5
         versionName = "1.1.2"

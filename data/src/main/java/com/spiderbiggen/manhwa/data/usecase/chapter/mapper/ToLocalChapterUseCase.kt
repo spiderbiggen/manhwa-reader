@@ -15,4 +15,7 @@ class ToLocalChapterUseCase @Inject constructor() {
         updatedAt = entity.updatedAt,
         imageChunks = entity.images,
     )
+
+    operator fun invoke(mangaId: String, entities: List<ChapterEntity>): List<LocalChapterEntity> =
+        entities.map { invoke(mangaId, it) }
 }

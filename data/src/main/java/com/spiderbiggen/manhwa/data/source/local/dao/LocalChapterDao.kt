@@ -20,6 +20,9 @@ interface LocalChapterDao {
     @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC, decimal DESC")
     suspend fun getForMangaId(mangaId: String): List<LocalChapterEntity>
 
+    @Query("DELETE FROM chapter where manga_id = :mangaId AND id NOT IN (:knownIds)")
+    suspend fun removeUnknown(mangaId: String, knownIds: List<String>)
+
     @Query(
         """
         SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)

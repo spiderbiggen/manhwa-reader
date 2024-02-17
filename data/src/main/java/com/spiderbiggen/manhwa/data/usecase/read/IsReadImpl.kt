@@ -9,6 +9,6 @@ import javax.inject.Inject
 class IsReadImpl @Inject constructor(
     private val readRepository: ReadRepository,
 ): IsRead {
-    override suspend fun invoke(chapterId: String): Either<Boolean, AppError> =
+    override fun invoke(chapterId: String): Either<Boolean, AppError> =
         Either.Left(readRepository.isRead(chapterId))
 }

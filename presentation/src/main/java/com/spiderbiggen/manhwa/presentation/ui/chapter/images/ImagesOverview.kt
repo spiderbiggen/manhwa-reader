@@ -21,8 +21,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowBackIos
-import androidx.compose.material.icons.automirrored.rounded.ArrowRightAlt
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Favorite
@@ -96,9 +96,9 @@ fun ImagesOverview(
 fun ImagesOverview(
     onBackClick: () -> Unit,
     toChapterClicked: (String) -> Unit,
-    toggleFavorite: suspend () -> Unit,
+    toggleFavorite: () -> Unit,
     setRead: () -> Unit,
-    setReadUpToHere: suspend () -> Unit,
+    setReadUpToHere: () -> Unit,
     state: ImagesScreenState,
     scope: CoroutineScope = rememberCoroutineScope(),
     systemUiController: SystemUiController = rememberSystemUiController(),
@@ -130,17 +130,13 @@ fun ImagesOverview(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
                 ) {
-                    IconButton(
-                        onClick = { scope.launch { toggleFavorite() } }
-                    ) {
+                    IconButton(onClick = toggleFavorite) {
                         Icon(
                             imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
                             contentDescription = "Favorite"
                         )
                     }
-                    IconButton(
-                        onClick = { scope.launch { setReadUpToHere() } }
-                    ) {
+                    IconButton(onClick = setReadUpToHere) {
                         Icon(
                             imageVector = if (ready?.isRead == true) Icons.Outlined.BookmarkAdded else Icons.Outlined.BookmarkBorder,
                             contentDescription = "Read"
@@ -150,13 +146,13 @@ fun ImagesOverview(
                         onClick = { ready?.surrounding?.previous?.let { toChapterClicked(it) } },
                         enabled = ready?.surrounding?.previous != null
                     ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBackIos, null)
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
                     }
                     IconButton(
                         onClick = { ready?.surrounding?.next?.let { toChapterClicked(it) } },
                         enabled = ready?.surrounding?.next != null
                     ) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowRightAlt, null)
+                        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
                     }
                 }
             }

@@ -6,5 +6,5 @@ import com.spiderbiggen.manhwa.domain.model.Either
 import kotlinx.coroutines.flow.Flow
 
 interface GetFavoriteManga {
-    suspend operator fun invoke(): Either<Flow<List<Manga>>, AppError>
+    suspend operator fun invoke(): Either<Flow<List<Pair<Manga, String?>>>, AppError>
 }

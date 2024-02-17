@@ -1,5 +1,8 @@
-package com.spiderbiggen.manhwa.presentation.model
+package com.spiderbiggen.manhwa.presentation.ui.manga.model
 
+import androidx.compose.runtime.Immutable
+
+@Immutable
 data class MangaViewData(
     val id: String,
     val source: String,

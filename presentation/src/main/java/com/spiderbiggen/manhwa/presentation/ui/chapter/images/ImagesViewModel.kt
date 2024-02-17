@@ -55,9 +55,11 @@ class ImagesViewModel @Inject constructor(
         updateScreenState()
     }
 
-    suspend fun toggleFavorite() {
-        toggleFavorite(mangaId)
-        updateScreenState()
+    fun toggleFavorite() {
+        viewModelScope.launch {
+            toggleFavorite(mangaId)
+            updateScreenState()
+        }
     }
 
     fun updateReadState() {
@@ -67,9 +69,11 @@ class ImagesViewModel @Inject constructor(
         }
     }
 
-    suspend fun setReadUpToHere() {
-        setReadUpToChapter(chapterId)
-        updateScreenState()
+    fun setReadUpToHere() {
+        viewModelScope.launch {
+            setReadUpToChapter(chapterId)
+            updateScreenState()
+        }
     }
 
     private suspend fun updateScreenState() {

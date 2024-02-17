@@ -1,8 +1,8 @@
 package com.spiderbiggen.manhwa.presentation.ui.main
 
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
@@ -24,77 +24,72 @@ fun MainContent() {
     val navController = rememberNavController()
     val mainViewModel = hiltViewModel<MainViewModel>()
     val refreshing = mainViewModel.updatingState.collectAsState(initial = false)
-    MangaReaderTheme {
-        Surface {
-            NavHost(
-                navController = navController,
-                startDestination = "overview",
-            ) {
-                composable("overview") { backStackEntry ->
-                    val viewModel: MangaViewModel = hiltViewModel()
-                    MangaOverview(
-                        viewModel = viewModel,
-                        refreshing = refreshing,
-                        onRefreshClicked = mainViewModel::onClickRefresh,
-                        navigateToManga = {
-                            if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manga/$it") {
-                                    restoreState = true
-                                }
-                            }
-                        }
-                    )
-                }
-                composable(
-                    route = "manga/{mangaId}",
-                    arguments = listOf(
-                        navArgument("mangaId") { type = NavType.StringType }
-                    )
-                ) { backStackEntry ->
-                    val viewModel: ChapterViewModel = hiltViewModel()
-                    val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
-                    ChapterOverview(
-                        viewModel = viewModel,
-                        onBackClick = { navController.popBackStack() },
-                        navigateToChapter = {
-                            if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manga/$mangaId/chapter/$it") {
-                                    restoreState = true
-                                }
-                            }
-                        }
-                    )
-                }
-                composable(
-                    route = "manga/{mangaId}/chapter/{chapterId}",
-                    arguments = listOf(
-                        navArgument("mangaId") { type = NavType.StringType },
-                        navArgument("chapterId") { type = NavType.StringType }
-                    )
-                ) { backStackEntry ->
-                    val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
-                    val viewModel: ImagesViewModel = hiltViewModel()
-                    ImagesOverview(
-                        viewModel = viewModel,
-                        onBackClick = {
-                            if (backStackEntry.lifecycleIsResumed()) {
-                                navController.popBackStack(
-                                    "manga/$mangaId",
-                                    inclusive = true,
-                                    saveState = true
-                                )
-                            }
-                        },
-                        toChapterClicked = {
-                            if (backStackEntry.lifecycleIsResumed()) {
-                                navController.navigate("manga/$mangaId/chapter/$it") {
-                                    restoreState = true
-                                }
-                            }
-                        },
 
-                    )
-                }
+    MangaReaderTheme {
+        NavHost(
+            navController = navController,
+            startDestination = "overview",
+        ) {
+            composable("overview") { backStackEntry ->
+                val viewModel: MangaViewModel = hiltViewModel()
+                MangaOverview(
+                    viewModel = viewModel,
+                    refreshing = refreshing,
+                    onRefreshClicked = mainViewModel::onClickRefresh,
+                    navigateToManga = {
+                        if (backStackEntry.lifecycleIsResumed()) {
+                            navController.navigate("manga/$it")
+                        }
+                    },
+                )
+            }
+            composable(
+                route = "manga/{mangaId}",
+                arguments = listOf(
+                    navArgument("mangaId") { type = NavType.StringType },
+                )
+            ) { backStackEntry ->
+                val viewModel: ChapterViewModel = hiltViewModel()
+                val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
+                ChapterOverview(
+                    onBackClick = { navController.popBackStack() },
+                    navigateToChapter = {
+                        if (backStackEntry.lifecycleIsResumed()) {
+                            navController.navigate("manga/$mangaId/chapter/$it") {
+                                restoreState = true
+                            }
+                        }
+                    },
+                    viewModel = viewModel,
+                    refreshing = refreshing,
+                )
+            }
+            composable(
+                route = "manga/{mangaId}/chapter/{chapterId}",
+                arguments = listOf(
+                    navArgument("mangaId") { type = NavType.StringType },
+                    navArgument("chapterId") { type = NavType.StringType },
+                )
+            ) { backStackEntry ->
+                val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
+                val viewModel: ImagesViewModel = hiltViewModel()
+                ImagesOverview(
+                    viewModel = viewModel,
+                    onBackClick = {
+                        if (backStackEntry.lifecycleIsResumed()) {
+                            navController.popBackStack(
+                                route = "manga/$mangaId",
+                                inclusive = false,
+                                saveState = false
+                            )
+                        }
+                    },
+                    toChapterClicked = {
+                        if (backStackEntry.lifecycleIsResumed()) {
+                            navController.navigate("manga/$mangaId/chapter/$it")
+                        }
+                    },
+                )
             }
         }
     }

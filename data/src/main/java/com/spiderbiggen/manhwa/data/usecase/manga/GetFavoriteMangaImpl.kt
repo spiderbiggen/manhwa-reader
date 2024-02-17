@@ -17,12 +17,12 @@ class GetFavoriteMangaImpl @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
 ) : GetFavoriteManga {
 
-    override suspend fun invoke(): Either<Flow<List<Manga>>, AppError> {
+    override suspend fun invoke(): Either<Flow<List<Pair<Manga, String?>>>, AppError> {
         val favorites = favoritesRepository.getFavorites()
         return mangaRepository.getMangas()
             .either()
             .mapLeft { flow ->
-                flow.map { mangas -> mangas.filter { it.id in favorites } }
+                flow.map { it.filter { (manga, _) -> manga.id in favorites } }
             }
     }
 }

@@ -1,12 +1,7 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,14 +19,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material.icons.outlined.Refresh
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalAbsoluteTonalElevation
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -39,23 +31,21 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarState
-import androidx.compose.material3.rememberTopAppBarState
-import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -66,37 +56,31 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import java.net.URL
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     viewModel: ChapterViewModel = viewModel(),
     refreshing: State<Boolean> = remember { mutableStateOf(false) },
-    onRefreshClicked: () -> Unit = {},
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
-    val topAppBarState = rememberTopAppBarState()
     ChapterOverview(
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
-        refreshing = refreshing,
-        onRefreshClicked = onRefreshClicked,
+        refreshing = refreshing.value,
+        startRefresh = viewModel::onClickRefresh,
         toggleFavorite = viewModel::toggleFavorite,
         state = state,
         lazyListState = lazyListState,
-        topAppBarState = topAppBarState,
     )
 }
 
@@ -105,94 +89,91 @@ fun ChapterOverview(
 fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
-    refreshing: State<Boolean>,
-    onRefreshClicked: () -> Unit,
+    refreshing: Boolean,
+    startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
     state: ChapterScreenState,
-    scope: CoroutineScope = rememberCoroutineScope(),
     lazyListState: LazyListState = rememberLazyListState(),
-    topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
-    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior(topAppBarState)
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val pullToRefreshState = rememberPullToRefreshState()
 
-    val ready = state.ifReady()
-    Scaffold(
-        topBar = {
-            CompositionLocalProvider(LocalAbsoluteTonalElevation provides 4.dp) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(
-                        scrolledContainerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
-                    ),
-                    title = { Text((state as? ChapterScreenState.Ready)?.manga?.title ?: "Manga") },
-                    scrollBehavior = scrollBehavior,
-                    actions = {
-                        IconButton(
-                            onClick = { scope.launch { toggleFavorite() } }
-                        ) {
-                            Icon(
-                                imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                                contentDescription = "Favorite"
-                            )
-                        }
-                        val rotation = if (refreshing.value) {
-                            val infiniteTransition = rememberInfiniteTransition(label = "Refresh")
-                            infiniteTransition.animateFloat(
-                                label = "Refresh Rotation",
-                                initialValue = 0f,
-                                targetValue = 360f,
-                                animationSpec = infiniteRepeatable(
-                                    animation = tween(1000, easing = LinearEasing),
-                                    repeatMode = RepeatMode.Restart
-                                )
-                            )
-                        } else {
-                            remember { mutableFloatStateOf(0f) }
-                        }
-                        IconButton(onRefreshClicked) {
-                            Icon(
-                                imageVector = Icons.Outlined.Refresh,
-                                contentDescription = "Refresh",
-                                modifier = Modifier.rotate(rotation.value)
-                            )
-                        }
-                    }
-                )
-            }
+    LaunchedEffect(refreshing) {
+        if (refreshing) {
+            pullToRefreshState.startRefresh()
+        } else {
+            pullToRefreshState.endRefresh()
         }
-    ) { padding ->
-        when (state) {
-            ChapterScreenState.Loading,
-            is ChapterScreenState.Error -> {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
-                }
-            }
+    }
 
-            is ChapterScreenState.Ready -> {
-                LazyColumn(
-                    Modifier
-                        .padding(padding)
-                        .nestedScroll(scrollBehavior.nestedScrollConnection),
-                    state = lazyListState,
-                ) {
-                    itemsIndexed(
-                        items = state.chapters,
-                        key = { index, item -> if (index == 0) "first" else item.chapter.id },
-                    ) { index, item ->
-                        ChapterRow(
-                            showDivider = index > 0,
-                            item = item.chapter,
-                            isRead = item.isRead,
-                            navigateToChapter = navigateToChapter,
-                            modifier = Modifier.animateItemPlacement()
+    if (pullToRefreshState.isRefreshing) {
+        LaunchedEffect(true) {
+            startRefresh()
+        }
+    }
+    val scaleFraction = if (pullToRefreshState.isRefreshing) 1f else
+        LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
+
+
+    Scaffold(
+        modifier = Modifier
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
+            .nestedScroll(pullToRefreshState.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                    }
+                },
+                scrollBehavior = topAppBarScrollBehavior,
+                title = { Text((state as? ChapterScreenState.Ready)?.manga?.title ?: "Manga") },
+                actions = {
+                    IconButton(onClick = toggleFavorite) {
+                        Icon(
+                            imageVector = if (state.ifReady()?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
+                            contentDescription = "Favorite"
                         )
                     }
                 }
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.surfaceDim,
+    ) { padding ->
+        Box(
+            Modifier
+                .padding(padding)
+                .fillMaxSize(),
+            contentAlignment = Alignment.TopCenter
+        ) {
+            when (state) {
+                ChapterScreenState.Loading,
+                is ChapterScreenState.Error -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+
+                is ChapterScreenState.Ready -> {
+                    LazyColumn(state = lazyListState) {
+                        itemsIndexed(
+                            items = state.chapters,
+                            key = { index, item -> if (index == 0) "first" else item.chapter.id },
+                        ) { index, item ->
+                            ChapterRow(
+                                showDivider = index > 0,
+                                item = item.chapter,
+                                isRead = item.isRead,
+                                navigateToChapter = navigateToChapter,
+                                modifier = Modifier.animateItemPlacement()
+                            )
+                        }
+                    }
+                    PullToRefreshContainer(
+                        state = pullToRefreshState,
+                        modifier = Modifier.graphicsLayer(
+                            scaleX = scaleFraction,
+                            scaleY = scaleFraction
+                        )
+                    )
+                }
+
             }
         }
     }
@@ -245,6 +226,7 @@ private fun ChapterRow(
                     CompositionLocalProvider(LocalContentColor provides contentColor) {
                         Text(
                             title,
+                            fontWeight = if (!isRead) FontWeight.Bold else null,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
@@ -276,14 +258,13 @@ private fun ChapterRow(
     wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE
 )
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     MangaReaderTheme {
         ChapterOverview(
             onBackClick = {},
             navigateToChapter = {},
-            refreshing = remember { mutableStateOf(false) },
-            onRefreshClicked = {},
+            refreshing = false,
+            startRefresh = {},
             toggleFavorite = {}, state = state
         )
     }

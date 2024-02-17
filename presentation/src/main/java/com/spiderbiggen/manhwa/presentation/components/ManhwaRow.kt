@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -21,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -29,8 +31,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.spiderbiggen.manhwa.presentation.model.MangaViewData
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 
 private const val aspectRatio = 1.35F
 private val aspectModifier = Modifier
@@ -41,11 +43,14 @@ private val aspectModifier = Modifier
 fun MangaRow(
     manga: MangaViewData,
     navigateToManga: (String) -> Unit,
-    modifier: Modifier = Modifier
+    onClickFavorite: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    containerColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     Surface(
         onClick = { navigateToManga(manga.id) },
         modifier = modifier.fillMaxWidth(),
+        color = containerColor,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -86,11 +91,15 @@ fun MangaRow(
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
-            Icon(
-                if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = null,
+            IconButton(
+                onClick = { onClickFavorite(manga.id) },
                 modifier = Modifier.padding(end = 16.dp)
-            )
+            ) {
+                Icon(
+                    if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                    contentDescription = null,
+                )
+            }
         }
     }
 }
@@ -114,7 +123,7 @@ fun MangaRow(
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     MangaReaderTheme {
-        MangaRow(state, {})
+        MangaRow(state, {}, {})
     }
 }
 

@@ -16,10 +16,10 @@ class MangaRepository @Inject constructor(
     private val mangaDao
         get() = mangaDaoProvider.get()
 
-    fun getMangas(): Result<Flow<List<Manga>>> = runCatching {
+    fun getMangas(): Result<Flow<List<Pair<Manga, String?>>>> = runCatching {
         mangaDao.getAll().map { entities ->
-            entities.map(toDomain::invoke)
-                .distinctBy { it.id }
+            entities.map {toDomain(it.manga) to it.lastChapterId }
+                .distinctBy { it.first.id }
         }
     }
 
@@ -27,7 +27,7 @@ class MangaRepository @Inject constructor(
         mangaDao.get(id)?.let(toDomain::invoke)
     }
 
-    suspend fun getMangaForUpdate(): Result<List<String>> = runCatching {
-        mangaDao.getForUpdate()
+    suspend fun getMangaForUpdate(): Result<Set<String>> = runCatching {
+        mangaDao.getForUpdate().toSet()
     }
 }

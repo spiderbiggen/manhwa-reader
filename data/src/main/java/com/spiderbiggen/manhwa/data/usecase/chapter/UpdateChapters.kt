@@ -1,6 +1,7 @@
 package com.spiderbiggen.manhwa.data.usecase.chapter
 
 import com.spiderbiggen.manhwa.data.source.local.dao.LocalChapterDao
+import com.spiderbiggen.manhwa.data.source.remote.model.ChapterEntity
 import com.spiderbiggen.manhwa.data.source.remote.usecase.GetRemoteChaptersUseCase
 import com.spiderbiggen.manhwa.data.usecase.chapter.mapper.ToLocalChapterUseCase
 import com.spiderbiggen.manhwa.data.usecase.either
@@ -19,6 +20,9 @@ class UpdateChapters @Inject constructor(
         getRemoteChapters(mangaId, skipCache)
             .either()
             .mapLeft { chapters ->
-                localChapterDao.get().insert(chapters.map { toLocal(mangaId, it) })
+                localChapterDao.get().run {
+                    insert(toLocal(mangaId, chapters))
+                    removeUnknown(mangaId, chapters.map(ChapterEntity::id))
+                }
             }
 }
