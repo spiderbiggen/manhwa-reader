@@ -1,5 +1,8 @@
 package com.spiderbiggen.manhwa.presentation.ui.main
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
@@ -81,11 +84,13 @@ fun MainContent() {
                 )
             }
             composable(
-                route = "manga/{mangaId}/chapter/{chapterId}?color={color}",
+                route = "manga/{mangaId}/chapter/{chapterId}",
                 arguments = listOf(
                     navArgument("mangaId") { type = NavType.StringType },
                     navArgument("chapterId") { type = NavType.StringType },
-                )
+                ),
+                enterTransition = { fadeIn(animationSpec = tween(700)) },
+                exitTransition = { fadeOut(animationSpec = tween(700)) },
             ) { backStackEntry ->
                 val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                 val viewModel: ImagesViewModel = hiltViewModel()
@@ -93,16 +98,12 @@ fun MainContent() {
                     viewModel = viewModel,
                     onBackClick = {
                         if (backStackEntry.lifecycleIsResumed()) {
-                            navController.popBackStack(
-                                route = "manga/$mangaId",
-                                inclusive = false,
-                                saveState = false
-                            )
+                            navController.popBackStack(route = "manga/$mangaId", inclusive = false)
                         }
                     },
-                    toChapterClicked = {
+                    toChapterClicked = { id ->
                         if (backStackEntry.lifecycleIsResumed()) {
-                            navController.navigate("manga/$mangaId/chapter/$it")
+                            navController.navigate("manga/$mangaId/chapter/$id")
                         }
                     },
                 )

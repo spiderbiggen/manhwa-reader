@@ -142,15 +142,18 @@ fun ImagesOverview(
                             contentDescription = "Read"
                         )
                     }
+
+                    val previousChapterId = ready?.surrounding?.previous
+                    val nextChapterId = ready?.surrounding?.next
                     IconButton(
-                        onClick = { ready?.surrounding?.previous?.let { toChapterClicked(it) } },
-                        enabled = ready?.surrounding?.previous != null
+                        onClick = { previousChapterId?.let { toChapterClicked(it) } },
+                        enabled = previousChapterId != null
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
                     }
                     IconButton(
-                        onClick = { ready?.surrounding?.next?.let { toChapterClicked(it) } },
-                        enabled = ready?.surrounding?.next != null
+                        onClick = { nextChapterId?.let { toChapterClicked(it) } },
+                        enabled = nextChapterId != null
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
                     }
