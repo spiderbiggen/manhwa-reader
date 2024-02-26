@@ -19,6 +19,8 @@ data class LocalMangaEntity(
     val title: String,
     @ColumnInfo("cover")
     val cover: String,
+    @ColumnInfo("dominant_color", defaultValue = "NULL")
+    val dominantColor: Int?,
     val description: String,
     val status: String,
     @ColumnInfo("updated_at")

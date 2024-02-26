@@ -1,8 +1,15 @@
 package com.spiderbiggen.manhwa.presentation.ui.main
 
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.core.view.WindowCompat
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
@@ -12,6 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manhwa.presentation.theme.Purple80
 import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesOverview
 import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesViewModel
 import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterOverview
@@ -25,13 +33,19 @@ fun MainContent() {
     val mainViewModel = hiltViewModel<MainViewModel>()
     val refreshing = mainViewModel.updatingState.collectAsState(initial = false)
 
-    MangaReaderTheme {
+    var seedColor by remember { mutableStateOf(Purple80) }
+    MangaReaderTheme(seedColor = seedColor) {
         NavHost(
             navController = navController,
             startDestination = "overview",
+            enterTransition = { slideIn(initialOffset = { IntOffset(it.width, 0) }) },
+            exitTransition = { slideOut(targetOffset = { IntOffset(-it.width, 0) }) },
+            popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
+            popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
         ) {
             composable("overview") { backStackEntry ->
                 val viewModel: MangaViewModel = hiltViewModel()
+                LaunchedEffect(null) { seedColor = Purple80 }
                 MangaOverview(
                     viewModel = viewModel,
                     refreshing = refreshing,
@@ -42,6 +56,7 @@ fun MainContent() {
                         }
                     },
                 )
+
             }
             composable(
                 route = "manga/{mangaId}",
@@ -52,6 +67,7 @@ fun MainContent() {
                 val viewModel: ChapterViewModel = hiltViewModel()
                 val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                 ChapterOverview(
+                    onColorChanged = { seedColor = it },
                     onBackClick = { navController.popBackStack() },
                     navigateToChapter = {
                         if (backStackEntry.lifecycleIsResumed()) {
@@ -65,7 +81,7 @@ fun MainContent() {
                 )
             }
             composable(
-                route = "manga/{mangaId}/chapter/{chapterId}",
+                route = "manga/{mangaId}/chapter/{chapterId}?color={color}",
                 arguments = listOf(
                     navArgument("mangaId") { type = NavType.StringType },
                     navArgument("chapterId") { type = NavType.StringType },

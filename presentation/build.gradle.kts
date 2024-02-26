@@ -39,7 +39,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.9"
     }
 }
 
@@ -80,6 +80,8 @@ dependencies {
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
     implementation(libs.coil.compose)
+
+    implementation(libs.material.kolor)
 
     implementation(libs.kotlinx.datetime)
 

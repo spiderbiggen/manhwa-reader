@@ -25,9 +25,10 @@ import com.spiderbiggen.manhwa.data.source.local.model.LocalMangaEntity
         LocalChapterEntity::class,
         LocalMangaEntity::class,
     ],
-    version = 2,
+    version = 3,
     autoMigrations = [
-        AutoMigration(from = 1, to = 2, spec = MangaDatabase.AutoMigration1To2::class)
+        AutoMigration(from = 1, to = 2, spec = MangaDatabase.AutoMigration1To2::class),
+        AutoMigration(from = 2, to = 3),
     ],
     exportSchema = true,
 )

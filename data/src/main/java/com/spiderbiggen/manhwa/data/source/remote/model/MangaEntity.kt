@@ -11,6 +11,8 @@ data class MangaEntity(
     val title: String,
     @SerialName("cover")
     val cover: String,
+    @SerialName("dominant_color")
+    val dominantColor: Int?,
     val description: String,
     val status: String,
     @SerialName("updated_at")

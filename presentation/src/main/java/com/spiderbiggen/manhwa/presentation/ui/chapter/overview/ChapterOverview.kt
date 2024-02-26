@@ -41,21 +41,23 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manhwa.presentation.theme.Purple80
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
@@ -63,6 +65,7 @@ import java.net.URL
 
 @Composable
 fun ChapterOverview(
+    onColorChanged: (Color) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     viewModel: ChapterViewModel = viewModel(),
@@ -74,6 +77,7 @@ fun ChapterOverview(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
     ChapterOverview(
+        onColorChanged = onColorChanged,
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
         refreshing = refreshing.value,
@@ -87,6 +91,7 @@ fun ChapterOverview(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun ChapterOverview(
+    onColorChanged: (Color) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     refreshing: Boolean,
@@ -114,7 +119,10 @@ fun ChapterOverview(
     val scaleFraction = if (pullToRefreshState.isRefreshing) 1f else
         LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
 
-
+    val dominantColor = state.ifReady()?.manga?.dominantColor
+    LaunchedEffect(dominantColor) {
+        dominantColor?.let { onColorChanged(Color(dominantColor)) }
+    }
     Scaffold(
         modifier = Modifier
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
@@ -138,7 +146,7 @@ fun ChapterOverview(
                 }
             )
         },
-        containerColor = MaterialTheme.colorScheme.surfaceDim,
+        containerColor = MaterialTheme.colorScheme.surface,
     ) { padding ->
         Box(
             Modifier
@@ -148,7 +156,11 @@ fun ChapterOverview(
         ) {
             when (state) {
                 ChapterScreenState.Loading,
-                is ChapterScreenState.Error -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                is ChapterScreenState.Error -> CircularProgressIndicator(
+                    Modifier.align(
+                        Alignment.Center
+                    )
+                )
 
                 is ChapterScreenState.Ready -> {
                     LazyColumn(state = lazyListState) {
@@ -173,7 +185,6 @@ fun ChapterOverview(
                         )
                     )
                 }
-
             }
         }
     }
@@ -243,24 +254,12 @@ private fun ChapterRow(
 
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview("Light - Red", group = "dynamic", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview(
-    "Dark - Red",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE
-)
-@Preview("Light - Blue", group = "dynamic", wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
-@Preview(
-    "Dark - Blue",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE
-)
 @Composable
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
-    MangaReaderTheme {
+    var seedColor by remember { mutableStateOf(Purple80) }
+    MangaReaderTheme(seedColor) {
         ChapterOverview(
+            onColorChanged = { seedColor = it },
             onBackClick = {},
             navigateToChapter = {},
             refreshing = false,
@@ -274,12 +273,6 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
     override val values
         get() = sequenceOf(
             ChapterScreenState.Loading,
-            ChapterScreenState.Error("An error occurred"),
-            ChapterScreenState.Ready(
-                manga = MangaProvider.value,
-                isFavorite = false,
-                chapters = ChapterProvider.values.toList()
-            ),
             ChapterScreenState.Ready(
                 manga = MangaProvider.value,
                 isFavorite = true,
@@ -340,9 +333,10 @@ object ChapterProvider {
 object MangaProvider {
     val value = Manga(
         source = "Asura",
-        id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
+        id = "712dd47d-6465-4433-8484-357604d6cf80",
         title = "Heavenly Martial God",
         coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
+        dominantColor = 0xFF1818,
         description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands!",
         status = "Ongoing",
         updatedAt = Clock.System.now()

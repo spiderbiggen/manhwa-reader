@@ -12,6 +12,7 @@ class ToDomainMangaUseCase @Inject constructor() {
         id = entity.id,
         title = entity.title,
         coverImage = URL(entity.cover),
+        dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,
         updatedAt = entity.updatedAt
@@ -22,6 +23,7 @@ class ToDomainMangaUseCase @Inject constructor() {
         id = entity.id,
         title = entity.title,
         coverImage = URL(entity.cover),
+        dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,
         updatedAt = entity.updatedAt

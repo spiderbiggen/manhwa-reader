@@ -10,6 +10,7 @@ class ToLocalMangaUseCase @Inject constructor() {
         source = entity.source,
         title = entity.title,
         cover = entity.cover,
+        dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,
         updatedAt = entity.updatedAt,

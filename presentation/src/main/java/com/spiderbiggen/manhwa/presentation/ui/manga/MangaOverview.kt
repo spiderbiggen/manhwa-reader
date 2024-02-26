@@ -223,32 +223,59 @@ private fun MangaList(
     }
 }
 
-@Preview("Light")
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview("Light", apiLevel = 26)
+@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, apiLevel = 26)
 @Preview(
     "Light - Red",
     group = "dynamic",
     wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
+    apiLevel = 32
 )
 @Preview(
     "Dark - Red",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
     wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
+    apiLevel = 32
 )
-@Preview("Light - Blue", group = "dynamic", wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
+@Preview(
+    "Light - Blue",
+    group = "dynamic",
+    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
+    apiLevel = 32
+)
 @Preview(
     "Dark - Blue",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
-    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE
+    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
+    apiLevel = 32
 )
-@Preview("Light - Green", group = "dynamic", wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE)
+@Preview(
+    "Light - Green",
+    group = "dynamic",
+    wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE,
+    apiLevel = 32
+)
 @Preview(
     "Dark - Green",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
-    wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE
+    wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE,
+    apiLevel = 32
+)
+@Preview(
+    "Light - Yellow",
+    group = "dynamic",
+    wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE,
+    apiLevel = 32
+)
+@Preview(
+    "Dark - Yellow",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    group = "dynamic",
+    wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE,
+    apiLevel = 32
 )
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {

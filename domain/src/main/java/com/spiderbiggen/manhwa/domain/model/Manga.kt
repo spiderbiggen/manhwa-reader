@@ -8,6 +8,7 @@ data class Manga(
     val id: String,
     val title: String,
     val coverImage: URL,
+    val dominantColor: Int?,
     val description: String?,
     val status: String,
     val updatedAt: Instant

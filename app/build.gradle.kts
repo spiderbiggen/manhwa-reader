@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.spiderbiggen.manhwa"
-        minSdk = 31
+        minSdk = 26
         targetSdk = 34
         versionCode = 5
         versionName = "1.1.2"
@@ -55,7 +55,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.8"
+        kotlinCompilerExtensionVersion = "1.5.9"
     }
     packaging {
         resources {
