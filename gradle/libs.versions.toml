@@ -15,7 +15,7 @@ kotlin = "1.9.22"
 lifecycle = "2.7.0"
 room = "2.6.1"
 work = "2.9.0"
-ktlint = "1.1.1"
+ktlint = "1.2.0"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
