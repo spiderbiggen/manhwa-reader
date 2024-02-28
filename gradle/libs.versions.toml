@@ -4,17 +4,18 @@ androidx-test-ext-junit = "1.1.5"
 androidx-hilt = "1.2.0"
 android-gradle-plugin = "8.3.0-rc02"
 appcompat = "1.6.1"
-coil-bom = "2.5.0"
+coil-bom = "2.6.0"
 compose-bom = "2024.02.01"
+compose-compiler = "1.5.10"
 core-ktx = "1.12.0"
-dagger = "2.50"
+dagger = "2.51"
 espresso-core = "3.5.1"
-hilt = "2.50"
 junit = "4.13.2"
 kotlin = "1.9.22"
 lifecycle = "2.7.0"
 room = "2.6.1"
 work = "2.9.0"
+ktlint = "1.1.1"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -50,38 +51,42 @@ room-processing = { group = "androidx.room", name = "room-compiler", version.ref
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-test = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.7.3" }
-hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version = "1.8.0" }
+
+hilt = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 android-hilt-compiler = { group = "androidx.hilt", name = "hilt-compiler", version.ref = "androidx-hilt" }
 android-hilt-work = { group = "androidx.hilt", name = "hilt-work", version.ref = "androidx-hilt" }
 android-hilt-common = { group = "androidx.hilt", name = "hilt-common", version.ref = "androidx-hilt" }
 dagger = { group = "com.google.dagger", name = "dagger", version.ref = "dagger" }
 dagger-compiler = { group = "com.google.dagger", name = "dagger-compiler", version.ref = "dagger" }
-dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+dagger-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
 
-okhttp3-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version = "4.12.0" }
+okhttp-bom = { group = "com.squarup.okhttp3", name = "okhttp-bom", version = "4.12.0" }
+okhttp = { group = "com.squarup.okhttp3", name = "okhttp" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version = "2.9.0" }
-kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.2" }
+retrofit-converter-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
+kotlinx-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
 kotlinx-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.5.0" }
-jakewharton-retrofit = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
 
 coil-bom = { group = "io.coil-kt", name = "coil-bom", version.ref = "coil-bom" }
 coil = { group = "io.coil-kt", name = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose" }
 
-material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "1.4.0-rc03" }
-
-accompanist-systemui = { group = "com.google.accompanist", name = "accompanist-systemuicontroller", version = "0.32.0" }
+material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "1.4.1" }
 
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 com-android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
 com-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17" }
-com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
+com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 org-jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 org-jetbrains-kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+spotless = { id = "com.diffplug.spotless", version = "6.25.0" }
+versions = { id = "com.github.ben-manes.versions", version = "0.51.0" }
 
 [bundles]
 

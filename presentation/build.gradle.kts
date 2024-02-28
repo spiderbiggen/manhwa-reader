@@ -39,7 +39,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.9"
+        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
     }
 }
 
@@ -84,6 +84,4 @@ dependencies {
     implementation(libs.material.kolor)
 
     implementation(libs.kotlinx.datetime)
-
-    implementation(libs.accompanist.systemui)
 }

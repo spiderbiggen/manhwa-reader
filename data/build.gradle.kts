@@ -62,9 +62,12 @@ dependencies {
     androidTestImplementation(libs.androidx.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation(libs.okhttp3.logging)
-    implementation(libs.retrofit)
     implementation(libs.kotlinx.serialization)
     implementation(libs.kotlinx.datetime)
-    implementation(libs.jakewharton.retrofit)
+
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.converter.serialization)
+    implementation(platform(libs.okhttp.bom))
+    implementation(libs.okhttp)
+    implementation(libs.okhttp.logging)
 }
