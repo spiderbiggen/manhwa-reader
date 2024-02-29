@@ -21,5 +21,4 @@ class UpdateManga @Inject constructor(
             .mapLeft { manhwas ->
                 localManhwaDao.get().insert(manhwas.map { toLocal(it) })
             }
-
 }

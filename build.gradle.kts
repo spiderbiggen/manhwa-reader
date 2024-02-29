@@ -10,7 +10,7 @@ plugins {
     alias(libs.plugins.org.jetbrains.kotlin.jvm) apply false
     alias(libs.plugins.org.jetbrains.kotlin.serialization) apply false
     alias(libs.plugins.versions)
-    alias(libs.plugins.spotless)
+    id("manga.spotless-conventions")
 }
 
 fun isNonStable(version: String): Boolean {

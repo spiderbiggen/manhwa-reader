@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.com.google.ksp)
     alias(libs.plugins.com.google.hilt.android)
     alias(libs.plugins.org.jetbrains.kotlin.serialization)
+    id("manga.spotless-conventions")
 }
 
 android {
@@ -17,7 +18,7 @@ android {
         consumerProguardFiles("consumer-rules.pro")
 
         ksp {
-            arg("room.schemaLocation","$projectDir/schemas")
+            arg("room.schemaLocation", "$projectDir/schemas")
             arg("room.incremental", "true")
         }
     }
@@ -27,7 +28,7 @@ android {
             isMinifyEnabled = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }

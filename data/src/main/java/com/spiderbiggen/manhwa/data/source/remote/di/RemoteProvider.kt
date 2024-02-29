@@ -9,6 +9,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Cache
@@ -16,7 +17,6 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -29,29 +29,25 @@ object RemoteProvider {
 
     @OptIn(ExperimentalSerializationApi::class)
     @Provides
-    fun provideJson(): Json =
-        Json {
-            ignoreUnknownKeys = true
-            explicitNulls = false
-        }
+    fun provideJson(): Json = Json {
+        ignoreUnknownKeys = true
+        explicitNulls = false
+    }
 
     @Provides
     @BaseUrl
-    fun baseUrl(): String =
-        "https://manga.spiderbiggen.com"
+    fun baseUrl(): String = "https://manga.spiderbiggen.com"
 
     @Provides
     @Singleton
     fun provideCache(@ApplicationContext context: Context): Cache =
         Cache(context.cacheDir, CACHE_SIZE)
 
-
     @Provides
-    fun provideOkHttpClient(cache: Cache?): OkHttpClient =
-        OkHttpClient.Builder()
-            .cache(cache)
-            .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            .build()
+    fun provideOkHttpClient(cache: Cache?): OkHttpClient = OkHttpClient.Builder()
+        .cache(cache)
+        .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        .build()
 
     @Provides
     fun provideRetrofitBuilder(okHttpClient: OkHttpClient, json: Json): Retrofit.Builder {

@@ -41,7 +41,6 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -55,8 +54,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
-import com.google.accompanist.systemuicontroller.SystemUiController
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -66,12 +63,11 @@ import kotlinx.coroutines.launch
 fun ImagesOverview(
     onBackClick: () -> Unit,
     toChapterClicked: (String) -> Unit,
-    viewModel: ImagesViewModel = viewModel()
+    viewModel: ImagesViewModel = viewModel(),
 ) {
     val lazyListState = rememberLazyListState()
     val topAppBarState = rememberTopAppBarState()
     val scope = rememberCoroutineScope()
-    val systemUiController = rememberSystemUiController()
     LaunchedEffect(true) {
         viewModel.collect()
     }
@@ -85,9 +81,8 @@ fun ImagesOverview(
         setReadUpToHere = viewModel::setReadUpToHere,
         state = state,
         scope = scope,
-        systemUiController = systemUiController,
         lazyListState = lazyListState,
-        topAppBarState = topAppBarState
+        topAppBarState = topAppBarState,
     )
 }
 
@@ -101,14 +96,10 @@ fun ImagesOverview(
     setReadUpToHere: () -> Unit,
     state: ImagesScreenState,
     scope: CoroutineScope = rememberCoroutineScope(),
-    systemUiController: SystemUiController = rememberSystemUiController(),
     lazyListState: LazyListState = rememberLazyListState(),
-    topAppBarState: TopAppBarState = rememberTopAppBarState()
+    topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-    DisposableEffect(systemUiController) {
-        onDispose { systemUiController.isSystemBarsVisible = true }
-    }
     val ready = state.ifReady()
 
     Scaffold(
@@ -132,14 +123,20 @@ fun ImagesOverview(
                 ) {
                     IconButton(onClick = toggleFavorite) {
                         Icon(
-                            imageVector = if (ready?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favorite"
+                            imageVector = when (ready?.isFavorite) {
+                                true -> Icons.Outlined.Favorite
+                                else -> Icons.Outlined.FavoriteBorder
+                            },
+                            contentDescription = "Favorite",
                         )
                     }
                     IconButton(onClick = setReadUpToHere) {
                         Icon(
-                            imageVector = if (ready?.isRead == true) Icons.Outlined.BookmarkAdded else Icons.Outlined.BookmarkBorder,
-                            contentDescription = "Read"
+                            imageVector = when (ready?.isRead) {
+                                true -> Icons.Outlined.BookmarkAdded
+                                else -> Icons.Outlined.BookmarkBorder
+                            },
+                            contentDescription = "Read",
                         )
                     }
 
@@ -147,13 +144,13 @@ fun ImagesOverview(
                     val nextChapterId = ready?.surrounding?.next
                     IconButton(
                         onClick = { previousChapterId?.let { toChapterClicked(it) } },
-                        enabled = previousChapterId != null
+                        enabled = previousChapterId != null,
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
                     }
                     IconButton(
                         onClick = { nextChapterId?.let { toChapterClicked(it) } },
-                        enabled = nextChapterId != null
+                        enabled = nextChapterId != null,
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
                     }
@@ -168,7 +165,7 @@ fun ImagesOverview(
                     modifier = Modifier
                         .padding(padding)
                         .fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator()
                 }
@@ -202,14 +199,14 @@ private fun ReadyImagesOverview(
     val interactionSource = remember { MutableInteractionSource() }
     ListImagePreloader(
         items = images,
-        lazyListState = lazyListState
+        lazyListState = lazyListState,
     )
     LazyColumn(
         Modifier
             .consumeWindowInsets(padding)
             .clickable(
                 interactionSource = interactionSource,
-                indication = null
+                indication = null,
             ) {
                 scope.launch {
                     lazyListState.scrollBy(-(scrollBehavior.state.heightOffset))
@@ -243,15 +240,15 @@ private fun ListImage(model: String, modifier: Modifier = Modifier) {
         loading = {
             Box(
                 boxModifier,
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 CircularProgressIndicator()
             }
         },
         error = {
             Box(
-                boxModifier.background(MaterialTheme.colorScheme.error)
+                boxModifier.background(MaterialTheme.colorScheme.error),
             )
-        }
+        },
     )
 }

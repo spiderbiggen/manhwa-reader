@@ -59,13 +59,12 @@ fun MainContent() {
                         }
                     },
                 )
-
             }
             composable(
                 route = "manga/{mangaId}",
                 arguments = listOf(
                     navArgument("mangaId") { type = NavType.StringType },
-                )
+                ),
             ) { backStackEntry ->
                 val viewModel: ChapterViewModel = hiltViewModel()
                 val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
@@ -119,4 +118,3 @@ fun MainContent() {
  */
 private fun NavBackStackEntry.lifecycleIsResumed() =
     this.lifecycle.currentState == Lifecycle.State.RESUMED
-

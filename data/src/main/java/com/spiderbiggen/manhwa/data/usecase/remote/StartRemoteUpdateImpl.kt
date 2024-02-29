@@ -7,7 +7,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class StartRemoteUpdateImpl @Inject constructor(
-    private val workManager: Provider<WorkManager>
+    private val workManager: Provider<WorkManager>,
 ) : StartRemoteUpdate {
     override fun invoke(skipCache: Boolean) {
         workManager.get().startMangaUpdate(skipCache = skipCache)

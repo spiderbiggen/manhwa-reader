@@ -3,10 +3,10 @@ package com.spiderbiggen.manhwa.data.source.local.repository
 import com.spiderbiggen.manhwa.data.source.local.dao.LocalMangaDao
 import com.spiderbiggen.manhwa.data.usecase.manga.mapper.ToDomainMangaUseCase
 import com.spiderbiggen.manhwa.domain.model.Manga
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class MangaRepository @Inject constructor(
     private val mangaDaoProvider: Provider<LocalMangaDao>,
@@ -18,7 +18,7 @@ class MangaRepository @Inject constructor(
 
     fun getMangas(): Result<Flow<List<Pair<Manga, String?>>>> = runCatching {
         mangaDao.getAll().map { entities ->
-            entities.map {toDomain(it.manga) to it.lastChapterId }
+            entities.map { toDomain(it.manga) to it.lastChapterId }
                 .distinctBy { it.first.id }
         }
     }

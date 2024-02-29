@@ -11,12 +11,12 @@ import kotlinx.datetime.LocalDate
 @Entity(
     tableName = "chapter",
     foreignKeys = [
-        ForeignKey(LocalMangaEntity::class, ["id"], ["manga_id"])
+        ForeignKey(LocalMangaEntity::class, ["id"], ["manga_id"]),
     ],
     indices = [
         Index("manga_id"),
         Index("number", "decimal"),
-    ]
+    ],
 )
 data class LocalChapterEntity(
     @PrimaryKey
@@ -31,5 +31,5 @@ data class LocalChapterEntity(
     @ColumnInfo("updated_at")
     val updatedAt: Instant? = null,
     @ColumnInfo("image_chunks", defaultValue = "0")
-    val imageChunks: Int
+    val imageChunks: Int,
 )

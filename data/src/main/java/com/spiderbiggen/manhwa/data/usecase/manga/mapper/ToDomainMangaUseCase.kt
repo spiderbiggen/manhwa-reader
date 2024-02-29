@@ -15,7 +15,7 @@ class ToDomainMangaUseCase @Inject constructor() {
         dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,
-        updatedAt = entity.updatedAt
+        updatedAt = entity.updatedAt,
     )
 
     operator fun invoke(entity: LocalMangaEntity): Manga = Manga(
@@ -26,6 +26,6 @@ class ToDomainMangaUseCase @Inject constructor() {
         dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,
-        updatedAt = entity.updatedAt
+        updatedAt = entity.updatedAt,
     )
 }

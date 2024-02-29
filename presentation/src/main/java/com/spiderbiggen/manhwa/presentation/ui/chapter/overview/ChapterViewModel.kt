@@ -14,12 +14,12 @@ import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteChapterUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
@@ -68,23 +68,23 @@ class ChapterViewModel @Inject constructor(
                         ChapterScreenState.Ready(
                             manga = manga,
                             isFavorite = isFavorite(mangaId).leftOr(false),
-                            chapters = emptyList()
-                        )
+                            chapters = emptyList(),
+                        ),
                     )
 
                     chaptersFlow.collectLatest { list ->
                         val chapters = list.map {
                             ChapterRowData(
                                 chapter = it,
-                                isRead = isRead(it.id).leftOr(false)
+                                isRead = isRead(it.id).leftOr(false),
                             )
                         }
                         mutableScreenState.emit(
                             ChapterScreenState.Ready(
                                 manga = manga,
                                 isFavorite = isFavorite(mangaId).leftOr(false),
-                                chapters = chapters
-                            )
+                                chapters = chapters,
+                            ),
                         )
                     }
                 }
@@ -93,7 +93,6 @@ class ChapterViewModel @Inject constructor(
             }
         }
     }
-
 
     private fun mapError(error: AppError): ChapterScreenState.Error {
         Log.e("ChapterViewModel", "failed to get chapters $error")

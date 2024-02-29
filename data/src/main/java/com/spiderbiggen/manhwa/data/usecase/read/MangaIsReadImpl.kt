@@ -6,8 +6,8 @@ import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.model.leftOrElse
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
-import com.spiderbiggen.manhwa.domain.usecase.read.MangaIsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
+import com.spiderbiggen.manhwa.domain.usecase.read.MangaIsRead
 import javax.inject.Inject
 
 class MangaIsReadImpl @Inject constructor(

@@ -10,8 +10,8 @@ import com.spiderbiggen.manhwa.data.usecase.manga.GetActiveMangaImpl
 import com.spiderbiggen.manhwa.data.usecase.manga.GetDroppedMangaImpl
 import com.spiderbiggen.manhwa.data.usecase.manga.GetFavoriteMangaImpl
 import com.spiderbiggen.manhwa.data.usecase.manga.GetMangaImpl
-import com.spiderbiggen.manhwa.data.usecase.read.MangaIsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.IsReadImpl
+import com.spiderbiggen.manhwa.data.usecase.read.MangaIsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.read.ToggleReadImpl
@@ -28,8 +28,8 @@ import com.spiderbiggen.manhwa.domain.usecase.manga.GetActiveManga
 import com.spiderbiggen.manhwa.domain.usecase.manga.GetDroppedManga
 import com.spiderbiggen.manhwa.domain.usecase.manga.GetFavoriteManga
 import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
-import com.spiderbiggen.manhwa.domain.usecase.read.MangaIsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
+import com.spiderbiggen.manhwa.domain.usecase.read.MangaIsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manhwa.domain.usecase.read.ToggleRead
@@ -40,7 +40,6 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -62,7 +61,9 @@ abstract class DataModule {
     abstract fun bindGetChapter(useCase: GetChapterImpl): GetChapter
 
     @Binds
-    abstract fun bindGetSurroundingChapters(useCase: GetSurroundingChaptersImpl): GetSurroundingChapters
+    abstract fun bindGetSurroundingChapters(
+        useCase: GetSurroundingChaptersImpl,
+    ): GetSurroundingChapters
 
     @Binds
     abstract fun bindGetChapters(useCase: GetChaptersImpl): GetChapters
@@ -98,5 +99,7 @@ abstract class DataModule {
     abstract fun bindStartRemoteUpdate(useCase: StartRemoteUpdateImpl): StartRemoteUpdate
 
     @Binds
-    abstract fun bindStartRemoteChapterUpdate(useCase: StartRemoteChapterUpdateImpl): StartRemoteChapterUpdate
+    abstract fun bindStartRemoteChapterUpdate(
+        useCase: StartRemoteChapterUpdateImpl,
+    ): StartRemoteChapterUpdate
 }

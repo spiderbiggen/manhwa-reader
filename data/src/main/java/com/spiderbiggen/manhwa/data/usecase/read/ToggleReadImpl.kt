@@ -7,7 +7,7 @@ import com.spiderbiggen.manhwa.domain.usecase.read.ToggleRead
 import javax.inject.Inject
 
 class ToggleReadImpl @Inject constructor(
-    private val repository: ReadRepository
+    private val repository: ReadRepository,
 ) : ToggleRead {
     override suspend fun invoke(chapterId: String): Either<Boolean, AppError> {
         val toggled = !repository.isRead(chapterId)

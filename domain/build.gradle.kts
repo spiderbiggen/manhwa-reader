@@ -2,6 +2,8 @@ plugins {
     id("java-library")
     alias(libs.plugins.org.jetbrains.kotlin.jvm)
     alias(libs.plugins.com.google.ksp)
+
+    id("manga.spotless-conventions")
 }
 
 java {

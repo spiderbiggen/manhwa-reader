@@ -47,7 +47,6 @@ import com.spiderbiggen.manhwa.presentation.components.MangaRow
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 
-
 @Composable
 fun MangaOverview(
     navigateToManga: (String) -> Unit,
@@ -97,8 +96,11 @@ fun MangaOverview(
             onRefreshClicked()
         }
     }
-    val scaleFraction = if (pullToRefreshState.isRefreshing) 1f else
+    val scaleFraction = if (pullToRefreshState.isRefreshing) {
+        1f
+    } else {
         LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
+    }
 
     Scaffold(
         modifier = Modifier
@@ -109,8 +111,8 @@ fun MangaOverview(
                 title = { Text("Manga") },
                 scrollBehavior = topAppBarScrollBehavior,
                 colors = TopAppBarDefaults.topAppBarColors(
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface
-                )
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                ),
             )
         },
     ) { padding ->
@@ -118,11 +120,14 @@ fun MangaOverview(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.TopCenter,
         ) {
             when (val screenState = state.value) {
                 is MangaScreenState.Error,
-                is MangaScreenState.Loading -> CircularProgressIndicator(Modifier.align(Alignment.Center))
+                is MangaScreenState.Loading,
+                -> CircularProgressIndicator(
+                    Modifier.align(Alignment.Center),
+                )
 
                 is MangaScreenState.Ready -> {
                     MangaList(
@@ -138,7 +143,7 @@ fun MangaOverview(
                         state = pullToRefreshState,
                         modifier = Modifier.graphicsLayer(
                             scaleX = scaleFraction,
-                            scaleY = scaleFraction
+                            scaleY = scaleFraction,
                         ),
                     )
                 }
@@ -172,7 +177,7 @@ private fun MangaList(
         items = images,
         visibleCount = 7,
         preloadCount = 15,
-        lazyListState = lazyListState
+        lazyListState = lazyListState,
     )
     LazyColumn(
         modifier = modifier,
@@ -191,12 +196,12 @@ private fun MangaList(
                 FilterChip(
                     selected = favoritesOnly,
                     onClick = toggleFavoritesFilter,
-                    label = { Text("Favorites") }
+                    label = { Text("Favorites") },
                 )
                 FilterChip(
                     selected = unReadOnly,
                     onClick = toggleUnreadFilter,
-                    label = { Text("Unread") }
+                    label = { Text("Unread") },
                 )
             }
         }
@@ -205,12 +210,12 @@ private fun MangaList(
                 Text(
                     header,
                     Modifier.padding(8.dp),
-                    style = MaterialTheme.typography.titleMedium
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
             items(
                 mangas,
-                key = { it.id }
+                key = { it.id },
             ) { item ->
                 MangaRow(
                     manga = item,
@@ -229,56 +234,58 @@ private fun MangaList(
     "Light - Red",
     group = "dynamic",
     wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Dark - Red",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
     wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Light - Blue",
     group = "dynamic",
     wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Dark - Blue",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
     wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Light - Green",
     group = "dynamic",
     wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Dark - Green",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
     wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Light - Yellow",
     group = "dynamic",
     wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Preview(
     "Dark - Yellow",
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dynamic",
     wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE,
-    apiLevel = 32
+    apiLevel = 32,
 )
 @Composable
-fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {
+fun PreviewManga(
+    @PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState,
+) {
     MangaReaderTheme {
         MangaOverview(
             state = remember { derivedStateOf { state } },
@@ -294,7 +301,7 @@ class MangaOverviewScreenStateProvider : PreviewParameterProvider<MangaScreenSta
             MangaScreenState.Ready(
                 manga = mapOf("Today" to MangaProvider.values.toList()),
                 favoritesOnly = true,
-                unreadOnly = false
+                unreadOnly = false,
             ),
         )
 }
@@ -331,6 +338,6 @@ object MangaProvider {
                 updatedAt = "2023-04-23",
                 isFavorite = true,
                 readAll = true,
-            )
+            ),
         )
 }

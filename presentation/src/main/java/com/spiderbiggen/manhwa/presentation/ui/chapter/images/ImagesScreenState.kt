@@ -14,7 +14,7 @@ sealed interface ImagesScreenState {
     ) : ImagesScreenState
 
     data class Error(
-        val errorMessage: String
+        val errorMessage: String,
     ) : ImagesScreenState
 
     fun ifReady(): Ready? = this as? Ready

@@ -8,7 +8,6 @@ sealed interface AppError {
         data object NotFound : Remote
         data object NoConnection : Remote
 
-
         /**
          * Fall back http error
          */
