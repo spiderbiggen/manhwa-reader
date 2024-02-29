@@ -1,7 +1,7 @@
 package com.spiderbiggen.manhwa.domain.model
 
-import kotlinx.datetime.Instant
 import java.net.URL
+import kotlinx.datetime.Instant
 
 data class Manga(
     val source: String,
@@ -11,5 +11,5 @@ data class Manga(
     val dominantColor: Int?,
     val description: String?,
     val status: String,
-    val updatedAt: Instant
+    val updatedAt: Instant,
 )

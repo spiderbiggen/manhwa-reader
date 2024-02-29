@@ -3,10 +3,10 @@ package com.spiderbiggen.manhwa.data.source.local.repository
 import com.spiderbiggen.manhwa.data.source.local.dao.LocalChapterDao
 import com.spiderbiggen.manhwa.data.usecase.chapter.mapper.ToDomainChapterUseCase
 import com.spiderbiggen.manhwa.domain.model.Chapter
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class ChapterRepository @Inject constructor(
     private val chapterDaoProvider: Provider<LocalChapterDao>,

@@ -24,9 +24,10 @@ class ChapterUpdateWorker @AssistedInject constructor(
     private val updateChapters: UpdateChapters,
     // worker context
     @Assisted appContext: Context,
-    @Assisted private val params: WorkerParameters
+    @Assisted private val params: WorkerParameters,
 ) : CoroutineWorker(
-    appContext, params
+    appContext,
+    params,
 ) {
     override suspend fun doWork(): Result {
         val mangaId = params.inputData.getString(KEY_UPDATED_MANGA_ID) ?: run {
@@ -42,6 +43,7 @@ class ChapterUpdateWorker @AssistedInject constructor(
 
     private fun retryOrFail(err: AppError): Result = when {
         runAttemptCount < 3 -> Result.retry()
+
         else -> {
             Log.e(TAG, err.toString())
             Result.failure(workDataOf(KEY_OUTPUT_FAILURE_REASON to err))
@@ -66,11 +68,11 @@ class ChapterUpdateWorker @AssistedInject constructor(
                         workDataOf(
                             KEY_UPDATED_MANGA_ID to mangaId,
                             KEY_SKIP_CACHE to skipCache,
-                        )
+                        ),
                     )
                     .addTag(MANGA_UPDATE_TAG)
                     .setConstraints(constraints)
-                    .build()
+                    .build(),
             )
         }
     }

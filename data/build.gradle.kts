@@ -68,6 +68,7 @@ dependencies {
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.serialization)
+    implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
 }

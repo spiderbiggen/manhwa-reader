@@ -32,7 +32,7 @@ interface LocalChapterDao {
             OR (c1.number = c2.number AND c1.decimal < c2.decimal) 
         )
         ORDER BY c1.number DESC, c1.decimal DESC
-        """
+        """,
     )
     suspend fun getPreviousChapters(id: String): List<LocalChapterEntity>
 
@@ -46,7 +46,7 @@ interface LocalChapterDao {
         )
         ORDER BY c1.number DESC, c1.decimal DESC
         LIMIT 1
-        """
+        """,
     )
     suspend fun getPrevChapterId(id: String): LocalChapterEntity?
 
@@ -60,7 +60,7 @@ interface LocalChapterDao {
         )
         ORDER BY c1.number ASC, c1.decimal ASC
         LIMIT 1
-        """
+        """,
     )
     suspend fun getNextChapterId(id: String): LocalChapterEntity?
 }

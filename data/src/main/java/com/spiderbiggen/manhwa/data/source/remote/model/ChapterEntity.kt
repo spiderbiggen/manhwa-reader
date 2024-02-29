@@ -15,5 +15,5 @@ data class ChapterEntity(
     @SerialName("updated_at")
     val updatedAt: Instant,
     @SerialName("images")
-    val images: Int
+    val images: Int,
 )

@@ -28,16 +28,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 
-private const val aspectRatio = 1.35F
+private const val ASPECT_RATIO = 1.35F
 private val aspectModifier = Modifier
     .height(96.dp)
-    .width(96.dp / aspectRatio)
+    .width(96.dp / ASPECT_RATIO)
 
 @Composable
 fun MangaRow(
@@ -54,18 +53,18 @@ fun MangaRow(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             AsyncImage(
                 model = manga.coverImage,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = aspectModifier,
-                alignment = Alignment.Center
+                alignment = Alignment.Center,
             )
             Column(
                 Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)
+                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
             ) {
                 val contentColor = LocalContentColor.current.let {
                     if (manga.readAll) it.copy(alpha = 0.7f) else it
@@ -93,7 +92,7 @@ fun MangaRow(
             }
             IconButton(
                 onClick = { onClickFavorite(manga.id) },
-                modifier = Modifier.padding(end = 16.dp)
+                modifier = Modifier.padding(end = 16.dp),
             ) {
                 Icon(
                     if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
@@ -106,27 +105,12 @@ fun MangaRow(
 
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview("Light - Red", group = "dynamic", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview(
-    "Dark - Red",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE
-)
-@Preview("Light - Blue", group = "dynamic", wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE)
-@Preview(
-    "Dark - Blue",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE
-)
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     MangaReaderTheme {
         MangaRow(state, {}, {})
     }
 }
-
 
 class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
     override val values
@@ -150,6 +134,6 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                 updatedAt = "2023-04-23",
                 isFavorite = true,
                 readAll = true,
-            )
+            ),
         )
 }

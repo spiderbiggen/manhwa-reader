@@ -58,10 +58,10 @@ import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
+import java.net.URL
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import java.net.URL
 
 @Composable
 fun ChapterOverview(
@@ -116,8 +116,11 @@ fun ChapterOverview(
             startRefresh()
         }
     }
-    val scaleFraction = if (pullToRefreshState.isRefreshing) 1f else
+    val scaleFraction = if (pullToRefreshState.isRefreshing) {
+        1f
+    } else {
         LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
+    }
 
     val dominantColor = state.ifReady()?.manga?.dominantColor
     LaunchedEffect(dominantColor) {
@@ -139,11 +142,14 @@ fun ChapterOverview(
                 actions = {
                     IconButton(onClick = toggleFavorite) {
                         Icon(
-                            imageVector = if (state.ifReady()?.isFavorite == true) Icons.Outlined.Favorite else Icons.Outlined.FavoriteBorder,
-                            contentDescription = "Favorite"
+                            imageVector = when (state.ifReady()?.isFavorite) {
+                                true -> Icons.Outlined.Favorite
+                                else -> Icons.Outlined.FavoriteBorder
+                            },
+                            contentDescription = "Favorite",
                         )
                     }
-                }
+                },
             )
         },
         containerColor = MaterialTheme.colorScheme.surface,
@@ -152,14 +158,15 @@ fun ChapterOverview(
             Modifier
                 .padding(padding)
                 .fillMaxSize(),
-            contentAlignment = Alignment.TopCenter
+            contentAlignment = Alignment.TopCenter,
         ) {
             when (state) {
                 ChapterScreenState.Loading,
-                is ChapterScreenState.Error -> CircularProgressIndicator(
+                is ChapterScreenState.Error,
+                -> CircularProgressIndicator(
                     Modifier.align(
-                        Alignment.Center
-                    )
+                        Alignment.Center,
+                    ),
                 )
 
                 is ChapterScreenState.Ready -> {
@@ -173,7 +180,7 @@ fun ChapterOverview(
                                 item = item.chapter,
                                 isRead = item.isRead,
                                 navigateToChapter = navigateToChapter,
-                                modifier = Modifier.animateItemPlacement()
+                                modifier = Modifier.animateItemPlacement(),
                             )
                         }
                     }
@@ -181,8 +188,8 @@ fun ChapterOverview(
                         state = pullToRefreshState,
                         modifier = Modifier.graphicsLayer(
                             scaleX = scaleFraction,
-                            scaleY = scaleFraction
-                        )
+                            scaleY = scaleFraction,
+                        ),
                     )
                 }
             }
@@ -229,7 +236,7 @@ private fun ChapterRow(
                     Modifier
                         .weight(1f),
                     horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically)
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 ) {
                     val contentColor = LocalContentColor.current.let {
                         if (isRead) it.copy(alpha = 0.7f) else it
@@ -251,11 +258,12 @@ private fun ChapterRow(
     }
 }
 
-
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
+fun PreviewManga(
+    @PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState,
+) {
     var seedColor by remember { mutableStateOf(Purple80) }
     MangaReaderTheme(seedColor) {
         ChapterOverview(
@@ -264,7 +272,8 @@ fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) st
             navigateToChapter = {},
             refreshing = false,
             startRefresh = {},
-            toggleFavorite = {}, state = state
+            toggleFavorite = {},
+            state = state,
         )
     }
 }
@@ -276,7 +285,7 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
             ChapterScreenState.Ready(
                 manga = MangaProvider.value,
                 isFavorite = true,
-                chapters = ChapterProvider.values.toList()
+                chapters = ChapterProvider.values.toList(),
             ),
         )
 }
@@ -337,8 +346,11 @@ object MangaProvider {
         title = "Heavenly Martial God",
         coverImage = URL("https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"),
         dominantColor = 0xFF1818,
-        description = "“Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young, the greatest martial artist reigning over all the lands!",
+        description = """
+            “Who’s this male prostitute-looking kid?” I am the Matchless Ha Hoo Young,
+             the greatest martial artist reigning over all the lands!
+        """.trimIndent(),
         status = "Ongoing",
-        updatedAt = Clock.System.now()
+        updatedAt = Clock.System.now(),
     )
 }

@@ -31,9 +31,10 @@ class MangaUpdateWorker @AssistedInject constructor(
     private val chapterUpdaterProvider: Provider<StartRemoteChapterUpdate>,
     // worker context
     @Assisted appContext: Context,
-    @Assisted private val params: WorkerParameters
+    @Assisted private val params: WorkerParameters,
 ) : CoroutineWorker(
-    appContext, params
+    appContext,
+    params,
 ) {
     override suspend fun doWork(): Result {
         val skipCache = params.inputData.getBoolean(KEY_SKIP_CACHE, false)
@@ -53,6 +54,7 @@ class MangaUpdateWorker @AssistedInject constructor(
 
     private fun retryOrFail(err: AppError): Result = when {
         runAttemptCount < 3 -> Result.retry()
+
         else -> {
             Log.e(TAG, err.toString())
             Result.failure(workDataOf(KEY_OUTPUT_FAILURE_REASON to err))
@@ -63,7 +65,6 @@ class MangaUpdateWorker @AssistedInject constructor(
         private const val WORKER_UNIQUE_ID = "mangaUpdate"
         private const val KEY_SKIP_CACHE = "skipCache"
         private const val TAG = "MangaUpdateWorker"
-
 
         private val constraints =
             Constraints.Builder().setRequiredNetworkType(NetworkType.CONNECTED).build()
@@ -76,7 +77,7 @@ class MangaUpdateWorker @AssistedInject constructor(
                     .setInputData(workDataOf(KEY_SKIP_CACHE to skipCache))
                     .addTag(MANGA_UPDATE_TAG)
                     .setConstraints(constraints)
-                    .build()
+                    .build(),
             )
         }
     }

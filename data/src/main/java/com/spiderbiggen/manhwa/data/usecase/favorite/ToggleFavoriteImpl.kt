@@ -7,7 +7,7 @@ import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
 import javax.inject.Inject
 
 class ToggleFavoriteImpl @Inject constructor(
-    private val favoritesRepository: FavoritesRepository
+    private val favoritesRepository: FavoritesRepository,
 ) : ToggleFavorite {
     override fun invoke(mangaId: String): Either<Boolean, AppError> {
         val newState = !favoritesRepository.isFavorite(mangaId)

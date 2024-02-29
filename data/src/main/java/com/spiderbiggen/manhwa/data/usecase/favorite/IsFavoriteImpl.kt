@@ -7,8 +7,8 @@ import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import javax.inject.Inject
 
 class IsFavoriteImpl @Inject constructor(
-    private val favoritesRepository: FavoritesRepository
-): IsFavorite {
+    private val favoritesRepository: FavoritesRepository,
+) : IsFavorite {
 
     override fun invoke(mangaId: String): Either<Boolean, AppError> {
         return Either.Left(favoritesRepository.isFavorite(mangaId))

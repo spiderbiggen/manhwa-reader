@@ -5,14 +5,14 @@ import com.spiderbiggen.manhwa.domain.model.leftOr
 import com.spiderbiggen.manhwa.domain.usecase.remote.GetUpdatingState
 import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteUpdate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val startRemoteUpdate: StartRemoteUpdate,
     private val getUpdatingState: GetUpdatingState,
-): ViewModel() {
+) : ViewModel() {
 
     val updatingState
         get() = getUpdatingState().map { it.leftOr(false) }

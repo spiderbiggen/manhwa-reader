@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 class GetPreviousChapters @Inject constructor(
     private val chapterRepository: ChapterRepository,
-){
+) {
 
     suspend operator fun invoke(chapterId: String): Either<List<Chapter>, AppError> =
         chapterRepository.getPreviousChapters(chapterId).either()

@@ -7,10 +7,10 @@ import com.spiderbiggen.manhwa.data.MANGA_UPDATE_TAG
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.usecase.remote.GetUpdatingState
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Provider
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 class GetUpdatingStateImpl @Inject constructor(
     private val workManager: Provider<WorkManager>,
@@ -28,7 +28,9 @@ class GetUpdatingStateImpl @Inject constructor(
     }
 
     private fun getAppError(workInfo: WorkInfo): AppError? = when (workInfo.state) {
-        WorkInfo.State.FAILED -> workInfo.outputData.keyValueMap[KEY_OUTPUT_FAILURE_REASON] as? AppError
+        WorkInfo.State.FAILED ->
+            workInfo.outputData.keyValueMap[KEY_OUTPUT_FAILURE_REASON] as? AppError
+
         else -> null
     }
 }

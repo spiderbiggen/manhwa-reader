@@ -10,7 +10,7 @@ import kotlinx.datetime.Instant
     tableName = "manga",
     indices = [
         Index("updated_at"),
-    ]
+    ],
 )
 data class LocalMangaEntity(
     @PrimaryKey

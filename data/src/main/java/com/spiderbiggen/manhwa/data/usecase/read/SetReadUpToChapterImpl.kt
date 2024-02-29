@@ -11,7 +11,7 @@ import javax.inject.Inject
 
 class SetReadUpToChapterImpl @Inject constructor(
     private val setRead: SetRead,
-    private val getPreviousChapters: GetPreviousChapters
+    private val getPreviousChapters: GetPreviousChapters,
 ) : SetReadUpToChapter {
     override suspend fun invoke(chapterId: String): Either<Unit, AppError> =
         getPreviousChapters(chapterId).mapLeft { list ->

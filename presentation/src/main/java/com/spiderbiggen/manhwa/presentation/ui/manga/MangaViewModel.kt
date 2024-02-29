@@ -13,6 +13,7 @@ import com.spiderbiggen.manhwa.domain.usecase.manga.GetActiveManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -26,7 +27,6 @@ import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
-import javax.inject.Inject
 
 @HiltViewModel
 class MangaViewModel @Inject constructor(
@@ -87,12 +87,14 @@ class MangaViewModel @Inject constructor(
                         manga = filtered,
                         favoritesOnly = favoritesOnly,
                         unreadOnly = unreadOnly,
-                    )
+                    ),
                 )
             }
     }
 
-    private fun filterMangaViewData(manga: Map<String, List<MangaViewData>>): Map<String, List<MangaViewData>> {
+    private fun filterMangaViewData(
+        manga: Map<String, List<MangaViewData>>,
+    ): Map<String, List<MangaViewData>> {
         if (!favoritesOnly && !unreadOnly) return manga
 
         return manga.mapNotNull { (key, value) ->
@@ -129,7 +131,9 @@ class MangaViewModel @Inject constructor(
         }
     }
 
-    private fun groupManga(value: List<Pair<Manga, String?>>): Map<String, List<Pair<Manga, String?>>> {
+    private fun groupManga(
+        value: List<Pair<Manga, String?>>,
+    ): Map<String, List<Pair<Manga, String?>>> {
         val timeZone = TimeZone.currentSystemDefault()
         val now = Clock.System.now()
         val today = now.toLocalDateTime(timeZone).date

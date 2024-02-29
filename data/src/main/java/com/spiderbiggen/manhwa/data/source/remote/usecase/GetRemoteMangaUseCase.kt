@@ -1,9 +1,9 @@
 package com.spiderbiggen.manhwa.data.source.remote.usecase
 
 import com.spiderbiggen.manhwa.data.source.remote.MangaService
-import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Provider
+import retrofit2.HttpException
 
 class GetRemoteMangaUseCase @Inject constructor(private val getService: Provider<MangaService>) {
     suspend operator fun invoke(skipCache: Boolean = false) = runCatching {

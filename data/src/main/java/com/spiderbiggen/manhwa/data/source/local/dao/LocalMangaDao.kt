@@ -24,7 +24,7 @@ interface LocalMangaDao {
         FROM manga m 
             LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
         ORDER BY updated_at DESC
-        """
+        """,
     )
     fun getAll(): Flow<List<LocalMangaWithLastChapterIdEntity>>
 
@@ -34,7 +34,7 @@ interface LocalMangaDao {
         FROM manga m
             LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
         WHERE c.id IS NULL
-        """
+        """,
     )
     suspend fun getForUpdate(): List<String>
 }

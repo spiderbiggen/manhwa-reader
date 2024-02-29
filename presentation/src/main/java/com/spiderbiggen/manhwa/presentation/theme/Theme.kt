@@ -10,7 +10,7 @@ import com.materialkolor.PaletteStyle
 fun MangaReaderTheme(
     seedColor: Color = Purple80,
     darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) {
     DynamicMaterialTheme(
         seedColor = seedColor,
