@@ -80,7 +80,7 @@ material-kolor = { group = "com.materialkolor", name = "material-kolor", version
 [plugins]
 com-android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 com-android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
-com-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.17" }
+com-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.22-1.0.18" }
 com-google-hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 
 org-jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
