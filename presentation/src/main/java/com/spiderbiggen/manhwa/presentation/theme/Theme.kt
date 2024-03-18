@@ -15,7 +15,10 @@ fun MangaReaderTheme(
     DynamicMaterialTheme(
         seedColor = seedColor,
         useDarkTheme = darkTheme,
-        style = PaletteStyle.FruitSalad,
+        style = when (seedColor) {
+            Purple80 -> PaletteStyle.Vibrant
+            else -> PaletteStyle.Expressive
+        },
         isExtendedFidelity = true,
         animate = false,
         content = content,
