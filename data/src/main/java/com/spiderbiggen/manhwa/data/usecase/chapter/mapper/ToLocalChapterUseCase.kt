@@ -9,7 +9,6 @@ class ToLocalChapterUseCase @Inject constructor() {
         id = entity.id,
         mangaId = mangaId,
         number = entity.number,
-        decimal = entity.decimal ?: 0,
         title = entity.title,
         date = entity.date,
         updatedAt = entity.updatedAt,

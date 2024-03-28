@@ -19,7 +19,7 @@ class GetChapterImagesImpl @Inject constructor(
             is Either.Left -> {
                 val chunks = either.left
                 val images = (0 until chunks).map { index ->
-                    URL("$baseUrl/chapters/$chapterId/images/$index")
+                    URL("$baseUrl/api/v1/chapters/$chapterId/images/$index")
                 }
                 Either.Left(images)
             }

@@ -5,7 +5,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manhwa.domain.model.AppError
-import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.SurroundingChapters
 import com.spiderbiggen.manhwa.domain.model.andLeft
@@ -19,13 +18,13 @@ import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetReadUpToChapter
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class ImagesViewModel @Inject constructor(
@@ -87,7 +86,7 @@ class ImagesViewModel @Inject constructor(
 
                     mutableState.emit(
                         ImagesScreenState.Ready(
-                            title = getTitle(chapter),
+                            title = chapter.displayTitle(),
                             surrounding = surrounding,
                             isFavorite = isFavorite,
                             images = images.map { it.toExternalForm() },
@@ -100,17 +99,6 @@ class ImagesViewModel @Inject constructor(
             }
         }
     }
-
-    private fun getTitle(chapter: Chapter): String = StringBuilder("Chapter ").apply {
-        append(chapter.number)
-        chapter.decimal?.let {
-            append('.').append(it)
-        }
-        chapter.title?.let {
-            if (it[0].isLetterOrDigit()) append(" - ")
-            append(it)
-        }
-    }.toString()
 
     private fun mapError(error: AppError): ImagesScreenState.Error {
         Log.e("ImagesViewModel", "failed to get images $error")

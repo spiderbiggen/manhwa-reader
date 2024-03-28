@@ -2,6 +2,7 @@ package com.spiderbiggen.manhwa.data.source.local
 
 import androidx.room.AutoMigration
 import androidx.room.Database
+import androidx.room.DeleteTable
 import androidx.room.RenameColumn
 import androidx.room.RenameTable
 import androidx.room.RoomDatabase
@@ -25,18 +26,11 @@ import com.spiderbiggen.manhwa.data.source.local.model.LocalMangaEntity
         LocalChapterEntity::class,
         LocalMangaEntity::class,
     ],
-    version = 3,
-    autoMigrations = [
-        AutoMigration(from = 1, to = 2, spec = MangaDatabase.AutoMigration1To2::class),
-        AutoMigration(from = 2, to = 3),
-    ],
+    version = 4,
+    autoMigrations = [],
     exportSchema = true,
 )
 abstract class MangaDatabase : RoomDatabase() {
     abstract fun localMangaDao(): LocalMangaDao
     abstract fun localChapterDao(): LocalChapterDao
-
-    @RenameTable("manhwa", "manga")
-    @RenameColumn("chapter", "manhwa_id", "manga_id")
-    class AutoMigration1To2 : AutoMigrationSpec
 }

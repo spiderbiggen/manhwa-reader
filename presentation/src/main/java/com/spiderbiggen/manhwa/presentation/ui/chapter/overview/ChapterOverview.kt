@@ -58,10 +58,10 @@ import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
-import java.net.URL
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import java.net.URL
 
 @Composable
 fun ChapterOverview(
@@ -205,20 +205,7 @@ private fun ChapterRow(
     navigateToChapter: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val title by remember(item) {
-        derivedStateOf {
-            StringBuilder().apply {
-                append(item.number)
-                item.decimal?.let {
-                    append('.').append(it)
-                }
-                item.title?.let {
-                    if (it[0].isLetterOrDigit()) append(" - ")
-                    append(it)
-                }
-            }.toString()
-        }
-    }
+    val title by remember(item) { derivedStateOf { item.displayTitle() } }
     Surface(
         onClick = { navigateToChapter(item.id) },
         modifier = modifier
@@ -295,8 +282,7 @@ object ChapterProvider {
         ChapterRowData(
             chapter = Chapter(
                 id = "000000",
-                number = 30,
-                decimal = null,
+                number = 30.0,
                 title = null,
                 date = LocalDate(2023, 4, 16),
                 updatedAt = Instant.DISTANT_PAST,
@@ -306,8 +292,7 @@ object ChapterProvider {
         ChapterRowData(
             chapter = Chapter(
                 id = "000001",
-                number = 29,
-                decimal = 5,
+                number = 29.5,
                 title = null,
                 date = LocalDate(2023, 4, 12),
                 updatedAt = Instant.DISTANT_PAST,
@@ -317,8 +302,7 @@ object ChapterProvider {
         ChapterRowData(
             chapter = Chapter(
                 id = "000002",
-                number = 39,
-                decimal = null,
+                number = 39.0,
                 title = null,
                 date = LocalDate(2023, 3, 15),
                 updatedAt = Instant.DISTANT_PAST,
@@ -328,8 +312,7 @@ object ChapterProvider {
         ChapterRowData(
             chapter = Chapter(
                 id = "000003",
-                number = 30,
-                decimal = null,
+                number = 30.0,
                 title = "Long title to make the title take two lines at least",
                 date = LocalDate(2023, 2, 28),
                 updatedAt = Instant.DISTANT_PAST,

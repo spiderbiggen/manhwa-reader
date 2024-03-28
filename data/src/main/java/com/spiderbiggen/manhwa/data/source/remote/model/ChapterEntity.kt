@@ -8,8 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ChapterEntity(
     val id: String,
-    val number: Int,
-    val decimal: Int?,
+    val number: Double,
     val title: String?,
     val date: LocalDate,
     @SerialName("updated_at")
