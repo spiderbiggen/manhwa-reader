@@ -7,7 +7,6 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,8 +32,6 @@ import com.spiderbiggen.manhwa.presentation.ui.manga.MangaViewModel
 @Composable
 fun MainContent() {
     val navController = rememberNavController()
-    val mainViewModel = hiltViewModel<MainViewModel>()
-    val refreshing = mainViewModel.updatingState.collectAsState(initial = false)
 
     var seedColor by remember { mutableStateOf(Purple80) }
     MangaReaderTheme(seedColor = seedColor) {
@@ -51,8 +48,6 @@ fun MainContent() {
                 LaunchedEffect(null) { seedColor = Purple80 }
                 MangaOverview(
                     viewModel = viewModel,
-                    refreshing = refreshing,
-                    onRefreshClicked = mainViewModel::onClickRefresh,
                     navigateToManga = {
                         if (backStackEntry.lifecycleIsResumed()) {
                             navController.navigate("manga/$it")
@@ -79,7 +74,6 @@ fun MainContent() {
                         }
                     },
                     viewModel = viewModel,
-                    refreshing = refreshing,
                 )
             }
             composable(
@@ -116,5 +110,4 @@ fun MainContent() {
  *
  * This is used to de-duplicate navigation events.
  */
-private fun NavBackStackEntry.lifecycleIsResumed() =
-    this.lifecycle.currentState == Lifecycle.State.RESUMED
+private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState == Lifecycle.State.RESUMED

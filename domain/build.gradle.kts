@@ -1,9 +1,9 @@
 plugins {
     id("java-library")
-    alias(libs.plugins.org.jetbrains.kotlin.jvm)
-    alias(libs.plugins.com.google.ksp)
-
+    alias(libs.plugins.kotlin.jvm)
+    alias(libs.plugins.google.ksp)
     id("manga.spotless-conventions")
+    id("com.android.lint")
 }
 
 java {
@@ -16,9 +16,12 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.coroutines.core)
+    // Dagger
+    implementation(libs.google.dagger)
+    ksp(libs.google.dagger.hiltAndroidCompiler)
 
-    implementation(libs.dagger)
-    ksp(libs.dagger.compiler)
-    implementation(libs.kotlinx.datetime)
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinX.datetime)
+    implementation(libs.kotlinX.coroutines.core)
 }

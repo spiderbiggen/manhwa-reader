@@ -11,6 +11,7 @@ import com.spiderbiggen.manhwa.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manhwa.domain.usecase.manga.GetActiveManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
+import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -32,9 +33,13 @@ import kotlinx.datetime.toLocalDateTime
 class MangaViewModel @Inject constructor(
     private val getActiveManga: GetActiveManga,
     private val isFavorite: IsFavorite,
-    private val toggleFavorite: ToggleFavorite,
     private val isRead: IsRead,
+    private val toggleFavorite: ToggleFavorite,
+    private val updateMangaFromRemote: UpdateMangaFromRemote,
 ) : ViewModel() {
+
+    private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val updatingState = mutableUpdatingState.asStateFlow()
 
     private val updater = MutableSharedFlow<Unit>(1)
     private val mutableState = MutableStateFlow<MangaScreenState>(MangaScreenState.Loading)
@@ -46,6 +51,11 @@ class MangaViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
+            launch {
+                mutableUpdatingState.emit(true)
+                updateMangaFromRemote(skipCache = false)
+                mutableUpdatingState.emit(false)
+            }
             updater.emit(Unit)
             updateScreenState()
         }
@@ -92,9 +102,7 @@ class MangaViewModel @Inject constructor(
             }
     }
 
-    private fun filterMangaViewData(
-        manga: Map<String, List<MangaViewData>>,
-    ): Map<String, List<MangaViewData>> {
+    private fun filterMangaViewData(manga: Map<String, List<MangaViewData>>): Map<String, List<MangaViewData>> {
         if (!favoritesOnly && !unreadOnly) return manga
 
         return manga.mapNotNull { (key, value) ->
@@ -108,6 +116,14 @@ class MangaViewModel @Inject constructor(
     private fun mapError(error: AppError): MangaScreenState.Error {
         Log.e("MangaViewModel", "failed to get manga $error")
         return MangaScreenState.Error("An error occurred")
+    }
+
+    fun onClickRefresh() {
+        viewModelScope.launch {
+            mutableUpdatingState.emit(true)
+            updateMangaFromRemote(skipCache = true)
+            mutableUpdatingState.emit(false)
+        }
     }
 
     fun onClickFavorite(mangaId: String) {
@@ -131,9 +147,7 @@ class MangaViewModel @Inject constructor(
         }
     }
 
-    private fun groupManga(
-        value: List<Pair<Manga, String?>>,
-    ): Map<String, List<Pair<Manga, String?>>> {
+    private fun groupManga(value: List<Pair<Manga, String?>>): Map<String, List<Pair<Manga, String?>>> {
         val timeZone = TimeZone.currentSystemDefault()
         val now = Clock.System.now()
         val today = now.toLocalDateTime(timeZone).date

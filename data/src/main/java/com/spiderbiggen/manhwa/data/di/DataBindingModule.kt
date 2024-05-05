@@ -15,9 +15,8 @@ import com.spiderbiggen.manhwa.data.usecase.read.MangaIsReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manhwa.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manhwa.data.usecase.read.ToggleReadImpl
-import com.spiderbiggen.manhwa.data.usecase.remote.GetUpdatingStateImpl
-import com.spiderbiggen.manhwa.data.usecase.remote.StartRemoteChapterUpdateImpl
-import com.spiderbiggen.manhwa.data.usecase.remote.StartRemoteUpdateImpl
+import com.spiderbiggen.manhwa.data.usecase.remote.UpdateChaptersFromRemoteImpl
+import com.spiderbiggen.manhwa.data.usecase.remote.UpdateMangaFromRemoteImpl
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manhwa.domain.usecase.chapter.GetChapters
@@ -33,9 +32,8 @@ import com.spiderbiggen.manhwa.domain.usecase.read.MangaIsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manhwa.domain.usecase.read.ToggleRead
-import com.spiderbiggen.manhwa.domain.usecase.remote.GetUpdatingState
-import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteChapterUpdate
-import com.spiderbiggen.manhwa.domain.usecase.remote.StartRemoteUpdate
+import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateChaptersFromRemote
+import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateMangaFromRemote
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -43,7 +41,7 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataModule {
+abstract class DataBindingModule {
 
     @Binds
     abstract fun bindGetActiveManga(useCase: GetActiveMangaImpl): GetActiveManga
@@ -61,9 +59,7 @@ abstract class DataModule {
     abstract fun bindGetChapter(useCase: GetChapterImpl): GetChapter
 
     @Binds
-    abstract fun bindGetSurroundingChapters(
-        useCase: GetSurroundingChaptersImpl,
-    ): GetSurroundingChapters
+    abstract fun bindGetSurroundingChapters(useCase: GetSurroundingChaptersImpl): GetSurroundingChapters
 
     @Binds
     abstract fun bindGetChapters(useCase: GetChaptersImpl): GetChapters
@@ -93,13 +89,8 @@ abstract class DataModule {
     abstract fun bindSetReadUptoToChapter(useCase: SetReadUpToChapterImpl): SetReadUpToChapter
 
     @Binds
-    abstract fun bindGetUpdatingState(useCase: GetUpdatingStateImpl): GetUpdatingState
+    abstract fun bindUpdateMangaFromRemote(useCase: UpdateMangaFromRemoteImpl): UpdateMangaFromRemote
 
     @Binds
-    abstract fun bindStartRemoteUpdate(useCase: StartRemoteUpdateImpl): StartRemoteUpdate
-
-    @Binds
-    abstract fun bindStartRemoteChapterUpdate(
-        useCase: StartRemoteChapterUpdateImpl,
-    ): StartRemoteChapterUpdate
+    abstract fun bindUpdateChaptersFromRemote(useCase: UpdateChaptersFromRemoteImpl): UpdateChaptersFromRemote
 }

@@ -27,6 +27,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,20 +49,16 @@ import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 
 @Composable
-fun MangaOverview(
-    navigateToManga: (String) -> Unit,
-    viewModel: MangaViewModel = viewModel(),
-    refreshing: State<Boolean> = remember { mutableStateOf(false) },
-    onRefreshClicked: () -> Unit = {},
-) {
+fun MangaOverview(navigateToManga: (String) -> Unit, viewModel: MangaViewModel = viewModel()) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
     val state = viewModel.state.collectAsStateWithLifecycle()
+    val updatingState = viewModel.updatingState.collectAsState()
     MangaOverview(
         state = state,
-        refreshing = refreshing,
-        onRefreshClicked = onRefreshClicked,
+        refreshing = updatingState,
+        onRefreshClicked = viewModel::onClickRefresh,
         toggleFavoritesFilter = viewModel::toggleFavoritesOnly,
         toggleUnreadFilter = viewModel::toggleUnreadOnly,
         navigateToManga = navigateToManga,
@@ -131,6 +128,7 @@ fun MangaOverview(
 
                 is MangaScreenState.Ready -> {
                     MangaList(
+                        modifier = Modifier.fillMaxSize(),
                         mangaGroups = screenState.manga,
                         favoritesOnly = screenState.favoritesOnly,
                         unReadOnly = screenState.unreadOnly,
@@ -283,9 +281,7 @@ private fun MangaList(
     apiLevel = 32,
 )
 @Composable
-fun PreviewManga(
-    @PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState,
-) {
+fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {
     MangaReaderTheme {
         MangaOverview(
             state = remember { derivedStateOf { state } },

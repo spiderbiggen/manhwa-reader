@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.com.android.library)
-    alias(libs.plugins.org.jetbrains.kotlin.android)
-    alias(libs.plugins.com.google.ksp)
-    alias(libs.plugins.com.google.hilt.android)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.google.daggerHilt)
+    alias(libs.plugins.google.ksp)
     id("manga.spotless-conventions")
 }
 
@@ -20,15 +20,6 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -44,45 +35,64 @@ android {
     }
 }
 
+hilt {
+    enableAggregatingTask = true
+}
+
 dependencies {
     implementation(project(":domain"))
-    implementation(libs.coroutines.core)
-    implementation(libs.core.ktx)
-    implementation(libs.hilt)
-    ksp(libs.dagger.hilt.compiler)
+    implementation(libs.androidX.core.ktx)
 
-    implementation(libs.lifecycle.runtime.ktx)
-    implementation(libs.lifecycle.runtime.compose)
-    implementation(libs.viewmodel.ktx)
-    implementation(libs.viewmodel.compose)
-    implementation(libs.viewmodel.savedstate)
+    // Dagger
+    implementation(libs.google.dagger.hiltAndroid)
+    ksp(libs.google.dagger.hiltAndroidCompiler)
 
-    implementation(platform(libs.compose.bom))
-    implementation(libs.activity.compose)
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
-    implementation(libs.material3)
-    implementation(libs.material.icons)
-    implementation(libs.ui.tooling.preview)
+    // Hilt
+    ksp(libs.androidX.hilt.compiler)
 
-    implementation(libs.navigation.hilt)
-    implementation(libs.navigation.compose)
-    implementation(libs.foundation)
-    implementation(libs.foundation.layout)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.ui.test.junit4)
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinX.coroutines.android)
+    implementation(libs.kotlinX.datetime)
 
-    implementation(libs.ui.tooling)
-    implementation(libs.ui.test.manifest)
+    // Lifecycle
+    implementation(libs.androidX.lifecycle.runtime.ktx)
+    implementation(libs.androidX.lifecycle.runtime.compose)
 
+    // ViewModel
+    implementation(libs.androidX.lifecycle.viewmodel.ktx)
+    implementation(libs.androidX.lifecycle.viewmodel.compose)
+    implementation(libs.androidX.lifecycle.viewmodel.savedstate)
+
+    // Compose
+    implementation(platform(libs.androidX.compose.bom))
+    implementation(libs.androidX.compose.activity)
+    implementation(libs.androidX.compose.ui)
+    implementation(libs.androidX.compose.uiGraphics)
+    implementation(libs.androidX.compose.material3)
+    implementation(libs.androidX.compose.materialIcons)
+    implementation(libs.androidX.compose.uiTooling)
+    implementation(libs.androidX.compose.uiTestManifest)
+    implementation(libs.androidX.compose.uiToolingPreview)
+
+    // Navigation
+    implementation(libs.androidX.hilt.navigationCompose)
+    implementation(libs.androidX.navigation.compose)
+    implementation(libs.androidX.compose.foundation)
+    implementation(libs.androidX.compose.foundationLayout)
+
+    // Coil
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
     implementation(libs.coil.compose)
 
+    // Material Kolor
     implementation(libs.material.kolor)
 
-    implementation(libs.kotlinx.datetime)
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidX.test.ext.junit)
+    androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(platform(libs.androidX.compose.bom))
+    androidTestImplementation(libs.androidX.compose.uiTestJunit4)
 }

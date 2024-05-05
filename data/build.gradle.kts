@@ -1,9 +1,9 @@
 plugins {
-    alias(libs.plugins.com.android.library)
-    alias(libs.plugins.org.jetbrains.kotlin.android)
-    alias(libs.plugins.com.google.ksp)
-    alias(libs.plugins.com.google.hilt.android)
-    alias(libs.plugins.org.jetbrains.kotlin.serialization)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlinX.serialization)
+    alias(libs.plugins.google.daggerHilt)
+    alias(libs.plugins.google.ksp)
     id("manga.spotless-conventions")
 }
 
@@ -23,15 +23,6 @@ android {
         }
     }
 
-    buildTypes {
-        release {
-            isMinifyEnabled = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-        }
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -41,31 +32,39 @@ android {
     }
 }
 
+hilt {
+    enableAggregatingTask = true
+}
+
 dependencies {
     implementation(project(":domain"))
-    implementation(libs.coroutines.core)
-    implementation(libs.core.ktx)
-    implementation(libs.hilt)
-    ksp(libs.android.hilt.compiler)
-    ksp(libs.dagger.hilt.compiler)
+    implementation(libs.androidX.core.ktx)
 
-    implementation(libs.work)
-    implementation(libs.android.hilt.work)
-    implementation(libs.android.hilt.common)
+    // Dagger
+    implementation(libs.google.dagger.hiltAndroid)
+    ksp(libs.google.dagger.hiltAndroidCompiler)
 
-    implementation(libs.room)
-    implementation(libs.room.ktx)
-    ksp(libs.room.processing)
-    testImplementation(libs.room.test)
+    // Hilt
+    implementation(libs.androidX.hilt.common)
+    ksp(libs.androidX.hilt.compiler)
 
-    implementation(libs.appcompat)
+    implementation(libs.androidX.room.runtime)
+    implementation(libs.androidX.room.ktx)
+    ksp(libs.androidX.room.compiler)
+    testImplementation(libs.androidX.room.test)
+
+    implementation(libs.androidX.appcompat)
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation(libs.kotlinx.serialization)
-    implementation(libs.kotlinx.datetime)
+    // Kotlin
+    implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinX.serialization)
+    implementation(libs.kotlinX.datetime)
+    implementation(libs.kotlinX.coroutines.android)
 
+    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.serialization)
     implementation(platform(libs.okhttp.bom))

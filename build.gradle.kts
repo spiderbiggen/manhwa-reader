@@ -2,13 +2,13 @@ import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
-    alias(libs.plugins.com.google.ksp) apply false
-    alias(libs.plugins.com.google.hilt.android) apply false
-    alias(libs.plugins.com.android.application) apply false
-    alias(libs.plugins.com.android.library) apply false
-    alias(libs.plugins.org.jetbrains.kotlin.android) apply false
-    alias(libs.plugins.org.jetbrains.kotlin.jvm) apply false
-    alias(libs.plugins.org.jetbrains.kotlin.serialization) apply false
+    alias(libs.plugins.google.ksp) apply false
+    alias(libs.plugins.google.daggerHilt) apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.android) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlinX.serialization) apply false
     alias(libs.plugins.versions)
     id("manga.spotless-conventions")
 }

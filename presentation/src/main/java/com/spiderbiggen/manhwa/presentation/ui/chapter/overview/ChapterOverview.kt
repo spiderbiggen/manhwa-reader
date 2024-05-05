@@ -37,6 +37,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -58,10 +59,10 @@ import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
+import java.net.URL
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
-import java.net.URL
 
 @Composable
 fun ChapterOverview(
@@ -69,18 +70,18 @@ fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     viewModel: ChapterViewModel = viewModel(),
-    refreshing: State<Boolean> = remember { mutableStateOf(false) },
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
+    val refreshingState = viewModel.refreshingState.collectAsState()
     ChapterOverview(
         onColorChanged = onColorChanged,
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
-        refreshing = refreshing.value,
+        refreshing = refreshingState,
         startRefresh = viewModel::onClickRefresh,
         toggleFavorite = viewModel::toggleFavorite,
         state = state,
@@ -94,7 +95,7 @@ fun ChapterOverview(
     onColorChanged: (Color) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
-    refreshing: Boolean,
+    refreshing: State<Boolean>,
     startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
     state: ChapterScreenState,
@@ -103,8 +104,8 @@ fun ChapterOverview(
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     val pullToRefreshState = rememberPullToRefreshState()
 
-    LaunchedEffect(refreshing) {
-        if (refreshing) {
+    LaunchedEffect(refreshing.value) {
+        if (refreshing.value) {
             pullToRefreshState.startRefresh()
         } else {
             pullToRefreshState.endRefresh()
@@ -170,7 +171,10 @@ fun ChapterOverview(
                 )
 
                 is ChapterScreenState.Ready -> {
-                    LazyColumn(state = lazyListState) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        state = lazyListState,
+                    ) {
                         itemsIndexed(
                             items = state.chapters,
                             key = { index, item -> if (index == 0) "first" else item.chapter.id },
@@ -248,16 +252,15 @@ private fun ChapterRow(
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewManga(
-    @PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState,
-) {
+fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     var seedColor by remember { mutableStateOf(Purple80) }
+    val refreshing = remember { mutableStateOf(false) }
     MangaReaderTheme(seedColor) {
         ChapterOverview(
             onColorChanged = { seedColor = it },
             onBackClick = {},
             navigateToChapter = {},
-            refreshing = false,
+            refreshing = refreshing,
             startRefresh = {},
             toggleFavorite = {},
             state = state,

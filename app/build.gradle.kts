@@ -1,9 +1,13 @@
 plugins {
-    alias(libs.plugins.com.android.application)
-    alias(libs.plugins.org.jetbrains.kotlin.android)
-    alias(libs.plugins.com.google.ksp)
-    alias(libs.plugins.com.google.hilt.android)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.google.daggerHilt)
+    alias(libs.plugins.google.ksp)
     id("manga.spotless-conventions")
+}
+
+hilt {
+    enableAggregatingTask = true
 }
 
 android {
@@ -71,29 +75,33 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":presentation"))
 
-    implementation(libs.core.ktx)
-    implementation(libs.hilt)
-    implementation(libs.android.hilt.work)
-    ksp(libs.dagger.hilt.compiler)
+    implementation(libs.androidX.core.ktx)
 
-    implementation(libs.viewmodel.compose)
+    // Hilt
+    ksp(libs.androidX.hilt.compiler)
 
-    implementation(platform(libs.compose.bom))
-    implementation(libs.activity.compose)
-    implementation(libs.ui)
-    implementation(libs.ui.graphics)
-    implementation(libs.ui.tooling.preview)
-    implementation(libs.material3)
-    debugImplementation(libs.ui.tooling)
-    stagingImplementation(libs.ui.tooling)
-    debugImplementation(libs.ui.test.manifest)
+    // Dagger
+    implementation(libs.google.dagger.hiltAndroid)
+    ksp(libs.google.dagger.hiltAndroidCompiler)
+
+    implementation(libs.androidX.lifecycle.viewmodel.compose)
+
+    implementation(platform(libs.androidX.compose.bom))
+    implementation(libs.androidX.compose.activity)
+    implementation(libs.androidX.compose.ui)
+    implementation(libs.androidX.compose.uiGraphics)
+    implementation(libs.androidX.compose.uiToolingPreview)
+    implementation(libs.androidX.compose.material3)
+    debugImplementation(libs.androidX.compose.uiTooling)
+    stagingImplementation(libs.androidX.compose.uiTooling)
+    debugImplementation(libs.androidX.compose.uiTestManifest)
 
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
 
     testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
-    androidTestImplementation(platform(libs.compose.bom))
-    androidTestImplementation(libs.ui.test.junit4)
+    androidTestImplementation(platform(libs.androidX.compose.bom))
+    androidTestImplementation(libs.androidX.compose.uiTestJunit4)
 }
