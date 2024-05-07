@@ -97,7 +97,7 @@ spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plu
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.23-1.0.20" }
+google-ksp = { id = "com.google.devtools.ksp", version = "1.9.24-1.0.20" }
 google-daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
