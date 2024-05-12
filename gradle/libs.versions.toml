@@ -39,6 +39,7 @@ androidX-compose-activity = { group = "androidx.activity", name = "activity-comp
 androidX-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
 androidX-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidX-compose-foundationLayout = { group = "androidx.compose.foundation", name = "foundation-layout" }
+androidX-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 androidX-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidX-compose-uiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidX-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }

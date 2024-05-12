@@ -19,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -57,12 +56,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
+import com.spiderbiggen.manhwa.presentation.components.LoadingSpinner
+import com.spiderbiggen.manhwa.presentation.components.StickyTopEffect
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
-import java.net.URL
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
+import java.net.URL
 
 @Composable
 fun ChapterOverview(
@@ -155,29 +156,26 @@ fun ChapterOverview(
         },
         containerColor = MaterialTheme.colorScheme.surface,
     ) { padding ->
-        Box(
-            Modifier
-                .padding(padding)
-                .fillMaxSize(),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            when (state) {
-                ChapterScreenState.Loading,
-                is ChapterScreenState.Error,
-                -> CircularProgressIndicator(
-                    Modifier.align(
-                        Alignment.Center,
-                    ),
-                )
+        when (state) {
+            is ChapterScreenState.Loading,
+            is ChapterScreenState.Error,
+            -> LoadingSpinner(padding)
 
-                is ChapterScreenState.Ready -> {
+            is ChapterScreenState.Ready -> {
+                Box(
+                    Modifier
+                        .padding(padding)
+                        .fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
+                    StickyTopEffect(items = state.chapters, lazyListState)
                     LazyColumn(
                         modifier = Modifier.fillMaxSize(),
                         state = lazyListState,
                     ) {
                         itemsIndexed(
                             items = state.chapters,
-                            key = { index, item -> if (index == 0) "first" else item.chapter.id },
+                            key = { _, item -> item.chapter.id },
                         ) { index, item ->
                             ChapterRow(
                                 showDivider = index > 0,

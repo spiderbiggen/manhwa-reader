@@ -15,13 +15,16 @@ import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateChaptersFromRemote
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
@@ -47,21 +50,13 @@ class ChapterViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            launch {
-                mutableUpdatingState.emit(true)
-                updateChaptersFromRemote(mangaId, skipCache = false)
-                mutableUpdatingState.emit(false)
-            }
+            refresh(skipCache = false)
             updateScreenState()
         }
     }
 
     fun onClickRefresh() {
-        viewModelScope.launch(Dispatchers.IO) {
-            mutableUpdatingState.emit(true)
-            updateChaptersFromRemote(mangaId, skipCache = true)
-            mutableUpdatingState.emit(false)
-        }
+        refresh(skipCache = true)
     }
 
     fun toggleFavorite() {
@@ -110,5 +105,18 @@ class ChapterViewModel @Inject constructor(
     private fun mapError(error: AppError): ChapterScreenState.Error {
         Log.e("ChapterViewModel", "failed to get chapters $error")
         return ChapterScreenState.Error("An error occurred")
+    }
+
+    private fun refresh(skipCache: Boolean) {
+        viewModelScope.launch {
+            val minimumDelay = async {
+                delay(500.milliseconds)
+            }
+            mutableUpdatingState.emit(true)
+            updateChaptersFromRemote(mangaId, skipCache = skipCache)
+            minimumDelay.await()
+            // TODO show error notice (snackbar?)
+            mutableUpdatingState.emit(false)
+        }
     }
 }

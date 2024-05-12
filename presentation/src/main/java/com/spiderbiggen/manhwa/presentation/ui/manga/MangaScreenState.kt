@@ -10,7 +10,7 @@ sealed interface MangaScreenState {
 
     @Immutable
     data class Ready(
-        val manga: Map<String, List<MangaViewData>>,
+        val manga: List<MangaViewData>,
         val favoritesOnly: Boolean,
         val unreadOnly: Boolean,
     ) : MangaScreenState

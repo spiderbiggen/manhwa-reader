@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
@@ -44,7 +43,9 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
+import com.spiderbiggen.manhwa.presentation.components.LoadingSpinner
 import com.spiderbiggen.manhwa.presentation.components.MangaRow
+import com.spiderbiggen.manhwa.presentation.components.StickyTopEffect
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 
@@ -113,23 +114,21 @@ fun MangaOverview(
             )
         },
     ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
-            contentAlignment = Alignment.TopCenter,
-        ) {
-            when (val screenState = state.value) {
-                is MangaScreenState.Error,
-                is MangaScreenState.Loading,
-                -> CircularProgressIndicator(
-                    Modifier.align(Alignment.Center),
-                )
+        when (val screenState = state.value) {
+            is MangaScreenState.Error,
+            is MangaScreenState.Loading,
+            -> LoadingSpinner(padding)
 
-                is MangaScreenState.Ready -> {
+            is MangaScreenState.Ready -> {
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(padding),
+                    contentAlignment = Alignment.TopCenter,
+                ) {
                     MangaList(
                         modifier = Modifier.fillMaxSize(),
-                        mangaGroups = screenState.manga,
+                        mangas = screenState.manga,
                         favoritesOnly = screenState.favoritesOnly,
                         unReadOnly = screenState.unreadOnly,
                         toggleFavoritesFilter = toggleFavoritesFilter,
@@ -153,7 +152,7 @@ fun MangaOverview(
 @OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun MangaList(
-    mangaGroups: Map<String, List<MangaViewData>>,
+    mangas: List<MangaViewData>,
     modifier: Modifier = Modifier,
     favoritesOnly: Boolean = false,
     unReadOnly: Boolean = false,
@@ -163,11 +162,9 @@ private fun MangaList(
     navigateToManga: (String) -> Unit = {},
     onClickFavorite: (String) -> Unit = {},
 ) {
-    val images by remember(mangaGroups) {
+    val images by remember(mangas) {
         derivedStateOf {
-            mangaGroups.flatMap { (_, manga) ->
-                manga.map { it.coverImage }
-            }
+            mangas.map { it.coverImage }
         }
     }
 
@@ -203,25 +200,16 @@ private fun MangaList(
                 )
             }
         }
-        mangaGroups.map { (header, mangas) ->
-            item {
-                Text(
-                    header,
-                    Modifier.padding(8.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-            items(
-                mangas,
-                key = { it.id },
-            ) { item ->
-                MangaRow(
-                    manga = item,
-                    navigateToManga = navigateToManga,
-                    onClickFavorite = onClickFavorite,
-                    modifier = Modifier.animateItemPlacement(),
-                )
-            }
+        items(
+            mangas,
+            key = { it.id },
+        ) { item ->
+            MangaRow(
+                manga = item,
+                navigateToManga = navigateToManga,
+                onClickFavorite = onClickFavorite,
+                modifier = Modifier.animateItemPlacement(),
+            )
         }
     }
 }
@@ -293,9 +281,8 @@ class MangaOverviewScreenStateProvider : PreviewParameterProvider<MangaScreenSta
     override val values
         get() = sequenceOf(
             MangaScreenState.Loading,
-//            MangaScreenState.Error("An error occurred"),
             MangaScreenState.Ready(
-                manga = mapOf("Today" to MangaProvider.values.toList()),
+                manga = MangaProvider.values.toList(),
                 favoritesOnly = true,
                 unreadOnly = false,
             ),

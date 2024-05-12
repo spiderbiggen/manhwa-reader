@@ -7,15 +7,16 @@ import com.spiderbiggen.manhwa.data.usecase.manga.mapper.ToLocalMangaUseCase
 import com.spiderbiggen.manhwa.domain.model.AppError
 import com.spiderbiggen.manhwa.domain.model.Either
 import com.spiderbiggen.manhwa.domain.model.mapLeft
+import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateMangaFromRemote
 import javax.inject.Inject
 import javax.inject.Provider
 
-class UpdateManga @Inject constructor(
+class UpdateMangaFromRemoteImpl @Inject constructor(
     private val getRemoteManhwa: GetRemoteMangaUseCase,
     private val localManhwaDao: Provider<LocalMangaDao>,
     private val toLocal: ToLocalMangaUseCase,
-) {
-    suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError> =
+): UpdateMangaFromRemote {
+    override suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError> =
         getRemoteManhwa(skipCache)
             .either()
             .mapLeft { manhwas ->

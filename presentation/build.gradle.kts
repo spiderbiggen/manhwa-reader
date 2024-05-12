@@ -78,6 +78,7 @@ dependencies {
     // Navigation
     implementation(libs.androidX.hilt.navigationCompose)
     implementation(libs.androidX.navigation.compose)
+    implementation(libs.androidX.compose.animation)
     implementation(libs.androidX.compose.foundation)
     implementation(libs.androidX.compose.foundationLayout)
 

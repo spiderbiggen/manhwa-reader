@@ -14,8 +14,9 @@ import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,11 +24,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
-import kotlinx.datetime.DateTimeUnit
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.minus
 import kotlinx.datetime.toLocalDateTime
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class MangaViewModel @Inject constructor(
@@ -51,11 +51,7 @@ class MangaViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            launch {
-                mutableUpdatingState.emit(true)
-                updateMangaFromRemote(skipCache = false)
-                mutableUpdatingState.emit(false)
-            }
+            refresh(skipCache = false)
             updater.emit(Unit)
             updateScreenState()
         }
@@ -73,24 +69,19 @@ class MangaViewModel @Inject constructor(
             .combine(updater) { manga, _ -> manga }
             .collect { mangaList ->
                 val timeZone = TimeZone.currentSystemDefault()
-                val groups = groupManga(mangaList)
-                val manga = groups.mapValues { (_, value) ->
-                    value.map { (manga, chapterId) ->
-                        MangaViewData(
-                            id = manga.id,
-                            source = manga.source,
-                            title = manga.title,
-                            status = manga.status,
-                            coverImage = manga.coverImage.toExternalForm(),
-                            updatedAt = manga.updatedAt.toLocalDateTime(timeZone).date.toString(),
-                            isFavorite = isFavorite(manga.id).leftOr(false),
-                            readAll = chapterId?.let { isRead(it).leftOr(false) } == true,
-                        )
-                    }
+                val manga = mangaList.map { (manga, chapterId) ->
+                    MangaViewData(
+                        id = manga.id,
+                        source = manga.source,
+                        title = manga.title,
+                        status = manga.status,
+                        coverImage = manga.coverImage.toExternalForm(),
+                        updatedAt = manga.updatedAt.toLocalDateTime(timeZone).date.toString(),
+                        isFavorite = isFavorite(manga.id).leftOr(false),
+                        readAll = chapterId?.let { isRead(it).leftOr(false) } == true,
+                    )
                 }
                 val filtered = filterMangaViewData(manga)
-
-                println("")
 
                 mutableState.emit(
                     MangaScreenState.Ready(
@@ -102,15 +93,12 @@ class MangaViewModel @Inject constructor(
             }
     }
 
-    private fun filterMangaViewData(manga: Map<String, List<MangaViewData>>): Map<String, List<MangaViewData>> {
-        if (!favoritesOnly && !unreadOnly) return manga
+    private fun filterMangaViewData(entries: List<MangaViewData>): List<MangaViewData> {
+        if (!favoritesOnly && !unreadOnly) return entries
 
-        return manga.mapNotNull { (key, value) ->
-            val newValues = value.filter {
-                (!favoritesOnly || it.isFavorite) && !(unreadOnly && it.readAll)
-            }
-            if (newValues.isEmpty()) null else key to newValues
-        }.toMap()
+        return entries.filter {
+            (!favoritesOnly || it.isFavorite) && !(unreadOnly && it.readAll)
+        }
     }
 
     private fun mapError(error: AppError): MangaScreenState.Error {
@@ -119,11 +107,7 @@ class MangaViewModel @Inject constructor(
     }
 
     fun onClickRefresh() {
-        viewModelScope.launch {
-            mutableUpdatingState.emit(true)
-            updateMangaFromRemote(skipCache = true)
-            mutableUpdatingState.emit(false)
-        }
+        refresh(skipCache = true)
     }
 
     fun onClickFavorite(mangaId: String) {
@@ -147,26 +131,16 @@ class MangaViewModel @Inject constructor(
         }
     }
 
-    private fun groupManga(value: List<Pair<Manga, String?>>): Map<String, List<Pair<Manga, String?>>> {
-        val timeZone = TimeZone.currentSystemDefault()
-        val now = Clock.System.now()
-        val today = now.toLocalDateTime(timeZone).date
-        val week = today.minus(1, DateTimeUnit.WEEK)
-        val month = today.minus(today.dayOfMonth - 1, DateTimeUnit.DAY)
-        return value.groupBy { (manga, _) ->
-            val updatedAt = manga.updatedAt.toLocalDateTime(timeZone).date
-            when {
-                updatedAt >= today -> TODAY
-                updatedAt >= week -> A_WEEK_AGO
-                updatedAt >= month -> THIS_MONTH
-                else -> updatedAt.year.toString()
+    private fun refresh(skipCache: Boolean) {
+        viewModelScope.launch {
+            val minimumDelay = async {
+                delay(500.milliseconds)
             }
+            mutableUpdatingState.emit(true)
+            updateMangaFromRemote(skipCache = skipCache)
+            minimumDelay.await()
+            // TODO show error notice (snackbar?)
+            mutableUpdatingState.emit(false)
         }
-    }
-
-    private companion object {
-        private const val TODAY = "Today"
-        private const val A_WEEK_AGO = "This Week"
-        private const val THIS_MONTH = "This Month"
     }
 }

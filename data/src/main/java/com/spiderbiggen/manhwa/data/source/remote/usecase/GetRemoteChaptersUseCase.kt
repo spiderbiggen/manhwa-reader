@@ -8,7 +8,7 @@ import retrofit2.HttpException
 class GetRemoteChaptersUseCase @Inject constructor(private val getService: Provider<MangaService>) {
     suspend operator fun invoke(id: String, skipCache: Boolean = false) = runCatching {
         val response = if (skipCache) {
-            getService.get().getMangaChaptersUncached(id)
+            getService.get().getMangaChaptersSkipCache(id)
         } else {
             getService.get().getMangaChapters(id)
         }
