@@ -14,7 +14,7 @@ espresso-core = "3.5.1"
 junit = "4.13.2"
 kotlin = "1.9.24"
 ktlint = "1.2.1"
-lifecycle = "2.7.0"
+lifecycle = "2.8.0"
 room = "2.6.1"
 spotless-plugin-gradle = "6.25.0"
 
