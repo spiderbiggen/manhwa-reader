@@ -1,0 +1,87 @@
+# Workflow name
+name: Release App
+
+# When it will be triggered
+on:
+    pull_request:
+        types: [ opened, reopened, synchronize ]
+        branches:
+            - master
+
+# Where it will run
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            -   uses: actions/checkout@v4
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v3
+                with:
+                    distribution: 'temurin'
+                    java-version: '17'
+                    cache: gradle
+
+            -   name: Setup Android SDK
+                uses: android-actions/setup-android@v3
+                with:
+                    log-accepted-android-sdk-licenses: false
+
+            -   name: Create staging build
+                run: ./gradlew app:assembleStaging
+
+            -   name: Upload Reports
+                uses: actions/upload-artifact@v4
+                with:
+                    name: staging.apk
+                    path: app/build/outputs/staging/app-staging.apk
+
+    test:
+        runs-on: ubuntu-latest
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            -   uses: actions/checkout@v4
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v3
+                with:
+                    distribution: 'temurin'
+                    java-version: '17'
+                    cache: gradle
+
+            -   name: Setup Android SDK
+                uses: android-actions/setup-android@v3
+                with:
+                    log-accepted-android-sdk-licenses: false
+
+            -   name: Create staging build
+                run: ./gradlew check
+
+            -   name: Upload Reports
+                uses: actions/upload-artifact@v4
+                with:
+                    name: Test-Reports
+                    path: app/build/reports
+                if: always()
+
+    spotless:
+        runs-on: ubuntu-latest
+        steps:
+            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+            -   uses: actions/checkout@v4
+
+            -   name: Setup JDK
+                uses: actions/setup-java@v3
+                with:
+                    distribution: 'temurin'
+                    java-version: '17'
+                    cache: gradle
+
+            -   name: Setup Android SDK
+                uses: android-actions/setup-android@v3
+                with:
+                    log-accepted-android-sdk-licenses: false
+
+            -   name: Check if everything is formatted correctly
+                run: ./gradlew spotlessCheck
