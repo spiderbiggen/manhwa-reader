@@ -35,14 +35,14 @@ jobs:
             -   name: Make gradlew executable
                 run: chmod +x ./gradlew
 
-            -   name: Create staging build
-                run: ./gradlew app:assembleStaging
+            -   name: Create debug build
+                run: ./gradlew app:assembleDebug
 
-            -   name: Upload Reports
+            -   name: Upload build
                 uses: actions/upload-artifact@v4
                 with:
-                    name: staging.apk
-                    path: app/build/outputs/staging/app-staging.apk
+                    name: debug.apk
+                    path: app/build/outputs/debug/app-debug.apk
 
     check:
         runs-on: ubuntu-latest
@@ -76,11 +76,11 @@ jobs:
                 run: ./gradlew check
 
             -   name: Check if everything is formatted correctly
-                run: ./gradlew spotlessCheck --no-daemon
+                run: ./gradlew spotlessCheck
 
             -   name: Upload Reports
                 uses: actions/upload-artifact@v4
                 with:
-                    name: Test-Reports
+                    name: Reports
                     path: app/build/reports
                 if: always()
