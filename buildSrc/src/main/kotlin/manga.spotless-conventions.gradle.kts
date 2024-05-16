@@ -7,8 +7,8 @@ plugins {
 if (project == rootProject) {
     spotless { predeclareDeps() }
     configure<SpotlessExtensionPredeclare> {
-        kotlin { ktlint("1.2.0") }
-        kotlinGradle { ktlint("1.2.0") }
+        kotlin { ktlint("1.2.1") }
+        kotlinGradle { ktlint("1.2.1") }
     }
 } else {
     spotless {
@@ -17,23 +17,30 @@ if (project == rootProject) {
 
         format("misc") {
             // define the files to apply `misc` to
-            target(".gitattributes", ".gitignore")
+            target(
+                ".gitattributes",
+                "**/.gitignore",
+                "**/.editorconfig",
+                "**/*.properties",
+                "**/*.md"
+            )
 
             // define the steps to apply to those files
             trimTrailingWhitespace()
-            indentWithTabs()
+            indentWithSpaces(4)
             endWithNewline()
         }
         kotlin {
             target("**/*.kt")
             targetExclude("**/build/**/*.kt")
             // by default the target is every '.kt' and '.kts` file in the java sourcesets
-            ktlint("1.2.0")   // has its own section below
+            ktlint("1.2.1")
+            // has its own section below
             // licenseHeader("/* (C)\$YEAR */") // or licenseHeaderFile
         }
         kotlinGradle {
-            target("*.gradle.kts")
-            ktlint("1.2.0")
+            target("**/*.gradle.kts")
+            ktlint("1.2.1")
         }
     }
 }
