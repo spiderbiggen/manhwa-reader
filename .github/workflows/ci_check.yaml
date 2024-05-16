@@ -1,5 +1,5 @@
 # Workflow name
-name: Release App
+name: Check App
 
 # When it will be triggered
 on:
