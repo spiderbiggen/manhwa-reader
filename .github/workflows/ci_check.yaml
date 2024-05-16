@@ -40,7 +40,7 @@ jobs:
                     name: staging.apk
                     path: app/build/outputs/staging/app-staging.apk
 
-    test:
+    check:
         runs-on: ubuntu-latest
         steps:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
@@ -84,13 +84,13 @@ jobs:
                     java-version: '17'
                     cache: gradle
 
-            -   name: Make gradlew executable
-                run: chmod +x ./gradlew
-
             -   name: Setup Android SDK
                 uses: android-actions/setup-android@v3
                 with:
                     log-accepted-android-sdk-licenses: false
 
+            -   name: Make gradlew executable
+                run: chmod +x ./gradlew
+
             -   name: Check if everything is formatted correctly
-                run: ./gradlew spotlessCheck
+                run: ./gradlew spotlessCheck --no-daemon
