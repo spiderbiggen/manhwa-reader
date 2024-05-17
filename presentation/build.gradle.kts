@@ -80,7 +80,6 @@ dependencies {
     implementation(libs.androidX.navigation.compose)
     implementation(libs.androidX.compose.animation)
     implementation(libs.androidX.compose.foundation)
-    implementation(libs.androidX.compose.foundationLayout)
 
     // Coil
     implementation(platform(libs.coil.bom))

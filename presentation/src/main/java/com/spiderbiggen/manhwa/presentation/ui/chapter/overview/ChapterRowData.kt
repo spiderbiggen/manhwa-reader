@@ -1,8 +1,11 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 
-import com.spiderbiggen.manhwa.domain.model.Chapter
+import androidx.compose.runtime.Immutable
 
+@Immutable
 data class ChapterRowData(
-    val chapter: Chapter,
+    val id: String,
+    val title: String,
+    val date: String,
     val isRead: Boolean,
 )

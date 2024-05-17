@@ -25,6 +25,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -149,8 +150,9 @@ fun MangaOverview(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
+@Stable
 @Composable
+@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 private fun MangaList(
     mangas: List<MangaViewData>,
     modifier: Modifier = Modifier,

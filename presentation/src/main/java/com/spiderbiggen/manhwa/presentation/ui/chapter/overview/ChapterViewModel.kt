@@ -84,7 +84,9 @@ class ChapterViewModel @Inject constructor(
                 chaptersFlow.collectLatest { list ->
                     val chapters = list.map {
                         ChapterRowData(
-                            chapter = it,
+                            id = it.id,
+                            title = it.displayTitle(),
+                            date = it.date.toString(),
                             isRead = isRead(it.id).leftOr(false),
                         )
                     }
