@@ -1,10 +1,7 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -12,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -29,8 +27,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -44,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -58,8 +54,8 @@ import com.spiderbiggen.manhwa.presentation.components.LoadingSpinner
 import com.spiderbiggen.manhwa.presentation.components.StickyTopEffect
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
-import kotlinx.datetime.Clock
 import java.net.URL
+import kotlinx.datetime.Clock
 
 @Composable
 fun ChapterOverview(
@@ -95,27 +91,7 @@ fun ChapterOverview(
     toggleFavorite: () -> Unit,
     state: ChapterScreenState,
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val pullToRefreshState = rememberPullToRefreshState()
-
-    LaunchedEffect(refreshing.value) {
-        if (refreshing.value) {
-            pullToRefreshState.startRefresh()
-        } else {
-            pullToRefreshState.endRefresh()
-        }
-    }
-
-    if (pullToRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            startRefresh()
-        }
-    }
-    val scaleFraction = if (pullToRefreshState.isRefreshing) {
-        1f
-    } else {
-        LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
-    }
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val dominantColor = state.ifReady()?.manga?.dominantColor
     LaunchedEffect(dominantColor) {
@@ -123,8 +99,7 @@ fun ChapterOverview(
     }
     Scaffold(
         modifier = Modifier
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-            .nestedScroll(pullToRefreshState.nestedScrollConnection),
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -155,20 +130,16 @@ fun ChapterOverview(
             -> LoadingSpinner(padding)
 
             is ChapterScreenState.Ready -> {
-                Box(
+                PullToRefreshBox(
+                    isRefreshing = refreshing.value,
+                    onRefresh = startRefresh,
                     Modifier
                         .padding(padding)
                         .fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter,
                 ) {
-                    ChaptersList(state.chapters, navigateToChapter)
-                    PullToRefreshContainer(
-                        state = pullToRefreshState,
-                        modifier = Modifier.graphicsLayer(
-                            scaleX = scaleFraction,
-                            scaleY = scaleFraction,
-                        ),
-                    )
+                    val lazyListState = rememberLazyListState()
+                    StickyTopEffect(state.chapters, lazyListState)
+                    ChaptersList(state.chapters, navigateToChapter, lazyListState)
                 }
             }
         }
@@ -177,13 +148,11 @@ fun ChapterOverview(
 
 @Stable
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
 private fun ChaptersList(
     chapters: List<ChapterRowData>,
     navigateToChapter: (String) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
-    val lazyListState = rememberLazyListState()
-    StickyTopEffect(items = chapters, lazyListState)
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = lazyListState,
@@ -196,7 +165,7 @@ private fun ChaptersList(
                 showDivider = index > 0,
                 item = item,
                 navigateToChapter = navigateToChapter,
-                modifier = Modifier.animateItemPlacement(),
+                modifier = Modifier.animateItem(),
             )
         }
     }
