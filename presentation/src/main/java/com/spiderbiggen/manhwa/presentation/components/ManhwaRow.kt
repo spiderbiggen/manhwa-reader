@@ -62,7 +62,7 @@ fun MangaRow(
                 modifier = aspectModifier,
                 alignment = Alignment.Center,
             )
-            MangaInfoColumn(manga, modifier.weight(1f))
+            MangaInfoColumn(manga, Modifier.weight(1f))
             if (manga.status == "Dropped") {
                 Icon(
                     Icons.Rounded.Warning,

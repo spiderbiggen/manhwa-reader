@@ -248,11 +248,13 @@ object MangaProvider {
         get() = sequenceOf(
             baseViewData,
             baseViewData.copy(
+                id = "2",
                 status = "Dropped",
                 isFavorite = true,
                 readAll = false,
             ),
             baseViewData.copy(
+                id = "3",
                 isFavorite = true,
                 readAll = true,
             ),
