@@ -40,10 +40,8 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
 import com.spiderbiggen.manhwa.presentation.components.LoadingSpinner
 import com.spiderbiggen.manhwa.presentation.components.MangaRow
@@ -53,7 +51,7 @@ import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
 import kotlinx.coroutines.launch
 
 @Composable
-fun MangaOverview(navigateToManga: (String) -> Unit, viewModel: MangaViewModel = viewModel()) {
+fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (String) -> Unit) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
@@ -128,6 +126,7 @@ fun MangaOverview(
                                 FastOutLinearInEasing.transform(colorTransitionFraction),
                             ),
                             animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                            label = "AppBarContainer",
                         )
                         FlowRow(
                             Modifier
@@ -210,60 +209,8 @@ private fun MangaList(
     }
 }
 
-@Preview("Light", apiLevel = 26)
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, apiLevel = 26)
-@Preview(
-    "Light - Red",
-    group = "dynamic",
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Dark - Red",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Light - Blue",
-    group = "dynamic",
-    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Dark - Blue",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.BLUE_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Light - Green",
-    group = "dynamic",
-    wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Dark - Green",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.GREEN_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Light - Yellow",
-    group = "dynamic",
-    wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
-@Preview(
-    "Dark - Yellow",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    group = "dynamic",
-    wallpaper = Wallpapers.YELLOW_DOMINATED_EXAMPLE,
-    apiLevel = 32,
-)
+@Preview("Light")
+@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {
     MangaReaderTheme {
@@ -286,35 +233,26 @@ class MangaOverviewScreenStateProvider : PreviewParameterProvider<MangaScreenSta
 }
 
 object MangaProvider {
+    private val baseViewData = MangaViewData(
+        source = "Asura",
+        id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
+        title = "Heavenly Martial God",
+        coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+        status = "Ongoing",
+        updatedAt = "2023-04-23",
+        isFavorite = false,
+        readAll = false,
+    )
+
     val values
         get() = sequenceOf(
-            MangaViewData(
-                source = "Asura",
-                id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
-                title = "Heavenly Martial God",
-                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-                status = "Ongoing",
-                updatedAt = "2023-04-23",
-                isFavorite = false,
-                readAll = false,
-            ),
-            MangaViewData(
-                source = "Asura",
-                id = "7df204a8-2d37-42d1-a2e0-e795ae618389",
-                title = "Heavenly Martial God",
-                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+            baseViewData,
+            baseViewData.copy(
                 status = "Dropped",
-                updatedAt = "2023-04-23",
                 isFavorite = true,
                 readAll = false,
             ),
-            MangaViewData(
-                source = "Asura",
-                id = "7df204a8-2d37-42d1-a2e0-e795ae618310",
-                title = "Heavenly Martial God",
-                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-                status = "Ongoing",
-                updatedAt = "2023-04-23",
+            baseViewData.copy(
                 isFavorite = true,
                 readAll = true,
             ),

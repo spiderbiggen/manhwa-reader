@@ -62,27 +62,7 @@ fun MangaRow(
                 modifier = aspectModifier,
                 alignment = Alignment.Center,
             )
-            Column(
-                Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-            ) {
-                val contentColor = LocalContentColor.current.let {
-                    if (manga.readAll) it.copy(alpha = 0.7f) else it
-                }
-                CompositionLocalProvider(LocalContentColor provides contentColor) {
-                    Text(
-                        manga.title,
-                        fontWeight = if (!manga.readAll) FontWeight.Bold else null,
-                        style = MaterialTheme.typography.bodyLarge,
-                    )
-                    manga.updatedAt?.let {
-                        Text(
-                            it,
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-                }
-            }
+            MangaInfoColumn(manga, modifier.weight(1f))
             if (manga.status == "Dropped") {
                 Icon(
                     Icons.Rounded.Warning,
@@ -90,16 +70,46 @@ fun MangaRow(
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
-            IconButton(
-                onClick = { onClickFavorite(manga.id) },
-                modifier = Modifier.padding(end = 16.dp),
-            ) {
-                Icon(
-                    if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                    contentDescription = null,
+            FavoriteButton(manga.id, manga.isFavorite, onClickFavorite)
+        }
+    }
+}
+
+@Composable
+private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
+    Column(
+        modifier,
+        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
+    ) {
+        val contentColor = LocalContentColor.current.let {
+            if (manga.readAll) it.copy(alpha = 0.7f) else it
+        }
+        CompositionLocalProvider(LocalContentColor provides contentColor) {
+            Text(
+                manga.title,
+                fontWeight = if (!manga.readAll) FontWeight.Bold else null,
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            manga.updatedAt?.let {
+                Text(
+                    it,
+                    style = MaterialTheme.typography.bodySmall,
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun FavoriteButton(mangaId: String, isFavorite: Boolean, onClickFavorite: (String) -> Unit) {
+    IconButton(
+        onClick = { onClickFavorite(mangaId) },
+        modifier = Modifier.padding(end = 16.dp),
+    ) {
+        Icon(
+            if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+            contentDescription = null,
+        )
     }
 }
 
