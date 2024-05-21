@@ -61,9 +61,9 @@ fun MainContent() {
                     navArgument("mangaId") { type = NavType.StringType },
                 ),
             ) { backStackEntry ->
-                val viewModel: ChapterViewModel = hiltViewModel()
                 val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
                 ChapterOverview(
+                    viewModel = hiltViewModel<ChapterViewModel>(),
                     onColorChanged = { seedColor = it },
                     onBackClick = { navController.popBackStack() },
                     navigateToChapter = {
@@ -73,7 +73,6 @@ fun MainContent() {
                             }
                         }
                     },
-                    viewModel = viewModel,
                 )
             }
             composable(
@@ -86,9 +85,8 @@ fun MainContent() {
                 exitTransition = { fadeOut(animationSpec = tween(700)) },
             ) { backStackEntry ->
                 val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
-                val viewModel: ImagesViewModel = hiltViewModel()
                 ImagesOverview(
-                    viewModel = viewModel,
+                    viewModel = hiltViewModel<ImagesViewModel>(),
                     onBackClick = {
                         if (backStackEntry.lifecycleIsResumed()) {
                             navController.popBackStack(route = "manga/$mangaId", inclusive = false)

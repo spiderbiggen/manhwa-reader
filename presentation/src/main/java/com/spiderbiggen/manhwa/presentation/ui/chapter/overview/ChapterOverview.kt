@@ -58,10 +58,10 @@ import kotlinx.datetime.Clock
 
 @Composable
 fun ChapterOverview(
+    viewModel: ChapterViewModel = viewModel(),
     onColorChanged: (Color) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
-    viewModel: ChapterViewModel = viewModel(),
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
@@ -69,26 +69,26 @@ fun ChapterOverview(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val refreshingState = viewModel.refreshingState.collectAsState()
     ChapterOverview(
+        state = state,
         onColorChanged = onColorChanged,
         onBackClick = onBackClick,
         navigateToChapter = navigateToChapter,
         refreshing = refreshingState,
         startRefresh = viewModel::onClickRefresh,
         toggleFavorite = viewModel::toggleFavorite,
-        state = state,
     )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ChapterOverview(
+    state: ChapterScreenState,
     onColorChanged: (Color) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (String) -> Unit,
     refreshing: State<Boolean>,
     startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
-    state: ChapterScreenState,
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -138,7 +138,7 @@ fun ChapterOverview(
                 ) {
                     val lazyListState = rememberLazyListState()
                     StickyTopEffect(state.chapters, lazyListState)
-                    ChaptersList(state.chapters, navigateToChapter, lazyListState)
+                    ChaptersList(state.chapters, lazyListState, navigateToChapter)
                 }
             }
         }
@@ -148,8 +148,8 @@ fun ChapterOverview(
 @Composable
 private fun ChaptersList(
     chapters: List<ChapterRowData>,
-    navigateToChapter: (String) -> Unit,
     lazyListState: LazyListState = rememberLazyListState(),
+    navigateToChapter: (String) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -223,13 +223,13 @@ fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) st
     val refreshing = remember { mutableStateOf(false) }
     MangaReaderTheme(seedColor) {
         ChapterOverview(
+            state = state,
             onColorChanged = { seedColor = it },
             onBackClick = {},
             navigateToChapter = {},
             refreshing = refreshing,
             startRefresh = {},
             toggleFavorite = {},
-            state = state,
         )
     }
 }

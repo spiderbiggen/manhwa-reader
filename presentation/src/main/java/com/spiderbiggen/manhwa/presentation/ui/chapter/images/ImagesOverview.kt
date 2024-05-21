@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -52,56 +51,41 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.SubcomposeAsyncImage
 import com.spiderbiggen.manhwa.presentation.components.ListImagePreloader
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImagesOverview(
-    onBackClick: () -> Unit,
-    toChapterClicked: (String) -> Unit,
-    viewModel: ImagesViewModel = viewModel(),
-) {
-    val lazyListState = rememberLazyListState()
-    val topAppBarState = rememberTopAppBarState()
-    val scope = rememberCoroutineScope()
+fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapterClicked: (String) -> Unit) {
     LaunchedEffect(true) {
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ImagesOverview(
+        state = state,
         onBackClick = onBackClick,
         toChapterClicked = toChapterClicked,
         toggleFavorite = viewModel::toggleFavorite,
         setRead = viewModel::updateReadState,
         setReadUpToHere = viewModel::setReadUpToHere,
-        state = state,
-        scope = scope,
-        lazyListState = lazyListState,
-        topAppBarState = topAppBarState,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun ImagesOverview(
+    state: ImagesScreenState,
     onBackClick: () -> Unit,
     toChapterClicked: (String) -> Unit,
     toggleFavorite: () -> Unit,
     setRead: () -> Unit,
     setReadUpToHere: () -> Unit,
-    state: ImagesScreenState,
-    scope: CoroutineScope = rememberCoroutineScope(),
-    lazyListState: LazyListState = rememberLazyListState(),
-    topAppBarState: TopAppBarState = rememberTopAppBarState(),
 ) {
+    val topAppBarState: TopAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-    val ready = state.ifReady()
 
+    val ready = state.ifReady()
     Scaffold(
         topBar = {
             TopAppBar(
@@ -172,12 +156,10 @@ fun ImagesOverview(
             }
 
             is ImagesScreenState.Ready -> ReadyImagesOverview(
-                padding,
-                state,
-                lazyListState,
-                scope,
-                scrollBehavior,
-                setRead,
+                state = state,
+                scrollBehavior = scrollBehavior,
+                padding = padding,
+                setRead = setRead,
             )
 
             is ImagesScreenState.Error -> Text(state.errorMessage)
@@ -188,13 +170,13 @@ fun ImagesOverview(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ReadyImagesOverview(
-    padding: PaddingValues,
     state: ImagesScreenState.Ready,
-    lazyListState: LazyListState,
-    scope: CoroutineScope,
     scrollBehavior: TopAppBarScrollBehavior,
+    padding: PaddingValues,
     setRead: () -> Unit,
 ) {
+    val scope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
     val images by remember { derivedStateOf { state.images } }
     val interactionSource = remember { MutableInteractionSource() }
     ListImagePreloader(
