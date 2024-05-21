@@ -101,11 +101,7 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 }
 
 @Composable
-private fun FavoriteButton(
-    mangaId: String,
-    isFavorite: Boolean,
-    onClickFavorite: (String) -> Unit,
-) {
+private fun FavoriteButton(mangaId: String, isFavorite: Boolean, onClickFavorite: (String) -> Unit) {
     IconButton(
         onClick = { onClickFavorite(mangaId) },
         modifier = Modifier.padding(end = 16.dp),
