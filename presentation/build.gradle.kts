@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.compose)
+    alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
     id("manga.spotless-conventions")
@@ -54,6 +55,7 @@ dependencies {
 
     // Kotlin
     implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlinX.serialization)
     implementation(libs.kotlinX.coroutines.android)
     implementation(libs.kotlinX.datetime)
 

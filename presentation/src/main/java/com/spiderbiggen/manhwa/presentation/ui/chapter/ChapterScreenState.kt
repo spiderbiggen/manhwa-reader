@@ -1,6 +1,7 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
+package com.spiderbiggen.manhwa.presentation.ui.chapter
 
 import com.spiderbiggen.manhwa.domain.model.Manga
+import com.spiderbiggen.manhwa.presentation.ui.chapter.model.ChapterRowData
 
 sealed interface ChapterScreenState {
     data object Loading : ChapterScreenState

@@ -15,19 +15,21 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
+import androidx.navigation.toRoute
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
-import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesOverview
-import com.spiderbiggen.manhwa.presentation.ui.chapter.images.ImagesViewModel
-import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterOverview
-import com.spiderbiggen.manhwa.presentation.ui.chapter.overview.ChapterViewModel
+import com.spiderbiggen.manhwa.presentation.ui.chapter.ChapterOverview
+import com.spiderbiggen.manhwa.presentation.ui.chapter.ChapterViewModel
+import com.spiderbiggen.manhwa.presentation.ui.chapter.model.ChapterRoute
+import com.spiderbiggen.manhwa.presentation.ui.images.ImagesOverview
+import com.spiderbiggen.manhwa.presentation.ui.images.ImagesViewModel
+import com.spiderbiggen.manhwa.presentation.ui.images.model.ImagesRoute
 import com.spiderbiggen.manhwa.presentation.ui.manga.MangaOverview
 import com.spiderbiggen.manhwa.presentation.ui.manga.MangaViewModel
+import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaRoute
 
 @Composable
 fun MainContent() {
@@ -37,64 +39,54 @@ fun MainContent() {
     MangaReaderTheme(seedColor = seedColor) {
         NavHost(
             navController = navController,
-            startDestination = "overview",
+            startDestination = MangaRoute,
             enterTransition = { slideIn(initialOffset = { IntOffset(it.width, 0) }) },
             exitTransition = { slideOut(targetOffset = { IntOffset(-it.width, 0) }) },
             popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
             popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
         ) {
-            composable("overview") { backStackEntry ->
+            composable<MangaRoute> { backStackEntry ->
                 val viewModel: MangaViewModel = hiltViewModel()
                 LaunchedEffect(null) { seedColor = Purple80 }
                 MangaOverview(
                     viewModel = viewModel,
-                    navigateToManga = {
-                        if (backStackEntry.lifecycleIsResumed()) {
-                            navController.navigate("manga/$it")
+                    navigateToManga = { mangaId ->
+                        backStackEntry.ifResumed {
+                            navController.navigate(ChapterRoute(mangaId))
                         }
                     },
                 )
             }
-            composable(
-                route = "manga/{mangaId}",
-                arguments = listOf(
-                    navArgument("mangaId") { type = NavType.StringType },
-                ),
-            ) { backStackEntry ->
-                val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
+            composable<ChapterRoute> { backStackEntry ->
+                val mangaId = backStackEntry.toRoute<ChapterRoute>().mangaId
                 ChapterOverview(
                     viewModel = hiltViewModel<ChapterViewModel>(),
                     onColorChanged = { seedColor = it },
                     onBackClick = { navController.popBackStack() },
-                    navigateToChapter = {
-                        if (backStackEntry.lifecycleIsResumed()) {
-                            navController.navigate("manga/$mangaId/chapter/$it") {
+                    navigateToChapter = { chapterId ->
+                        backStackEntry.ifResumed {
+                            navController.navigate(ImagesRoute(mangaId, chapterId)) {
                                 restoreState = true
                             }
                         }
                     },
                 )
             }
-            composable(
-                route = "manga/{mangaId}/chapter/{chapterId}",
-                arguments = listOf(
-                    navArgument("mangaId") { type = NavType.StringType },
-                    navArgument("chapterId") { type = NavType.StringType },
-                ),
+            composable<ImagesRoute>(
                 enterTransition = { fadeIn(animationSpec = tween(700)) },
                 exitTransition = { fadeOut(animationSpec = tween(700)) },
             ) { backStackEntry ->
-                val mangaId = checkNotNull(backStackEntry.arguments?.getString("mangaId"))
+                val mangaId = backStackEntry.toRoute<ImagesRoute>().mangaId
                 ImagesOverview(
                     viewModel = hiltViewModel<ImagesViewModel>(),
                     onBackClick = {
-                        if (backStackEntry.lifecycleIsResumed()) {
-                            navController.popBackStack(route = "manga/$mangaId", inclusive = false)
+                        backStackEntry.ifResumed {
+                            navController.popBackStack<ChapterRoute>(inclusive = false)
                         }
                     },
-                    toChapterClicked = { id ->
-                        if (backStackEntry.lifecycleIsResumed()) {
-                            navController.navigate("manga/$mangaId/chapter/$id")
+                    toChapterClicked = { chapterId ->
+                        backStackEntry.ifResumed {
+                            navController.navigate(ImagesRoute(mangaId, chapterId))
                         }
                     },
                 )
@@ -109,3 +101,9 @@ fun MainContent() {
  * This is used to de-duplicate navigation events.
  */
 private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState == Lifecycle.State.RESUMED
+
+private inline fun NavBackStackEntry.ifResumed(block: () -> Unit) {
+    if (lifecycleIsResumed()) {
+        block()
+    }
+}

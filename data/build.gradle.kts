@@ -43,6 +43,7 @@ hilt {
 dependencies {
     implementation(project(":domain"))
     implementation(libs.androidX.core.ktx)
+    implementation(libs.androidX.appcompat)
 
     // Dagger
     implementation(libs.google.dagger.hiltAndroid)
@@ -52,21 +53,17 @@ dependencies {
     implementation(libs.androidX.hilt.common)
     ksp(libs.androidX.hilt.compiler)
 
-    implementation(libs.androidX.room.runtime)
-    implementation(libs.androidX.room.ktx)
-    ksp(libs.androidX.room.compiler)
-    testImplementation(libs.androidX.room.test)
-
-    implementation(libs.androidX.appcompat)
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidX.test.ext.junit)
-    androidTestImplementation(libs.espresso.core)
-
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinX.serialization)
     implementation(libs.kotlinX.datetime)
     implementation(libs.kotlinX.coroutines.android)
+
+    // Room
+    implementation(libs.androidX.room.runtime)
+    implementation(libs.androidX.room.ktx)
+    ksp(libs.androidX.room.compiler)
+    testImplementation(libs.androidX.room.test)
 
     // Retrofit
     implementation(libs.retrofit)
@@ -74,4 +71,9 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    // Testing
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidX.test.ext.junit)
+    androidTestImplementation(libs.espresso.core)
 }

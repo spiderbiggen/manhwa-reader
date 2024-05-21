@@ -3,20 +3,17 @@ package com.spiderbiggen.manhwa.presentation.components
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.NonRestartableComposable
-import androidx.compose.runtime.snapshotFlow
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 
-@NonRestartableComposable
 @Composable
 fun <T : Any?> StickyTopEffect(items: Collection<T>, state: LazyListState) {
+    val firstVisibleItemIndex by remember { derivedStateOf { state.firstVisibleItemIndex } }
     LaunchedEffect(items) {
-        snapshotFlow { state.firstVisibleItemIndex }
-            .collect {
-                // Scroll to the top if a new item is added.
-                // (But only if user is scrolled to the top already.)
-                if (it <= 1) {
-                    state.requestScrollToItem(0)
-                }
-            }
+        if (firstVisibleItemIndex <= 1) {
+            //scroll to top to ensure latest added element gets visible
+            state.requestScrollToItem(0)
+        }
     }
 }
