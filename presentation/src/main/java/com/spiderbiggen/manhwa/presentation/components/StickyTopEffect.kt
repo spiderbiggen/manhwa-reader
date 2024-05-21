@@ -8,10 +8,7 @@ import androidx.compose.runtime.snapshotFlow
 
 @NonRestartableComposable
 @Composable
-fun <T : Any?> StickyTopEffect(
-    items: Collection<T>,
-    state: LazyListState,
-) {
+fun <T : Any?> StickyTopEffect(items: Collection<T>, state: LazyListState) {
     LaunchedEffect(items) {
         snapshotFlow { state.firstVisibleItemIndex }
             .collect {
