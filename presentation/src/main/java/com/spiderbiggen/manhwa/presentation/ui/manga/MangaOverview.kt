@@ -1,14 +1,17 @@
 package com.spiderbiggen.manhwa.presentation.ui.manga
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -16,13 +19,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -31,9 +32,10 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -48,6 +50,7 @@ import com.spiderbiggen.manhwa.presentation.components.MangaRow
 import com.spiderbiggen.manhwa.presentation.components.StickyTopEffect
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.ui.manga.model.MangaViewData
+import kotlinx.coroutines.launch
 
 @Composable
 fun MangaOverview(navigateToManga: (String) -> Unit, viewModel: MangaViewModel = viewModel()) {
@@ -67,7 +70,7 @@ fun MangaOverview(navigateToManga: (String) -> Unit, viewModel: MangaViewModel =
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MangaOverview(
     state: State<MangaScreenState>,
@@ -78,39 +81,16 @@ fun MangaOverview(
     navigateToManga: (String) -> Unit = {},
     onClickFavorite: (String) -> Unit = {},
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val pullToRefreshState = rememberPullToRefreshState()
-
-    LaunchedEffect(refreshing.value) {
-        if (refreshing.value) {
-            pullToRefreshState.startRefresh()
-        } else {
-            pullToRefreshState.endRefresh()
-        }
-    }
-
-    if (pullToRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            onRefreshClicked()
-        }
-    }
-    val scaleFraction = if (pullToRefreshState.isRefreshing) {
-        1f
-    } else {
-        LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
-    }
+    val scope = rememberCoroutineScope()
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val topAppBarColors = TopAppBarDefaults.topAppBarColors()
 
     Scaffold(
-        modifier = Modifier
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-            .nestedScroll(pullToRefreshState.nestedScrollConnection),
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Manga") },
                 scrollBehavior = topAppBarScrollBehavior,
-                colors = TopAppBarDefaults.topAppBarColors(
-                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
-                ),
             )
         },
     ) { padding ->
@@ -120,45 +100,86 @@ fun MangaOverview(
             -> LoadingSpinner(padding)
 
             is MangaScreenState.Ready -> {
-                Box(
+                PullToRefreshBox(
+                    refreshing.value,
+                    onRefreshClicked,
                     Modifier
                         .fillMaxSize()
                         .padding(padding),
-                    contentAlignment = Alignment.TopCenter,
                 ) {
-                    MangaList(
-                        modifier = Modifier.fillMaxSize(),
-                        mangas = screenState.manga,
-                        favoritesOnly = screenState.favoritesOnly,
-                        unReadOnly = screenState.unreadOnly,
-                        toggleFavoritesFilter = toggleFavoritesFilter,
-                        toggleUnreadFilter = toggleUnreadFilter,
-                        navigateToManga = navigateToManga,
-                        onClickFavorite = onClickFavorite,
-                    )
-                    PullToRefreshContainer(
-                        state = pullToRefreshState,
-                        modifier = Modifier.graphicsLayer(
-                            scaleX = scaleFraction,
-                            scaleY = scaleFraction,
-                        ),
-                    )
+                    Column(Modifier.fillMaxSize()) {
+                        val lazyListState = rememberLazyListState()
+                        // Obtain the container color from the TopAppBarColors using the `overlapFraction`. This
+                        // ensures that the colors will adjust whether the app bar behavior is pinned or scrolled.
+                        // This may potentially animate or interpolate a transition between the container-color and the
+                        // container's scrolled-color according to the app bar's scroll state.
+                        val colorTransitionFraction by remember {
+                            // derivedStateOf to prevent redundant recompositions when the content scrolls.
+                            derivedStateOf {
+                                val overlappingFraction = topAppBarScrollBehavior.state.overlappedFraction
+                                if (overlappingFraction > 0.01f) 1f else 0f
+                            }
+                        }
+
+                        val appBarContainerColor by animateColorAsState(
+                            targetValue = lerp(
+                                topAppBarColors.containerColor,
+                                topAppBarColors.scrolledContainerColor,
+                                FastOutLinearInEasing.transform(colorTransitionFraction),
+                            ),
+                            animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                        )
+                        FlowRow(
+                            Modifier
+                                .background(appBarContainerColor)
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                            verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                        ) {
+                            FilterChip(
+                                selected = screenState.favoritesOnly,
+                                onClick = {
+                                    toggleFavoritesFilter()
+                                    scope.launch {
+                                        lazyListState.requestScrollToItem(0)
+                                    }
+                                },
+                                label = { Text("Favorites") },
+                            )
+                            FilterChip(
+                                selected = screenState.unreadOnly,
+                                onClick = {
+                                    toggleUnreadFilter()
+                                    scope.launch {
+                                        lazyListState.requestScrollToItem(0)
+                                    }
+                                },
+                                label = { Text("Unread") },
+                            )
+                        }
+
+                        StickyTopEffect(screenState.manga, lazyListState)
+                        MangaList(
+                            modifier = Modifier.weight(1f),
+                            mangas = screenState.manga,
+                            lazyListState = lazyListState,
+                            navigateToManga = navigateToManga,
+                            onClickFavorite = onClickFavorite,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
 @Composable
 private fun MangaList(
     mangas: List<MangaViewData>,
     modifier: Modifier = Modifier,
-    favoritesOnly: Boolean = false,
-    unReadOnly: Boolean = false,
     lazyListState: LazyListState = rememberLazyListState(),
-    toggleFavoritesFilter: () -> Unit = {},
-    toggleUnreadFilter: () -> Unit = {},
     navigateToManga: (String) -> Unit = {},
     onClickFavorite: (String) -> Unit = {},
 ) {
@@ -178,37 +199,12 @@ private fun MangaList(
         modifier = modifier,
         state = lazyListState,
     ) {
-        stickyHeader {
-            FlowRow(
-                Modifier
-                    .background(MaterialTheme.colorScheme.surface)
-                    .fillParentMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
-            ) {
-                FilterChip(
-                    selected = favoritesOnly,
-                    onClick = toggleFavoritesFilter,
-                    label = { Text("Favorites") },
-                )
-                FilterChip(
-                    selected = unReadOnly,
-                    onClick = toggleUnreadFilter,
-                    label = { Text("Unread") },
-                )
-            }
-        }
-        items(
-            mangas,
-            key = { it.id },
-        ) { item ->
+        items(mangas, key = { it.id }) { item ->
             MangaRow(
                 manga = item,
                 navigateToManga = navigateToManga,
                 onClickFavorite = onClickFavorite,
-                modifier = Modifier.animateItemPlacement(),
+                modifier = Modifier.animateItem(),
             )
         }
     }

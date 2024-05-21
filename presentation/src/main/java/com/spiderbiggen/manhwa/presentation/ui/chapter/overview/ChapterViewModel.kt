@@ -15,6 +15,8 @@ import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateChaptersFromRemote
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
@@ -23,8 +25,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
@@ -84,7 +84,9 @@ class ChapterViewModel @Inject constructor(
                 chaptersFlow.collectLatest { list ->
                     val chapters = list.map {
                         ChapterRowData(
-                            chapter = it,
+                            id = it.id,
+                            title = it.displayTitle(),
+                            date = it.date.toString(),
                             isRead = isRead(it.id).leftOr(false),
                         )
                     }

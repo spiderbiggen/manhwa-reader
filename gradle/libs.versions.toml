@@ -6,13 +6,13 @@ androidx-test-ext-junit = "1.1.5"
 appcompat = "1.6.1"
 coil-bom = "2.6.0"
 compose-bom = "2024.05.00"
-compose-compiler = "1.5.14"
+compose-override = "1.7.0-beta01"
 coroutines = "1.8.1"
 core-ktx = "1.13.1"
 dagger = "2.51.1"
 espresso-core = "3.5.1"
 junit = "4.13.2"
-kotlin = "1.9.24"
+kotlin = "2.0.0"
 ktlint = "1.2.1"
 lifecycle = "2.8.0"
 room = "2.6.1"
@@ -37,10 +37,9 @@ androidX-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name =
 # Compose
 androidX-compose-activity = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 androidX-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
-androidX-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
-androidX-compose-foundationLayout = { group = "androidx.compose.foundation", name = "foundation-layout" }
-androidX-compose-animation = { group = "androidx.compose.animation", name = "animation" }
-androidX-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidX-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose-override" }
+androidX-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose-override" }
+androidX-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose-override" }
 androidX-compose-uiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidX-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidX-compose-uiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
@@ -48,7 +47,7 @@ androidX-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-te
 androidX-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidX-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version = "2.7.7" }
 androidX-hilt-navigationCompose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
-androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.3.0-beta01" }
 androidX-compose-materialIcons = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 # Room
@@ -98,11 +97,12 @@ spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plu
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
-google-ksp = { id = "com.google.devtools.ksp", version = "1.9.24-1.0.20" }
+google-ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.21" }
 google-daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
+kotlinX-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless-plugin-gradle" }

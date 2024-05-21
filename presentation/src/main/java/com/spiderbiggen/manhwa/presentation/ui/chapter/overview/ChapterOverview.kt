@@ -1,10 +1,7 @@
 package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
@@ -30,14 +27,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshContainer
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,7 +40,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,16 +48,13 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.spiderbiggen.manhwa.domain.model.Chapter
 import com.spiderbiggen.manhwa.domain.model.Manga
 import com.spiderbiggen.manhwa.presentation.components.LoadingSpinner
 import com.spiderbiggen.manhwa.presentation.components.StickyTopEffect
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
 import java.net.URL
+import kotlinx.datetime.Clock
 
 @Composable
 fun ChapterOverview(
@@ -76,7 +67,6 @@ fun ChapterOverview(
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val lazyListState = rememberLazyListState()
     val refreshingState = viewModel.refreshingState.collectAsState()
     ChapterOverview(
         onColorChanged = onColorChanged,
@@ -86,12 +76,11 @@ fun ChapterOverview(
         startRefresh = viewModel::onClickRefresh,
         toggleFavorite = viewModel::toggleFavorite,
         state = state,
-        lazyListState = lazyListState,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
+@OptIn(ExperimentalMaterial3Api::class)
 fun ChapterOverview(
     onColorChanged: (Color) -> Unit,
     onBackClick: () -> Unit,
@@ -100,29 +89,8 @@ fun ChapterOverview(
     startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
     state: ChapterScreenState,
-    lazyListState: LazyListState = rememberLazyListState(),
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    val pullToRefreshState = rememberPullToRefreshState()
-
-    LaunchedEffect(refreshing.value) {
-        if (refreshing.value) {
-            pullToRefreshState.startRefresh()
-        } else {
-            pullToRefreshState.endRefresh()
-        }
-    }
-
-    if (pullToRefreshState.isRefreshing) {
-        LaunchedEffect(true) {
-            startRefresh()
-        }
-    }
-    val scaleFraction = if (pullToRefreshState.isRefreshing) {
-        1f
-    } else {
-        LinearOutSlowInEasing.transform(pullToRefreshState.progress).coerceIn(0f, 1f)
-    }
+    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     val dominantColor = state.ifReady()?.manga?.dominantColor
     LaunchedEffect(dominantColor) {
@@ -130,8 +98,7 @@ fun ChapterOverview(
     }
     Scaffold(
         modifier = Modifier
-            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection)
-            .nestedScroll(pullToRefreshState.nestedScrollConnection),
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -162,37 +129,16 @@ fun ChapterOverview(
             -> LoadingSpinner(padding)
 
             is ChapterScreenState.Ready -> {
-                Box(
+                PullToRefreshBox(
+                    isRefreshing = refreshing.value,
+                    onRefresh = startRefresh,
                     Modifier
                         .padding(padding)
                         .fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter,
                 ) {
-                    StickyTopEffect(items = state.chapters, lazyListState)
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        state = lazyListState,
-                    ) {
-                        itemsIndexed(
-                            items = state.chapters,
-                            key = { _, item -> item.chapter.id },
-                        ) { index, item ->
-                            ChapterRow(
-                                showDivider = index > 0,
-                                item = item.chapter,
-                                isRead = item.isRead,
-                                navigateToChapter = navigateToChapter,
-                                modifier = Modifier.animateItemPlacement(),
-                            )
-                        }
-                    }
-                    PullToRefreshContainer(
-                        state = pullToRefreshState,
-                        modifier = Modifier.graphicsLayer(
-                            scaleX = scaleFraction,
-                            scaleY = scaleFraction,
-                        ),
-                    )
+                    val lazyListState = rememberLazyListState()
+                    StickyTopEffect(state.chapters, lazyListState)
+                    ChaptersList(state.chapters, navigateToChapter, lazyListState)
                 }
             }
         }
@@ -200,14 +146,36 @@ fun ChapterOverview(
 }
 
 @Composable
+private fun ChaptersList(
+    chapters: List<ChapterRowData>,
+    navigateToChapter: (String) -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = lazyListState,
+    ) {
+        itemsIndexed(
+            items = chapters,
+            key = { _, item -> item.id },
+        ) { index, item ->
+            ChapterRow(
+                showDivider = index > 0,
+                item = item,
+                navigateToChapter = navigateToChapter,
+                modifier = Modifier.animateItem(),
+            )
+        }
+    }
+}
+
+@Composable
 private fun ChapterRow(
     showDivider: Boolean,
-    item: Chapter,
-    isRead: Boolean,
+    item: ChapterRowData,
     navigateToChapter: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val title by remember(item) { derivedStateOf { item.displayTitle() } }
     Surface(
         onClick = { navigateToChapter(item.id) },
         modifier = modifier
@@ -228,16 +196,16 @@ private fun ChapterRow(
                     verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
                 ) {
                     val contentColor = LocalContentColor.current.let {
-                        if (isRead) it.copy(alpha = 0.7f) else it
+                        if (item.isRead) it.copy(alpha = 0.7f) else it
                     }
                     CompositionLocalProvider(LocalContentColor provides contentColor) {
                         Text(
-                            title,
-                            fontWeight = if (!isRead) FontWeight.Bold else null,
+                            item.title,
+                            fontWeight = if (!item.isRead) FontWeight.Bold else null,
                             style = MaterialTheme.typography.bodyLarge,
                         )
                         Text(
-                            item.date.toString(),
+                            item.date,
                             style = MaterialTheme.typography.bodySmall,
                         )
                     }
@@ -281,43 +249,27 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
 object ChapterProvider {
     val values = sequenceOf(
         ChapterRowData(
-            chapter = Chapter(
-                id = "000000",
-                number = 30.0,
-                title = null,
-                date = LocalDate(2023, 4, 16),
-                updatedAt = Instant.DISTANT_PAST,
-            ),
+            id = "000000",
+            title = "30",
+            date = "2023-04-16",
             isRead = false,
         ),
         ChapterRowData(
-            chapter = Chapter(
-                id = "000001",
-                number = 29.5,
-                title = null,
-                date = LocalDate(2023, 4, 12),
-                updatedAt = Instant.DISTANT_PAST,
-            ),
+            id = "000001",
+            title = "29.5",
+            date = "2023-04-12",
             isRead = true,
         ),
         ChapterRowData(
-            chapter = Chapter(
-                id = "000002",
-                number = 39.0,
-                title = null,
-                date = LocalDate(2023, 3, 15),
-                updatedAt = Instant.DISTANT_PAST,
-            ),
+            id = "000002",
+            title = "39",
+            date = "2023-03-15",
             isRead = true,
         ),
         ChapterRowData(
-            chapter = Chapter(
-                id = "000003",
-                number = 30.0,
-                title = "Long title to make the title take two lines at least",
-                date = LocalDate(2023, 2, 28),
-                updatedAt = Instant.DISTANT_PAST,
-            ),
+            id = "000003",
+            title = "30 - Long title to make the title take two lines at least",
+            date = "2023-02-28",
             isRead = true,
         ),
     )
