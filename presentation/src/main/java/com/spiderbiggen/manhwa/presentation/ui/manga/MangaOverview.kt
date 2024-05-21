@@ -80,6 +80,7 @@ fun MangaOverview(
     onClickFavorite: (String) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
+    val lazyListState = rememberLazyListState()
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val topAppBarColors = TopAppBarDefaults.topAppBarColors()
 
@@ -106,7 +107,6 @@ fun MangaOverview(
                         .padding(padding),
                 ) {
                     Column(Modifier.fillMaxSize()) {
-                        val lazyListState = rememberLazyListState()
                         // Obtain the container color from the TopAppBarColors using the `overlapFraction`. This
                         // ensures that the colors will adjust whether the app bar behavior is pinned or scrolled.
                         // This may potentially animate or interpolate a transition between the container-color and the

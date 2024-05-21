@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.images
+package com.spiderbiggen.manhwa.presentation.ui.images
 
 import com.spiderbiggen.manhwa.domain.model.SurroundingChapters
 

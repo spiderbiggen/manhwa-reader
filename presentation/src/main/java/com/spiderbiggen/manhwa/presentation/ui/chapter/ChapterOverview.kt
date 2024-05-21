@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
+package com.spiderbiggen.manhwa.presentation.ui.chapter
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
@@ -53,6 +53,7 @@ import com.spiderbiggen.manhwa.presentation.components.LoadingSpinner
 import com.spiderbiggen.manhwa.presentation.components.StickyTopEffect
 import com.spiderbiggen.manhwa.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manhwa.presentation.theme.Purple80
+import com.spiderbiggen.manhwa.presentation.ui.chapter.model.ChapterRowData
 import java.net.URL
 import kotlinx.datetime.Clock
 

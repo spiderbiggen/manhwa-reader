@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.images
+package com.spiderbiggen.manhwa.presentation.ui.images
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -18,13 +18,13 @@ import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetRead
 import com.spiderbiggen.manhwa.domain.usecase.read.SetReadUpToChapter
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class ImagesViewModel @Inject constructor(

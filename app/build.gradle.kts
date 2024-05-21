@@ -79,28 +79,31 @@ dependencies {
 
     implementation(libs.androidX.core.ktx)
 
+    // Dagger
+    ksp(libs.google.dagger.hiltAndroidCompiler)
+    implementation(libs.google.dagger.hiltAndroid)
+
     // Hilt
     ksp(libs.androidX.hilt.compiler)
 
-    // Dagger
-    implementation(libs.google.dagger.hiltAndroid)
-    ksp(libs.google.dagger.hiltAndroidCompiler)
-
+    // Viewmodel
     implementation(libs.androidX.lifecycle.viewmodel.compose)
 
+    // Compose
     implementation(platform(libs.androidX.compose.bom))
     implementation(libs.androidX.compose.activity)
     implementation(libs.androidX.compose.ui)
     implementation(libs.androidX.compose.uiGraphics)
     implementation(libs.androidX.compose.uiToolingPreview)
     implementation(libs.androidX.compose.material3)
-    debugImplementation(libs.androidX.compose.uiTooling)
-    stagingImplementation(libs.androidX.compose.uiTooling)
-    debugImplementation(libs.androidX.compose.uiTestManifest)
+    implementation(libs.androidX.compose.uiTooling)
+    implementation(libs.androidX.compose.uiTestManifest)
 
+    // Coil
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
 
+    // testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

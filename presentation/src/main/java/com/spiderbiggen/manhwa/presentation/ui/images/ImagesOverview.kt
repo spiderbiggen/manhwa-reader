@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.images
+package com.spiderbiggen.manhwa.presentation.ui.images
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

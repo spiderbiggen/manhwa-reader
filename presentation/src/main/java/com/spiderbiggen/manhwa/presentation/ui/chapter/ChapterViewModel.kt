@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
+package com.spiderbiggen.manhwa.presentation.ui.chapter
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -14,6 +14,7 @@ import com.spiderbiggen.manhwa.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manhwa.domain.usecase.manga.GetManga
 import com.spiderbiggen.manhwa.domain.usecase.read.IsRead
 import com.spiderbiggen.manhwa.domain.usecase.remote.UpdateChaptersFromRemote
+import com.spiderbiggen.manhwa.presentation.ui.chapter.model.ChapterRowData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds

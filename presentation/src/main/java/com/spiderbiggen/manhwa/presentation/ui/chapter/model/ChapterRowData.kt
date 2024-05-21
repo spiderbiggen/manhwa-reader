@@ -1,4 +1,4 @@
-package com.spiderbiggen.manhwa.presentation.ui.chapter.overview
+package com.spiderbiggen.manhwa.presentation.ui.chapter.model
 
 import androidx.compose.runtime.Immutable
 
