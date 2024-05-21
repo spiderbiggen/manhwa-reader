@@ -12,7 +12,7 @@ fun <T : Any?> StickyTopEffect(items: Collection<T>, state: LazyListState) {
     val firstVisibleItemIndex by remember { derivedStateOf { state.firstVisibleItemIndex } }
     LaunchedEffect(items) {
         if (firstVisibleItemIndex <= 1) {
-            //scroll to top to ensure latest added element gets visible
+            // scroll to top to ensure latest added element gets visible
             state.requestScrollToItem(0)
         }
     }
