@@ -31,7 +31,6 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -146,7 +145,6 @@ fun ChapterOverview(
     }
 }
 
-@Stable
 @Composable
 private fun ChaptersList(
     chapters: List<ChapterRowData>,
@@ -171,7 +169,6 @@ private fun ChaptersList(
     }
 }
 
-@Stable
 @Composable
 private fun ChapterRow(
     showDivider: Boolean,
