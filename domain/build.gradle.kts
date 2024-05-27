@@ -4,7 +4,7 @@ plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.google.ksp)
-    id("manga.spotless-conventions")
+    id("manga.spotless")
     id("com.android.lint")
 }
 

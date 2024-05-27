@@ -7,11 +7,11 @@ plugins {
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
-    id("manga.spotless-conventions")
+    id("manga.spotless")
 }
 
 android {
-    namespace = "com.spiderbiggen.manhwa.presentation"
+    namespace = "com.spiderbiggen.manga.presentation"
     compileSdk = 34
 
     defaultConfig {
@@ -46,6 +46,10 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.androidX.core.ktx)
 
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+
     // Dagger
     implementation(libs.google.dagger.hiltAndroid)
     ksp(libs.google.dagger.hiltAndroidCompiler)
@@ -58,6 +62,7 @@ dependencies {
     implementation(libs.kotlinX.serialization)
     implementation(libs.kotlinX.coroutines.android)
     implementation(libs.kotlinX.datetime)
+    implementation(libs.kotlinX.collections.immutable)
 
     // Lifecycle
     implementation(libs.androidX.lifecycle.runtime.ktx)

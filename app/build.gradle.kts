@@ -1,3 +1,4 @@
+import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -6,7 +7,9 @@ plugins {
     alias(libs.plugins.kotlinX.compose)
     alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
-    id("manga.spotless-conventions")
+    alias(libs.plugins.google.gms.google.services)
+    alias(libs.plugins.google.crashlytics)
+    id("manga.spotless")
 }
 
 hilt {
@@ -14,11 +17,11 @@ hilt {
 }
 
 android {
-    namespace = "com.spiderbiggen.manhwa"
+    namespace = "com.spiderbiggen.manga"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.spiderbiggen.manhwa"
+        applicationId = "com.spiderbiggen.manga"
         minSdk = 26
         targetSdk = 34
         versionCode = 7
@@ -36,7 +39,7 @@ android {
             isMinifyEnabled = false
             isShrinkResources = false
             applicationIdSuffix = ".debug"
-            versionNameSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
         release {
             isMinifyEnabled = true
@@ -47,6 +50,8 @@ android {
             )
         }
         create("staging") {
+            applicationIdSuffix = ".staging"
+            versionNameSuffix = "-staging"
             initWith(getByName("release"))
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release", "debug")
@@ -78,6 +83,11 @@ dependencies {
     implementation(project(":presentation"))
 
     implementation(libs.androidX.core.ktx)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 
     // Dagger
     ksp(libs.google.dagger.hiltAndroidCompiler)
