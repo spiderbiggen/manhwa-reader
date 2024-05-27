@@ -89,7 +89,7 @@ coil = { group = "io.coil-kt", name = "coil" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose" }
 
 # Material kolor
-material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "1.6.0" }
+material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "1.6.1" }
 
 # Spotless for BuildSrc convention script
 spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless-plugin-gradle" }
