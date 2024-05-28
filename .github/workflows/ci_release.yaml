@@ -48,9 +48,9 @@ jobs:
 
             -   name: Update local.properties
                 run: |
-                    echo "signing.keystore=keystore.jks" >>./local.properties
-                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >>./local.properties
-                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >>./local.properties
+                    echo "signing.keystore=keystore.jks" >> ./local.properties
+                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
+                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
             -   name: Create debug build
                 run: ./gradlew app:bundleRelease app:assembleRelease
