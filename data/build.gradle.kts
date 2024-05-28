@@ -6,11 +6,11 @@ plugins {
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
-    id("manga.spotless-conventions")
+    id("manga.spotless")
 }
 
 android {
-    namespace = "com.spiderbiggen.manhwa.data"
+    namespace = "com.spiderbiggen.manga.data"
     compileSdk = 34
 
     defaultConfig {
@@ -22,6 +22,7 @@ android {
         ksp {
             arg("room.schemaLocation", "$projectDir/schemas")
             arg("room.incremental", "true")
+            arg("room.generateKotlin", "true")
         }
     }
 
@@ -44,6 +45,10 @@ dependencies {
     implementation(project(":domain"))
     implementation(libs.androidX.core.ktx)
     implementation(libs.androidX.appcompat)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
 
     // Dagger
     implementation(libs.google.dagger.hiltAndroid)

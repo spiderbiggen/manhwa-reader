@@ -6,7 +6,7 @@
     "entities": [
       {
         "tableName": "chapter",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `manhwa_id` TEXT NOT NULL, `number` INTEGER NOT NULL, `decimal` INTEGER NOT NULL DEFAULT 0, `title` TEXT, `date` TEXT NOT NULL, `updated_at` TEXT, `image_chunks` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`manhwa_id`) REFERENCES `manhwa`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `manga_id` TEXT NOT NULL, `number` INTEGER NOT NULL, `decimal` INTEGER NOT NULL DEFAULT 0, `title` TEXT, `date` TEXT NOT NULL, `updated_at` TEXT, `image_chunks` INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(`id`), FOREIGN KEY(`manga_id`) REFERENCES `manga`(`id`) ON UPDATE NO ACTION ON DELETE NO ACTION )",
         "fields": [
           {
             "fieldPath": "id",
@@ -15,8 +15,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "manhwaId",
-            "columnName": "manhwa_id",
+            "fieldPath": "mangaId",
+            "columnName": "manga_id",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -67,13 +67,13 @@
         },
         "indices": [
           {
-            "name": "index_chapter_manhwa_id",
+            "name": "index_chapter_manga_id",
             "unique": false,
             "columnNames": [
-              "manhwa_id"
+              "manga_id"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_chapter_manhwa_id` ON `${TABLE_NAME}` (`manhwa_id`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_chapter_manga_id` ON `${TABLE_NAME}` (`manga_id`)"
           },
           {
             "name": "index_chapter_number_decimal",
@@ -88,11 +88,11 @@
         ],
         "foreignKeys": [
           {
-            "table": "manhwa",
+            "table": "manga",
             "onDelete": "NO ACTION",
             "onUpdate": "NO ACTION",
             "columns": [
-              "manhwa_id"
+              "manga_id"
             ],
             "referencedColumns": [
               "id"
@@ -101,7 +101,7 @@
         ]
       },
       {
-        "tableName": "manhwa",
+        "tableName": "manga",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `cover` TEXT NOT NULL, `description` TEXT NOT NULL, `status` TEXT NOT NULL, `updated_at` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
@@ -155,13 +155,13 @@
         },
         "indices": [
           {
-            "name": "index_manhwa_updated_at",
+            "name": "index_manga_updated_at",
             "unique": false,
             "columnNames": [
               "updated_at"
             ],
             "orders": [],
-            "createSql": "CREATE INDEX IF NOT EXISTS `index_manhwa_updated_at` ON `${TABLE_NAME}` (`updated_at`)"
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_manga_updated_at` ON `${TABLE_NAME}` (`updated_at`)"
           }
         ],
         "foreignKeys": []

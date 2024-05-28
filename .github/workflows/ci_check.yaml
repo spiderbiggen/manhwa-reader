@@ -35,6 +35,18 @@ jobs:
             -   name: Make gradlew executable
                 run: chmod +x ./gradlew
 
+            -   name: Create Google Services JSON File
+                env:
+                    GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+                run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+
+            -   name: Update local.properties
+                run: |
+                    echo "signing.keystore=keystore.jks" >> ./local.properties
+                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
+                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+
+
             -   name: Create debug build
                 run: ./gradlew app:assembleDebug
 
@@ -71,6 +83,17 @@ jobs:
 
             -   name: Make gradlew executable
                 run: chmod +x ./gradlew
+
+            -   name: Create Google Services JSON File
+                env:
+                    GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+                run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+
+            -   name: Update local.properties
+                run: |
+                    echo "signing.keystore=keystore.jks" >> ./local.properties
+                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
+                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
             -   name: Run lint and unit tests
                 run: ./gradlew check

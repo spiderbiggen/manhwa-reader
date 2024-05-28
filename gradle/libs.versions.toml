@@ -17,6 +17,8 @@ ktlint = "1.2.1"
 lifecycle = "2.8.0"
 room = "2.6.1"
 spotless-plugin-gradle = "6.25.0"
+google-gms-google-services = "4.4.1"
+firebase-analytics = "22.0.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -26,6 +28,11 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 # Android
 androidX-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 androidX-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+
+# Firebase
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "33.0.0" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
 
 # Lifecycle
 androidX-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
@@ -82,6 +89,7 @@ kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", versio
 # KotlinX
 kotlinX-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.6.3" }
 kotlinX-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime", version = "0.6.0" }
+kotlinX-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version = "0.3.7" }
 
 # Coil
 coil-bom = { group = "io.coil-kt", name = "coil-bom", version.ref = "coil-bom" }
@@ -99,13 +107,13 @@ android-application = { id = "com.android.application", version.ref = "android-g
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
 google-ksp = { id = "com.google.devtools.ksp", version = "2.0.0-1.0.21" }
 google-daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-gms-google-services" }
+google-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.1" }
 
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinX-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless-plugin-gradle" }
 
 [bundles]
 
