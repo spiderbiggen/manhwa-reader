@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 
@@ -41,8 +42,8 @@ private val aspectModifier = Modifier
 @Composable
 fun MangaRow(
     manga: MangaViewData,
-    navigateToManga: (String) -> Unit,
-    onClickFavorite: (String) -> Unit,
+    navigateToManga: (MangaId) -> Unit,
+    onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
     containerColor: Color = MaterialTheme.colorScheme.surface,
 ) {
@@ -101,7 +102,7 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 }
 
 @Composable
-private fun FavoriteButton(mangaId: String, isFavorite: Boolean, onClickFavorite: (String) -> Unit) {
+private fun FavoriteButton(mangaId: MangaId, isFavorite: Boolean, onClickFavorite: (MangaId) -> Unit) {
     IconButton(
         onClick = { onClickFavorite(mangaId) },
         modifier = Modifier.padding(end = 16.dp),
@@ -127,7 +128,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
         get() = sequenceOf(
             MangaViewData(
                 source = "Asura",
-                id = "712dd47d646544338484357604d6cf80",
+                id = MangaId("712dd47d646544338484357604d6cf80"),
                 title = "Heavenly Martial God",
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Ongoing",
@@ -137,7 +138,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
             ),
             MangaViewData(
                 source = "Asura",
-                id = "712dd47d646544338484357604d6cf81",
+                id = MangaId("712dd47d646544338484357604d6cf81"),
                 title = "Heavenly Martial God",
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Ongoing",

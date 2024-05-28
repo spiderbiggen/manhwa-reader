@@ -50,7 +50,7 @@ fun MainContent() {
                 viewModel = viewModel,
                 navigateToManga = { mangaId ->
                     backStackEntry.ifResumed {
-                        navController.navigate(ChapterRoute(mangaId))
+                        navController.navigate(ChapterRoute(mangaId.inner))
                     }
                 },
             )
@@ -62,7 +62,7 @@ fun MainContent() {
                 onBackClick = { navController.popBackStack() },
                 navigateToChapter = { chapterId ->
                     backStackEntry.ifResumed {
-                        navController.navigate(ImagesRoute(mangaId, chapterId)) {
+                        navController.navigate(ImagesRoute(mangaId, chapterId.inner)) {
                             restoreState = true
                         }
                     }
@@ -83,7 +83,7 @@ fun MainContent() {
                 },
                 toChapterClicked = { chapterId ->
                     backStackEntry.ifResumed {
-                        navController.navigate(ImagesRoute(mangaId, chapterId))
+                        navController.navigate(ImagesRoute(mangaId, chapterId.inner))
                     }
                 },
             )

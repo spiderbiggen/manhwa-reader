@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.data.repository
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import javax.inject.Inject
 
 class ReadRepository @Inject constructor(
@@ -12,12 +13,12 @@ class ReadRepository @Inject constructor(
         private const val READ_KEY_PREFIX = "read"
     }
 
-    fun isRead(chapterId: String) =
-        sharedPreferences.getBoolean("${READ_KEY_PREFIX}_$chapterId", false)
+    fun isRead(id: ChapterId) =
+        sharedPreferences.getBoolean("${READ_KEY_PREFIX}_${id.inner}", false)
 
-    fun setRead(chapterId: String, isRead: Boolean) {
+    fun setRead(id: ChapterId, isRead: Boolean) {
         sharedPreferences.edit {
-            putBoolean("${READ_KEY_PREFIX}_$chapterId", isRead)
+            putBoolean("${READ_KEY_PREFIX}_${id.inner}", isRead)
         }
     }
 }

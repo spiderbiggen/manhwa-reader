@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.google.firebase.BuildConfig
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaRow
@@ -58,7 +59,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @Composable
-fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (String) -> Unit) {
+fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (MangaId) -> Unit) {
     LaunchedEffect(null) {
         viewModel.collect()
     }
@@ -68,7 +69,7 @@ fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (String) -> Unit) 
         MangaOverview(
             state = state,
             refreshing = updatingState,
-            onRefreshClicked = viewModel::onClickRefresh,
+            onRefreshClicked = viewModel::onPullToRefresh,
             toggleFavoritesFilter = viewModel::toggleFavoritesOnly,
             toggleUnreadFilter = viewModel::toggleUnreadOnly,
             navigateToManga = navigateToManga,
@@ -85,8 +86,8 @@ fun MangaOverview(
     onRefreshClicked: () -> Unit = {},
     toggleFavoritesFilter: () -> Unit = {},
     toggleUnreadFilter: () -> Unit = {},
-    navigateToManga: (String) -> Unit = {},
-    onClickFavorite: (String) -> Unit = {},
+    navigateToManga: (MangaId) -> Unit = {},
+    onClickFavorite: (MangaId) -> Unit = {},
 ) {
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
@@ -194,8 +195,8 @@ private fun MangaList(
     mangas: ImmutableList<MangaViewData>,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
-    navigateToManga: (String) -> Unit = {},
-    onClickFavorite: (String) -> Unit = {},
+    navigateToManga: (MangaId) -> Unit = {},
+    onClickFavorite: (MangaId) -> Unit = {},
 ) {
     val images by remember(mangas) {
         derivedStateOf {
@@ -213,7 +214,7 @@ private fun MangaList(
         modifier = modifier,
         state = lazyListState,
     ) {
-        items(mangas, key = { it.id }) { item ->
+        items(mangas, key = { it.id.inner }) { item ->
             MangaRow(
                 manga = item,
                 navigateToManga = navigateToManga,
@@ -250,7 +251,7 @@ class MangaOverviewScreenStateProvider : PreviewParameterProvider<MangaScreenSta
 object MangaProvider {
     private val baseViewData = MangaViewData(
         source = "Asura",
-        id = "7df204a8-2d37-42d1-a2e0-e795ae618388",
+        id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
         title = "Heavenly Martial God",
         coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
         status = "Ongoing",
@@ -263,13 +264,13 @@ object MangaProvider {
         get() = sequenceOf(
             baseViewData,
             baseViewData.copy(
-                id = "2",
+                id = MangaId("2"),
                 status = "Dropped",
                 isFavorite = true,
                 readAll = false,
             ),
             baseViewData.copy(
-                id = "3",
+                id = MangaId("3"),
                 isFavorite = true,
                 readAll = true,
             ),

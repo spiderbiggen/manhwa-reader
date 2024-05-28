@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.Manga
+import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.usecase.favorite.HasFavorites
 import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
@@ -54,7 +56,6 @@ class MangaViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            favoritesOnly = hasFavorites().leftOr(false)
             launch {
                 updateMangaFromRemote(skipCache = false)
             }
@@ -70,7 +71,7 @@ class MangaViewModel @Inject constructor(
         }
     }
 
-    private suspend fun mapSuccess(flow: Flow<List<Pair<Manga, String?>>>) {
+    private suspend fun mapSuccess(flow: Flow<List<Pair<Manga, ChapterId?>>>) {
         flow
             .combine(updater) { manga, _ -> manga }
             .collect { mangaList ->
@@ -112,11 +113,20 @@ class MangaViewModel @Inject constructor(
         return MangaScreenState.Error("An error occurred")
     }
 
-    fun onClickRefresh() {
-        refresh(skipCache = true)
+    fun onPullToRefresh() {
+        viewModelScope.launch {
+            val minimumDelay = async {
+                delay(500.milliseconds)
+            }
+            mutableUpdatingState.emit(true)
+            updateMangaFromRemote(skipCache = true)
+            minimumDelay.await()
+            // TODO show error notice (snackbar?)
+            mutableUpdatingState.emit(false)
+        }
     }
 
-    fun onClickFavorite(mangaId: String) {
+    fun onClickFavorite(mangaId: MangaId) {
         viewModelScope.launch(Dispatchers.IO) {
             toggleFavorite(mangaId)
             updater.emit(Unit)
@@ -137,16 +147,4 @@ class MangaViewModel @Inject constructor(
         }
     }
 
-    private fun refresh(skipCache: Boolean) {
-        viewModelScope.launch {
-            val minimumDelay = async {
-                delay(500.milliseconds)
-            }
-            mutableUpdatingState.emit(true)
-            updateMangaFromRemote(skipCache = skipCache)
-            minimumDelay.await()
-            // TODO show error notice (snackbar?)
-            mutableUpdatingState.emit(false)
-        }
-    }
 }

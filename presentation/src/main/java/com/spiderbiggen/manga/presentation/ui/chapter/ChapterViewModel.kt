@@ -5,9 +5,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
@@ -15,6 +17,7 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
+import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRoute
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
@@ -41,7 +44,8 @@ class ChapterViewModel @Inject constructor(
     private val updateChaptersFromRemote: UpdateChaptersFromRemote,
 ) : ViewModel() {
 
-    private val mangaId: String = checkNotNull(savedStateHandle["mangaId"])
+    private val args = savedStateHandle.toRoute<ChapterRoute>()
+    private val mangaId = MangaId(args.mangaId)
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val refreshingState = mutableUpdatingState.asStateFlow()

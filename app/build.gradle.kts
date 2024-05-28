@@ -50,9 +50,9 @@ android {
             )
         }
         create("staging") {
+            initWith(getByName("release"))
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
-            initWith(getByName("release"))
             signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release", "debug")
         }

@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.data.repository
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import javax.inject.Inject
 
 class FavoritesRepository @Inject constructor(
@@ -12,30 +13,27 @@ class FavoritesRepository @Inject constructor(
         private const val FAVORITES_KEY = "favorites"
     }
 
-    fun getFavorites(): Set<String> =
-        sharedPreferences.getStringSet(FAVORITES_KEY, emptySet()).orEmpty()
+    var favorites: Set<MangaId>
+        get() = sharedPreferences.getStringSet(FAVORITES_KEY, emptySet()).orEmpty().map(::MangaId).toSet()
+        private set(value) = sharedPreferences.edit {
+            putStringSet(FAVORITES_KEY, value.map(MangaId::inner).toSet())
+        }
 
-    fun isFavorite(mangaId: String) = mangaId in getFavorites()
+    fun isFavorite(id: MangaId) = id in favorites
 
-    fun setFavorite(mangaId: String, isFavorite: Boolean) {
+    fun setFavorite(id: MangaId, isFavorite: Boolean) {
         if (isFavorite) {
-            setFavorite(mangaId)
+            setFavorite(id)
         } else {
-            clearFavorite(mangaId)
+            clearFavorite(id)
         }
     }
 
-    private fun setFavorite(mangaId: String) {
-        val old = getFavorites()
-        sharedPreferences.edit {
-            putStringSet(FAVORITES_KEY, old + mangaId)
-        }
+    private fun setFavorite(id: MangaId) {
+        favorites += id
     }
 
-    private fun clearFavorite(mangaId: String) {
-        val old = getFavorites()
-        sharedPreferences.edit {
-            putStringSet(FAVORITES_KEY, old - mangaId)
-        }
+    private fun clearFavorite(id: MangaId) {
+        favorites -= id
     }
 }

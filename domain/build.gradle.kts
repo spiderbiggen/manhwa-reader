@@ -4,6 +4,7 @@ plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.google.ksp)
+    alias(libs.plugins.kotlinX.serialization)
     id("manga.spotless")
     id("com.android.lint")
 }
@@ -28,4 +29,5 @@ dependencies {
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinX.datetime)
     implementation(libs.kotlinX.coroutines.core)
+    implementation(libs.kotlinX.serialization)
 }

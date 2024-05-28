@@ -6,6 +6,7 @@ import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.Manga
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.manga.GetFavoriteManga
 import javax.inject.Inject
@@ -17,8 +18,8 @@ class GetFavoriteMangaImpl @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
 ) : GetFavoriteManga {
 
-    override suspend fun invoke(): Either<Flow<List<Pair<Manga, String?>>>, AppError> {
-        val favorites = favoritesRepository.getFavorites()
+    override suspend fun invoke(): Either<Flow<List<Pair<Manga, ChapterId?>>>, AppError> {
+        val favorites = favoritesRepository.favorites
         return mangaRepository.getMangas()
             .either()
             .mapLeft { flow ->

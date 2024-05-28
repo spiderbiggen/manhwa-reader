@@ -7,6 +7,7 @@ import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToLocalChapterUseCase
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import javax.inject.Inject
@@ -17,7 +18,7 @@ class UpdateChaptersFromRemoteImpl @Inject constructor(
     private val localChapterDao: Provider<LocalChapterDao>,
     private val toLocal: ToLocalChapterUseCase,
 ): UpdateChaptersFromRemote {
-    override suspend operator fun invoke(mangaId: String, skipCache: Boolean): Either<Unit, AppError> =
+    override suspend operator fun invoke(mangaId: MangaId, skipCache: Boolean): Either<Unit, AppError> =
         getRemoteChapters(mangaId, skipCache)
             .either()
             .mapLeft { chapters ->

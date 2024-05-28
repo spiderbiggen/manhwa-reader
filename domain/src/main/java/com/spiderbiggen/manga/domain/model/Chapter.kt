@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.domain.model
 
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import java.text.DecimalFormat
@@ -7,7 +8,7 @@ import java.text.DecimalFormatSymbols
 import java.util.Locale
 
 data class Chapter(
-    val id: String,
+    val id: ChapterId,
     val number: Double,
     val title: String?,
     val date: LocalDate,

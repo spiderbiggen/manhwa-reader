@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.data.usecase.read
 
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapters
@@ -15,7 +16,7 @@ class MangaIsReadImpl @Inject constructor(
     private val getManga: GetManga,
     private val getChapters: GetChapters,
 ) : MangaIsRead {
-    override suspend fun invoke(mangaId: String): Either<Boolean, AppError> {
+    override suspend fun invoke(mangaId: MangaId): Either<Boolean, AppError> {
         val manga = getManga(mangaId).leftOrElse { return Either.Right(it) }
         val chapters = getChapters.once(mangaId).leftOrElse { return Either.Right(it) }
         val hasLastUpdate = chapters.any { it.updatedAt == manga.updatedAt }

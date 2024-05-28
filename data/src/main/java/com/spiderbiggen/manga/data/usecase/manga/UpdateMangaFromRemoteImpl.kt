@@ -20,6 +20,6 @@ class UpdateMangaFromRemoteImpl @Inject constructor(
         getRemotemanga(skipCache)
             .either()
             .mapLeft { mangas ->
-                localmangaDao.get().insert(mangas.map { toLocal(it) })
+                localmangaDao.get().insert(mangas.map(toLocal::invoke))
             }
 }

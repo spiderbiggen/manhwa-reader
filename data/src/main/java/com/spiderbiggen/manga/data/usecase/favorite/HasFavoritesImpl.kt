@@ -11,6 +11,6 @@ class HasFavoritesImpl @Inject constructor(
 ) : HasFavorites {
 
     override fun invoke(): Either<Boolean, AppError> {
-        return Either.Left(favoritesRepository.getFavorites().isNotEmpty())
+        return Either.Left(favoritesRepository.favorites.isNotEmpty())
     }
 }

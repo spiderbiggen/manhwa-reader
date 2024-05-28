@@ -52,12 +52,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapterClicked: (String) -> Unit) {
+fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapterClicked: (ChapterId) -> Unit) {
     LaunchedEffect(true) {
         viewModel.collect()
     }
@@ -80,7 +81,7 @@ fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapte
 fun ImagesOverview(
     state: ImagesScreenState,
     onBackClick: () -> Unit,
-    toChapterClicked: (String) -> Unit,
+    toChapterClicked: (ChapterId) -> Unit,
     toggleFavorite: () -> Unit,
     setRead: () -> Unit,
     setReadUpToHere: () -> Unit,

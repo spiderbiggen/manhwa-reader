@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.spiderbiggen.manga.data.source.local.model.LocalMangaEntity
 import com.spiderbiggen.manga.data.source.local.model.LocalMangaWithLastChapterIdEntity
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -13,7 +14,7 @@ interface LocalMangaDao {
     suspend fun insert(chapter: List<LocalMangaEntity>)
 
     @Query("SELECT * FROM manga where id = :id")
-    suspend fun get(id: String): LocalMangaEntity?
+    suspend fun get(id: MangaId): LocalMangaEntity?
 
     @Query("SELECT * FROM manga WHERE source = :source")
     suspend fun getForSource(source: String): List<LocalMangaEntity>
@@ -36,5 +37,5 @@ interface LocalMangaDao {
         WHERE c.id IS NULL
         """,
     )
-    suspend fun getForUpdate(): List<String>
+    suspend fun getForUpdate(): List<MangaId>
 }

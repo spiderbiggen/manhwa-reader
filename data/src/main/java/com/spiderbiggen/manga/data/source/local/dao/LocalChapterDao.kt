@@ -4,6 +4,8 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import com.spiderbiggen.manga.data.source.local.model.LocalChapterEntity
+import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -12,16 +14,16 @@ interface LocalChapterDao {
     suspend fun insert(chapter: List<LocalChapterEntity>)
 
     @Query("SELECT * FROM chapter where id = :id")
-    suspend fun get(id: String): LocalChapterEntity?
+    suspend fun get(id: ChapterId): LocalChapterEntity?
 
     @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC")
-    fun getFlowForMangaId(mangaId: String): Flow<List<LocalChapterEntity>>
+    fun getFlowForMangaId(mangaId: MangaId): Flow<List<LocalChapterEntity>>
 
     @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC")
-    suspend fun getForMangaId(mangaId: String): List<LocalChapterEntity>
+    suspend fun getForMangaId(mangaId: MangaId): List<LocalChapterEntity>
 
     @Query("DELETE FROM chapter where manga_id = :mangaId AND id NOT IN (:knownIds)")
-    suspend fun removeUnknown(mangaId: String, knownIds: List<String>)
+    suspend fun removeUnknown(mangaId: MangaId, knownIds: List<ChapterId>)
 
     @Query(
         """
@@ -30,7 +32,7 @@ interface LocalChapterDao {
         ORDER BY c1.number DESC
         """,
     )
-    suspend fun getPreviousChapters(id: String): List<LocalChapterEntity>
+    suspend fun getPreviousChapters(id: ChapterId): List<LocalChapterEntity>
 
     @Query(
         """
@@ -40,7 +42,7 @@ interface LocalChapterDao {
         LIMIT 1
         """,
     )
-    suspend fun getPrevChapterId(id: String): LocalChapterEntity?
+    suspend fun getPrevChapterId(id: ChapterId): LocalChapterEntity?
 
     @Query(
         """
@@ -50,5 +52,5 @@ interface LocalChapterDao {
         LIMIT 1
         """,
     )
-    suspend fun getNextChapterId(id: String): LocalChapterEntity?
+    suspend fun getNextChapterId(id: ChapterId): LocalChapterEntity?
 }

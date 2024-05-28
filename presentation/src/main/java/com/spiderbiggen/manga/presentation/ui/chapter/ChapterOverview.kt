@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -59,7 +60,7 @@ import kotlinx.collections.immutable.toImmutableList
 fun ChapterOverview(
     viewModel: ChapterViewModel = viewModel(),
     onBackClick: () -> Unit,
-    navigateToChapter: (String) -> Unit,
+    navigateToChapter: (ChapterId) -> Unit,
 ) {
     LaunchedEffect(null) {
         viewModel.collect()
@@ -70,10 +71,10 @@ fun ChapterOverview(
         ChapterOverview(
             state = state,
             onBackClick = onBackClick,
-            navigateToChapter = navigateToChapter,
             refreshing = refreshingState,
             startRefresh = viewModel::onClickRefresh,
             toggleFavorite = viewModel::toggleFavorite,
+            navigateToChapter = navigateToChapter,
         )
     }
 }
@@ -83,10 +84,10 @@ fun ChapterOverview(
 fun ChapterOverview(
     state: ChapterScreenState,
     onBackClick: () -> Unit,
-    navigateToChapter: (String) -> Unit,
     refreshing: State<Boolean>,
     startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
+    navigateToChapter: (ChapterId) -> Unit,
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
@@ -141,7 +142,7 @@ fun ChapterOverview(
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
     lazyListState: LazyListState = rememberLazyListState(),
-    navigateToChapter: (String) -> Unit,
+    navigateToChapter: (ChapterId) -> Unit,
 ) {
     StickyTopEffect(chapters, lazyListState)
     LazyColumn(
@@ -150,7 +151,7 @@ private fun ChaptersList(
     ) {
         itemsIndexed(
             items = chapters,
-            key = { _, item -> item.id },
+            key = { _, item -> item.id.inner },
         ) { index, item ->
             ChapterRow(
                 showDivider = index > 0,
@@ -166,7 +167,7 @@ private fun ChaptersList(
 private fun ChapterRow(
     showDivider: Boolean,
     item: ChapterRowData,
-    navigateToChapter: (String) -> Unit,
+    navigateToChapter: (ChapterId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -241,25 +242,25 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
 object ChapterProvider {
     val values = sequenceOf(
         ChapterRowData(
-            id = "000000",
+            id = ChapterId("000000"),
             title = "30",
             date = "2023-04-16",
             isRead = false,
         ),
         ChapterRowData(
-            id = "000001",
+            id = ChapterId("000001"),
             title = "29.5",
             date = "2023-04-12",
             isRead = true,
         ),
         ChapterRowData(
-            id = "000002",
+            id = ChapterId("000002"),
             title = "39",
             date = "2023-03-15",
             isRead = true,
         ),
         ChapterRowData(
-            id = "000003",
+            id = ChapterId("000003"),
             title = "30 - Long title to make the title take two lines at least",
             date = "2023-02-28",
             isRead = true,

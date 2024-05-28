@@ -1,3 +1,5 @@
 package com.spiderbiggen.manga.domain.model
 
-data class SurroundingChapters(val previous: String? = null, val next: String? = null)
+import com.spiderbiggen.manga.domain.model.id.ChapterId
+
+data class SurroundingChapters(val previous: ChapterId? = null, val next: ChapterId? = null)

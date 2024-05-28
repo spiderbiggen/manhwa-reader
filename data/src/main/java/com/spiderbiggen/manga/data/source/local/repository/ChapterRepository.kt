@@ -3,6 +3,8 @@ package com.spiderbiggen.manga.data.source.local.repository
 import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
 import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
 import com.spiderbiggen.manga.domain.model.Chapter
+import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.Flow
@@ -15,33 +17,33 @@ class ChapterRepository @Inject constructor(
     private val chapterDao
         get() = chapterDaoProvider.get()
 
-    fun getChapterFlow(mangaId: String): Result<Flow<List<Chapter>>> = runCatching {
+    fun getChapterFlow(mangaId: MangaId): Result<Flow<List<Chapter>>> = runCatching {
         chapterDao.getFlowForMangaId(mangaId).map { entities ->
             entities.map(toDomain::invoke)
         }
     }
 
-    suspend fun getChapters(mangaId: String): Result<List<Chapter>> = runCatching {
+    suspend fun getChapters(mangaId: MangaId): Result<List<Chapter>> = runCatching {
         chapterDao.getForMangaId(mangaId).map(toDomain::invoke)
     }
 
-    suspend fun getChapter(id: String): Result<Chapter?> = runCatching {
+    suspend fun getChapter(id: ChapterId): Result<Chapter?> = runCatching {
         chapterDao.get(id)!!.let(toDomain::invoke)
     }
 
-    suspend fun getChapterImages(id: String): Result<Int> = runCatching {
+    suspend fun getChapterImages(id: ChapterId): Result<Int> = runCatching {
         chapterDao.get(id)!!.imageChunks
     }
 
-    suspend fun getPreviousChapters(id: String): Result<List<Chapter>> = runCatching {
+    suspend fun getPreviousChapters(id: ChapterId): Result<List<Chapter>> = runCatching {
         chapterDao.getPreviousChapters(id).map(toDomain::invoke)
     }
 
-    suspend fun getPreviousChapter(id: String): Result<Chapter?> = runCatching {
+    suspend fun getPreviousChapter(id: ChapterId): Result<Chapter?> = runCatching {
         chapterDao.getPrevChapterId(id)?.let(toDomain::invoke)
     }
 
-    suspend fun getNextChapter(id: String): Result<Chapter?> = runCatching {
+    suspend fun getNextChapter(id: ChapterId): Result<Chapter?> = runCatching {
         chapterDao.getNextChapterId(id)?.let(toDomain::invoke)
     }
 }

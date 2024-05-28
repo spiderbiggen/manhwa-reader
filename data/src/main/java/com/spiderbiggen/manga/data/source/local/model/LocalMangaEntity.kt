@@ -4,6 +4,7 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlinx.datetime.Instant
 
 @Entity(
@@ -14,7 +15,7 @@ import kotlinx.datetime.Instant
 )
 data class LocalMangaEntity(
     @PrimaryKey
-    val id: String,
+    val id: MangaId,
     val source: String,
     val title: String,
     @ColumnInfo("cover")

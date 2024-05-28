@@ -5,6 +5,8 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 
@@ -20,9 +22,9 @@ import kotlinx.datetime.LocalDate
 )
 data class LocalChapterEntity(
     @PrimaryKey
-    val id: String,
+    val id: ChapterId,
     @ColumnInfo("manga_id")
-    val mangaId: String,
+    val mangaId: MangaId,
     val number: Double,
     val title: String? = null,
     val date: LocalDate,

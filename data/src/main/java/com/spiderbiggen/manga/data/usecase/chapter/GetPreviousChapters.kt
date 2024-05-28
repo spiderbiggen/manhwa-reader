@@ -5,12 +5,13 @@ import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.Either
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import javax.inject.Inject
 
 class GetPreviousChapters @Inject constructor(
     private val chapterRepository: ChapterRepository,
 ) {
 
-    suspend operator fun invoke(chapterId: String): Either<List<Chapter>, AppError> =
+    suspend operator fun invoke(chapterId: ChapterId): Either<List<Chapter>, AppError> =
         chapterRepository.getPreviousChapters(chapterId).either()
 }

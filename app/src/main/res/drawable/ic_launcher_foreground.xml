@@ -13,7 +13,7 @@
             android:fillColor="#FFF"
             android:pathData="M379.93,61.9c30.9,118.56 9.83,247.05 -47.23,282.99 -55.04,17.21 -166.37,15.39 -223.88,5.91C66.24,313.43 44.03,185.87 57.1,95.01 146.5,14.14 264.18,47.55 379.93,61.9" />
         <path
-            android:fillColor="#9900AA"
+            android:fillColor="@color/launcher_foreground_accent"
             android:pathData="M146.86,51.25c-51.09,127.53 -1.47,283.14 84.55,279.78 50.69,-2 118.57,-85.65 69.92,-281.51L146.86,51.25" />
         <path
             android:fillColor="#FF000000"
