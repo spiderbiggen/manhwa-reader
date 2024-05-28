@@ -14,10 +14,9 @@ class SetReadUpToChapterImpl @Inject constructor(
     private val setRead: SetRead,
     private val getPreviousChapters: GetPreviousChapters,
 ) : SetReadUpToChapter {
-    override suspend fun invoke(id: ChapterId): Either<Unit, AppError> =
-        getPreviousChapters(id).mapLeft { list ->
-            list.forEach {
-                setRead(it.id, true).leftOrElse { right -> return Either.Right(right) }
-            }
+    override suspend fun invoke(id: ChapterId): Either<Unit, AppError> = getPreviousChapters(id).mapLeft { list ->
+        list.forEach {
+            setRead(it.id, true).leftOrElse { right -> return Either.Right(right) }
         }
+    }
 }

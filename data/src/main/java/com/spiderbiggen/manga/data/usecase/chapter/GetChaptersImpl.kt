@@ -5,7 +5,6 @@ import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.Either
-import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapters
 import javax.inject.Inject
@@ -17,6 +16,5 @@ class GetChaptersImpl @Inject constructor(
     override suspend fun invoke(id: MangaId): Either<Flow<List<Chapter>>, AppError> =
         chapterRepository.getChapterFlow(id).either()
 
-    override suspend fun once(id: MangaId): Either<List<Chapter>, AppError> =
-        chapterRepository.getChapters(id).either()
+    override suspend fun once(id: MangaId): Either<List<Chapter>, AppError> = chapterRepository.getChapters(id).either()
 }

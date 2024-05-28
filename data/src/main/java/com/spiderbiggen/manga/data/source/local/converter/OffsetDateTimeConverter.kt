@@ -10,6 +10,5 @@ class OffsetDateTimeConverter {
         value?.let { OffsetDateTime.parse(it, DateTimeFormatter.ISO_OFFSET_DATE_TIME) }
 
     @TypeConverter
-    fun toString(value: OffsetDateTime?): String? =
-        value?.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+    fun toString(value: OffsetDateTime?): String? = value?.format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 }

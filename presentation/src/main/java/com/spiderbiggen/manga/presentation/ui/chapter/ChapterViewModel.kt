@@ -20,10 +20,10 @@ import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRoute
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay

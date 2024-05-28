@@ -10,6 +10,5 @@ import javax.inject.Inject
 class IsReadImpl @Inject constructor(
     private val readRepository: ReadRepository,
 ) : IsRead {
-    override fun invoke(id: ChapterId): Either<Boolean, AppError> =
-        Either.Left(readRepository.isRead(id))
+    override fun invoke(id: ChapterId): Either<Boolean, AppError> = Either.Left(readRepository.isRead(id))
 }

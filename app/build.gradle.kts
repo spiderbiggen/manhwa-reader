@@ -1,5 +1,5 @@
-import com.google.firebase.crashlytics.buildtools.gradle.CrashlyticsExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -33,17 +33,23 @@ android {
         }
     }
 
-    buildTypes {
-        debug {
-            isDebuggable = true
-            isMinifyEnabled = false
-            isShrinkResources = false
-            applicationIdSuffix = ".debug"
-            versionNameSuffix = "-debug"
+    signingConfigs {
+        create("release") {
+            val properties = Properties().apply {
+                load(rootDir.resolve("local.properties").reader())
+            }
+            storeFile = file(properties.getProperty("signing.keystore"))
+            storePassword = properties.getProperty("signing.password")
+            keyAlias = properties.getProperty("signing.alias")
+            keyPassword = properties.getProperty("signing.password")
         }
+    }
+
+    buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
+            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -53,8 +59,14 @@ android {
             initWith(getByName("release"))
             applicationIdSuffix = ".staging"
             versionNameSuffix = "-staging"
-            signingConfig = signingConfigs.getByName("debug")
             matchingFallbacks += listOf("release", "debug")
+        }
+        debug {
+            isDebuggable = true
+            isMinifyEnabled = false
+            isShrinkResources = false
+            applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
         }
     }
     compileOptions {
@@ -84,22 +96,22 @@ dependencies {
 
     implementation(libs.androidX.core.ktx)
 
-    // Firebase
+// Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
 
-    // Dagger
+// Dagger
     ksp(libs.google.dagger.hiltAndroidCompiler)
     implementation(libs.google.dagger.hiltAndroid)
 
-    // Hilt
+// Hilt
     ksp(libs.androidX.hilt.compiler)
 
-    // Viewmodel
+// Viewmodel
     implementation(libs.androidX.lifecycle.viewmodel.compose)
 
-    // Compose
+// Compose
     implementation(platform(libs.androidX.compose.bom))
     implementation(libs.androidX.compose.activity)
     implementation(libs.androidX.compose.ui)
@@ -109,11 +121,11 @@ dependencies {
     implementation(libs.androidX.compose.uiTooling)
     implementation(libs.androidX.compose.uiTestManifest)
 
-    // Coil
+// Coil
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
 
-    // testing
+// testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

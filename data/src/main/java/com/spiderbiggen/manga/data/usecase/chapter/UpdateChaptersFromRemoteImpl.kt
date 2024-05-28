@@ -17,7 +17,7 @@ class UpdateChaptersFromRemoteImpl @Inject constructor(
     private val getRemoteChapters: GetRemoteChaptersUseCase,
     private val localChapterDao: Provider<LocalChapterDao>,
     private val toLocal: ToLocalChapterUseCase,
-): UpdateChaptersFromRemote {
+) : UpdateChaptersFromRemote {
     override suspend operator fun invoke(mangaId: MangaId, skipCache: Boolean): Either<Unit, AppError> =
         getRemoteChapters(mangaId, skipCache)
             .either()

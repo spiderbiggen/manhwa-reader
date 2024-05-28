@@ -15,11 +15,10 @@ class UpdateMangaFromRemoteImpl @Inject constructor(
     private val getRemotemanga: GetRemoteMangaUseCase,
     private val localmangaDao: Provider<LocalMangaDao>,
     private val toLocal: ToLocalMangaUseCase,
-): UpdateMangaFromRemote {
-    override suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError> =
-        getRemotemanga(skipCache)
-            .either()
-            .mapLeft { mangas ->
-                localmangaDao.get().insert(mangas.map(toLocal::invoke))
-            }
+) : UpdateMangaFromRemote {
+    override suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError> = getRemotemanga(skipCache)
+        .either()
+        .mapLeft { mangas ->
+            localmangaDao.get().insert(mangas.map(toLocal::invoke))
+        }
 }

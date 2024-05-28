@@ -22,13 +22,13 @@ import com.spiderbiggen.manga.domain.usecase.read.SetRead
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.presentation.ui.images.model.ImagesRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class ImagesViewModel @Inject constructor(

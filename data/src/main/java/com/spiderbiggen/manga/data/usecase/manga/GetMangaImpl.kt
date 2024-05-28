@@ -13,11 +13,10 @@ import javax.inject.Inject
 class GetMangaImpl @Inject constructor(
     private val mangaRepository: MangaRepository,
 ) : GetManga {
-    override suspend fun invoke(id: MangaId): Either<Manga, AppError> =
-        mangaRepository.getManga(id)
-            .either()
-            .andThenLeft { result ->
-                result?.let { Either.Left(it) }
-                    ?: Either.Right(AppError.Remote.NotFound)
-            }
+    override suspend fun invoke(id: MangaId): Either<Manga, AppError> = mangaRepository.getManga(id)
+        .either()
+        .andThenLeft { result ->
+            result?.let { Either.Left(it) }
+                ?: Either.Right(AppError.Remote.NotFound)
+        }
 }

@@ -10,11 +10,10 @@ inline fun <L, O, R> Either<L, R>.mapLeft(block: (L) -> O): Either<O, R> = when 
     is Either.Right -> Either.Right(right)
 }
 
-inline fun <L, O, R> Either<L, R>.andThenLeft(block: (L) -> Either<O, R>): Either<O, R> =
-    when (this) {
-        is Either.Left -> block(left)
-        is Either.Right -> Either.Right(right)
-    }
+inline fun <L, O, R> Either<L, R>.andThenLeft(block: (L) -> Either<O, R>): Either<O, R> = when (this) {
+    is Either.Left -> block(left)
+    is Either.Right -> Either.Right(right)
+}
 
 fun <L, O, R> Either<L, R>.andLeft(other: Either<O, R>): Either<Pair<L, O>, R> = when (this) {
     is Either.Left -> when (other) {

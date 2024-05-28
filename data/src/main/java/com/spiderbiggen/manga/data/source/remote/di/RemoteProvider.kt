@@ -40,8 +40,7 @@ object RemoteProvider {
 
     @Provides
     @Singleton
-    fun provideCache(@ApplicationContext context: Context): Cache =
-        Cache(context.cacheDir, CACHE_SIZE)
+    fun provideCache(@ApplicationContext context: Context): Cache = Cache(context.cacheDir, CACHE_SIZE)
 
     @Provides
     fun provideOkHttpClient(cache: Cache?): OkHttpClient = OkHttpClient.Builder()

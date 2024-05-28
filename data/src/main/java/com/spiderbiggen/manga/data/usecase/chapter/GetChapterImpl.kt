@@ -13,10 +13,9 @@ import javax.inject.Inject
 class GetChapterImpl @Inject constructor(
     private val chapterRepository: ChapterRepository,
 ) : GetChapter {
-    override suspend fun invoke(id: ChapterId): Either<Chapter, AppError> =
-        chapterRepository.getChapter(id).either()
-            .andThenLeft { chapter ->
-                chapter?.let { Either.Left(it) }
-                    ?: Either.Right(AppError.Remote.NotFound)
-            }
+    override suspend fun invoke(id: ChapterId): Either<Chapter, AppError> = chapterRepository.getChapter(id).either()
+        .andThenLeft { chapter ->
+            chapter?.let { Either.Left(it) }
+                ?: Either.Right(AppError.Remote.NotFound)
+        }
 }

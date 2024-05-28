@@ -117,7 +117,9 @@ private fun NavigationTrackingSideEffect(navController: NavHostController) {
                 extraKeys.forEach { key -> remove(key) }
                 putString(FirebaseAnalytics.Event.SCREEN_VIEW, destination.route?.takeLast(100))
             }
-            println("==================\nDestination changed:\n\t$${destination.route}\n\n\t${bundle}\n==================")
+            println(
+                "==================\nDestination changed:\n\t$${destination.route}\n\n\t${bundle}\n==================",
+            )
             Firebase.analytics.logEvent(
                 FirebaseAnalytics.Event.SCREEN_VIEW,
                 bundle,

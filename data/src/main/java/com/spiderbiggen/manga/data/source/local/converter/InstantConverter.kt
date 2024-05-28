@@ -7,8 +7,7 @@ import kotlinx.datetime.toKotlinInstant
 
 class InstantConverter {
     @TypeConverter
-    fun fromString(value: String?): Instant? =
-        value?.let { JavaInstant.parse(it).toKotlinInstant() }
+    fun fromString(value: String?): Instant? = value?.let { JavaInstant.parse(it).toKotlinInstant() }
 
     @TypeConverter
     fun toString(value: Instant?): String? = value?.toString()

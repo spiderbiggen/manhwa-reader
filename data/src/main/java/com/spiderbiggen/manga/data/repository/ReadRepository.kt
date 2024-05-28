@@ -13,8 +13,7 @@ class ReadRepository @Inject constructor(
         private const val READ_KEY_PREFIX = "read"
     }
 
-    fun isRead(id: ChapterId) =
-        sharedPreferences.getBoolean("${READ_KEY_PREFIX}_${id.inner}", false)
+    fun isRead(id: ChapterId) = sharedPreferences.getBoolean("${READ_KEY_PREFIX}_${id.inner}", false)
 
     fun setRead(id: ChapterId, isRead: Boolean) {
         sharedPreferences.edit {
