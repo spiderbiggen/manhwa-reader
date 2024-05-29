@@ -38,7 +38,7 @@ android {
             val properties = Properties().apply {
                 load(rootProject.rootDir.resolve("local.properties").reader())
             }
-            storeFile = file(properties.getProperty("signing.keystore"))
+            storeFile = rootProject.rootDir.resolve(properties.getProperty("signing.keystore"))
             storePassword = properties.getProperty("signing.password")
             keyAlias = properties.getProperty("signing.alias")
             keyPassword = properties.getProperty("signing.password")
