@@ -49,7 +49,7 @@ jobs:
             -   name: Update local.properties
                 run: |
                     ls
-                    echo "signing.keystore=keystore/keystore.jks" >> ./local.properties
+                    echo "signing.keystore=${{ steps.decode_keystore.outputs.filePath }}" >> ./local.properties
                     echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
                     echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
