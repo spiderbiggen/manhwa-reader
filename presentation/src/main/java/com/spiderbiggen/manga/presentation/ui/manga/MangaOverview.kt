@@ -7,6 +7,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -52,7 +53,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaRow
-import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.UpdatedListButton
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import kotlinx.collections.immutable.ImmutableList
@@ -181,14 +182,24 @@ fun MangaOverview(
                                 label = { Text("Unread") },
                             )
                         }
-
-                        MangaList(
-                            modifier = Modifier.weight(1f),
-                            mangas = screenState.manga,
-                            lazyListState = lazyListState,
-                            navigateToManga = navigateToManga,
-                            onClickFavorite = onClickFavorite,
-                        )
+                        Box(Modifier.weight(1f)) {
+                            MangaList(
+                                modifier = Modifier.fillMaxSize(),
+                                mangas = screenState.manga,
+                                lazyListState = lazyListState,
+                                navigateToManga = navigateToManga,
+                                onClickFavorite = onClickFavorite,
+                            )
+                            UpdatedListButton(
+                                collection = screenState.manga,
+                                key = { it.id },
+                                listState = lazyListState,
+                                scope = scope,
+                                modifier = Modifier
+                                    .padding(top = 8.dp)
+                                    .align(Alignment.TopCenter),
+                            )
+                        }
                     }
                 }
             }
@@ -209,7 +220,6 @@ private fun MangaList(
             mangas.map { it.coverImage }
         }
     }
-    StickyTopEffect(mangas, lazyListState)
     ListImagePreloader(
         items = images,
         visibleCount = 7,

@@ -50,7 +50,7 @@ import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
-import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.UpdatedListButton
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
@@ -139,6 +139,14 @@ fun ChapterOverview(
                 ) {
                     val lazyListState = rememberLazyListState()
                     ChaptersList(state.chapters, lazyListState, navigateToChapter)
+                    UpdatedListButton(
+                        collection = state.chapters,
+                        key = { it.id },
+                        listState = lazyListState,
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .align(Alignment.TopCenter),
+                    )
                 }
             }
         }
@@ -151,7 +159,6 @@ private fun ChaptersList(
     lazyListState: LazyListState = rememberLazyListState(),
     navigateToChapter: (ChapterId) -> Unit,
 ) {
-    StickyTopEffect(chapters, lazyListState)
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         state = lazyListState,
