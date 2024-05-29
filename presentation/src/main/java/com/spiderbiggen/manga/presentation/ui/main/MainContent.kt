@@ -99,7 +99,9 @@ fun MainContent() {
 private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
 
 private inline fun NavBackStackEntry.ifResumed(block: () -> Unit) {
-    println(this.lifecycle.currentState)
+    // FIXME: predictive back currently break a lot of things due to lifetime issues.
+    // This is currently broken when canceling predictive back
+    // possibly related to https://issuetracker.google.com/issues/343124455
     if (lifecycleIsResumed()) {
         block()
     }

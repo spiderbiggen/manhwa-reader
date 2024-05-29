@@ -29,7 +29,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
@@ -45,7 +44,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.coroutineScope
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
@@ -60,8 +61,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (MangaId) -> Unit) {
-    LaunchedEffect(null) {
-        viewModel.collect()
+    LifecycleResumeEffect(viewModel) {
+        val job = lifecycle.coroutineScope.launch {
+            viewModel.collect()
+        }
+        onPauseOrDispose {
+            job.cancel()
+        }
     }
     val state = viewModel.state.collectAsStateWithLifecycle()
     val updatingState = viewModel.updatingState.collectAsState()

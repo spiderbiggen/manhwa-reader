@@ -5,27 +5,29 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.currentStateAsState
 import kotlinx.collections.immutable.ImmutableCollection
 
 @Composable
 fun <T : Any?> StickyTopEffect(items: ImmutableCollection<T>, state: LazyListState) {
-    var manuallyScrolled by remember { mutableStateOf(true) }
+    val manuallyScrolled = remember { mutableStateOf(true) }
     val canScrollBackwards = state.canScrollBackward
-    val isDragged by state.interactionSource.collectIsDraggedAsState()
+    val isDragged = state.interactionSource.collectIsDraggedAsState()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle.currentStateAsState()
     DisposableEffect(canScrollBackwards, isDragged) {
         if (!canScrollBackwards) {
-            manuallyScrolled = false
-        } else if (isDragged) {
-            manuallyScrolled = true
+            manuallyScrolled.value = false
+        } else if (isDragged.value) {
+            manuallyScrolled.value = true
         }
         onDispose { }
     }
     LaunchedEffect(items) {
-        if (!manuallyScrolled) {
+        if (!manuallyScrolled.value && lifecycle.value.isAtLeast(Lifecycle.State.RESUMED)) {
             // scroll to top to ensure latest added element gets visible
             state.animateScrollToItem(0)
         }
