@@ -43,7 +43,7 @@ jobs:
                 id: decode_keystore
                 uses: timheuer/base64-to-file@v1
                 with:
-                    fileName: "keystore.jks"
+                    fileName: "./keystore.jks"
                     encodedString: ${{ secrets.SIGNING_KEY }}
 
             -   name: Update local.properties

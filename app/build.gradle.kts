@@ -36,7 +36,7 @@ android {
     signingConfigs {
         create("release") {
             val properties = Properties().apply {
-                load(rootDir.resolve("local.properties").reader())
+                load(rootProject.rootDir.resolve("local.properties").reader())
             }
             storeFile = file(properties.getProperty("signing.keystore"))
             storePassword = properties.getProperty("signing.password")
