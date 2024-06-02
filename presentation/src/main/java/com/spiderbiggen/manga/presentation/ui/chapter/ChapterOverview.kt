@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -64,11 +64,11 @@ fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
 ) {
-    LifecycleResumeEffect(viewModel) {
+    LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()
         }
-        onPauseOrDispose {
+        onStopOrDispose {
             job.cancel()
         }
     }
@@ -99,7 +99,6 @@ fun ChapterOverview(
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -136,16 +135,22 @@ fun ChapterOverview(
                     Modifier
                         .padding(padding)
                         .fillMaxSize(),
+                    contentAlignment = Alignment.TopCenter,
                 ) {
                     val lazyListState = rememberLazyListState()
-                    ChaptersList(state.chapters, lazyListState, navigateToChapter)
+                    ChaptersList(
+                        lazyListState = lazyListState,
+                        chapters = state.chapters,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                        navigateToChapter = navigateToChapter,
+                    )
                     UpdatedListButton(
+                        listState = lazyListState,
                         collection = state.chapters,
                         key = { it.id },
-                        listState = lazyListState,
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .align(Alignment.TopCenter),
+                        modifier = Modifier.padding(top = 8.dp),
                     )
                 }
             }
@@ -156,11 +161,12 @@ fun ChapterOverview(
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
-    lazyListState: LazyListState = rememberLazyListState(),
     navigateToChapter: (ChapterId) -> Unit,
+    modifier: Modifier = Modifier,
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = modifier,
         state = lazyListState,
     ) {
         itemsIndexed(

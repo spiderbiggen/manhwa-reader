@@ -58,7 +58,9 @@ class ChapterViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.IO) {
-            refresh(skipCache = false)
+            launch {
+                updateChaptersFromRemote(mangaId, skipCache = false)
+            }
             updateScreenState()
         }
     }

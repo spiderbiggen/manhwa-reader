@@ -45,7 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
 import com.google.firebase.BuildConfig
@@ -62,11 +62,11 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (MangaId) -> Unit) {
-    LifecycleResumeEffect(viewModel) {
+    LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()
         }
-        onPauseOrDispose {
+        onStopOrDispose {
             job.cancel()
         }
     }
@@ -102,7 +102,6 @@ fun MangaOverview(
     val topAppBarColors = TopAppBarDefaults.topAppBarColors()
 
     Scaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 title = { Text("Manga") },
@@ -182,9 +181,11 @@ fun MangaOverview(
                                 label = { Text("Unread") },
                             )
                         }
-                        Box(Modifier.weight(1f)) {
+                        Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
                             MangaList(
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                                 mangas = screenState.manga,
                                 lazyListState = lazyListState,
                                 navigateToManga = navigateToManga,
@@ -195,9 +196,7 @@ fun MangaOverview(
                                 key = { it.id },
                                 listState = lazyListState,
                                 scope = scope,
-                                modifier = Modifier
-                                    .padding(top = 8.dp)
-                                    .align(Alignment.TopCenter),
+                                modifier = Modifier.padding(top = 8.dp),
                             )
                         }
                     }

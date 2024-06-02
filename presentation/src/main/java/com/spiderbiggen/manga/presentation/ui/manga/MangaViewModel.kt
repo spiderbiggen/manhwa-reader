@@ -9,7 +9,6 @@ import com.spiderbiggen.manga.domain.model.Manga
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
-import com.spiderbiggen.manga.domain.usecase.favorite.HasFavorites
 import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetActiveManga
@@ -36,7 +35,6 @@ import kotlinx.datetime.toLocalDateTime
 @HiltViewModel
 class MangaViewModel @Inject constructor(
     private val getActiveManga: GetActiveManga,
-    private val hasFavorites: HasFavorites,
     private val isFavorite: IsFavorite,
     private val isRead: IsRead,
     private val toggleFavorite: ToggleFavorite,

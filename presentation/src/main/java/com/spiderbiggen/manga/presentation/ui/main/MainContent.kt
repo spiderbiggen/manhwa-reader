@@ -99,7 +99,7 @@ fun MainContent() {
 private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
 
 private inline fun NavBackStackEntry.ifResumed(block: () -> Unit) {
-    // FIXME: predictive back currently break a lot of things due to lifetime issues.
+    // FIXME: predictive back currently breaks a lot of things due to lifetime issues.
     // This is currently broken when canceling predictive back
     // possibly related to https://issuetracker.google.com/issues/343124455
     if (lifecycleIsResumed()) {
@@ -119,9 +119,7 @@ private fun NavigationTrackingSideEffect(navController: NavHostController) {
                 extraKeys.forEach { key -> remove(key) }
                 putString(FirebaseAnalytics.Event.SCREEN_VIEW, destination.route?.takeLast(100))
             }
-            println(
-                "==================\nDestination changed:\n\t$${destination.route}\n\n\t${bundle}\n==================",
-            )
+
             Firebase.analytics.logEvent(
                 FirebaseAnalytics.Event.SCREEN_VIEW,
                 bundle,
