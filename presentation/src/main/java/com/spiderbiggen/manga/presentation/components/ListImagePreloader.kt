@@ -31,7 +31,7 @@ fun <T : Any> ListImagePreloader(
     }
 
     LaunchedEffect(context, limited) {
-        items.slice((preloaded + 1)..limited).forEach {
+        items.slice((preloaded + 1)..limited.coerceAtMost(items.size - 1)).forEach {
             val request = ImageRequest.Builder(context)
                 .data(it)
                 .build()

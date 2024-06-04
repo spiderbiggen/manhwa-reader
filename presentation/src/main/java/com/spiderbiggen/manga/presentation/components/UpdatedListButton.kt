@@ -10,11 +10,13 @@ import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,20 +27,21 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun <T : Any, K : Any> UpdatedListButton(
+fun <T : Any> UpdatedListButton(
     collection: ImmutableCollection<T>,
-    key: (item: T) -> K,
+    key: (item: T) -> String,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     scope: CoroutineScope = rememberCoroutineScope(),
 ) {
-    var previousFirstId: K? by remember { mutableStateOf(null) }
-    var isUpdated by remember { mutableStateOf(false) }
-    SideEffect {
+    var previousFirstId: String? by rememberSaveable { mutableStateOf(null) }
+    var isUpdated: Boolean by rememberSaveable { mutableStateOf(false) }
+    val isScrolled by remember { derivedStateOf { listState.canScrollBackward } }
+    LaunchedEffect(isScrolled) {
         if (!listState.canScrollBackward) {
             isUpdated = false
         }
-        if (isUpdated) return@SideEffect
+        if (isUpdated) return@LaunchedEffect
         val firstId = collection.firstOrNull()?.let { key(it) }
         isUpdated = previousFirstId != null && previousFirstId != firstId
         previousFirstId = firstId
@@ -49,7 +52,7 @@ fun <T : Any, K : Any> UpdatedListButton(
             modifier = modifier,
         ) {
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(Icons.Rounded.ArrowUpward, contentDescription = null)

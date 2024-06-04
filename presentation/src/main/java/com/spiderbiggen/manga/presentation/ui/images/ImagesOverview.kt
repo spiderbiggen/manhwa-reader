@@ -49,9 +49,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.SubcomposeAsyncImage
+import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -237,4 +239,30 @@ private fun ListImage(model: String, modifier: Modifier = Modifier) {
             )
         },
     )
+}
+
+@Preview
+@Composable
+fun PreviewImagesOverview() {
+    MangaReaderTheme {
+        ImagesOverview(
+            state = ImagesScreenState.Ready(
+                title = "Heavenly Martial God",
+                isFavorite = true,
+                isRead = false,
+                surrounding = SurroundingChapters(
+                    previous = null,
+                    next = null,
+                ),
+                images = listOf(
+                    "https://manga.spiderbiggen.com/api/v1/mangas/8430c4857ec14234811b7508d83a50ab/image"
+                )
+            ),
+            onBackClick = {},
+            toChapterClicked = {},
+            toggleFavorite = {},
+            setRead = {},
+            setReadUpToHere = {},
+        )
+    }
 }

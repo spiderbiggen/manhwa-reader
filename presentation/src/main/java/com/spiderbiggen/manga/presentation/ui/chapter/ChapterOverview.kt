@@ -149,7 +149,7 @@ fun ChapterOverview(
                     UpdatedListButton(
                         listState = lazyListState,
                         collection = state.chapters,
-                        key = { it.id },
+                        key = { it.id.inner },
                         modifier = Modifier.padding(top = 8.dp),
                     )
                 }

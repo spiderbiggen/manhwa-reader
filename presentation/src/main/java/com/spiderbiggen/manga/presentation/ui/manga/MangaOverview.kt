@@ -193,7 +193,7 @@ fun MangaOverview(
                             )
                             UpdatedListButton(
                                 collection = screenState.manga,
-                                key = { it.id },
+                                key = { it.id.inner },
                                 listState = lazyListState,
                                 scope = scope,
                                 modifier = Modifier.padding(top = 8.dp),
