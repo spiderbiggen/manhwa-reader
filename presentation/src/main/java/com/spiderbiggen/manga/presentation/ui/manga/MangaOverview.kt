@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.coroutineScope
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
@@ -162,7 +163,7 @@ fun MangaOverview(
                         ) {
                             FilterChip(
                                 selected = screenState.favoritesOnly,
-                                onClick = {
+                                onClick = dropUnlessResumed {
                                     toggleFavoritesFilter()
                                     scope.launch {
                                         lazyListState.requestScrollToItem(0)
@@ -172,7 +173,7 @@ fun MangaOverview(
                             )
                             FilterChip(
                                 selected = screenState.unreadOnly,
-                                onClick = {
+                                onClick = dropUnlessResumed {
                                     toggleUnreadFilter()
                                     scope.launch {
                                         lazyListState.requestScrollToItem(0)
@@ -181,7 +182,10 @@ fun MangaOverview(
                                 label = { Text("Unread") },
                             )
                         }
-                        Box(Modifier.weight(1f), contentAlignment = Alignment.TopCenter) {
+                        Box(
+                            Modifier.weight(1f),
+                            contentAlignment = Alignment.TopCenter,
+                        ) {
                             MangaList(
                                 modifier = Modifier
                                     .fillMaxSize()

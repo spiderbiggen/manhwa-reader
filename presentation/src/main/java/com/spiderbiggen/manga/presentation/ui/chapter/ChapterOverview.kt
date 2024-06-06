@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manga.domain.model.id.ChapterId
@@ -79,8 +80,8 @@ fun ChapterOverview(
             state = state,
             onBackClick = onBackClick,
             refreshing = refreshingState,
-            startRefresh = viewModel::onClickRefresh,
-            toggleFavorite = viewModel::toggleFavorite,
+            startRefresh = dropUnlessResumed { viewModel.onClickRefresh() },
+            toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
             navigateToChapter = navigateToChapter,
         )
     }
@@ -191,7 +192,7 @@ private fun ChapterRow(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        onClick = { navigateToChapter(item.id) },
+        onClick = dropUnlessResumed { navigateToChapter(item.id) },
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp),

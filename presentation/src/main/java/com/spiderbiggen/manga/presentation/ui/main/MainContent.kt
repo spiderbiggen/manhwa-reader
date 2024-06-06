@@ -11,6 +11,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController.OnDestinationChangedListener
 import androidx.navigation.NavHostController
@@ -49,9 +50,7 @@ fun MainContent() {
             MangaOverview(
                 viewModel = viewModel,
                 navigateToManga = { mangaId ->
-                    backStackEntry.ifResumed {
-                        navController.navigate(ChapterRoute(mangaId.inner))
-                    }
+                    navController.navigate(ChapterRoute(mangaId.inner))
                 },
             )
         }
@@ -59,12 +58,10 @@ fun MainContent() {
             val mangaId = backStackEntry.toRoute<ChapterRoute>().mangaId
             ChapterOverview(
                 viewModel = hiltViewModel<ChapterViewModel>(),
-                onBackClick = { navController.popBackStack() },
+                onBackClick = dropUnlessResumed { navController.popBackStack() },
                 navigateToChapter = { chapterId ->
-                    backStackEntry.ifResumed {
-                        navController.navigate(ImagesRoute(mangaId, chapterId.inner)) {
-                            restoreState = true
-                        }
+                    navController.navigate(ImagesRoute(mangaId, chapterId.inner)) {
+                        restoreState = true
                     }
                 },
             )
@@ -76,36 +73,17 @@ fun MainContent() {
             val mangaId = backStackEntry.toRoute<ImagesRoute>().mangaId
             ImagesOverview(
                 viewModel = hiltViewModel<ImagesViewModel>(),
-                onBackClick = {
-                    backStackEntry.ifResumed {
-                        navController.popBackStack<ChapterRoute>(inclusive = false)
-                    }
+                onBackClick = dropUnlessResumed {
+                    navController.popBackStack<ChapterRoute>(inclusive = false)
                 },
                 toChapterClicked = { chapterId ->
-                    backStackEntry.ifResumed {
-                        navController.navigate(ImagesRoute(mangaId, chapterId.inner))
-                    }
+                    navController.navigate(ImagesRoute(mangaId, chapterId.inner))
                 },
             )
         }
     }
 }
 
-/**
- * If the lifecycle is not resumed it means this NavBackStackEntry already processed a nav event.
- *
- * This is used to de-duplicate navigation events.
- */
-private fun NavBackStackEntry.lifecycleIsResumed() = this.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
-
-private inline fun NavBackStackEntry.ifResumed(block: () -> Unit) {
-    // FIXME: predictive back currently breaks a lot of things due to lifetime issues.
-    // This is currently broken when canceling predictive back
-    // possibly related to https://issuetracker.google.com/issues/343124455
-    if (lifecycleIsResumed()) {
-        block()
-    }
-}
 
 /**
  * Stores information about navigation events

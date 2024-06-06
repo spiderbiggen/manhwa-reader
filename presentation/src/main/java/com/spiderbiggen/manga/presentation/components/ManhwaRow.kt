@@ -29,6 +29,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.dropUnlessResumed
 import coil.compose.AsyncImage
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -48,7 +49,7 @@ fun MangaRow(
     containerColor: Color = MaterialTheme.colorScheme.surface,
 ) {
     Surface(
-        onClick = { navigateToManga(manga.id) },
+        onClick = dropUnlessResumed { navigateToManga(manga.id) },
         modifier = modifier.fillMaxWidth(),
         color = containerColor,
     ) {
@@ -104,7 +105,7 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 @Composable
 private fun FavoriteButton(mangaId: MangaId, isFavorite: Boolean, onClickFavorite: (MangaId) -> Unit) {
     IconButton(
-        onClick = { onClickFavorite(mangaId) },
+        onClick = dropUnlessResumed { onClickFavorite(mangaId) },
         modifier = Modifier.padding(end = 16.dp),
     ) {
         Icon(

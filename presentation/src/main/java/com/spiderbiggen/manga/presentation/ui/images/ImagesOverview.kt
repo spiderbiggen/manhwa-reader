@@ -52,6 +52,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import coil.compose.SubcomposeAsyncImage
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
@@ -71,9 +72,9 @@ fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapte
             state = state,
             onBackClick = onBackClick,
             toChapterClicked = toChapterClicked,
-            toggleFavorite = viewModel::toggleFavorite,
-            setRead = viewModel::updateReadState,
-            setReadUpToHere = viewModel::setReadUpToHere,
+            toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
+            setRead = dropUnlessResumed { viewModel.updateReadState() },
+            setReadUpToHere = dropUnlessResumed { viewModel.setReadUpToHere() },
         )
     }
 }
@@ -133,13 +134,13 @@ fun ImagesOverview(
                     val previousChapterId = ready?.surrounding?.previous
                     val nextChapterId = ready?.surrounding?.next
                     IconButton(
-                        onClick = { previousChapterId?.let { toChapterClicked(it) } },
+                        onClick = dropUnlessResumed { previousChapterId?.let { toChapterClicked(it) } },
                         enabled = previousChapterId != null,
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
                     }
                     IconButton(
-                        onClick = { nextChapterId?.let { toChapterClicked(it) } },
+                        onClick = dropUnlessResumed { nextChapterId?.let { toChapterClicked(it) } },
                         enabled = nextChapterId != null,
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
@@ -255,8 +256,8 @@ fun PreviewImagesOverview() {
                     next = null,
                 ),
                 images = listOf(
-                    "https://manga.spiderbiggen.com/api/v1/mangas/8430c4857ec14234811b7508d83a50ab/image"
-                )
+                    "https://manga.spiderbiggen.com/api/v1/mangas/8430c4857ec14234811b7508d83a50ab/image",
+                ),
             ),
             onBackClick = {},
             toChapterClicked = {},
