@@ -51,6 +51,7 @@ import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
+import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.UpdatedListButton
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
@@ -97,6 +98,7 @@ fun ChapterOverview(
     toggleFavorite: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
 ) {
+    val lazyListState = rememberLazyListState()
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
 
     Scaffold(
@@ -138,7 +140,7 @@ fun ChapterOverview(
                         .fillMaxSize(),
                     contentAlignment = Alignment.TopCenter,
                 ) {
-                    val lazyListState = rememberLazyListState()
+                    StickyTopEffect(state.chapters, lazyListState)
                     ChaptersList(
                         lazyListState = lazyListState,
                         chapters = state.chapters,

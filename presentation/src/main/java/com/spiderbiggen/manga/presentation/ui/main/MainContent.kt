@@ -10,9 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController.OnDestinationChangedListener
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -45,7 +43,7 @@ fun MainContent() {
         popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
         popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
     ) {
-        composable<MangaRoute> { backStackEntry ->
+        composable<MangaRoute> {
             val viewModel: MangaViewModel = hiltViewModel()
             MangaOverview(
                 viewModel = viewModel,
@@ -83,7 +81,6 @@ fun MainContent() {
         }
     }
 }
-
 
 /**
  * Stores information about navigation events

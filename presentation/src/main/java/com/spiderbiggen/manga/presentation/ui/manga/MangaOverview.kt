@@ -54,6 +54,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaRow
+import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.UpdatedListButton
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
@@ -186,6 +187,7 @@ fun MangaOverview(
                             Modifier.weight(1f),
                             contentAlignment = Alignment.TopCenter,
                         ) {
+                            StickyTopEffect(screenState.manga, lazyListState)
                             MangaList(
                                 modifier = Modifier
                                     .fillMaxSize()
