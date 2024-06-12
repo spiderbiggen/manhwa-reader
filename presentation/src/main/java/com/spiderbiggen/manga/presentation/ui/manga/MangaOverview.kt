@@ -194,10 +194,11 @@ fun MangaOverview(
                         ) {
                             StickyTopEffect(screenState.manga, lazyListState)
                             MangaList(
+                                mangas = screenState.manga,
+                                imageLoader = imageLoader,
                                 modifier = Modifier
                                     .fillMaxSize()
                                     .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                                mangas = screenState.manga,
                                 lazyListState = lazyListState,
                                 navigateToManga = navigateToManga,
                                 onClickFavorite = onClickFavorite,
@@ -220,6 +221,7 @@ fun MangaOverview(
 @Composable
 private fun MangaList(
     mangas: ImmutableList<MangaViewData>,
+    imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     lazyListState: LazyListState = rememberLazyListState(),
     navigateToManga: (MangaId) -> Unit = {},
@@ -243,6 +245,7 @@ private fun MangaList(
         items(mangas, key = { it.id.inner }) { item ->
             MangaRow(
                 manga = item,
+                imageLoader = imageLoader,
                 navigateToManga = navigateToManga,
                 onClickFavorite = onClickFavorite,
                 modifier = Modifier.animateItem(),
