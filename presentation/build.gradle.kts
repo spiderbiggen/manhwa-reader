@@ -94,6 +94,7 @@ dependencies {
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
     implementation(libs.coil.compose)
+    implementation(libs.coil.network)
 
     // Material Kolor
     implementation(libs.material.kolor)

@@ -4,7 +4,7 @@ android-gradle-plugin = "8.4.2"
 androidx-hilt = "1.2.0"
 androidx-test-ext-junit = "1.1.5"
 appcompat = "1.7.0"
-coil-bom = "2.6.0"
+coil-bom = "3.0.0-alpha06"
 compose-bom = "2024.06.00"
 compose-override = "1.7.0-beta03"
 coroutines = "1.8.1"
@@ -92,9 +92,10 @@ kotlinX-datetime = { group = "org.jetbrains.kotlinx", name = "kotlinx-datetime",
 kotlinX-collections-immutable = { group = "org.jetbrains.kotlinx", name = "kotlinx-collections-immutable", version = "0.3.7" }
 
 # Coil
-coil-bom = { group = "io.coil-kt", name = "coil-bom", version.ref = "coil-bom" }
-coil = { group = "io.coil-kt", name = "coil" }
-coil-compose = { group = "io.coil-kt", name = "coil-compose" }
+coil-bom = { group = "io.coil-kt.coil3", name = "coil-bom", version.ref = "coil-bom" }
+coil = { group = "io.coil-kt.coil3", name = "coil" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
+coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp" }
 
 # Material kolor
 material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "1.7.0" }

@@ -24,13 +24,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.dropUnlessResumed
-import coil.compose.AsyncImage
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
@@ -43,6 +46,7 @@ private val aspectModifier = Modifier
 @Composable
 fun MangaRow(
     manga: MangaViewData,
+    imageLoader: ImageLoader,
     navigateToManga: (MangaId) -> Unit,
     onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
@@ -59,6 +63,7 @@ fun MangaRow(
         ) {
             AsyncImage(
                 model = manga.coverImage,
+                imageLoader = imageLoader,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = aspectModifier,
@@ -120,7 +125,12 @@ private fun FavoriteButton(mangaId: MangaId, isFavorite: Boolean, onClickFavorit
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     MangaReaderTheme {
-        MangaRow(state, {}, {})
+        MangaRow(
+            manga = state,
+            imageLoader = SingletonImageLoader.get(LocalContext.current),
+            navigateToManga = {},
+            onClickFavorite = {},
+        )
     }
 }
 
