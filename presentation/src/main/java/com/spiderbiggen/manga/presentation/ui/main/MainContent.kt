@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import coil3.ImageLoader
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
@@ -31,7 +32,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.MangaViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoute
 
 @Composable
-fun MainContent() {
+fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
     val navController = rememberNavController()
 
     NavigationTrackingSideEffect(navController)
@@ -47,6 +48,7 @@ fun MainContent() {
             val viewModel: MangaViewModel = hiltViewModel()
             MangaOverview(
                 viewModel = viewModel,
+                imageLoader = coverImageLoader,
                 navigateToManga = { mangaId ->
                     navController.navigate(ChapterRoute(mangaId.inner))
                 },
@@ -71,6 +73,7 @@ fun MainContent() {
             val mangaId = backStackEntry.toRoute<ImagesRoute>().mangaId
             ImagesOverview(
                 viewModel = hiltViewModel<ImagesViewModel>(),
+                imageLoader = chapterImageLoader,
                 onBackClick = dropUnlessResumed {
                     navController.popBackStack<ChapterRoute>(inclusive = false)
                 },

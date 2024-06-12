@@ -41,6 +41,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -49,6 +50,8 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.coroutineScope
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
@@ -63,7 +66,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @Composable
-fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (MangaId) -> Unit) {
+fun MangaOverview(viewModel: MangaViewModel, imageLoader: ImageLoader, navigateToManga: (MangaId) -> Unit) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()
@@ -77,6 +80,7 @@ fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (MangaId) -> Unit)
     MangaReaderTheme {
         MangaOverview(
             state = state,
+            imageLoader = imageLoader,
             refreshing = updatingState,
             onRefreshClicked = viewModel::onPullToRefresh,
             toggleFavoritesFilter = viewModel::toggleFavoritesOnly,
@@ -92,6 +96,7 @@ fun MangaOverview(viewModel: MangaViewModel, navigateToManga: (MangaId) -> Unit)
 fun MangaOverview(
     state: State<MangaScreenState>,
     refreshing: State<Boolean> = remember { mutableStateOf(false) },
+    imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
     onRefreshClicked: () -> Unit = {},
     toggleFavoritesFilter: () -> Unit = {},
     toggleUnreadFilter: () -> Unit = {},

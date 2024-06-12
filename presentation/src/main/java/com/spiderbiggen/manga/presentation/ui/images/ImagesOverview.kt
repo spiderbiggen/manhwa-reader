@@ -5,7 +5,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -49,11 +48,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
-import coil.compose.SubcomposeAsyncImage
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import coil3.compose.SubcomposeAsyncImage
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
@@ -61,7 +63,12 @@ import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapterClicked: (ChapterId) -> Unit) {
+fun ImagesOverview(
+    viewModel: ImagesViewModel,
+    imageLoader: ImageLoader,
+    onBackClick: () -> Unit,
+    toChapterClicked: (ChapterId) -> Unit,
+) {
     LaunchedEffect(true) {
         viewModel.collect()
     }
@@ -70,6 +77,7 @@ fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapte
     MangaReaderTheme {
         ImagesOverview(
             state = state,
+            imageLoader = imageLoader,
             onBackClick = onBackClick,
             toChapterClicked = toChapterClicked,
             toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
@@ -79,15 +87,16 @@ fun ImagesOverview(viewModel: ImagesViewModel, onBackClick: () -> Unit, toChapte
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ImagesOverview(
     state: ImagesScreenState,
-    onBackClick: () -> Unit,
-    toChapterClicked: (ChapterId) -> Unit,
-    toggleFavorite: () -> Unit,
-    setRead: () -> Unit,
-    setReadUpToHere: () -> Unit,
+    imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
+    onBackClick: () -> Unit = {},
+    toChapterClicked: (ChapterId) -> Unit = {},
+    toggleFavorite: () -> Unit = {},
+    setRead: () -> Unit = {},
+    setReadUpToHere: () -> Unit = {},
 ) {
     val topAppBarState: TopAppBarState = rememberTopAppBarState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
@@ -164,6 +173,7 @@ fun ImagesOverview(
 
             is ImagesScreenState.Ready -> ReadyImagesOverview(
                 state = state,
+                imageLoader = imageLoader,
                 scrollBehavior = scrollBehavior,
                 padding = padding,
                 setRead = setRead,
@@ -178,6 +188,7 @@ fun ImagesOverview(
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ReadyImagesOverview(
     state: ImagesScreenState.Ready,
+    imageLoader: ImageLoader,
     scrollBehavior: TopAppBarScrollBehavior,
     padding: PaddingValues,
     setRead: () -> Unit,
@@ -207,7 +218,7 @@ private fun ReadyImagesOverview(
         state = lazyListState,
     ) {
         items(images, key = { it }) {
-            ListImage(it, Modifier.fillParentMaxWidth())
+            ListImage(it, imageLoader, Modifier.fillParentMaxWidth())
         }
         item(key = "setReadEffect", contentType = "Effect") {
             LaunchedEffect(true) { setRead() }
@@ -220,9 +231,10 @@ private val boxModifier = Modifier
     .aspectRatio(1f)
 
 @Composable
-private fun ListImage(model: String, modifier: Modifier = Modifier) {
+private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
     SubcomposeAsyncImage(
         model = model,
+        imageLoader = imageLoader,
         contentDescription = null,
         modifier = modifier,
         contentScale = ContentScale.FillWidth,
@@ -259,11 +271,6 @@ fun PreviewImagesOverview() {
                     "https://manga.spiderbiggen.com/api/v1/mangas/8430c4857ec14234811b7508d83a50ab/image",
                 ),
             ),
-            onBackClick = {},
-            toChapterClicked = {},
-            toggleFavorite = {},
-            setRead = {},
-            setReadUpToHere = {},
         )
     }
 }
