@@ -53,6 +53,7 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.UpdatedListButton
+import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
@@ -98,8 +99,9 @@ fun ChapterOverview(
     toggleFavorite: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState()
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val lazyListState = rememberLazyListState()
+    val manuallyScrolled = rememberManualScrollState(lazyListState)
 
     Scaffold(
         topBar = {
@@ -140,7 +142,11 @@ fun ChapterOverview(
                         .fillMaxSize(),
                     contentAlignment = Alignment.TopCenter,
                 ) {
-                    StickyTopEffect(state.chapters, lazyListState)
+                    StickyTopEffect(
+                        items = state.chapters,
+                        listState = lazyListState,
+                        manuallyScrolled = manuallyScrolled,
+                    )
                     ChaptersList(
                         lazyListState = lazyListState,
                         chapters = state.chapters,
@@ -150,10 +156,11 @@ fun ChapterOverview(
                         navigateToChapter = navigateToChapter,
                     )
                     UpdatedListButton(
-                        listState = lazyListState,
                         collection = state.chapters,
                         key = { it.id.inner },
+                        listState = lazyListState,
                         modifier = Modifier.padding(top = 8.dp),
+                        manuallyScrolled = manuallyScrolled,
                     )
                 }
             }

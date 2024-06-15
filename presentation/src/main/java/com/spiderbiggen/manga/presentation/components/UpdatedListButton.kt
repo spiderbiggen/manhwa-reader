@@ -33,6 +33,7 @@ fun <T : Any> UpdatedListButton(
     listState: LazyListState,
     modifier: Modifier = Modifier,
     scope: CoroutineScope = rememberCoroutineScope(),
+    manuallyScrolled: Boolean = rememberManualScrollState(listState),
 ) {
     var previousFirstId: String? by rememberSaveable { mutableStateOf(null) }
     var isUpdated: Boolean by rememberSaveable { mutableStateOf(false) }
@@ -46,7 +47,7 @@ fun <T : Any> UpdatedListButton(
         isUpdated = previousFirstId != null && previousFirstId != firstId
         previousFirstId = firstId
     }
-    AnimatedVisibility(LocalInspectionMode.current || isUpdated) {
+    AnimatedVisibility(LocalInspectionMode.current || (manuallyScrolled && isUpdated)) {
         ElevatedButton(
             onClick = { scope.launch { listState.animateScrollToItem(0) } },
             modifier = modifier,
