@@ -197,7 +197,7 @@ fun MangaOverview(
                             StickyTopEffect(
                                 items = screenState.manga,
                                 listState = lazyListState,
-                                manuallyScrolled = manuallyScrolled
+                                manuallyScrolled = manuallyScrolled,
                             )
                             MangaList(
                                 mangas = screenState.manga,
