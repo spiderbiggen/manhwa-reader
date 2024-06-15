@@ -13,7 +13,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.collections.immutable.ImmutableCollection
 
 @Composable
-fun <T : Any?> StickyTopEffect(items: ImmutableCollection<T>, listState: LazyListState) {
+fun rememberManualScrollState(listState: LazyListState): Boolean {
     var manuallyScrolled: Boolean by rememberSaveable { mutableStateOf(false) }
     val canScrollBackwards by remember { derivedStateOf { listState.canScrollBackward } }
     val isDragged by listState.interactionSource.collectIsDraggedAsState()
@@ -24,6 +24,15 @@ fun <T : Any?> StickyTopEffect(items: ImmutableCollection<T>, listState: LazyLis
             manuallyScrolled = true
         }
     }
+    return manuallyScrolled
+}
+
+@Composable
+fun <T : Any?> StickyTopEffect(
+    items: ImmutableCollection<T>,
+    listState: LazyListState,
+    manuallyScrolled: Boolean = rememberManualScrollState(listState),
+) {
     LaunchedEffect(items, manuallyScrolled) {
         if (!manuallyScrolled) {
             // scroll to top to ensure latest added element gets visible

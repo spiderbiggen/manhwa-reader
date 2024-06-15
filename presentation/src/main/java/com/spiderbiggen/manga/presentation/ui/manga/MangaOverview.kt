@@ -59,6 +59,7 @@ import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.UpdatedListButton
+import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import kotlinx.collections.immutable.ImmutableList
@@ -105,6 +106,7 @@ fun MangaOverview(
 ) {
     val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
+    val manuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val topAppBarColors = TopAppBarDefaults.topAppBarColors()
 
@@ -192,7 +194,11 @@ fun MangaOverview(
                             Modifier.weight(1f),
                             contentAlignment = Alignment.TopCenter,
                         ) {
-                            StickyTopEffect(screenState.manga, lazyListState)
+                            StickyTopEffect(
+                                items = screenState.manga,
+                                listState = lazyListState,
+                                manuallyScrolled = manuallyScrolled
+                            )
                             MangaList(
                                 mangas = screenState.manga,
                                 imageLoader = imageLoader,
@@ -207,8 +213,9 @@ fun MangaOverview(
                                 collection = screenState.manga,
                                 key = { it.id.inner },
                                 listState = lazyListState,
-                                scope = scope,
                                 modifier = Modifier.padding(top = 8.dp),
+                                scope = scope,
+                                manuallyScrolled = manuallyScrolled,
                             )
                         }
                     }
