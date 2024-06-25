@@ -2,7 +2,7 @@
 activity-compose = "1.9.0"
 android-gradle-plugin = "8.5.0"
 androidx-hilt = "1.2.0"
-androidx-test-ext-junit = "1.1.5"
+androidx-test-ext-junit = "1.2.0"
 appcompat = "1.7.0"
 coil-bom = "3.0.0-alpha06"
 compose-bom = "2024.06.00"
