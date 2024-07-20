@@ -3,7 +3,6 @@ package com.spiderbiggen.manga.presentation.ui.images
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
@@ -20,6 +19,7 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.read.SetRead
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
+import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.images.model.ImagesRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -59,34 +59,36 @@ class ImagesViewModel @Inject constructor(
     }
 
     fun toggleFavorite() {
-        viewModelScope.launch {
+        defaultScope.launch {
             toggleFavorite(mangaId)
             updateScreenState()
         }
     }
 
     fun updateReadState() {
-        viewModelScope.launch {
+        defaultScope.launch {
             setRead(chapterId, true)
             updateScreenState()
         }
     }
 
     fun setReadUpToHere() {
-        viewModelScope.launch {
+        defaultScope.launch {
             setReadUpToChapter(chapterId)
             updateScreenState()
         }
     }
 
     private suspend fun updateScreenState() {
-        withContext(Dispatchers.IO) {
-            val deferredEitherChapter = async { getChapter(chapterId) }
-            val deferredEitherImages = async { getChapterImages(chapterId) }
+        withContext(Dispatchers.Default) {
+            val deferredEitherChapter = async(Dispatchers.IO) { getChapter(chapterId) }
+            val deferredEitherImages = async(Dispatchers.IO) { getChapterImages(chapterId) }
+            val deferredSurrounding = async(Dispatchers.IO) { getSurroundingChapters(chapterId) }
+
             when (val data = deferredEitherChapter.await().andLeft(deferredEitherImages.await())) {
                 is Either.Left -> {
                     val (chapter, images) = data.left
-                    surrounding = getSurroundingChapters(chapterId).leftOr(surrounding)
+                    surrounding = deferredSurrounding.await().leftOr(surrounding)
                     val isFavorite = isFavorite(mangaId).leftOr(false)
                     val isRead = isRead(chapterId).leftOr(false)
 

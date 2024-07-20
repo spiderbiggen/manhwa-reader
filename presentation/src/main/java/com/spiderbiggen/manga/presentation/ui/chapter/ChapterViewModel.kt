@@ -4,7 +4,6 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
@@ -17,16 +16,14 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
+import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRoute
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -57,16 +54,18 @@ class ChapterViewModel @Inject constructor(
         get() = mutableScreenState.asStateFlow()
 
     suspend fun collect() {
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             launch {
-                updateChaptersFromRemote(mangaId, skipCache = false)
+                updateChapters(skipCache = false)
             }
             updateScreenState()
         }
     }
 
     fun onClickRefresh() {
-        refresh(skipCache = true)
+        defaultScope.launch {
+            updateChapters(skipCache = true)
+        }
     }
 
     fun toggleFavorite() {
@@ -121,14 +120,10 @@ class ChapterViewModel @Inject constructor(
         return ChapterScreenState.Error("An error occurred")
     }
 
-    private fun refresh(skipCache: Boolean) {
-        viewModelScope.launch {
-            val minimumDelay = async {
-                delay(500.milliseconds)
-            }
+    private suspend fun updateChapters(skipCache: Boolean) {
+        withContext(Dispatchers.IO) {
             mutableUpdatingState.emit(true)
             updateChaptersFromRemote(mangaId, skipCache = skipCache)
-            minimumDelay.await()
             // TODO show error notice (snackbar?)
             mutableUpdatingState.emit(false)
         }

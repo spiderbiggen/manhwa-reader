@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.ui.manga
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.Manga
@@ -14,14 +13,12 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetActiveManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
+import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,9 +50,9 @@ class MangaViewModel @Inject constructor(
     private var unreadOnly: Boolean = false
 
     suspend fun collect() {
-        withContext(Dispatchers.IO) {
+        withContext(Dispatchers.Default) {
             launch {
-                updateMangaFromRemote(skipCache = false)
+                updateMangas(skipCache = false)
             }
             updater.emit(Unit)
             updateScreenState()
@@ -112,36 +109,38 @@ class MangaViewModel @Inject constructor(
     }
 
     fun onPullToRefresh() {
-        viewModelScope.launch {
-            val minimumDelay = async {
-                delay(500.milliseconds)
-            }
-            mutableUpdatingState.emit(true)
-            updateMangaFromRemote(skipCache = true)
-            minimumDelay.await()
-            // TODO show error notice (snackbar?)
-            mutableUpdatingState.emit(false)
+        defaultScope.launch {
+            updateMangas(skipCache = true)
         }
     }
 
     fun onClickFavorite(mangaId: MangaId) {
-        viewModelScope.launch(Dispatchers.IO) {
+        defaultScope.launch {
             toggleFavorite(mangaId)
             updater.emit(Unit)
         }
     }
 
     fun toggleFavoritesOnly() {
-        viewModelScope.launch(Dispatchers.IO) {
+        defaultScope.launch {
             favoritesOnly = !favoritesOnly
             updater.emit(Unit)
         }
     }
 
     fun toggleUnreadOnly() {
-        viewModelScope.launch(Dispatchers.IO) {
+        defaultScope.launch {
             unreadOnly = !unreadOnly
             updater.emit(Unit)
+        }
+    }
+
+    private suspend fun updateMangas(skipCache: Boolean) {
+        withContext(Dispatchers.IO) {
+            mutableUpdatingState.emit(true)
+            updateMangaFromRemote(skipCache)
+            // TODO show error notice (snackbar?)
+            mutableUpdatingState.emit(false)
         }
     }
 }

@@ -16,8 +16,14 @@ class ReadRepository @Inject constructor(
     fun isRead(id: ChapterId) = sharedPreferences.getBoolean("${READ_KEY_PREFIX}_${id.inner}", false)
 
     fun setRead(id: ChapterId, isRead: Boolean) {
+        setRead(listOf(id), isRead)
+    }
+
+    fun setRead(chapterIds: Iterable<ChapterId>, isRead: Boolean) {
         sharedPreferences.edit {
-            putBoolean("${READ_KEY_PREFIX}_${id.inner}", isRead)
+            chapterIds.forEach { id ->
+                putBoolean("${READ_KEY_PREFIX}_${id.inner}", isRead)
+            }
         }
     }
 }
