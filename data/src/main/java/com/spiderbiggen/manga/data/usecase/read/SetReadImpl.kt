@@ -12,4 +12,7 @@ class SetReadImpl @Inject constructor(
 ) : SetRead {
     override suspend fun invoke(id: ChapterId, isRead: Boolean): Either<Unit, AppError> =
         Either.Left(readRepository.setRead(id, isRead))
+
+    override suspend fun invoke(chapterIds: Iterable<ChapterId>, isRead: Boolean): Either<Unit, AppError> =
+        Either.Left(readRepository.setRead(chapterIds, isRead))
 }
