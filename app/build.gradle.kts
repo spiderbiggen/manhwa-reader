@@ -18,12 +18,12 @@ hilt {
 
 android {
     namespace = "com.spiderbiggen.manga"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.spiderbiggen.manga"
         minSdk = 26
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 17
         versionName = "1.4.3"
 

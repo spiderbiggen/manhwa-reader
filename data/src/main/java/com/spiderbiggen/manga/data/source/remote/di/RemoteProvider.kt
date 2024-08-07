@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.data.source.remote.di
 
 import android.content.Context
+import com.google.firebase.BuildConfig
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import com.spiderbiggen.manga.data.di.BaseUrl
 import com.spiderbiggen.manga.data.source.remote.MangaService
@@ -44,8 +45,11 @@ object RemoteProvider {
 
     @Provides
     fun provideOkHttpClient(cache: Cache?): OkHttpClient = OkHttpClient.Builder()
-        .cache(cache)
-        .addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+        .cache(cache).apply {
+            if (BuildConfig.DEBUG) {
+                addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            }
+        }
         .build()
 
     @Provides

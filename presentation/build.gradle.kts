@@ -12,7 +12,7 @@ plugins {
 
 android {
     namespace = "com.spiderbiggen.manga.presentation"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         minSdk = 26
