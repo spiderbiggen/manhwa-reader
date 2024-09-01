@@ -173,9 +173,6 @@ fun MangaOverview(
                                 selected = screenState.favoritesOnly,
                                 onClick = dropUnlessResumed {
                                     toggleFavoritesFilter()
-                                    scope.launch {
-                                        lazyListState.requestScrollToItem(0)
-                                    }
                                 },
                                 label = { Text("Favorites") },
                             )
@@ -183,9 +180,6 @@ fun MangaOverview(
                                 selected = screenState.unreadOnly,
                                 onClick = dropUnlessResumed {
                                     toggleUnreadFilter()
-                                    scope.launch {
-                                        lazyListState.requestScrollToItem(0)
-                                    }
                                 },
                                 label = { Text("Unread") },
                             )
