@@ -54,7 +54,6 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
@@ -228,17 +227,6 @@ private fun MangaList(
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
-    val images by remember(mangas) {
-        derivedStateOf {
-            mangas.map { it.coverImage }
-        }
-    }
-    ListImagePreloader(
-        items = images,
-        visibleCount = 7,
-        preloadCount = 15,
-        lazyListState = lazyListState,
-    )
     LazyColumn(
         modifier = modifier,
         state = lazyListState,

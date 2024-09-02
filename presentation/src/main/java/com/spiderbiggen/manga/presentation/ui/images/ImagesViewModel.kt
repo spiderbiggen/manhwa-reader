@@ -23,6 +23,7 @@ import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.images.model.ImagesRoute
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -97,7 +98,7 @@ class ImagesViewModel @Inject constructor(
                             title = chapter.displayTitle(),
                             surrounding = surrounding,
                             isFavorite = isFavorite,
-                            images = images.map { it.toExternalForm() },
+                            images = images.map { it.toExternalForm() }.toImmutableList(),
                             isRead = isRead,
                         ),
                     )

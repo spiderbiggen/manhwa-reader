@@ -9,34 +9,33 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import coil3.imageLoader
+import coil3.ImageLoader
 import coil3.request.ImageRequest
 
 @Composable
-fun <T : Any> ListImagePreloader(
-    items: List<T>,
+fun <T : Any?> ListImagePreloader(
+    imageLoader: ImageLoader,
     lazyListState: LazyListState,
-    visibleCount: Int = 3,
+    items: List<T>,
     preloadCount: Int = 5,
 ) {
     val context = LocalContext.current
-    var preloaded by remember { mutableIntStateOf(0) }
+    var loaded by remember { mutableIntStateOf(lazyListState.layoutInfo.visibleItemsInfo.size) }
     val firstVisibleIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
+    val visibleCount by remember { derivedStateOf { lazyListState.layoutInfo.visibleItemsInfo.size } }
     val limited by remember {
         derivedStateOf {
             val preloadIndex = firstVisibleIndex + visibleCount + preloadCount
             val limited = preloadIndex.coerceAtMost(items.size - 1)
-            if (limited < preloaded) preloaded else limited
+            if (limited < loaded) loaded else limited
         }
     }
 
-    LaunchedEffect(context, limited) {
-        items.slice((preloaded + 1)..limited.coerceAtMost(items.size - 1)).forEach {
-            val request = ImageRequest.Builder(context)
-                .data(it)
-                .build()
-            context.imageLoader.enqueue(request)
+    LaunchedEffect(context, imageLoader, limited) {
+        items.slice((loaded + 1)..limited.coerceAtMost(items.size - 1)).forEach {
+            val request = ImageRequest.Builder(context).data(it).build()
+            imageLoader.enqueue(request)
         }
-        preloaded = limited
+        loaded = limited
     }
 }
