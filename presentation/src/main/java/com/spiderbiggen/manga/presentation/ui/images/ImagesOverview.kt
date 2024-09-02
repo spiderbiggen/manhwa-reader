@@ -58,8 +58,8 @@ import coil3.SingletonImageLoader
 import coil3.compose.SubcomposeAsyncImage
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
-import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
 @Composable
@@ -197,10 +197,6 @@ private fun ReadyImagesOverview(
     val lazyListState = rememberLazyListState()
     val images by remember { derivedStateOf { state.images } }
     val interactionSource = remember { MutableInteractionSource() }
-    ListImagePreloader(
-        items = images,
-        lazyListState = lazyListState,
-    )
     LazyColumn(
         Modifier
             .consumeWindowInsets(padding)
@@ -267,7 +263,7 @@ fun PreviewImagesOverview() {
                     previous = null,
                     next = null,
                 ),
-                images = listOf(
+                images = persistentListOf(
                     "https://manga.spiderbiggen.com/api/v1/mangas/8430c4857ec14234811b7508d83a50ab/image",
                 ),
             ),
