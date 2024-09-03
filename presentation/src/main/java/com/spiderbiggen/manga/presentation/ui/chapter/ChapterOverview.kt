@@ -130,7 +130,7 @@ fun ChapterOverview(
         when (state) {
             is ChapterScreenState.Loading,
             is ChapterScreenState.Error,
-                -> LoadingSpinner(padding)
+            -> LoadingSpinner(padding)
 
             is ChapterScreenState.Ready -> {
                 PullToRefreshBox(

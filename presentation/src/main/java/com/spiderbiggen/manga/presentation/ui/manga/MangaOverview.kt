@@ -95,7 +95,7 @@ fun MangaOverview(
     when (state) {
         is MangaScreenState.Error,
         MangaScreenState.Loading,
-            -> MangaOverviewContent(
+        -> MangaOverviewContent(
             manga = persistentListOf(),
             favoritesOnly = false,
             unreadOnly = false,
@@ -120,7 +120,6 @@ fun MangaOverview(
         )
     }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable

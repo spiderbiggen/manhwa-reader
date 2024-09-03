@@ -47,7 +47,6 @@ private val aspectModifier = Modifier
     .height(80.dp)
     .aspectRatio(ASPECT_RATIO, matchHeightConstraintsFirst = true)
 
-
 @Composable
 fun MangaRow(
     manga: MangaViewData,
