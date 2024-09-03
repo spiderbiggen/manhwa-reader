@@ -99,10 +99,9 @@ fun ChapterOverview(
     toggleFavorite: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
 ) {
-    val topAppBarScrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
-
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
     Scaffold(
         topBar = {
             TopAppBar(
