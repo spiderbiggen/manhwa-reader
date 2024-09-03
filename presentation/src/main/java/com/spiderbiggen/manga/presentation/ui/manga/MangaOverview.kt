@@ -20,6 +20,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -139,7 +140,7 @@ private fun MangaOverviewContent(
     val manuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
 
-    BottomSheetScaffold(
+    Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Manga") },
@@ -153,57 +154,62 @@ private fun MangaOverviewContent(
                 },
             )
         },
-        sheetContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-        sheetContent = {
-            // TODO add search bar
-            FlowRow(
+        // TODO add bottom bar
+    ) { scaffoldPadding ->
+        BottomSheetScaffold(
+            modifier = Modifier.padding(scaffoldPadding),
+            sheetContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            sheetContent = {
+                // TODO add search bar
+                FlowRow(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
+                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                ) {
+                    FilterChip(
+                        selected = favoritesOnly,
+                        enabled = toggleFavoritesFilter != null,
+                        onClick = dropUnlessResumed {
+                            toggleFavoritesFilter?.invoke()
+                        },
+                        label = { Text("Favorites") },
+                    )
+                    FilterChip(
+                        selected = unreadOnly,
+                        enabled = toggleUnreadFilter != null,
+                        onClick = dropUnlessResumed {
+                            toggleUnreadFilter?.invoke()
+                        },
+                        label = { Text("Unread") },
+                    )
+                }
+            },
+        ) { padding ->
+            PullToRefreshBox(
+                refreshing,
+                onRefreshClicked,
                 Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start),
-                verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.Top),
+                    .fillMaxSize(),
             ) {
-                FilterChip(
-                    selected = favoritesOnly,
-                    enabled = toggleFavoritesFilter != null,
-                    onClick = dropUnlessResumed {
-                        toggleFavoritesFilter?.invoke()
-                    },
-                    label = { Text("Favorites") },
+                StickyTopEffect(
+                    items = manga,
+                    listState = lazyListState,
+                    manuallyScrolled = manuallyScrolled,
                 )
-                FilterChip(
-                    selected = unreadOnly,
-                    enabled = toggleUnreadFilter != null,
-                    onClick = dropUnlessResumed {
-                        toggleUnreadFilter?.invoke()
-                    },
-                    label = { Text("Unread") },
+                MangaList(
+                    mangas = manga,
+                    imageLoader = imageLoader,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                    lazyListState = lazyListState,
+                    navigateToManga = navigateToManga,
+                    onClickFavorite = onClickFavorite,
+                    contentPadding = padding,
                 )
             }
-        },
-    ) { padding ->
-        PullToRefreshBox(
-            refreshing,
-            onRefreshClicked,
-            Modifier
-                .fillMaxSize(),
-        ) {
-            StickyTopEffect(
-                items = manga,
-                listState = lazyListState,
-                manuallyScrolled = manuallyScrolled,
-            )
-            MangaList(
-                mangas = manga,
-                imageLoader = imageLoader,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                lazyListState = lazyListState,
-                navigateToManga = navigateToManga,
-                onClickFavorite = onClickFavorite,
-                contentPadding = padding,
-            )
         }
     }
 }
