@@ -1,13 +1,15 @@
 package com.spiderbiggen.manga.presentation.components
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -20,8 +22,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -38,10 +42,11 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 
-private const val ASPECT_RATIO = 1.35F
+private const val ASPECT_RATIO = 0.741f
 private val aspectModifier = Modifier
-    .height(96.dp)
-    .width(96.dp / ASPECT_RATIO)
+    .height(80.dp)
+    .aspectRatio(ASPECT_RATIO, matchHeightConstraintsFirst = true)
+
 
 @Composable
 fun MangaRow(
@@ -50,34 +55,48 @@ fun MangaRow(
     navigateToManga: (MangaId) -> Unit,
     onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
-    containerColor: Color = MaterialTheme.colorScheme.surface,
 ) {
+    val containerColor: Color by animateColorAsState(
+        if (!manga.readAll) {
+            MaterialTheme.colorScheme.surfaceContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLowest
+        },
+        label = "container color",
+    )
     Surface(
         onClick = dropUnlessResumed { navigateToManga(manga.id) },
+        shape = MaterialTheme.shapes.medium,
         modifier = modifier.fillMaxWidth(),
         color = containerColor,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
+            modifier = Modifier.padding(8.dp),
         ) {
             AsyncImage(
                 model = manga.coverImage,
                 imageLoader = imageLoader,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
-                modifier = aspectModifier,
+                modifier = aspectModifier
+                    .clip(MaterialTheme.shapes.small)
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow),
                 alignment = Alignment.Center,
             )
             MangaInfoColumn(manga, Modifier.weight(1f))
-            if (manga.status == "Dropped") {
-                Icon(
-                    Icons.Rounded.Warning,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error,
-                )
+            Row {
+                if (manga.status == "Dropped") {
+                    Icon(
+                        Icons.Rounded.Warning,
+                        modifier = Modifier.padding(12.dp),
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error,
+                    )
+                }
+                FavoriteButton(manga.id, manga.isFavorite, onClickFavorite)
             }
-            FavoriteButton(manga.id, manga.isFavorite, onClickFavorite)
         }
     }
 }
@@ -108,11 +127,13 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 }
 
 @Composable
-private fun FavoriteButton(mangaId: MangaId, isFavorite: Boolean, onClickFavorite: (MangaId) -> Unit) {
-    IconButton(
-        onClick = dropUnlessResumed { onClickFavorite(mangaId) },
-        modifier = Modifier.padding(end = 16.dp),
-    ) {
+private fun FavoriteButton(
+    mangaId: MangaId,
+    isFavorite: Boolean,
+    onClickFavorite: (MangaId) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    IconButton(onClick = dropUnlessResumed { onClickFavorite(mangaId) }, modifier) {
         Icon(
             if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
             contentDescription = null,
@@ -125,12 +146,15 @@ private fun FavoriteButton(mangaId: MangaId, isFavorite: Boolean, onClickFavorit
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     MangaReaderTheme {
-        MangaRow(
-            manga = state,
-            imageLoader = SingletonImageLoader.get(LocalContext.current),
-            navigateToManga = {},
-            onClickFavorite = {},
-        )
+        Surface {
+            MangaRow(
+                manga = state,
+                modifier = Modifier.padding(16.dp),
+                imageLoader = SingletonImageLoader.get(LocalContext.current),
+                navigateToManga = {},
+                onClickFavorite = {},
+            )
+        }
     }
 }
 
@@ -153,6 +177,16 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                 title = "Heavenly Martial God",
                 coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
                 status = "Ongoing",
+                updatedAt = "2023-04-23",
+                isFavorite = true,
+                readAll = true,
+            ),
+            MangaViewData(
+                source = "Asura",
+                id = MangaId("712dd47d646544338484357604d6cf81"),
+                title = "Heavenly Martial God",
+                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+                status = "Dropped",
                 updatedAt = "2023-04-23",
                 isFavorite = true,
                 readAll = true,
