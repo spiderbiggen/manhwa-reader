@@ -6,17 +6,18 @@ androidx-test-ext-junit = "1.2.1"
 appcompat = "1.7.0"
 coil-bom = "3.0.0-alpha10"
 compose-bom = "2024.09.00"
-coroutines = "1.8.1"
 core-ktx = "1.13.1"
+coroutines = "1.8.1"
 dagger = "2.52"
 espresso-core = "3.6.1"
+google-gms-google-services = "4.4.2"
 junit = "4.13.2"
 kotlin = "2.0.20"
 ktlint = "1.2.1"
 lifecycle = "2.8.5"
+retrofit = "2.1.1"
 room = "2.6.1"
 spotless-plugin-gradle = "6.25.0"
-google-gms-google-services = "4.4.2"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -78,8 +79,9 @@ google-dagger-hiltAndroidCompiler = { group = "com.google.dagger", name = "hilt-
 okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version = "4.12.0" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor" }
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version = "2.11.0" }
-retrofit-converter-serialization = { group = "com.jakewharton.retrofit", name = "retrofit2-kotlinx-serialization-converter", version = "1.0.0" }
+retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version = "2.11.0" }
+retrofit = { group = "com.squareup.retrofit2", name = "retrofit" }
+retrofit-converter-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization" }
 
 # Kotlin std
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
