@@ -4,11 +4,13 @@ plugins {
     id("com.diffplug.spotless")
 }
 
+private val ktlintVersion = "1.3.1"
+
 if (project == rootProject) {
     spotless { predeclareDeps() }
     configure<SpotlessExtensionPredeclare> {
-        kotlin { ktlint("1.2.1") }
-        kotlinGradle { ktlint("1.2.1") }
+        kotlin { ktlint(ktlintVersion) }
+        kotlinGradle { ktlint(ktlintVersion) }
     }
 } else {
     spotless {
@@ -22,7 +24,7 @@ if (project == rootProject) {
                 "**/.gitignore",
                 "**/.editorconfig",
                 "**/*.properties",
-                "**/*.md"
+                "**/*.md",
             )
 
             // define the steps to apply to those files
@@ -34,13 +36,13 @@ if (project == rootProject) {
             target("**/*.kt")
             targetExclude("**/build/**/*.kt")
             // by default the target is every '.kt' and '.kts` file in the java sourcesets
-            ktlint("1.2.1")
+            ktlint(ktlintVersion)
             // has its own section below
             // licenseHeader("/* (C)\$YEAR */") // or licenseHeaderFile
         }
         kotlinGradle {
             target("**/*.gradle.kts")
-            ktlint("1.2.1")
+            ktlint(ktlintVersion)
         }
     }
 }
