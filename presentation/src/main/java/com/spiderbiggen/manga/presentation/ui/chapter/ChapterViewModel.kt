@@ -18,17 +18,18 @@ import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRoute
-import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
+import com.spiderbiggen.manga.presentation.ui.chapter.usecase.MapChapterRowData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
@@ -39,6 +40,7 @@ class ChapterViewModel @Inject constructor(
     private val isRead: IsRead,
     private val toggleFavorite: ToggleFavorite,
     private val updateChaptersFromRemote: UpdateChaptersFromRemote,
+    private val mapChapterRowData: MapChapterRowData,
 ) : ViewModel() {
 
     private val args = savedStateHandle.toRoute<ChapterRoute>()
@@ -50,7 +52,7 @@ class ChapterViewModel @Inject constructor(
     private val mutableScreenState =
         MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
 
-    val state
+    val state: StateFlow<ChapterScreenState>
         get() = mutableScreenState.asStateFlow()
 
     suspend fun collect() {
@@ -92,20 +94,14 @@ class ChapterViewModel @Inject constructor(
                 )
 
                 chaptersFlow.collectLatest { list ->
-                    val chapters = list.map {
-                        ChapterRowData(
-                            id = it.id,
-                            title = it.displayTitle(),
-                            date = it.date.toString(),
-                            isRead = isRead(it.id).leftOr(false),
-                        )
-                    }.toImmutableList()
                     mutableScreenState.emit(
                         ChapterScreenState.Ready(
                             title = manga.title,
                             dominantColor = manga.dominantColor?.let { Color(it) },
                             isFavorite = isFavorite(mangaId).leftOr(false),
-                            chapters = chapters,
+                            chapters = list
+                                .map { mapChapterRowData(it, isRead(it.id).leftOr(false)) }
+                                .toImmutableList(),
                         ),
                     )
                 }

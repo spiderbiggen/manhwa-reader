@@ -1,13 +1,10 @@
 package com.spiderbiggen.manga.presentation.components
 
 import android.content.res.Configuration
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -22,13 +19,14 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -39,6 +37,7 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.domain.model.id.MangaId
+import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 
@@ -55,47 +54,56 @@ fun MangaRow(
     onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val containerColor: Color by animateColorAsState(
-        if (!manga.readAll) {
-            MaterialTheme.colorScheme.surfaceContainer
-        } else {
-            MaterialTheme.colorScheme.surfaceContainerLowest
-        },
-        label = "container color",
-    )
-    Surface(
+    ReadableCard(
+        isRead = manga.readAll,
         onClick = dropUnlessResumed { navigateToManga(manga.id) },
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier.fillMaxWidth(),
-        color = containerColor,
+        modifier = modifier,
     ) {
         Row(
+            Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(8.dp),
         ) {
-            AsyncImage(
-                model = manga.coverImage,
-                imageLoader = imageLoader,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = aspectModifier
-                    .clip(MaterialTheme.shapes.small)
-                    .background(MaterialTheme.colorScheme.surfaceContainerLow),
-                alignment = Alignment.Center,
-            )
+            CoverImage(manga.coverImage, imageLoader)
             MangaInfoColumn(manga, Modifier.weight(1f))
-            Row {
-                if (manga.status == "Dropped") {
-                    Icon(
-                        Icons.Rounded.Warning,
-                        modifier = Modifier.padding(12.dp),
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                    )
-                }
-                FavoriteButton(manga.id, manga.isFavorite, onClickFavorite)
-            }
+            IconRow(manga, onClickFavorite)
+        }
+    }
+}
+
+@Composable
+private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = url,
+        imageLoader = imageLoader,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = modifier.then(aspectModifier.clip(MaterialTheme.shapes.small)),
+        alignment = Alignment.Center,
+        placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceContainerLow),
+        error = if (LocalInspectionMode.current) painterResource(R.mipmap.preview_cover_placeholder) else null,
+    )
+}
+
+@Composable
+private fun IconRow(
+    manga: MangaViewData,
+    onClickFavorite: (MangaId) -> Unit,
+) {
+    Row {
+        if (manga.status == "Dropped") {
+            Icon(
+                Icons.Rounded.Warning,
+                modifier = Modifier.padding(12.dp),
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+            )
+        }
+        IconButton(onClick = dropUnlessResumed { onClickFavorite(manga.id) }) {
+            Icon(
+                if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                contentDescription = null,
+            )
         }
     }
 }
@@ -122,21 +130,6 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
                 )
             }
         }
-    }
-}
-
-@Composable
-private fun FavoriteButton(
-    mangaId: MangaId,
-    isFavorite: Boolean,
-    onClickFavorite: (MangaId) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    IconButton(onClick = dropUnlessResumed { onClickFavorite(mangaId) }, modifier) {
-        Icon(
-            if (isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-            contentDescription = null,
-        )
     }
 }
 

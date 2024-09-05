@@ -1,29 +1,32 @@
 package com.spiderbiggen.manga.presentation.ui.chapter
 
 import android.content.res.Configuration
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -40,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -49,17 +53,22 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
+import com.spiderbiggen.manga.presentation.components.ReadableCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
-import com.spiderbiggen.manga.presentation.components.UpdatedListButton
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
+import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
 import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
+import com.spiderbiggen.manga.presentation.ui.chapter.usecase.MapChapterRowData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock.System.now
+import kotlinx.datetime.LocalDate
 
 @Composable
 fun ChapterOverview(
@@ -130,16 +139,13 @@ fun ChapterOverview(
         when (state) {
             is ChapterScreenState.Loading,
             is ChapterScreenState.Error,
-            -> LoadingSpinner(padding)
+                -> LoadingSpinner(padding)
 
             is ChapterScreenState.Ready -> {
                 PullToRefreshBox(
                     isRefreshing = refreshing.value,
                     onRefresh = startRefresh,
-                    Modifier
-                        .padding(padding)
-                        .fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter,
+                    modifier = Modifier.fillMaxSize(),
                 ) {
                     StickyTopEffect(
                         items = state.chapters,
@@ -152,14 +158,8 @@ fun ChapterOverview(
                         modifier = Modifier
                             .fillMaxSize()
                             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                        contentPadding = padding,
                         navigateToChapter = navigateToChapter,
-                    )
-                    UpdatedListButton(
-                        collection = state.chapters,
-                        key = { it.id.inner },
-                        listState = lazyListState,
-                        modifier = Modifier.padding(top = 8.dp),
-                        manuallyScrolled = manuallyScrolled,
                     )
                 }
             }
@@ -172,18 +172,20 @@ private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
     navigateToChapter: (ChapterId) -> Unit,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
+        contentPadding = contentPadding + PaddingValues(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        itemsIndexed(
+        items(
             items = chapters,
-            key = { _, item -> item.id.inner },
-        ) { index, item ->
+            key = { item -> item.id.inner },
+        ) { item ->
             ChapterRow(
-                showDivider = index > 0,
                 item = item,
                 navigateToChapter = navigateToChapter,
                 modifier = Modifier.animateItem(),
@@ -194,47 +196,62 @@ private fun ChaptersList(
 
 @Composable
 private fun ChapterRow(
-    showDivider: Boolean,
     item: ChapterRowData,
     navigateToChapter: (ChapterId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Surface(
+    ReadableCard(
+        isRead = item.isRead,
         onClick = dropUnlessResumed { navigateToChapter(item.id) },
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp),
     ) {
-        Column(Modifier.fillMaxWidth()) {
-            if (showDivider) HorizontalDivider()
-            Row(
-                Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Column(
-                    Modifier
-                        .weight(1f),
-                    horizontalAlignment = Alignment.Start,
-                    verticalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterVertically),
-                ) {
-                    val contentColor = LocalContentColor.current.let {
+        Row(
+            Modifier.padding(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            NumberDisplay(item, Modifier.align(Alignment.Top))
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)) {
+                val color by animateColorAsState(
+                    LocalContentColor.current.let {
                         if (item.isRead) it.copy(alpha = 0.7f) else it
-                    }
-                    CompositionLocalProvider(LocalContentColor provides contentColor) {
+                    },
+                    label = "content color",
+                )
+                CompositionLocalProvider(LocalContentColor provides color) {
+                    Text(
+                        item.date,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    item.title?.let {
                         Text(
-                            item.title,
+                            it,
                             fontWeight = if (!item.isRead) FontWeight.Bold else null,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                        Text(
-                            item.date,
-                            style = MaterialTheme.typography.bodySmall,
+                            style = MaterialTheme.typography.bodyMedium,
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
+    Box(
+        modifier
+            .background(MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.medium)
+            .size(56.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = item.number,
+            modifier = Modifier.padding(4.dp),
+            style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
@@ -268,31 +285,49 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
         )
 }
 
-object ChapterProvider {
+private object ChapterProvider {
+    private val mapChapterRowData = MapChapterRowData()
+
     val values = sequenceOf(
-        ChapterRowData(
-            id = ChapterId("000000"),
-            title = "30",
-            date = "2023-04-16",
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000000"),
+                number = 30.0,
+                title = null,
+                date = LocalDate.parse("2023-04-16"),
+                updatedAt = now(),
+            ),
             isRead = false,
         ),
-        ChapterRowData(
-            id = ChapterId("000001"),
-            title = "29.5",
-            date = "2023-04-12",
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000001"),
+                number = 29.5,
+                title = null,
+                date = LocalDate.parse("2023-04-12"),
+                updatedAt = now(),
+            ),
             isRead = true,
         ),
-        ChapterRowData(
-            id = ChapterId("000002"),
-            title = "39",
-            date = "2023-03-15",
-            isRead = true,
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000002"),
+                number = 29.0,
+                title = null,
+                date = LocalDate.parse("2023-03-15"),
+                updatedAt = now(),
+            ),
+            isRead = false,
         ),
-        ChapterRowData(
-            id = ChapterId("000003"),
-            title = "30 - Long title to make the title take two lines at least",
-            date = "2023-02-28",
-            isRead = true,
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000003"),
+                number = 28.0,
+                title = "Long title to make the title take two lines at least",
+                date = LocalDate.parse("2023-02-28"),
+                updatedAt = now(),
+            ),
+            isRead = false,
         ),
     )
 }

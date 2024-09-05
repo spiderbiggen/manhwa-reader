@@ -81,7 +81,6 @@ fun MangaOverview(viewModel: MangaViewModel, imageLoader: ImageLoader, navigateT
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun MangaOverview(
     state: MangaScreenState,
@@ -96,7 +95,7 @@ fun MangaOverview(
     when (state) {
         is MangaScreenState.Error,
         MangaScreenState.Loading,
-        -> MangaOverviewContent(
+            -> MangaOverviewContent(
             manga = persistentListOf(),
             favoritesOnly = false,
             unreadOnly = false,
@@ -188,10 +187,9 @@ private fun MangaOverviewContent(
             },
         ) { padding ->
             PullToRefreshBox(
-                refreshing,
-                onRefreshClicked,
-                Modifier
-                    .fillMaxSize(),
+                isRefreshing = refreshing,
+                onRefresh = onRefreshClicked,
+                modifier = Modifier.fillMaxSize(),
             ) {
                 StickyTopEffect(
                     items = manga,
