@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga
+package com.spiderbiggen.manga.presentation.ui.manga.explore
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -14,6 +14,7 @@ import com.spiderbiggen.manga.domain.usecase.manga.GetActiveManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -30,7 +31,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 @HiltViewModel
-class MangaViewModel @Inject constructor(
+class ExploreViewModel @Inject constructor(
     private val getActiveManga: GetActiveManga,
     private val isFavorite: IsFavorite,
     private val isRead: IsRead,
@@ -45,9 +46,6 @@ class MangaViewModel @Inject constructor(
     private val mutableState = MutableStateFlow<MangaScreenState>(MangaScreenState.Loading)
     val state
         get() = mutableState.asStateFlow()
-
-    private var favoritesOnly: Boolean = true
-    private var unreadOnly: Boolean = false
 
     suspend fun collect() {
         withContext(Dispatchers.Default) {
@@ -83,24 +81,9 @@ class MangaViewModel @Inject constructor(
                         readAll = chapterId?.let { isRead(it).leftOr(false) } == true,
                     )
                 }
-                val filtered = filterMangaViewData(manga).toImmutableList()
 
-                mutableState.emit(
-                    MangaScreenState.Ready(
-                        manga = filtered,
-                        favoritesOnly = favoritesOnly,
-                        unreadOnly = unreadOnly,
-                    ),
-                )
+                mutableState.emit(MangaScreenState.Ready(manga = manga.toImmutableList()))
             }
-    }
-
-    private fun filterMangaViewData(entries: List<MangaViewData>): List<MangaViewData> {
-        if (!favoritesOnly && !unreadOnly) return entries
-
-        return entries.filter {
-            (!favoritesOnly || it.isFavorite) && !(unreadOnly && it.readAll)
-        }
     }
 
     private fun mapError(error: AppError): MangaScreenState.Error {
@@ -117,20 +100,6 @@ class MangaViewModel @Inject constructor(
     fun onClickFavorite(mangaId: MangaId) {
         defaultScope.launch {
             toggleFavorite(mangaId)
-            updater.emit(Unit)
-        }
-    }
-
-    fun toggleFavoritesOnly() {
-        defaultScope.launch {
-            favoritesOnly = !favoritesOnly
-            updater.emit(Unit)
-        }
-    }
-
-    fun toggleUnreadOnly() {
-        defaultScope.launch {
-            unreadOnly = !unreadOnly
             updater.emit(Unit)
         }
     }

@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.images
+package com.spiderbiggen.manga.presentation.ui.chapter.read
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -51,6 +51,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import coil3.ImageLoader
@@ -63,19 +64,20 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 
 @Composable
-fun ImagesOverview(
-    viewModel: ImagesViewModel,
+fun ReadChapterScreen(
+    viewModel: ImagesViewModel = hiltViewModel(),
     imageLoader: ImageLoader,
     onBackClick: () -> Unit,
     toChapterClicked: (ChapterId) -> Unit,
 ) {
+    // FIXME: this seems stupid
     LaunchedEffect(true) {
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     MangaReaderTheme {
-        ImagesOverview(
+        ReadChapterScreen(
             state = state,
             imageLoader = imageLoader,
             onBackClick = onBackClick,
@@ -89,7 +91,7 @@ fun ImagesOverview(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ImagesOverview(
+fun ReadChapterScreen(
     state: ImagesScreenState,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
     onBackClick: () -> Unit = {},
@@ -106,7 +108,7 @@ fun ImagesOverview(
         topBar = {
             TopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
+                    IconButton(onClick = dropUnlessResumed(block = onBackClick)) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                     }
                 },
@@ -254,7 +256,7 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
 @Composable
 fun PreviewImagesOverview() {
     MangaReaderTheme {
-        ImagesOverview(
+        ReadChapterScreen(
             state = ImagesScreenState.Ready(
                 title = "Heavenly Martial God",
                 isFavorite = true,

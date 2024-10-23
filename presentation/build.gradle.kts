@@ -59,6 +59,7 @@ dependencies {
 
     // Kotlin
     implementation(libs.kotlin.stdlib)
+    implementation(libs.kotlin.reflect)
     implementation(libs.kotlinX.serialization)
     implementation(libs.kotlinX.coroutines.android)
     implementation(libs.kotlinX.datetime)

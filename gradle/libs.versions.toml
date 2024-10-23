@@ -85,6 +85,7 @@ retrofit-converter-serialization = { group = "com.squareup.retrofit2", name = "c
 
 # Kotlin std
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
+kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
 
 # KotlinX
 kotlinX-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.7.3" }

@@ -1,86 +1,48 @@
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
 package com.spiderbiggen.manga.presentation.ui.main
 
 import android.os.Bundle
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
+import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.compose.runtime.compositionLocalOf
 import androidx.navigation.NavController.OnDestinationChangedListener
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
 import coil3.ImageLoader
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
 import com.google.firebase.ktx.Firebase
-import com.spiderbiggen.manga.presentation.ui.chapter.ChapterOverview
-import com.spiderbiggen.manga.presentation.ui.chapter.ChapterViewModel
-import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRoute
-import com.spiderbiggen.manga.presentation.ui.images.ImagesOverview
-import com.spiderbiggen.manga.presentation.ui.images.ImagesViewModel
-import com.spiderbiggen.manga.presentation.ui.images.model.ImagesRoute
-import com.spiderbiggen.manga.presentation.ui.manga.MangaOverview
-import com.spiderbiggen.manga.presentation.ui.manga.MangaViewModel
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoute
+import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.ui.manga.host.mangaNavigation
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
+
+val LocalNavAnimatedVisibilityScope = compositionLocalOf<AnimatedVisibilityScope?> { null }
+val LocalSharedTransitionScope = compositionLocalOf<SharedTransitionScope?> { null }
 
 @Composable
 fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
     val navController = rememberNavController()
 
-    NavigationTrackingSideEffect(navController)
-    NavHost(
-        navController = navController,
-        startDestination = MangaRoute,
-        enterTransition = { slideIn(initialOffset = { IntOffset(it.width, 0) }) },
-        exitTransition = { slideOut(targetOffset = { IntOffset(-it.width, 0) }) },
-        popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
-        popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
-    ) {
-        composable<MangaRoute> {
-            val viewModel: MangaViewModel = hiltViewModel()
-            MangaOverview(
-                viewModel = viewModel,
-                imageLoader = coverImageLoader,
-                navigateToManga = { mangaId ->
-                    navController.navigate(ChapterRoute(mangaId.inner))
-                },
-            )
-        }
-        composable<ChapterRoute> { backStackEntry ->
-            val mangaId = backStackEntry.toRoute<ChapterRoute>().mangaId
-            ChapterOverview(
-                viewModel = hiltViewModel<ChapterViewModel>(),
-                onBackClick = dropUnlessResumed { navController.popBackStack() },
-                navigateToChapter = { chapterId ->
-                    navController.navigate(ImagesRoute(mangaId, chapterId.inner)) {
-                        restoreState = true
-                    }
-                },
-            )
-        }
-        composable<ImagesRoute>(
-            enterTransition = { fadeIn(animationSpec = tween(700)) },
-            exitTransition = { fadeOut(animationSpec = tween(700)) },
-        ) { backStackEntry ->
-            val mangaId = backStackEntry.toRoute<ImagesRoute>().mangaId
-            ImagesOverview(
-                viewModel = hiltViewModel<ImagesViewModel>(),
-                imageLoader = chapterImageLoader,
-                onBackClick = dropUnlessResumed {
-                    navController.popBackStack<ChapterRoute>(inclusive = false)
-                },
-                toChapterClicked = { chapterId ->
-                    navController.navigate(ImagesRoute(mangaId, chapterId.inner))
-                },
-            )
+    MangaReaderTheme {
+        NavigationTrackingSideEffect(navController)
+        SharedTransitionLayout {
+            CompositionLocalProvider(
+                LocalSharedTransitionScope provides this,
+            ) {
+                NavHost(
+                    navController = navController,
+                    startDestination = MangaRoutes.Host,
+                ) {
+                    mangaNavigation(navController, coverImageLoader, chapterImageLoader)
+                }
+            }
         }
     }
 }
