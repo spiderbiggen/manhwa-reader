@@ -1,12 +1,7 @@
-@file:OptIn(ExperimentalSharedTransitionApi::class, ExperimentalSharedTransitionApi::class)
-
 package com.spiderbiggen.manga.presentation.ui.manga
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +20,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -38,19 +32,15 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.coroutineScope
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.main.LocalSharedTransitionScope
 import com.spiderbiggen.manga.presentation.ui.manga.explore.ExploreViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.favorites.MangaFavoritesViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
@@ -62,11 +52,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun MangaOverview(
-    navController: NavController,
     viewModel: MangaFavoritesViewModel,
     imageLoader: ImageLoader,
     navigateToManga: (MangaId) -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
@@ -80,24 +68,20 @@ fun MangaOverview(
     val updatingState by viewModel.updatingState.collectAsState()
 
     MangaOverview(
-        navController = navController,
         state = state,
         imageLoader = imageLoader,
         refreshing = updatingState,
         onRefreshClicked = viewModel::onPullToRefresh,
         navigateToManga = navigateToManga,
         onClickFavorite = viewModel::onClickFavorite,
-        animatedVisibilityScope = animatedVisibilityScope,
     )
 }
 
 @Composable
 fun MangaOverview(
-    navController: NavController,
     viewModel: ExploreViewModel,
     imageLoader: ImageLoader,
     navigateToManga: (MangaId) -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
@@ -111,53 +95,45 @@ fun MangaOverview(
     val updatingState by viewModel.updatingState.collectAsState()
 
     MangaOverview(
-        navController = navController,
         state = state,
         imageLoader = imageLoader,
         refreshing = updatingState,
         onRefreshClicked = viewModel::onPullToRefresh,
         navigateToManga = navigateToManga,
         onClickFavorite = viewModel::onClickFavorite,
-        animatedVisibilityScope = animatedVisibilityScope,
     )
 }
 
 @Composable
 fun MangaOverview(
-    navController: NavController,
     state: MangaScreenState,
     refreshing: Boolean = false,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
     onRefreshClicked: () -> Unit = {},
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     when (state) {
         // TODO create error screen
-        is MangaScreenState.Error,
         // TODO create loading shimmer
+        is MangaScreenState.Error,
         MangaScreenState.Loading,
         -> MangaOverviewContent(
-            navController = navController,
             manga = persistentListOf(),
             refreshing = refreshing,
             imageLoader = imageLoader,
             onRefreshClicked = onRefreshClicked,
             navigateToManga = navigateToManga,
             onClickFavorite = onClickFavorite,
-            animatedVisibilityScope = animatedVisibilityScope,
         )
 
         is MangaScreenState.Ready -> MangaOverviewContent(
-            navController = navController,
             manga = state.manga,
             refreshing = refreshing,
             imageLoader = imageLoader,
             onRefreshClicked = onRefreshClicked,
             navigateToManga = navigateToManga,
             onClickFavorite = onClickFavorite,
-            animatedVisibilityScope = animatedVisibilityScope,
         )
     }
 }
@@ -165,14 +141,12 @@ fun MangaOverview(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MangaOverviewContent(
-    navController: NavController,
     manga: ImmutableList<MangaViewData>,
     refreshing: Boolean,
     imageLoader: ImageLoader,
     onRefreshClicked: () -> Unit = {},
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
@@ -193,12 +167,6 @@ private fun MangaOverviewContent(
                         }
                     }
                 },
-            )
-        },
-        bottomBar = {
-            MangaNavigationBar(
-                navController,
-                animatedVisibilityScope,
             )
         },
     ) { scaffoldPadding ->
@@ -261,20 +229,7 @@ private fun MangaList(
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {
     MangaReaderTheme {
-        val navController = rememberNavController()
-        SharedTransitionLayout {
-            CompositionLocalProvider(
-                LocalSharedTransitionScope provides this,
-            ) {
-                AnimatedContent(state) {
-                    MangaOverview(
-                        navController = navController,
-                        state = it,
-                        animatedVisibilityScope = this@AnimatedContent,
-                    )
-                }
-            }
-        }
+        MangaOverview(state = state)
     }
 }
 

@@ -3,10 +3,7 @@
 package com.spiderbiggen.manga.presentation.ui.chapter.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -59,12 +56,9 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.coroutineScope
-import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
-import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
 import com.spiderbiggen.manga.presentation.components.ReadableCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
@@ -73,7 +67,6 @@ import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
 import com.spiderbiggen.manga.presentation.ui.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.chapter.overview.usecase.MapChapterRowData
-import com.spiderbiggen.manga.presentation.ui.main.LocalSharedTransitionScope
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -83,10 +76,8 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun ChapterOverview(
     viewModel: ChapterViewModel = hiltViewModel(),
-    navController: NavController,
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
@@ -99,28 +90,24 @@ fun ChapterOverview(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val refreshingState = viewModel.refreshingState.collectAsState()
     ChapterOverview(
-        navController = navController,
         state = state,
         onBackClick = onBackClick,
         refreshing = refreshingState,
         startRefresh = dropUnlessResumed { viewModel.onClickRefresh() },
         toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
         navigateToChapter = navigateToChapter,
-        animatedVisibilityScope = animatedVisibilityScope,
     )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ChapterOverview(
-    navController: NavController,
     state: ChapterScreenState,
     onBackClick: () -> Unit,
     refreshing: State<Boolean>,
     startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
-    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
@@ -147,12 +134,6 @@ fun ChapterOverview(
                             )
                         }
                     },
-                )
-            },
-            bottomBar = {
-                MangaNavigationBar(
-                    navController,
-                    animatedVisibilityScope,
                 )
             },
         ) { padding ->
@@ -216,7 +197,11 @@ private fun ChaptersList(
 }
 
 @Composable
-private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> Unit, modifier: Modifier = Modifier) {
+private fun ChapterRow(
+    item: ChapterRowData,
+    navigateToChapter: (ChapterId) -> Unit,
+    modifier: Modifier = Modifier
+) {
     ReadableCard(
         isRead = item.isRead,
         onClick = dropUnlessResumed { navigateToChapter(item.id) },
@@ -259,7 +244,10 @@ private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> U
 private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
     Box(
         modifier
-            .background(MaterialTheme.colorScheme.primaryContainer, shape = MaterialTheme.shapes.medium)
+            .background(
+                MaterialTheme.colorScheme.primaryContainer,
+                shape = MaterialTheme.shapes.medium
+            )
             .size(56.dp),
         contentAlignment = Alignment.Center,
     ) {
@@ -277,26 +265,15 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
 @Composable
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     val refreshing = remember { mutableStateOf(false) }
-    val navController = rememberNavController()
     MangaReaderTheme(state.ifReady()?.dominantColor ?: Purple80) {
-        SharedTransitionLayout {
-            CompositionLocalProvider(
-                LocalSharedTransitionScope provides this,
-            ) {
-                AnimatedContent(state) {
-                    ChapterOverview(
-                        navController = navController,
-                        state = it,
-                        onBackClick = {},
-                        navigateToChapter = {},
-                        refreshing = refreshing,
-                        startRefresh = {},
-                        toggleFavorite = {},
-                        animatedVisibilityScope = this@AnimatedContent,
-                    )
-                }
-            }
-        }
+        ChapterOverview(
+            state = state,
+            onBackClick = {},
+            navigateToChapter = {},
+            refreshing = refreshing,
+            startRefresh = {},
+            toggleFavorite = {},
+        )
     }
 }
 
