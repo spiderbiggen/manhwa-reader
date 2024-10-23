@@ -1,6 +1,12 @@
-package com.spiderbiggen.manga.presentation.ui.chapter
+@file:OptIn(ExperimentalSharedTransitionApi::class)
+
+package com.spiderbiggen.manga.presentation.ui.chapter.overview
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -48,22 +54,26 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import androidx.lifecycle.coroutineScope
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
+import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
 import com.spiderbiggen.manga.presentation.components.ReadableCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
-import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRowData
-import com.spiderbiggen.manga.presentation.ui.chapter.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.chapter.overview.model.ChapterRowData
+import com.spiderbiggen.manga.presentation.ui.chapter.overview.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.main.LocalSharedTransitionScope
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
@@ -72,9 +82,11 @@ import kotlinx.datetime.LocalDate
 
 @Composable
 fun ChapterOverview(
-    viewModel: ChapterViewModel = viewModel(),
+    viewModel: ChapterViewModel = hiltViewModel(),
+    navController: NavController,
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
+    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
@@ -86,81 +98,90 @@ fun ChapterOverview(
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val refreshingState = viewModel.refreshingState.collectAsState()
-    MangaReaderTheme {
-        ChapterOverview(
-            state = state,
-            onBackClick = onBackClick,
-            refreshing = refreshingState,
-            startRefresh = dropUnlessResumed { viewModel.onClickRefresh() },
-            toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
-            navigateToChapter = navigateToChapter,
-        )
-    }
+    ChapterOverview(
+        navController = navController,
+        state = state,
+        onBackClick = onBackClick,
+        refreshing = refreshingState,
+        startRefresh = dropUnlessResumed { viewModel.onClickRefresh() },
+        toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
+        navigateToChapter = navigateToChapter,
+        animatedVisibilityScope = animatedVisibilityScope,
+    )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun ChapterOverview(
+    navController: NavController,
     state: ChapterScreenState,
     onBackClick: () -> Unit,
     refreshing: State<Boolean>,
     startRefresh: () -> Unit,
     toggleFavorite: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
+    animatedVisibilityScope: AnimatedVisibilityScope,
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                    }
-                },
-                scrollBehavior = topAppBarScrollBehavior,
-                title = { Text((state as? ChapterScreenState.Ready)?.title ?: "Manga") },
-                actions = {
-                    IconButton(onClick = toggleFavorite) {
-                        Icon(
-                            imageVector = when (state.ifReady()?.isFavorite) {
-                                true -> Icons.Outlined.Favorite
-                                else -> Icons.Outlined.FavoriteBorder
-                            },
-                            contentDescription = "Favorite",
-                        )
-                    }
-                },
-            )
-        },
-        containerColor = MaterialTheme.colorScheme.surface,
-    ) { padding ->
-        when (state) {
-            is ChapterScreenState.Loading,
-            is ChapterScreenState.Error,
+    MangaReaderTheme(state.ifReady()?.dominantColor ?: Purple80) {
+        Scaffold(
+            topBar = {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                        }
+                    },
+                    scrollBehavior = topAppBarScrollBehavior,
+                    title = { Text((state as? ChapterScreenState.Ready)?.title ?: "Manga") },
+                    actions = {
+                        IconButton(onClick = toggleFavorite) {
+                            Icon(
+                                imageVector = when (state.ifReady()?.isFavorite) {
+                                    true -> Icons.Outlined.Favorite
+                                    else -> Icons.Outlined.FavoriteBorder
+                                },
+                                contentDescription = "Favorite",
+                            )
+                        }
+                    },
+                )
+            },
+            bottomBar = {
+                MangaNavigationBar(
+                    navController,
+                    animatedVisibilityScope,
+                )
+            },
+        ) { padding ->
+            when (state) {
+                is ChapterScreenState.Loading,
+                is ChapterScreenState.Error,
                 -> LoadingSpinner(padding)
 
-            is ChapterScreenState.Ready -> {
-                PullToRefreshBox(
-                    isRefreshing = refreshing.value,
-                    onRefresh = startRefresh,
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    StickyTopEffect(
-                        items = state.chapters,
-                        listState = lazyListState,
-                        manuallyScrolled = manuallyScrolled,
-                    )
-                    ChaptersList(
-                        lazyListState = lazyListState,
-                        chapters = state.chapters,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                        contentPadding = padding,
-                        navigateToChapter = navigateToChapter,
-                    )
+                is ChapterScreenState.Ready -> {
+                    PullToRefreshBox(
+                        isRefreshing = refreshing.value,
+                        onRefresh = startRefresh,
+                        modifier = Modifier.fillMaxSize(),
+                    ) {
+                        StickyTopEffect(
+                            items = state.chapters,
+                            listState = lazyListState,
+                            manuallyScrolled = manuallyScrolled,
+                        )
+                        ChaptersList(
+                            lazyListState = lazyListState,
+                            chapters = state.chapters,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                            contentPadding = padding,
+                            navigateToChapter = navigateToChapter,
+                        )
+                    }
                 }
             }
         }
@@ -195,11 +216,7 @@ private fun ChaptersList(
 }
 
 @Composable
-private fun ChapterRow(
-    item: ChapterRowData,
-    navigateToChapter: (ChapterId) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> Unit, modifier: Modifier = Modifier) {
     ReadableCard(
         isRead = item.isRead,
         onClick = dropUnlessResumed { navigateToChapter(item.id) },
@@ -260,15 +277,26 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
 @Composable
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     val refreshing = remember { mutableStateOf(false) }
+    val navController = rememberNavController()
     MangaReaderTheme(state.ifReady()?.dominantColor ?: Purple80) {
-        ChapterOverview(
-            state = state,
-            onBackClick = {},
-            navigateToChapter = {},
-            refreshing = refreshing,
-            startRefresh = {},
-            toggleFavorite = {},
-        )
+        SharedTransitionLayout {
+            CompositionLocalProvider(
+                LocalSharedTransitionScope provides this,
+            ) {
+                AnimatedContent(state) {
+                    ChapterOverview(
+                        navController = navController,
+                        state = it,
+                        onBackClick = {},
+                        navigateToChapter = {},
+                        refreshing = refreshing,
+                        startRefresh = {},
+                        toggleFavorite = {},
+                        animatedVisibilityScope = this@AnimatedContent,
+                    )
+                }
+            }
+        }
     }
 }
 

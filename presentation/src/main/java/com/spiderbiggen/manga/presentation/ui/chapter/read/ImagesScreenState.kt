@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.images
+package com.spiderbiggen.manga.presentation.ui.chapter.read
 
 import androidx.compose.runtime.Immutable
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
@@ -19,9 +19,7 @@ sealed interface ImagesScreenState {
     ) : ImagesScreenState
 
     @Immutable
-    data class Error(
-        val errorMessage: String,
-    ) : ImagesScreenState
+    data class Error(val errorMessage: String) : ImagesScreenState
 
     fun ifReady(): Ready? = this as? Ready
 }

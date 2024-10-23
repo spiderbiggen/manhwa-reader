@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.chapter
+package com.spiderbiggen.manga.presentation.ui.chapter.overview
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
@@ -8,7 +8,6 @@ import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
-import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
@@ -17,9 +16,10 @@ import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.chapter.model.ChapterRoute
-import com.spiderbiggen.manga.presentation.ui.chapter.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.chapter.overview.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -29,7 +29,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
@@ -43,8 +42,8 @@ class ChapterViewModel @Inject constructor(
     private val mapChapterRowData: MapChapterRowData,
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<ChapterRoute>()
-    private val mangaId = MangaId(args.mangaId)
+    private val args = savedStateHandle.toRoute<MangaRoutes.Chapters>()
+    private val mangaId = args.mangaId
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val refreshingState = mutableUpdatingState.asStateFlow()
