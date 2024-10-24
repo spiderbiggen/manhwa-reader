@@ -22,10 +22,7 @@ private val navigationItem = mutableListOf(
 )
 
 @Composable
-fun MangaNavigationBar(
-    navController: NavController,
-    modifier: Modifier = Modifier,
-) {
+fun MangaNavigationBar(navController: NavController, modifier: Modifier = Modifier) {
     NavigationBar(modifier) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
