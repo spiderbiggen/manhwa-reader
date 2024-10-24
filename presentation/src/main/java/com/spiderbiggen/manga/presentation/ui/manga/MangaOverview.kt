@@ -51,11 +51,7 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @Composable
-fun MangaOverview(
-    viewModel: MangaFavoritesViewModel,
-    imageLoader: ImageLoader,
-    navigateToManga: (MangaId) -> Unit,
-) {
+fun MangaOverview(viewModel: MangaFavoritesViewModel, imageLoader: ImageLoader, navigateToManga: (MangaId) -> Unit) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()
@@ -78,11 +74,7 @@ fun MangaOverview(
 }
 
 @Composable
-fun MangaOverview(
-    viewModel: ExploreViewModel,
-    imageLoader: ImageLoader,
-    navigateToManga: (MangaId) -> Unit,
-) {
+fun MangaOverview(viewModel: ExploreViewModel, imageLoader: ImageLoader, navigateToManga: (MangaId) -> Unit) {
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()

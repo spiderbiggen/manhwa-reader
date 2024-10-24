@@ -197,11 +197,7 @@ private fun ChaptersList(
 }
 
 @Composable
-private fun ChapterRow(
-    item: ChapterRowData,
-    navigateToChapter: (ChapterId) -> Unit,
-    modifier: Modifier = Modifier
-) {
+private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> Unit, modifier: Modifier = Modifier) {
     ReadableCard(
         isRead = item.isRead,
         onClick = dropUnlessResumed { navigateToChapter(item.id) },
@@ -246,7 +242,7 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
         modifier
             .background(
                 MaterialTheme.colorScheme.primaryContainer,
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.medium,
             )
             .size(56.dp),
         contentAlignment = Alignment.Center,
