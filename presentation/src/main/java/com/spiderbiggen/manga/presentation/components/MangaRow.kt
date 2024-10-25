@@ -1,12 +1,12 @@
 package com.spiderbiggen.manga.presentation.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
@@ -19,32 +19,37 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.ColorPainter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalInspectionMode
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toIntSize
 import androidx.lifecycle.compose.dropUnlessResumed
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import coil3.compose.AsyncImage
+import coil3.annotation.ExperimentalCoilApi
+import coil3.asImage
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.compose.LocalPlatformContext
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
+import coil3.size.Size
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 
-private const val ASPECT_RATIO = 0.741f
-private val aspectModifier = Modifier
-    .height(80.dp)
-    .aspectRatio(ASPECT_RATIO, matchHeightConstraintsFirst = true)
+private val COVER_SIZE = DpSize(60.dp, 80.dp)
 
 @Composable
 fun MangaRow(
@@ -73,23 +78,33 @@ fun MangaRow(
 
 @Composable
 private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
-    AsyncImage(
-        model = url,
+    val context = LocalPlatformContext.current
+    val density = LocalDensity.current
+    val asyncPainter = rememberAsyncImagePainter(
+        model = remember(context) {
+            val size = with(density) {
+                val (width, height) = COVER_SIZE.toSize().toIntSize()
+                Size(width, height)
+            }
+            ImageRequest.Builder(context)
+                .data(url)
+                .size(size)
+                .build()
+        },
         imageLoader = imageLoader,
+    )
+    Image(
+        painter = asyncPainter,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = modifier.then(aspectModifier.clip(MaterialTheme.shapes.small)),
-        alignment = Alignment.Center,
-        placeholder = ColorPainter(MaterialTheme.colorScheme.surfaceContainerLow),
-        error = if (LocalInspectionMode.current) painterResource(R.mipmap.preview_cover_placeholder) else null,
+        modifier = modifier
+            .size(COVER_SIZE)
+            .clip(MaterialTheme.shapes.small),
     )
 }
 
 @Composable
-private fun IconRow(
-    manga: MangaViewData,
-    onClickFavorite: (MangaId) -> Unit,
-) {
+private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     Row {
         if (manga.status == "Dropped") {
             Icon(
@@ -133,19 +148,27 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
     }
 }
 
+@OptIn(ExperimentalCoilApi::class)
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
-    MangaReaderTheme {
-        Surface {
-            MangaRow(
-                manga = state,
-                modifier = Modifier.padding(16.dp),
-                imageLoader = SingletonImageLoader.get(LocalContext.current),
-                navigateToManga = {},
-                onClickFavorite = {},
-            )
+    val context = LocalPlatformContext.current
+    val previewHandler = AsyncImagePreviewHandler {
+        context.resources.getDrawable(R.mipmap.preview_cover_placeholder, null).asImage()
+    }
+
+    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
+        MangaReaderTheme {
+            Surface {
+                MangaRow(
+                    manga = state,
+                    modifier = Modifier.padding(16.dp),
+                    imageLoader = SingletonImageLoader.get(LocalContext.current),
+                    navigateToManga = {},
+                    onClickFavorite = {},
+                )
+            }
         }
     }
 }
