@@ -1,20 +1,22 @@
 package com.spiderbiggen.manga.presentation.ui.chapter.read
 
+import android.content.res.Configuration
+import androidx.compose.animation.core.animateIntOffsetAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.scrollBy
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -25,6 +27,7 @@ import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,33 +38,48 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
-import androidx.compose.material3.TopAppBarState
-import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import coil3.compose.SubcomposeAsyncImage
+import coil3.annotation.ExperimentalCoilApi
+import coil3.asImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.compose.LocalPlatformContext
+import coil3.compose.asPainter
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ErrorResult
+import coil3.request.ImageRequest
+import coil3.request.SuccessResult
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.coroutines.launch
 
 @Composable
 fun ReadChapterScreen(
@@ -100,29 +118,65 @@ fun ReadChapterScreen(
     setRead: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
-    val topAppBarState: TopAppBarState = rememberTopAppBarState()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    val density = LocalDensity.current
+    val maxTopOffSet = with(density) {
+        TopAppBarDefaults.windowInsets.getTop(density) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx()
+    }
+    val maxBottomOffSet = with(density) {
+        BottomAppBarDefaults.windowInsets.getBottom(density) + 56.dp.toPx()
+    }
+
+    var topAppBarOffsetPx by remember { mutableFloatStateOf(0f) }
+    var bottomBarOffsetPx by remember { mutableFloatStateOf(0f) }
+    // TODO increase animation duration
+    val animatedTopBarIntOffset by animateIntOffsetAsState(IntOffset(0, topAppBarOffsetPx.toInt()))
+    val animatedBottomBarIntOffset by animateIntOffsetAsState(IntOffset(0, bottomBarOffsetPx.toInt()))
+    val lazyListState = rememberLazyListState()
+
+    val nestedScrollConnection = remember {
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                val delta = available.y
+                if (delta > 0f) {
+                    topAppBarOffsetPx = 0f
+                    bottomBarOffsetPx = 0f
+                } else {
+                    topAppBarOffsetPx = (topAppBarOffsetPx + delta).coerceIn(-maxTopOffSet, 0f)
+                    // TODO fix hidden bottom bar at bottom of screen
+                    bottomBarOffsetPx = (bottomBarOffsetPx - delta).coerceIn(0f, maxBottomOffSet)
+                }
+                return Offset.Zero
+            }
+        }
+    }
 
     val ready = state.ifReady()
     Scaffold(
+        contentWindowInsets = WindowInsets.navigationBars,
         topBar = {
-            TopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = dropUnlessResumed(block = onBackClick)) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                    }
-                },
-                title = { Text(ready?.title.orEmpty()) },
-                scrollBehavior = scrollBehavior,
-            )
+            Box(
+                Modifier
+                    .offset { animatedTopBarIntOffset }
+                    .background(MaterialTheme.colorScheme.surface)
+                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
+            ) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = dropUnlessResumed(block = onBackClick)) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                        }
+                    },
+                    title = { Text(ready?.title.orEmpty()) },
+                )
+            }
         },
         bottomBar = {
-            Surface(Modifier.fillMaxWidth()) {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                ) {
+            Surface(
+                Modifier
+                    .offset { animatedBottomBarIntOffset }
+                    .fillMaxWidth(),
+            ) {
+                Row(Modifier.padding(horizontal = 16.dp)) {
                     IconButton(onClick = toggleFavorite) {
                         Icon(
                             imageVector = when (ready?.isFavorite) {
@@ -159,7 +213,6 @@ fun ReadChapterScreen(
                 }
             }
         },
-        contentWindowInsets = WindowInsets.navigationBars,
     ) { padding ->
         when (state) {
             is ImagesScreenState.Loading -> {
@@ -176,7 +229,8 @@ fun ReadChapterScreen(
             is ImagesScreenState.Ready -> ReadyImagesOverview(
                 state = state,
                 imageLoader = imageLoader,
-                scrollBehavior = scrollBehavior,
+                lazyListState = lazyListState,
+                nestedScrollConnection = nestedScrollConnection,
                 padding = padding,
                 setRead = setRead,
             )
@@ -187,31 +241,18 @@ fun ReadChapterScreen(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
 private fun ReadyImagesOverview(
     state: ImagesScreenState.Ready,
     imageLoader: ImageLoader,
-    scrollBehavior: TopAppBarScrollBehavior,
+    lazyListState: LazyListState,
+    nestedScrollConnection: NestedScrollConnection,
     padding: PaddingValues,
     setRead: () -> Unit,
 ) {
-    val scope = rememberCoroutineScope()
     val lazyListState = rememberLazyListState()
     val images by remember { derivedStateOf { state.images } }
-    val interactionSource = remember { MutableInteractionSource() }
     LazyColumn(
-        Modifier
-            .consumeWindowInsets(padding)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = null,
-            ) {
-                scope.launch {
-                    lazyListState.scrollBy(-(scrollBehavior.state.heightOffset))
-                    scrollBehavior.state.heightOffset = 0f
-                }
-            }
-            .nestedScroll(scrollBehavior.nestedScrollConnection),
+        Modifier.nestedScroll(nestedScrollConnection),
         contentPadding = padding,
         state = lazyListState,
     ) {
@@ -230,45 +271,79 @@ private val boxModifier = Modifier
 
 @Composable
 private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
-    SubcomposeAsyncImage(
-        model = model,
+    val context = LocalPlatformContext.current
+//    val density = LocalDensity.current
+    val asyncPainter = rememberAsyncImagePainter(
+        model = remember(context) {
+            ImageRequest.Builder(context)
+                .data(model)
+                .build()
+        },
         imageLoader = imageLoader,
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.FillWidth,
-        loading = {
-            Box(
-                boxModifier,
-                contentAlignment = Alignment.Center,
-            ) {
+    )
+
+    val painterState by asyncPainter.state.collectAsState()
+    when (painterState) {
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                asyncPainter,
+                null,
+                modifier = modifier,
+                contentScale = ContentScale.FillWidth,
+            )
+        }
+
+        is AsyncImagePainter.State.Error -> {
+            Box(boxModifier.background(MaterialTheme.colorScheme.error))
+        }
+
+        else -> {
+            Box(boxModifier, contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        },
-        error = {
-            Box(
-                boxModifier.background(MaterialTheme.colorScheme.error),
-            )
-        },
-    )
+        }
+    }
 }
 
-@Preview
+@OptIn(ExperimentalCoilApi::class)
+@Preview("Light")
+@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewImagesOverview() {
-    MangaReaderTheme {
-        ReadChapterScreen(
-            state = ImagesScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = true,
-                isRead = false,
-                surrounding = SurroundingChapters(
-                    previous = null,
-                    next = null,
+    val context = LocalPlatformContext.current
+    val previewHandler = AsyncImagePreviewHandler { _, request ->
+        when (request.data.toString()) {
+            "1" -> {
+                val image = context.resources.getDrawable(R.mipmap.preview_cover_placeholder, null).asImage()
+                AsyncImagePainter.State.Success(image.asPainter(context), SuccessResult(image, request))
+            }
+
+            "2" -> AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
+            "3" -> AsyncImagePainter.State.Loading(null)
+
+            else -> AsyncImagePainter.State.Empty
+        }
+    }
+
+    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
+        MangaReaderTheme {
+            ReadChapterScreen(
+                state = ImagesScreenState.Ready(
+                    title = "Heavenly Martial God",
+                    isFavorite = true,
+                    isRead = false,
+                    surrounding = SurroundingChapters(
+                        previous = null,
+                        next = null,
+                    ),
+                    images = persistentListOf(
+                        "1",
+                        "2",
+                        "3",
+                        "4",
+                    ),
                 ),
-                images = persistentListOf(
-                    "https://manga.spiderbiggen.com/api/v1/mangas/8430c4857ec14234811b7508d83a50ab/image",
-                ),
-            ),
-        )
+            )
+        }
     }
 }
