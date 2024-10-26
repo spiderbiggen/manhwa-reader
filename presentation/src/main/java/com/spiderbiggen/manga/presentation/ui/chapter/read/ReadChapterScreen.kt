@@ -73,7 +73,6 @@ import coil3.compose.LocalPlatformContext
 import coil3.compose.asPainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ErrorResult
-import coil3.request.ImageRequest
 import coil3.request.SuccessResult
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
@@ -126,24 +125,26 @@ fun ReadChapterScreen(
         BottomAppBarDefaults.windowInsets.getBottom(density) + 56.dp.toPx()
     }
 
+    val lazyListState = rememberLazyListState()
+
     var topAppBarOffsetPx by remember { mutableFloatStateOf(0f) }
     var bottomBarOffsetPx by remember { mutableFloatStateOf(0f) }
     // TODO increase animation duration
     val animatedTopBarIntOffset by animateIntOffsetAsState(IntOffset(0, topAppBarOffsetPx.toInt()))
     val animatedBottomBarIntOffset by animateIntOffsetAsState(IntOffset(0, bottomBarOffsetPx.toInt()))
-    val lazyListState = rememberLazyListState()
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 val delta = available.y
-                if (delta > 0f) {
+                if (delta > 8f) {
                     topAppBarOffsetPx = 0f
                     bottomBarOffsetPx = 0f
                 } else {
                     topAppBarOffsetPx = (topAppBarOffsetPx + delta).coerceIn(-maxTopOffSet, 0f)
-                    // TODO fix hidden bottom bar at bottom of screen
-                    bottomBarOffsetPx = (bottomBarOffsetPx - delta).coerceIn(0f, maxBottomOffSet)
+                    // TODO fix bottom bar glitching
+                    val maximumValue = maxBottomOffSet - getBottomPadding(lazyListState, maxBottomOffSet)
+                    bottomBarOffsetPx = (bottomBarOffsetPx - delta).coerceIn(0f, maximumValue.coerceAtLeast(0f))
                 }
                 return Offset.Zero
             }
@@ -240,6 +241,17 @@ fun ReadChapterScreen(
     }
 }
 
+private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Float): Float {
+    val info = lazyListState.layoutInfo
+    val count = info.totalItemsCount
+    val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return maxBottomOffSet
+    if (lastVisibleItem.index + 2 < count) return 0f
+    val consumedSize = lastVisibleItem.offset + lastVisibleItem.size + info.afterContentPadding
+    val bottomOverflow = (consumedSize - info.viewportEndOffset)
+    val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0f)
+    return bottomPadding
+}
+
 @Composable
 private fun ReadyImagesOverview(
     state: ImagesScreenState.Ready,
@@ -249,7 +261,6 @@ private fun ReadyImagesOverview(
     padding: PaddingValues,
     setRead: () -> Unit,
 ) {
-    val lazyListState = rememberLazyListState()
     val images by remember { derivedStateOf { state.images } }
     LazyColumn(
         Modifier.nestedScroll(nestedScrollConnection),
@@ -271,22 +282,16 @@ private val boxModifier = Modifier
 
 @Composable
 private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
-    val context = LocalPlatformContext.current
-//    val density = LocalDensity.current
     val asyncPainter = rememberAsyncImagePainter(
-        model = remember(context) {
-            ImageRequest.Builder(context)
-                .data(model)
-                .build()
-        },
+        model = model,
         imageLoader = imageLoader,
     )
 
-    val painterState by asyncPainter.state.collectAsState()
-    when (painterState) {
+    val painterState = asyncPainter.state.collectAsState()
+    when (val state = painterState.value) {
         is AsyncImagePainter.State.Success -> {
             Image(
-                asyncPainter,
+                state.painter,
                 null,
                 modifier = modifier,
                 contentScale = ContentScale.FillWidth,
