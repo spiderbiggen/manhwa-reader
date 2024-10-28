@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.painterResource
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -31,8 +31,8 @@ fun MangaNavigationBar(navController: NavController, modifier: Modifier = Modifi
             val isSelected = currentDestination?.hasRoute(item.route::class) == true
             NavigationBarItem(
                 selected = isSelected,
-                onClick = dropUnlessResumed {
-                    if (isSelected) return@dropUnlessResumed
+                onClick = dropUnlessStarted {
+                    if (isSelected) return@dropUnlessStarted
                     navController.navigate(item.route) {
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
