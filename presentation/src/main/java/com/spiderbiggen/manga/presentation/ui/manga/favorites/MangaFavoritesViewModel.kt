@@ -107,11 +107,9 @@ class MangaFavoritesViewModel @Inject constructor(
     }
 
     private suspend fun updateMangas(skipCache: Boolean) {
-        withContext(Dispatchers.IO) {
-            mutableUpdatingState.emit(true)
-            updateMangaFromRemote(skipCache)
-            // TODO show error notice (snackbar?)
-            mutableUpdatingState.emit(false)
-        }
+        mutableUpdatingState.emit(true)
+        updateMangaFromRemote(skipCache)
+        // TODO show error notice (snackbar?)
+        mutableUpdatingState.emit(false)
     }
 }

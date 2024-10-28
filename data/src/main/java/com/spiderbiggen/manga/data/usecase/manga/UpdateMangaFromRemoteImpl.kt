@@ -12,13 +12,13 @@ import javax.inject.Inject
 import javax.inject.Provider
 
 class UpdateMangaFromRemoteImpl @Inject constructor(
-    private val getRemotemanga: GetRemoteMangaUseCase,
-    private val localmangaDao: Provider<LocalMangaDao>,
+    private val getRemoteManga: GetRemoteMangaUseCase,
+    private val localMangaDao: Provider<LocalMangaDao>,
     private val toLocal: ToLocalMangaUseCase,
 ) : UpdateMangaFromRemote {
-    override suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError> = getRemotemanga(skipCache)
+    override suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError> = getRemoteManga(skipCache)
         .either()
         .mapLeft { mangas ->
-            localmangaDao.get().insert(mangas.map(toLocal::invoke))
+            localMangaDao.get().insert(mangas.map(toLocal::invoke))
         }
 }

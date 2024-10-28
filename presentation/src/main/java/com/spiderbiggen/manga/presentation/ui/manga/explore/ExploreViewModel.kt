@@ -49,12 +49,12 @@ class ExploreViewModel @Inject constructor(
 
     suspend fun collect() {
         withContext(Dispatchers.Default) {
-            launch {
+            launch(Dispatchers.Default) {
                 updateMangas(skipCache = false)
             }
-            updater.emit(Unit)
-            updateScreenState()
         }
+        updater.emit(Unit)
+        updateScreenState()
     }
 
     private suspend fun updateScreenState() {
@@ -105,11 +105,9 @@ class ExploreViewModel @Inject constructor(
     }
 
     private suspend fun updateMangas(skipCache: Boolean) {
-        withContext(Dispatchers.IO) {
-            mutableUpdatingState.emit(true)
-            updateMangaFromRemote(skipCache)
-            // TODO show error notice (snackbar?)
-            mutableUpdatingState.emit(false)
-        }
+        mutableUpdatingState.emit(true)
+        updateMangaFromRemote(skipCache)
+        // TODO show error notice (snackbar?)
+        mutableUpdatingState.emit(false)
     }
 }
