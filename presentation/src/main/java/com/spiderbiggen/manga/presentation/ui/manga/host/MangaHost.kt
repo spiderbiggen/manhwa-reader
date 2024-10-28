@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -85,7 +85,7 @@ private fun MangaNavHost(
             val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
             ChapterOverview(
                 viewModel = hiltViewModel<ChapterViewModel>(),
-                onBackClick = dropUnlessResumed { navController.popBackStack() },
+                onBackClick = dropUnlessStarted { navController.popBackStack() },
                 navigateToChapter = { chapterId ->
                     navigateToReader(mangaId, chapterId)
                 },

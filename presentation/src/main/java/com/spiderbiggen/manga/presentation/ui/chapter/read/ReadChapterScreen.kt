@@ -98,9 +98,9 @@ fun ReadChapterScreen(
             imageLoader = imageLoader,
             onBackClick = onBackClick,
             toChapterClicked = toChapterClicked,
-            toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
-            setRead = dropUnlessResumed { viewModel.updateReadState() },
-            setReadUpToHere = dropUnlessResumed { viewModel.setReadUpToHere() },
+            toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
+            setRead = dropUnlessStarted { viewModel.updateReadState() },
+            setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
         )
     }
 }
@@ -164,7 +164,7 @@ fun ReadChapterScreen(
             ) {
                 TopAppBar(
                     navigationIcon = {
-                        IconButton(onClick = dropUnlessResumed(block = onBackClick)) {
+                        IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
                             Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                         }
                     },
@@ -201,13 +201,13 @@ fun ReadChapterScreen(
                     val previousChapterId = ready?.surrounding?.previous
                     val nextChapterId = ready?.surrounding?.next
                     IconButton(
-                        onClick = dropUnlessResumed { previousChapterId?.let { toChapterClicked(it) } },
+                        onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
                         enabled = previousChapterId != null,
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
                     }
                     IconButton(
-                        onClick = dropUnlessResumed { nextChapterId?.let { toChapterClicked(it) } },
+                        onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
                         enabled = nextChapterId != null,
                     ) {
                         Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
