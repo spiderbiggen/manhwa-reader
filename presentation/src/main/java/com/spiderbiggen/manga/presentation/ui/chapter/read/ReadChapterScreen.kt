@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.chapter.read
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
@@ -40,6 +41,7 @@ import androidx.compose.material3.TopAppBarState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -56,7 +58,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
-import coil3.compose.SubcomposeAsyncImage
+import coil3.compose.AsyncImagePainter
+import coil3.compose.LocalPlatformContext
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.ImageRequest
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -230,26 +235,38 @@ private val boxModifier = Modifier
 
 @Composable
 private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
-    SubcomposeAsyncImage(
-        model = model,
+    val context = LocalPlatformContext.current
+//    val density = LocalDensity.current
+    val asyncPainter = rememberAsyncImagePainter(
+        model = remember(context) {
+            ImageRequest.Builder(context)
+                .data(model)
+                .build()
+        },
         imageLoader = imageLoader,
-        contentDescription = null,
-        modifier = modifier,
-        contentScale = ContentScale.FillWidth,
-        loading = {
-            Box(
-                boxModifier,
-                contentAlignment = Alignment.Center,
-            ) {
+    )
+
+    val painterState by asyncPainter.state.collectAsState()
+    when (painterState) {
+        is AsyncImagePainter.State.Success -> {
+            Image(
+                asyncPainter,
+                null,
+                modifier = modifier,
+                contentScale = ContentScale.FillWidth,
+            )
+        }
+
+        is AsyncImagePainter.State.Error -> {
+            Box(boxModifier.background(MaterialTheme.colorScheme.error))
+        }
+
+        else -> {
+            Box(boxModifier, contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-        },
-        error = {
-            Box(
-                boxModifier.background(MaterialTheme.colorScheme.error),
-            )
-        },
-    )
+        }
+    }
 }
 
 @Preview
