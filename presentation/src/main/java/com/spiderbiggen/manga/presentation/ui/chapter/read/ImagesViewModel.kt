@@ -80,9 +80,9 @@ class ImagesViewModel @Inject constructor(
 
     private suspend fun updateScreenState() {
         withContext(Dispatchers.Default) {
-            val deferredEitherChapter = async(Dispatchers.IO) { getChapter(chapterId) }
-            val deferredEitherImages = async(Dispatchers.IO) { getChapterImages(chapterId) }
-            val deferredSurrounding = async(Dispatchers.IO) { getSurroundingChapters(chapterId) }
+            val deferredEitherChapter = async { getChapter(chapterId) }
+            val deferredEitherImages = async { getChapterImages(chapterId) }
+            val deferredSurrounding = async { getSurroundingChapters(chapterId) }
 
             when (val data = deferredEitherChapter.await().andLeft(deferredEitherImages.await())) {
                 is Either.Left -> {

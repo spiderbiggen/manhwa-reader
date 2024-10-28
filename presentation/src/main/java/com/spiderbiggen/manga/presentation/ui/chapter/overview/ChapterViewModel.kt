@@ -116,11 +116,9 @@ class ChapterViewModel @Inject constructor(
     }
 
     private suspend fun updateChapters(skipCache: Boolean) {
-        withContext(Dispatchers.IO) {
-            mutableUpdatingState.emit(true)
-            updateChaptersFromRemote(mangaId, skipCache = skipCache)
-            // TODO show error notice (snackbar?)
-            mutableUpdatingState.emit(false)
-        }
+        mutableUpdatingState.emit(true)
+        updateChaptersFromRemote(mangaId, skipCache = skipCache)
+        // TODO show error notice (snackbar?)
+        mutableUpdatingState.emit(false)
     }
 }
