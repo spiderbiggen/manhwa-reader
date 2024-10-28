@@ -6,7 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.NavController.OnDestinationChangedListener
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -47,7 +47,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                 val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters.Read>().mangaId
                 ReadChapterScreen(
                     imageLoader = chapterImageLoader,
-                    onBackClick = dropUnlessResumed {
+                    onBackClick = dropUnlessStarted {
                         navController.popBackStack<MangaRoutes.Host>(inclusive = false)
                     },
                     toChapterClicked = { chapterId ->

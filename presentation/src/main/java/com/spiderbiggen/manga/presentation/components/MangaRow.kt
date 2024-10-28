@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
@@ -61,7 +61,7 @@ fun MangaRow(
 ) {
     ReadableCard(
         isRead = manga.readAll,
-        onClick = dropUnlessResumed { navigateToManga(manga.id) },
+        onClick = dropUnlessStarted { navigateToManga(manga.id) },
         modifier = modifier,
     ) {
         Row(
@@ -114,7 +114,7 @@ private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
                 tint = MaterialTheme.colorScheme.error,
             )
         }
-        IconButton(onClick = dropUnlessResumed { onClickFavorite(manga.id) }) {
+        IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
             Icon(
                 if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
                 contentDescription = null,

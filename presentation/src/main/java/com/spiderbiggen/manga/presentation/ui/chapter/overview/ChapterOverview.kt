@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.lifecycle.coroutineScope
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.id.ChapterId
@@ -93,8 +93,8 @@ fun ChapterOverview(
         state = state,
         onBackClick = onBackClick,
         refreshing = refreshingState,
-        startRefresh = dropUnlessResumed { viewModel.onClickRefresh() },
-        toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
+        startRefresh = dropUnlessStarted { viewModel.onClickRefresh() },
+        toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
         navigateToChapter = navigateToChapter,
     )
 }
@@ -200,7 +200,7 @@ private fun ChaptersList(
 private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> Unit, modifier: Modifier = Modifier) {
     ReadableCard(
         isRead = item.isRead,
-        onClick = dropUnlessResumed { navigateToChapter(item.id) },
+        onClick = dropUnlessStarted { navigateToChapter(item.id) },
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp),

@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.chapter.read
 
+import android.content.res.Configuration
 import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -63,7 +64,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
@@ -100,9 +101,9 @@ fun ReadChapterScreen(
             imageLoader = imageLoader,
             onBackClick = onBackClick,
             toChapterClicked = toChapterClicked,
-            toggleFavorite = dropUnlessResumed { viewModel.toggleFavorite() },
-            setRead = dropUnlessResumed { viewModel.updateReadState() },
-            setReadUpToHere = dropUnlessResumed { viewModel.setReadUpToHere() },
+            toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
+            setRead = dropUnlessStarted { viewModel.updateReadState() },
+            setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
         )
     }
 }
@@ -183,7 +184,7 @@ private fun ReaderTopAppBar(
     ) {
         TopAppBar(
             navigationIcon = {
-                IconButton(onClick = dropUnlessResumed(block = onBackClick)) {
+                IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
                     Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                 }
             },
@@ -279,27 +280,21 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
 
     val painterState = asyncPainter.state.collectAsState()
     when (val state = painterState.value) {
-        is AsyncImagePainter.State.Success -> {
-            Image(
-                state.painter,
-                null,
-                modifier = modifier,
-                contentScale = ContentScale.FillWidth,
-            )
-        }
+        is AsyncImagePainter.State.Success -> Image(
+            painter = state.painter,
+            contentDescription = null,
+            modifier = modifier,
+            contentScale = ContentScale.FillWidth,
+        )
 
-        is AsyncImagePainter.State.Error -> {
-            Box(
-                modifier
-                    .aspectRatio(1f)
-                    .background(MaterialTheme.colorScheme.error),
-            )
-        }
+        is AsyncImagePainter.State.Error -> Box(
+            modifier
+                .aspectRatio(1f)
+                .background(MaterialTheme.colorScheme.error),
+        )
 
-        else -> {
-            Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
+        else -> Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
     }
 }
@@ -340,14 +335,14 @@ private fun ReaderBottomBar(
 
             val previousChapterId = state?.surrounding?.previous
             IconButton(
-                onClick = dropUnlessResumed { previousChapterId?.let { toChapterClicked(it) } },
+                onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
                 enabled = previousChapterId != null,
             ) {
                 Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
             }
             val nextChapterId = state?.surrounding?.next
             IconButton(
-                onClick = dropUnlessResumed { nextChapterId?.let { toChapterClicked(it) } },
+                onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
                 enabled = nextChapterId != null,
             ) {
                 Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
@@ -357,7 +352,8 @@ private fun ReaderBottomBar(
 }
 
 @OptIn(ExperimentalCoilApi::class)
-@Preview
+@Preview("Light")
+@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewImagesOverview() {
     val context = LocalPlatformContext.current
@@ -374,6 +370,7 @@ fun PreviewImagesOverview() {
             else -> AsyncImagePainter.State.Empty
         }
     }
+
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
             ReadChapterScreen(
