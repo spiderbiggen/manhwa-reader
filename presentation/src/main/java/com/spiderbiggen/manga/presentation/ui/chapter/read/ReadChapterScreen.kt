@@ -44,7 +44,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -61,7 +61,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.lifecycle.compose.dropUnlessStarted
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
@@ -87,8 +87,7 @@ fun ReadChapterScreen(
     onBackClick: () -> Unit,
     toChapterClicked: (ChapterId) -> Unit,
 ) {
-    // FIXME: this seems stupid
-    LaunchedEffect(true) {
+    LaunchedEffect(viewModel) {
         viewModel.collect()
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -118,33 +117,35 @@ fun ReadChapterScreen(
     setReadUpToHere: () -> Unit = {},
 ) {
     val density = LocalDensity.current
+    val skipToExpandedBars = with(density) {
+        2.dp.toPx()
+    }
     val maxTopOffSet = with(density) {
-        TopAppBarDefaults.windowInsets.getTop(density) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx()
+        TopAppBarDefaults.windowInsets.getTop(density) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx().toInt()
     }
     val maxBottomOffSet = with(density) {
-        BottomAppBarDefaults.windowInsets.getBottom(density) + 56.dp.toPx()
+        BottomAppBarDefaults.windowInsets.getBottom(density) + 56.dp.toPx().toInt()
     }
 
     val lazyListState = rememberLazyListState()
 
-    var topAppBarOffsetPx by remember { mutableFloatStateOf(0f) }
-    var bottomBarOffsetPx by remember { mutableFloatStateOf(0f) }
-    // TODO increase animation duration
-    val animatedTopBarIntOffset by animateIntOffsetAsState(IntOffset(0, topAppBarOffsetPx.toInt()))
-    val animatedBottomBarIntOffset by animateIntOffsetAsState(IntOffset(0, bottomBarOffsetPx.toInt()))
+    var topAppBarOffsetPx by remember { mutableIntStateOf(0) }
+    var bottomBarOffsetPx by remember { mutableIntStateOf(0) }
+
+    val animatedTopBarIntOffset by animateIntOffsetAsState(IntOffset(0, topAppBarOffsetPx))
+    val animatedBottomBarIntOffset by animateIntOffsetAsState(IntOffset(0, bottomBarOffsetPx))
 
     val nestedScrollConnection = remember {
         object : NestedScrollConnection {
-            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-                val delta = available.y
-                if (delta > 8f) {
-                    topAppBarOffsetPx = 0f
-                    bottomBarOffsetPx = 0f
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                val delta = consumed.y
+                if (delta > skipToExpandedBars) {
+                    topAppBarOffsetPx = 0
+                    bottomBarOffsetPx = 0
                 } else {
-                    topAppBarOffsetPx = (topAppBarOffsetPx + delta).coerceIn(-maxTopOffSet, 0f)
-                    // TODO fix bottom bar glitching
+                    topAppBarOffsetPx = (topAppBarOffsetPx + delta).toInt().coerceIn(-maxTopOffSet, 0)
                     val maximumValue = maxBottomOffSet - getBottomPadding(lazyListState, maxBottomOffSet)
-                    bottomBarOffsetPx = (bottomBarOffsetPx - delta).coerceIn(0f, maximumValue.coerceAtLeast(0f))
+                    bottomBarOffsetPx = (bottomBarOffsetPx - delta).toInt().coerceIn(0, maximumValue.coerceAtLeast(0))
                 }
                 return Offset.Zero
             }
@@ -241,14 +242,14 @@ fun ReadChapterScreen(
     }
 }
 
-private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Float): Float {
+private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Int): Int {
     val info = lazyListState.layoutInfo
     val count = info.totalItemsCount
     val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return maxBottomOffSet
-    if (lastVisibleItem.index + 2 < count) return 0f
+    if (lastVisibleItem.index + 2 < count) return 0
     val consumedSize = lastVisibleItem.offset + lastVisibleItem.size + info.afterContentPadding
     val bottomOverflow = (consumedSize - info.viewportEndOffset)
-    val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0f)
+    val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0)
     return bottomPadding
 }
 
