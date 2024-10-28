@@ -5,12 +5,12 @@ import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
+import javax.inject.Inject
+import javax.inject.Provider
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import javax.inject.Provider
 
 class ChapterRepository @Inject constructor(
     private val chapterDaoProvider: Provider<LocalChapterDao>,
