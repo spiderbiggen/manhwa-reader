@@ -17,7 +17,6 @@ import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -29,6 +28,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import javax.inject.Inject
 
 @HiltViewModel
 class MangaFavoritesViewModel @Inject constructor(
@@ -107,11 +107,9 @@ class MangaFavoritesViewModel @Inject constructor(
     }
 
     private suspend fun updateMangas(skipCache: Boolean) {
-        withContext(Dispatchers.IO) {
-            mutableUpdatingState.emit(true)
-            updateMangaFromRemote(skipCache)
-            // TODO show error notice (snackbar?)
-            mutableUpdatingState.emit(false)
-        }
+        mutableUpdatingState.emit(true)
+        updateMangaFromRemote(skipCache)
+        // TODO show error notice (snackbar?)
+        mutableUpdatingState.emit(false)
     }
 }
