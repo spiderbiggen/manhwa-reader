@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.images
+package com.spiderbiggen.manga.presentation.ui.chapter.read
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -8,8 +8,6 @@ import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.andLeft
-import com.spiderbiggen.manga.domain.model.id.ChapterId
-import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
@@ -20,7 +18,7 @@ import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.read.SetRead
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.images.model.ImagesRoute
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
@@ -44,9 +42,9 @@ class ImagesViewModel @Inject constructor(
     private val setReadUpToChapter: SetReadUpToChapter,
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<ImagesRoute>()
-    private val mangaId = MangaId(args.mangaId)
-    private val chapterId = ChapterId(args.chapterId)
+    private val args = savedStateHandle.toRoute<MangaRoutes.Chapters.Read>()
+    private val mangaId = args.mangaId
+    private val chapterId = args.chapterId
 
     private var surrounding = SurroundingChapters()
 
