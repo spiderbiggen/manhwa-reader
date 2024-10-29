@@ -108,7 +108,6 @@ fun ReadChapterScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadChapterScreen(
     state: ImagesScreenState,
@@ -130,7 +129,7 @@ fun ReadChapterScreen(
         bottomBarOffsetPx = bottomBarOffsetPx,
     )
 
-    val ready by remember { derivedStateOf { state.ifReady() } }
+    val ready = state.ifReady()
     Scaffold(
         contentWindowInsets = WindowInsets.navigationBars,
         topBar = {
