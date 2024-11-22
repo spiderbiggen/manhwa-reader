@@ -146,7 +146,9 @@ fun ChapterOverview(
                     PullToRefreshBox(
                         isRefreshing = refreshing.value,
                         onRefresh = startRefresh,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .padding(padding)
+                            .fillMaxSize(),
                     ) {
                         StickyTopEffect(
                             items = state.chapters,
@@ -159,7 +161,6 @@ fun ChapterOverview(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                            contentPadding = padding,
                             navigateToChapter = navigateToChapter,
                         )
                     }
