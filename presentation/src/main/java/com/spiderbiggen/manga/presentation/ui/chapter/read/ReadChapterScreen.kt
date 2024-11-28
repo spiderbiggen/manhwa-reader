@@ -45,7 +45,6 @@ import androidx.compose.runtime.IntState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableIntState
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -80,6 +79,7 @@ import coil3.request.SuccessResult
 import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
 
@@ -249,7 +249,6 @@ private fun ReadyImagesOverview(
     onListClicked: () -> Unit,
     setRead: () -> Unit,
 ) {
-    val images by remember { derivedStateOf { state.images } }
     LazyColumn(
         Modifier
             .nestedScroll(nestedScrollConnection)
@@ -261,13 +260,14 @@ private fun ReadyImagesOverview(
         contentPadding = padding,
         state = lazyListState,
     ) {
-        items(images, key = { it }) {
+        items(state.images, key = { it }) {
             ListImage(it, imageLoader, Modifier.fillParentMaxWidth())
         }
         item(key = "setReadEffect", contentType = "Effect") {
             LaunchedEffect(true) { setRead() }
         }
     }
+    ListImagePreloader(imageLoader, lazyListState, state.images)
 }
 
 @Composable
