@@ -1,22 +1,16 @@
 package com.spiderbiggen.manga.presentation.ui.main
 
-import android.os.Bundle
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.lifecycle.compose.dropUnlessStarted
-import androidx.navigation.NavController.OnDestinationChangedListener
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import coil3.ImageLoader
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.chapter.read.ReadChapterScreen
 import com.spiderbiggen.manga.presentation.ui.manga.host.MangaHost
@@ -27,7 +21,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
     val navController = rememberNavController()
 
     MangaReaderTheme {
-        NavigationTrackingSideEffect(navController)
+        TrackNavigationSideEffect(navController)
         NavHost(
             navController = navController,
             startDestination = MangaRoutes.Host,
@@ -59,29 +53,4 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
     }
 }
 
-/**
- * Stores information about navigation events
- */
-@Composable
-private fun NavigationTrackingSideEffect(navController: NavHostController) {
-    DisposableEffect(navController) {
-        val listener = OnDestinationChangedListener { _, destination, arguments ->
-            val bundle = (arguments?.deepCopy() ?: Bundle()).apply {
-                val extraKeys = keySet() - destination.arguments.keys
-                extraKeys.forEach { key -> remove(key) }
-                putString(FirebaseAnalytics.Param.SCREEN_NAME, destination.route?.takeLast(100))
-            }
 
-            Firebase.analytics.logEvent(
-                FirebaseAnalytics.Event.SCREEN_VIEW,
-                bundle,
-            )
-        }
-
-        navController.addOnDestinationChangedListener(listener)
-
-        onDispose {
-            navController.removeOnDestinationChangedListener(listener)
-        }
-    }
-}

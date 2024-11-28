@@ -20,6 +20,7 @@ import coil3.ImageLoader
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
+import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.ui.chapter.overview.ChapterOverview
 import com.spiderbiggen.manga.presentation.ui.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.MangaOverview
@@ -28,7 +29,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.favorites.MangaFavoritesView
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 
 @Composable
-fun MangaHost(coverImageLoader: ImageLoader, navigateToReader: (MangaId, ChapterId) -> Unit = { _, _ -> }) {
+fun MangaHost(coverImageLoader: ImageLoader, navigateToReader: (MangaId, ChapterId) -> Unit) {
     val navController = rememberNavController()
     Scaffold(
         bottomBar = { MangaNavigationBar(navController) },
@@ -49,8 +50,9 @@ private fun MangaNavHost(
     coverImageLoader: ImageLoader,
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    navigateToReader: (MangaId, ChapterId) -> Unit = { _, _ -> },
+    navigateToReader: (MangaId, ChapterId) -> Unit,
 ) {
+    TrackNavigationSideEffect(navController)
     NavHost(
         navController,
         route = MangaRoutes.Host::class,
