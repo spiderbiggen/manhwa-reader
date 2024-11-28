@@ -24,8 +24,8 @@ android {
         applicationId = "com.spiderbiggen.manga"
         minSdk = 26
         targetSdk = 35
-        versionCode = 25
-        versionName = "1.7.2"
+        versionCode = 26
+        versionName = "1.7.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -88,7 +88,6 @@ android {
     }
 }
 
-val stagingImplementation by configurations
 dependencies {
     implementation(project(":data"))
     implementation(project(":domain"))
@@ -96,22 +95,22 @@ dependencies {
 
     implementation(libs.androidX.core.ktx)
 
-// Firebase
+    // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
 
-// Dagger
+    // Dagger
     ksp(libs.google.dagger.hiltAndroidCompiler)
     implementation(libs.google.dagger.hiltAndroid)
 
-// Hilt
+    // Hilt
     ksp(libs.androidX.hilt.compiler)
 
-// Viewmodel
+    // Viewmodel
     implementation(libs.androidX.lifecycle.viewmodel.compose)
 
-// Compose
+    // Compose
     implementation(platform(libs.androidX.compose.bom))
     implementation(libs.androidX.compose.activity)
     implementation(libs.androidX.compose.ui)
@@ -121,11 +120,11 @@ dependencies {
     implementation(libs.androidX.compose.uiTooling)
     implementation(libs.androidX.compose.uiTestManifest)
 
-// Coil
+    // Coil
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
 
-// testing
+    // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
