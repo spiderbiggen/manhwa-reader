@@ -4,10 +4,13 @@ import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController.OnDestinationChangedListener
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.logEvent
 import com.google.firebase.ktx.Firebase
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 
 /**
  * Stores information about navigation events
@@ -16,17 +19,13 @@ import com.google.firebase.ktx.Firebase
 fun TrackNavigationSideEffect(navController: NavHostController) {
     DisposableEffect(navController) {
         val listener = OnDestinationChangedListener { _, destination, arguments ->
-            val bundle = (arguments?.deepCopy() ?: Bundle()).apply {
-                val extraKeys = keySet() - destination.arguments.keys
-                extraKeys.forEach { key -> remove(key) }
-                val route = destination.route?.removePrefix("com.spiderbiggen.manga.presentation.")
-                putString(FirebaseAnalytics.Param.SCREEN_NAME, route?.takeLast(100))
-            }
+            val route = destination.route?.sanitize() ?: return@OnDestinationChangedListener
+            if (destination.hasRoute<MangaRoutes.Host>()) return@OnDestinationChangedListener
 
-            Firebase.analytics.logEvent(
-                FirebaseAnalytics.Event.SCREEN_VIEW,
-                bundle,
-            )
+            Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
+                bundle.putAll(arguments)
+                param(FirebaseAnalytics.Param.SCREEN_NAME, route)
+            }
         }
 
         navController.addOnDestinationChangedListener(listener)
@@ -36,3 +35,5 @@ fun TrackNavigationSideEffect(navController: NavHostController) {
         }
     }
 }
+
+private fun String.sanitize() = removePrefix("com.spiderbiggen.manga.presentation.").takeLast(100)
