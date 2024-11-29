@@ -52,5 +52,3 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
         }
     }
 }
-
-

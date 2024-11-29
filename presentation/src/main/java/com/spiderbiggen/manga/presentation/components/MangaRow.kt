@@ -13,7 +13,6 @@ import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -59,7 +58,7 @@ fun MangaRow(
     onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    ReadableCard(
+    ReadStateCard(
         isRead = manga.readAll,
         onClick = dropUnlessStarted { navigateToManga(manga.id) },
         modifier = modifier,
@@ -117,7 +116,8 @@ private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
         IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
             Icon(
                 if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = null,
+                contentDescription = if (manga.isFavorite) "Unfavorite" else "Favorite",
+                tint = if (manga.isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
             )
         }
     }
@@ -129,21 +129,13 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
         modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
-        val contentColor = LocalContentColor.current.let {
-            if (manga.readAll) it.copy(alpha = 0.7f) else it
-        }
-        CompositionLocalProvider(LocalContentColor provides contentColor) {
-            Text(
-                manga.title,
-                fontWeight = if (!manga.readAll) FontWeight.Bold else null,
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            manga.updatedAt?.let {
-                Text(
-                    it,
-                    style = MaterialTheme.typography.bodySmall,
-                )
-            }
+        Text(
+            manga.title,
+            fontWeight = if (!manga.readAll) FontWeight.Bold else null,
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        manga.updatedAt?.let {
+            Text(it, style = MaterialTheme.typography.bodySmall)
         }
     }
 }

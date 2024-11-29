@@ -18,10 +18,9 @@ fun rememberManualScrollState(listState: LazyListState): Boolean {
     val canScrollBackwards by remember { derivedStateOf { listState.canScrollBackward } }
     val isDragged by listState.interactionSource.collectIsDraggedAsState()
     LaunchedEffect(canScrollBackwards, isDragged) {
-        if (!canScrollBackwards) {
-            manuallyScrolled = false
-        } else if (isDragged) {
-            manuallyScrolled = true
+        when {
+            !canScrollBackwards -> manuallyScrolled = false
+            isDragged -> manuallyScrolled = true
         }
     }
     return manuallyScrolled

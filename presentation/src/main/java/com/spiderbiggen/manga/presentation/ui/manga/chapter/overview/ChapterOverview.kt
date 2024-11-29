@@ -4,7 +4,6 @@ package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import android.content.res.Configuration
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -27,7 +26,6 @@ import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -35,7 +33,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -59,7 +56,7 @@ import androidx.lifecycle.coroutineScope
 import com.spiderbiggen.manga.domain.model.Chapter
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
-import com.spiderbiggen.manga.presentation.components.ReadableCard
+import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.extensions.plus
@@ -112,7 +109,8 @@ fun ChapterOverview(
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-    MangaReaderTheme(state.ifReady()?.dominantColor ?: Purple80) {
+    val readyState = state.ifReady()
+    MangaReaderTheme(readyState?.dominantColor ?: Purple80) {
         Scaffold(
             topBar = {
                 TopAppBar(
@@ -122,15 +120,16 @@ fun ChapterOverview(
                         }
                     },
                     scrollBehavior = topAppBarScrollBehavior,
-                    title = { Text((state as? ChapterScreenState.Ready)?.title ?: "Manga") },
+                    title = { Text(readyState?.title ?: "Manga") },
                     actions = {
                         IconButton(onClick = toggleFavorite) {
+                            val isFavorite = readyState?.isFavorite == true
                             Icon(
-                                imageVector = when (state.ifReady()?.isFavorite) {
-                                    true -> Icons.Outlined.Favorite
+                                imageVector = when {
+                                    isFavorite -> Icons.Outlined.Favorite
                                     else -> Icons.Outlined.FavoriteBorder
                                 },
-                                contentDescription = "Favorite",
+                                contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
                             )
                         }
                     },
@@ -199,7 +198,7 @@ private fun ChaptersList(
 
 @Composable
 private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> Unit, modifier: Modifier = Modifier) {
-    ReadableCard(
+    ReadStateCard(
         isRead = item.isRead,
         onClick = dropUnlessStarted { navigateToChapter(item.id) },
         modifier = modifier
@@ -213,24 +212,16 @@ private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> U
         ) {
             NumberDisplay(item, Modifier.align(Alignment.Top))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)) {
-                val color by animateColorAsState(
-                    LocalContentColor.current.let {
-                        if (item.isRead) it.copy(alpha = 0.7f) else it
-                    },
-                    label = "content color",
+                Text(
+                    item.date,
+                    style = MaterialTheme.typography.bodyMedium,
                 )
-                CompositionLocalProvider(LocalContentColor provides color) {
+                item.title?.let {
                     Text(
-                        item.date,
+                        it,
+                        fontWeight = if (!item.isRead) FontWeight.Bold else null,
                         style = MaterialTheme.typography.bodyMedium,
                     )
-                    item.title?.let {
-                        Text(
-                            it,
-                            fontWeight = if (!item.isRead) FontWeight.Bold else null,
-                            style = MaterialTheme.typography.bodyMedium,
-                        )
-                    }
                 }
             }
         }
@@ -251,8 +242,9 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
         Text(
             text = item.number,
             modifier = Modifier.padding(4.dp),
-            style = MaterialTheme.typography.titleLarge.copy(color = MaterialTheme.colorScheme.onPrimaryContainer),
+            style = MaterialTheme.typography.titleLarge,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onPrimaryContainer,
         )
     }
 }
