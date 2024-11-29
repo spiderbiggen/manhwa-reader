@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.chapter.read
+package com.spiderbiggen.manga.presentation.ui.manga.reader
 
 import android.content.res.Configuration
 import androidx.compose.animation.core.animateIntOffsetAsState

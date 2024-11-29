@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.chapter.overview
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import android.util.Log
 import androidx.compose.ui.graphics.Color
@@ -16,7 +16,7 @@ import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject

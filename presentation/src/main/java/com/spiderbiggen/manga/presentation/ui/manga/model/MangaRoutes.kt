@@ -11,6 +11,22 @@ sealed interface MangaRoutes {
     data object Host
 
     @Serializable
+    class Reader private constructor(private val _mangaId: String, private val _chapterId: String) : MangaRoutes {
+        @Transient
+        val mangaId: MangaId = MangaId(_mangaId)
+
+        @Transient
+        val chapterId: ChapterId = ChapterId(_chapterId)
+
+        companion object {
+            operator fun invoke(mangaId: MangaId, chapterId: ChapterId) = Reader(mangaId.inner, chapterId.inner)
+        }
+    }
+}
+
+@Serializable
+sealed interface HostedMangaRoutes {
+    @Serializable
     data object Explore : MangaRoutes
 
     @Serializable
@@ -23,19 +39,6 @@ sealed interface MangaRoutes {
 
         companion object {
             operator fun invoke(mangaId: MangaId) = Chapters(mangaId.inner)
-        }
-
-        @Serializable
-        class Read private constructor(private val _mangaId: String, private val _chapterId: String) : MangaRoutes {
-            @Transient
-            val mangaId: MangaId = MangaId(_mangaId)
-
-            @Transient
-            val chapterId: ChapterId = ChapterId(_chapterId)
-
-            companion object {
-                operator fun invoke(mangaId: MangaId, chapterId: ChapterId) = Read(mangaId.inner, chapterId.inner)
-            }
         }
     }
 }

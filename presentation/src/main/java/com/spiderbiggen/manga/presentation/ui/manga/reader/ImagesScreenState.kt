@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.chapter.read
+package com.spiderbiggen.manga.presentation.ui.manga.reader
 
 import androidx.compose.runtime.Immutable
 import com.spiderbiggen.manga.domain.model.SurroundingChapters

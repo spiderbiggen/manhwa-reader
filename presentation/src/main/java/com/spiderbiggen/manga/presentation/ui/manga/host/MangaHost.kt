@@ -21,11 +21,12 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.ChapterOverview
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.MangaOverview
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOverview
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.explore.ExploreViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.favorites.MangaFavoritesViewModel
+import com.spiderbiggen.manga.presentation.ui.manga.model.HostedMangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 
 @Composable
@@ -35,7 +36,7 @@ fun MangaHost(coverImageLoader: ImageLoader, navigateToReader: (MangaId, Chapter
         bottomBar = { MangaNavigationBar(navController) },
         contentWindowInsets = WindowInsets.navigationBars,
     ) { contentPadding ->
-        // TODO determine default route at stare
+        // TODO determine default route at start
         MangaNavHost(
             coverImageLoader = coverImageLoader,
             navController = navController,
@@ -56,39 +57,39 @@ private fun MangaNavHost(
     NavHost(
         navController,
         route = MangaRoutes.Host::class,
-        startDestination = MangaRoutes.Favorites,
+        startDestination = HostedMangaRoutes.Favorites,
         modifier = modifier,
     ) {
-        composable<MangaRoutes.Explore> {
+        composable<HostedMangaRoutes.Explore> {
             MangaOverview(
                 viewModel = hiltViewModel<ExploreViewModel>(),
                 imageLoader = coverImageLoader,
                 navigateToManga = { mangaId ->
-                    navController.navigate(MangaRoutes.Chapters(mangaId))
+                    navController.navigate(HostedMangaRoutes.Chapters(mangaId))
                 },
             )
         }
-        composable<MangaRoutes.Favorites> {
+        composable<HostedMangaRoutes.Favorites> {
             MangaOverview(
                 viewModel = hiltViewModel<MangaFavoritesViewModel>(),
                 imageLoader = coverImageLoader,
                 navigateToManga = { mangaId ->
-                    navController.navigate(MangaRoutes.Chapters(mangaId))
+                    navController.navigate(HostedMangaRoutes.Chapters(mangaId))
                 },
             )
         }
 
-        composable<MangaRoutes.Chapters>(
+        composable<HostedMangaRoutes.Chapters>(
             enterTransition = { slideIn(initialOffset = { IntOffset(it.width, 0) }) },
             exitTransition = { slideOut(targetOffset = { IntOffset(-it.width, 0) }) },
             popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
             popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
         ) { backStackEntry ->
-            val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
             ChapterOverview(
                 viewModel = hiltViewModel<ChapterViewModel>(),
                 onBackClick = dropUnlessStarted { navController.popBackStack() },
                 navigateToChapter = { chapterId ->
+                    val mangaId = backStackEntry.toRoute<HostedMangaRoutes.Chapters>().mangaId
                     navigateToReader(mangaId, chapterId)
                 },
             )

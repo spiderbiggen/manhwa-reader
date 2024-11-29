@@ -1,8 +1,8 @@
-package com.spiderbiggen.manga.presentation.ui.chapter.overview
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.model.ChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable

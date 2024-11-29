@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalSharedTransitionApi::class)
 
-package com.spiderbiggen.manga.presentation.ui.chapter.overview
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import android.content.res.Configuration
 import androidx.compose.animation.ExperimentalSharedTransitionApi
@@ -65,8 +65,8 @@ import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.model.ChapterRowData
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch

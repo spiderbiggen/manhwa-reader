@@ -1,7 +1,7 @@
-package com.spiderbiggen.manga.presentation.ui.chapter.overview.usecase
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase
 
 import com.spiderbiggen.manga.domain.model.Chapter
-import com.spiderbiggen.manga.presentation.ui.chapter.overview.model.ChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import javax.inject.Inject
 import kotlin.math.abs
 import kotlinx.datetime.LocalDate

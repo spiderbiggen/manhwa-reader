@@ -12,9 +12,9 @@ import androidx.navigation.toRoute
 import coil3.ImageLoader
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.chapter.read.ReadChapterScreen
 import com.spiderbiggen.manga.presentation.ui.manga.host.MangaHost
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
+import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 
 @Composable
 fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
@@ -30,22 +30,22 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                 MangaHost(
                     coverImageLoader = coverImageLoader,
                     navigateToReader = { mangaId, chapterId ->
-                        navController.navigate(MangaRoutes.Chapters.Read(mangaId, chapterId))
+                        navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
                 )
             }
-            composable<MangaRoutes.Chapters.Read>(
+            composable<MangaRoutes.Reader>(
                 enterTransition = { fadeIn(animationSpec = tween(700)) },
                 exitTransition = { fadeOut(animationSpec = tween(700)) },
             ) { backStackEntry ->
-                val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters.Read>().mangaId
                 ReadChapterScreen(
                     imageLoader = chapterImageLoader,
                     onBackClick = dropUnlessStarted {
                         navController.popBackStack<MangaRoutes.Host>(inclusive = false)
                     },
                     toChapterClicked = { chapterId ->
-                        navController.navigate(MangaRoutes.Chapters.Read(mangaId, chapterId))
+                        val mangaId = backStackEntry.toRoute<MangaRoutes.Reader>().mangaId
+                        navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
                 )
             }

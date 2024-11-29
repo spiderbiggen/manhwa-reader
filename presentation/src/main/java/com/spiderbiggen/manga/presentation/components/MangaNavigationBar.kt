@@ -8,7 +8,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.res.painterResource
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -40,15 +39,7 @@ fun MangaNavigationBar(navController: NavController, modifier: Modifier = Modifi
                         popUpTo(navController.graph.findStartDestination().id)
                     }
                 },
-                icon = {
-                    Icon(
-                        when (item.icon) {
-                            is AppDrawable.Resource -> painterResource(item.icon.resId)
-                            is AppDrawable.Vector -> rememberVectorPainter(item.icon.image)
-                        },
-                        item.title,
-                    )
-                },
+                icon = { Icon(rememberVectorPainter(item.icon), null) },
                 label = { Text(text = item.title) },
             )
         }
