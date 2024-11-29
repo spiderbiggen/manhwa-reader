@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.components
 
-import android.os.Bundle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController.OnDestinationChangedListener
@@ -23,7 +22,7 @@ fun TrackNavigationSideEffect(navController: NavHostController) {
             if (destination.hasRoute<MangaRoutes.Host>()) return@OnDestinationChangedListener
 
             Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
-                bundle.putAll(arguments)
+                arguments?.let { bundle.putAll(it) }
                 param(FirebaseAnalytics.Param.SCREEN_NAME, route)
             }
         }

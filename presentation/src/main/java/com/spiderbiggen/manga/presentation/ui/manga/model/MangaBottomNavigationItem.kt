@@ -8,13 +8,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 sealed class MangaBottomNavigationItem(val title: String, val route: MangaRoutes, val icon: ImageVector) {
     data object Discover : MangaBottomNavigationItem(
         title = "Discover",
-        route = MangaRoutes.Explore,
+        route = HostedMangaRoutes.Explore,
         icon = Icons.Outlined.NewReleases,
     )
 
     data object Favorites : MangaBottomNavigationItem(
         title = "Favorites",
-        route = MangaRoutes.Favorites,
+        route = HostedMangaRoutes.Favorites,
         icon = Icons.Outlined.Favorite,
     )
 }

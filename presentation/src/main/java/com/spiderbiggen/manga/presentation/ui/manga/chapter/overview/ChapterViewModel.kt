@@ -17,7 +17,7 @@ import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
+import com.spiderbiggen.manga.presentation.ui.manga.model.HostedMangaRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
@@ -42,7 +42,7 @@ class ChapterViewModel @Inject constructor(
     private val mapChapterRowData: MapChapterRowData,
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<MangaRoutes.Chapters>()
+    private val args = savedStateHandle.toRoute<HostedMangaRoutes.Chapters>()
     private val mangaId = args.mangaId
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)

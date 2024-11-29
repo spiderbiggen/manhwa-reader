@@ -42,7 +42,7 @@ class ImagesViewModel @Inject constructor(
     private val setReadUpToChapter: SetReadUpToChapter,
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<MangaRoutes.Chapters.Read>()
+    private val args = savedStateHandle.toRoute<MangaRoutes.Reader>()
     private val mangaId = args.mangaId
     private val chapterId = args.chapterId
 
