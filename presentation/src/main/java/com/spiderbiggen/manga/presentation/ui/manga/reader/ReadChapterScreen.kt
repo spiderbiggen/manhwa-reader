@@ -200,9 +200,9 @@ private fun rememberReaderScrollEffect(
     bottomBarOffsetPx: MutableIntState,
 ) = with(LocalDensity.current) {
     val insets = WindowInsets.systemBars
-    remember(this, insets) {
-        val maxTopOffSet = insets.getTop(this) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx().toInt()
-        val maxBottomOffSet = insets.getBottom(this) + 56.dp.toPx().toInt()
+    val maxTopOffSet = insets.getTop(this) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx().toInt()
+    val maxBottomOffSet = insets.getBottom(this) + 56.dp.toPx().toInt()
+    remember(this, maxTopOffSet, maxBottomOffSet) {
         ReaderScrollEffect(lazyListState, maxTopOffSet, maxBottomOffSet, topAppBarOffsetPx, bottomBarOffsetPx)
     }
 }
