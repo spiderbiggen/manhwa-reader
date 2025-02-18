@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.reader
 
 import android.content.res.Configuration
-import androidx.compose.animation.core.animateIntOffsetAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -41,12 +40,12 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.IntState
+import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableIntState
+import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -120,8 +119,8 @@ fun ReadChapterScreen(
 ) {
     val lazyListState = rememberLazyListState()
 
-    val topAppBarOffsetPx = rememberSaveable { mutableIntStateOf(0) }
-    val bottomBarOffsetPx = rememberSaveable { mutableIntStateOf(0) }
+    val topAppBarOffsetPx = rememberSaveable { mutableFloatStateOf(0f) }
+    val bottomBarOffsetPx = rememberSaveable { mutableFloatStateOf(0f) }
 
     val nestedScrollConnection = rememberReaderScrollEffect(
         lazyListState = lazyListState,
@@ -156,8 +155,9 @@ fun ReadChapterScreen(
                 nestedScrollConnection = nestedScrollConnection,
                 padding = padding,
                 onListClicked = {
-                    topAppBarOffsetPx.intValue = 0
-                    bottomBarOffsetPx.intValue = 0
+                    // TODO animate these values, but cancel on user scroll
+                    topAppBarOffsetPx.floatValue = 0f
+                    bottomBarOffsetPx.floatValue = 0f
                 },
                 setRead = setRead,
             )
@@ -170,14 +170,13 @@ fun ReadChapterScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ReaderTopAppBar(
-    topAppBarOffsetPx: MutableIntState,
+    topAppBarOffsetPx: MutableFloatState,
     onBackClick: () -> Unit,
     ready: ImagesScreenState.Ready?,
 ) {
-    val animatedTopBarIntOffset = animateIntOffsetAsState(IntOffset(0, topAppBarOffsetPx.intValue))
     Box(
         Modifier
-            .offset { animatedTopBarIntOffset.value }
+            .offset { IntOffset(0, topAppBarOffsetPx.floatValue.toInt()) }
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(TopAppBarDefaults.windowInsets),
     ) {
@@ -196,12 +195,12 @@ private fun ReaderTopAppBar(
 @Composable
 private fun rememberReaderScrollEffect(
     lazyListState: LazyListState,
-    topAppBarOffsetPx: MutableIntState,
-    bottomBarOffsetPx: MutableIntState,
+    topAppBarOffsetPx: MutableFloatState,
+    bottomBarOffsetPx: MutableFloatState,
 ) = with(LocalDensity.current) {
     val insets = WindowInsets.systemBars
-    val maxTopOffSet = insets.getTop(this) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx().toInt()
-    val maxBottomOffSet = insets.getBottom(this) + 56.dp.toPx().toInt()
+    val maxTopOffSet = insets.getTop(this) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx()
+    val maxBottomOffSet = insets.getBottom(this) + 56.dp.toPx()
     remember(this, maxTopOffSet, maxBottomOffSet) {
         ReaderScrollEffect(lazyListState, maxTopOffSet, maxBottomOffSet, topAppBarOffsetPx, bottomBarOffsetPx)
     }
@@ -209,32 +208,32 @@ private fun rememberReaderScrollEffect(
 
 private class ReaderScrollEffect(
     val lazyListState: LazyListState,
-    val maxTopOffSet: Int,
-    val maxBottomOffSet: Int,
-    val topAppBarOffsetPx: MutableIntState,
-    val bottomBarOffsetPx: MutableIntState,
+    val maxTopOffSet: Float,
+    val maxBottomOffSet: Float,
+    val topAppBarOffsetPx: MutableFloatState,
+    val bottomBarOffsetPx: MutableFloatState,
 ) : NestedScrollConnection {
     override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
         val delta = consumed.y
-        topAppBarOffsetPx.intValue = (topAppBarOffsetPx.intValue + delta).toInt()
-            .coerceIn(-maxTopOffSet, 0)
+        topAppBarOffsetPx.floatValue = (topAppBarOffsetPx.floatValue + delta)
+            .coerceIn(-maxTopOffSet, 0f)
 
         val maxBottomOffsetValue = maxBottomOffSet - getBottomPadding(lazyListState, maxBottomOffSet)
-        bottomBarOffsetPx.intValue = (bottomBarOffsetPx.intValue - delta).toInt()
-            .coerceIn(0, maxBottomOffsetValue.coerceAtLeast(0))
+        bottomBarOffsetPx.floatValue = (bottomBarOffsetPx.floatValue - delta)
+            .coerceIn(0f, maxBottomOffsetValue.coerceAtLeast(0f))
         return Offset.Zero
     }
 
-    private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Int): Int {
+    private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Float): Float {
         val info = lazyListState.layoutInfo
         val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return maxBottomOffSet
 
         val count = info.totalItemsCount
-        if (lastVisibleItem.index + 2 < count) return 0
+        if (lastVisibleItem.index + 2 < count) return 0f
 
         val consumedSize = lastVisibleItem.offset + lastVisibleItem.size + info.afterContentPadding
         val bottomOverflow = (consumedSize - info.viewportEndOffset)
-        val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0)
+        val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0f)
         return bottomPadding
     }
 }
@@ -301,15 +300,14 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
 @Composable
 private fun ReaderBottomBar(
     state: ImagesScreenState.Ready?,
-    bottomBarOffsetPx: IntState,
+    bottomBarOffsetPx: FloatState,
     toChapterClicked: (ChapterId) -> Unit = {},
     toggleFavorite: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
-    val animatedBottomBarIntOffset = animateIntOffsetAsState(IntOffset(0, bottomBarOffsetPx.intValue))
     Surface(
         Modifier
-            .offset { animatedBottomBarIntOffset.value }
+            .offset { IntOffset(0, bottomBarOffsetPx.floatValue.toInt()) }
             .fillMaxWidth(),
     ) {
         Row(Modifier.padding(horizontal = 16.dp)) {
