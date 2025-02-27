@@ -50,8 +50,7 @@ class ImagesViewModel @Inject constructor(
 
     private val mutableState = MutableStateFlow<ImagesScreenState>(ImagesScreenState.Loading)
 
-    val state
-        get() = mutableState.asStateFlow()
+    val state = mutableState.asStateFlow()
 
     suspend fun collect() {
         updateScreenState()

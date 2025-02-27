@@ -11,10 +11,9 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -28,6 +27,7 @@ import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,23 +40,16 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableFloatState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -79,8 +72,14 @@ import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
+import com.spiderbiggen.manga.presentation.components.bottomappbar.BottomAppBarState
+import com.spiderbiggen.manga.presentation.components.bottomappbar.rememberBottomAppBarState
+import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState
+import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 
 @Composable
 fun ReadChapterScreen(
@@ -94,19 +93,18 @@ fun ReadChapterScreen(
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    MangaReaderTheme {
-        ReadChapterScreen(
-            state = state,
-            imageLoader = imageLoader,
-            onBackClick = onBackClick,
-            toChapterClicked = toChapterClicked,
-            toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
-            setRead = dropUnlessStarted { viewModel.updateReadState() },
-            setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
-        )
-    }
+    ReadChapterScreen(
+        state = state,
+        imageLoader = imageLoader,
+        onBackClick = onBackClick,
+        toChapterClicked = toChapterClicked,
+        toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
+        setRead = dropUnlessStarted { viewModel.updateReadState() },
+        setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
+    )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadChapterScreen(
     state: ImagesScreenState,
@@ -116,26 +114,31 @@ fun ReadChapterScreen(
     toggleFavorite: () -> Unit = {},
     setRead: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
 ) {
     val lazyListState = rememberLazyListState()
 
-    val topAppBarOffsetPx = rememberSaveable { mutableFloatStateOf(0f) }
-    val bottomBarOffsetPx = rememberSaveable { mutableFloatStateOf(0f) }
-
-    val nestedScrollConnection = rememberReaderScrollEffect(
-        lazyListState = lazyListState,
-        topAppBarOffsetPx = topAppBarOffsetPx,
-        bottomBarOffsetPx = bottomBarOffsetPx,
-    )
+    val topAppBarState = rememberTopAppBarState()
+    val bottomAppBarState = rememberBottomAppBarState(lazyListState)
 
     val ready = state.ifReady()
     Scaffold(
-        contentWindowInsets = WindowInsets.navigationBars,
+        contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
-            ReaderTopAppBar(topAppBarOffsetPx, onBackClick, ready)
+            ReaderTopAppBar(
+                state = topAppBarState,
+                title = ready?.title.orEmpty(),
+                onBackClick = onBackClick,
+            )
         },
         bottomBar = {
-            ReaderBottomBar(ready, bottomBarOffsetPx, toChapterClicked, toggleFavorite, setReadUpToHere)
+            ReaderBottomBar(
+                state = bottomAppBarState,
+                screenState = ready,
+                toChapterClicked = toChapterClicked,
+                toggleFavorite = toggleFavorite,
+                setReadUpToHere = setReadUpToHere,
+            )
         },
     ) { padding ->
         when (state) {
@@ -151,13 +154,14 @@ fun ReadChapterScreen(
             is ImagesScreenState.Ready -> ReadyImagesOverview(
                 state = state,
                 imageLoader = imageLoader,
-                lazyListState = lazyListState,
-                nestedScrollConnection = nestedScrollConnection,
+                modifier = Modifier
+                    .nestedScroll(topAppBarState.nestedScrollConnection)
+                    .nestedScroll(bottomAppBarState.nestedScrollConnection),
                 padding = padding,
+                lazyListState = lazyListState,
                 onListClicked = {
-                    // TODO animate these values, but cancel on user scroll
-                    topAppBarOffsetPx.floatValue = 0f
-                    bottomBarOffsetPx.floatValue = 0f
+                    coroutineScope.launch { topAppBarState.animateAppBarOffset(0f) }
+                    coroutineScope.launch { bottomAppBarState.animateAppBarOffset(0f) }
                 },
                 setRead = setRead,
             )
@@ -170,13 +174,15 @@ fun ReadChapterScreen(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ReaderTopAppBar(
-    topAppBarOffsetPx: MutableFloatState,
+    state: TopAppBarState,
+    title: String,
     onBackClick: () -> Unit,
-    ready: ImagesScreenState.Ready?,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        Modifier
-            .offset { IntOffset(0, topAppBarOffsetPx.floatValue.toInt()) }
+        modifier
+            .onSizeChanged { state.appBarHeight = it.height.toFloat() }
+            .offset { IntOffset(0, state.appBarOffset.floatValue.toInt()) }
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(TopAppBarDefaults.windowInsets),
     ) {
@@ -186,55 +192,8 @@ private fun ReaderTopAppBar(
                     Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
                 }
             },
-            title = { Text(ready?.title.orEmpty()) },
+            title = { Text(title) },
         )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun rememberReaderScrollEffect(
-    lazyListState: LazyListState,
-    topAppBarOffsetPx: MutableFloatState,
-    bottomBarOffsetPx: MutableFloatState,
-) = with(LocalDensity.current) {
-    val insets = WindowInsets.systemBars
-    val maxTopOffSet = insets.getTop(this) + TopAppBarDefaults.TopAppBarExpandedHeight.toPx()
-    val maxBottomOffSet = insets.getBottom(this) + 56.dp.toPx()
-    remember(this, maxTopOffSet, maxBottomOffSet) {
-        ReaderScrollEffect(lazyListState, maxTopOffSet, maxBottomOffSet, topAppBarOffsetPx, bottomBarOffsetPx)
-    }
-}
-
-private class ReaderScrollEffect(
-    val lazyListState: LazyListState,
-    val maxTopOffSet: Float,
-    val maxBottomOffSet: Float,
-    val topAppBarOffsetPx: MutableFloatState,
-    val bottomBarOffsetPx: MutableFloatState,
-) : NestedScrollConnection {
-    override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-        val delta = consumed.y
-        topAppBarOffsetPx.floatValue = (topAppBarOffsetPx.floatValue + delta)
-            .coerceIn(-maxTopOffSet, 0f)
-
-        val maxBottomOffsetValue = maxBottomOffSet - getBottomPadding(lazyListState, maxBottomOffSet)
-        bottomBarOffsetPx.floatValue = (bottomBarOffsetPx.floatValue - delta)
-            .coerceIn(0f, maxBottomOffsetValue.coerceAtLeast(0f))
-        return Offset.Zero
-    }
-
-    private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Float): Float {
-        val info = lazyListState.layoutInfo
-        val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return maxBottomOffSet
-
-        val count = info.totalItemsCount
-        if (lastVisibleItem.index + 2 < count) return 0f
-
-        val consumedSize = lastVisibleItem.offset + lastVisibleItem.size + info.afterContentPadding
-        val bottomOverflow = (consumedSize - info.viewportEndOffset)
-        val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0f)
-        return bottomPadding
     }
 }
 
@@ -242,15 +201,14 @@ private class ReaderScrollEffect(
 private fun ReadyImagesOverview(
     state: ImagesScreenState.Ready,
     imageLoader: ImageLoader,
-    lazyListState: LazyListState,
-    nestedScrollConnection: NestedScrollConnection,
-    padding: PaddingValues,
-    onListClicked: () -> Unit,
-    setRead: () -> Unit,
+    modifier: Modifier = Modifier,
+    padding: PaddingValues = PaddingValues(),
+    lazyListState: LazyListState = rememberLazyListState(),
+    onListClicked: () -> Unit = {},
+    setRead: () -> Unit = {},
 ) {
     LazyColumn(
-        Modifier
-            .nestedScroll(nestedScrollConnection)
+        modifier
             .clickable(
                 interactionSource = null,
                 indication = null,
@@ -299,21 +257,23 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
 
 @Composable
 private fun ReaderBottomBar(
-    state: ImagesScreenState.Ready?,
-    bottomBarOffsetPx: FloatState,
+    state: BottomAppBarState,
+    screenState: ImagesScreenState.Ready?,
     toChapterClicked: (ChapterId) -> Unit = {},
     toggleFavorite: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
     Surface(
         Modifier
-            .offset { IntOffset(0, bottomBarOffsetPx.floatValue.toInt()) }
-            .fillMaxWidth(),
+            .onSizeChanged { state.appBarHeight = it.height.toFloat() }
+            .offset { IntOffset(0, state.appBarOffset.floatValue.toInt()) }
+            .fillMaxWidth()
+            .windowInsetsPadding(BottomAppBarDefaults.windowInsets),
     ) {
         Row(Modifier.padding(horizontal = 16.dp)) {
             IconButton(onClick = toggleFavorite) {
                 Icon(
-                    imageVector = when (state?.isFavorite) {
+                    imageVector = when (screenState?.isFavorite) {
                         true -> Icons.Outlined.Favorite
                         else -> Icons.Outlined.FavoriteBorder
                     },
@@ -322,7 +282,7 @@ private fun ReaderBottomBar(
             }
             IconButton(onClick = setReadUpToHere) {
                 Icon(
-                    imageVector = when (state?.isRead) {
+                    imageVector = when (screenState?.isRead) {
                         true -> Icons.Outlined.BookmarkAdded
                         else -> Icons.Outlined.BookmarkBorder
                     },
@@ -330,14 +290,14 @@ private fun ReaderBottomBar(
                 )
             }
 
-            val previousChapterId = state?.surrounding?.previous
+            val previousChapterId = screenState?.surrounding?.previous
             IconButton(
                 onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
                 enabled = previousChapterId != null,
             ) {
                 Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
             }
-            val nextChapterId = state?.surrounding?.next
+            val nextChapterId = screenState?.surrounding?.next
             IconButton(
                 onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
                 enabled = nextChapterId != null,
