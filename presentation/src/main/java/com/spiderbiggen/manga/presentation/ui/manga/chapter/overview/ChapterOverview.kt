@@ -10,11 +10,15 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -42,11 +46,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -59,6 +65,7 @@ import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
+import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.theme.Purple80
@@ -108,32 +115,41 @@ fun ChapterOverview(
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val topAppBarState = rememberTopAppBarState()
+
     val readyState = state.ifReady()
     MangaReaderTheme(readyState?.dominantColor ?: Purple80) {
         Scaffold(
+            contentWindowInsets = WindowInsets.systemBars,
             topBar = {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                        }
-                    },
-                    scrollBehavior = topAppBarScrollBehavior,
-                    title = { Text(readyState?.title ?: "Manga") },
-                    actions = {
-                        IconButton(onClick = toggleFavorite) {
-                            val isFavorite = readyState?.isFavorite == true
-                            Icon(
-                                imageVector = when {
-                                    isFavorite -> Icons.Outlined.Favorite
-                                    else -> Icons.Outlined.FavoriteBorder
-                                },
-                                contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
-                            )
-                        }
-                    },
-                )
+                Box(
+                    Modifier
+                        .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
+                        .offset { IntOffset(0, topAppBarState.appBarOffset.floatValue.toInt()) }
+                        .background(MaterialTheme.colorScheme.background)
+                        .windowInsetsPadding(TopAppBarDefaults.windowInsets),
+                ) {
+                    TopAppBar(
+                        navigationIcon = {
+                            IconButton(onClick = onBackClick) {
+                                Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                            }
+                        },
+                        title = { Text(readyState?.title ?: "Manga") },
+                        actions = {
+                            IconButton(onClick = toggleFavorite) {
+                                val isFavorite = readyState?.isFavorite == true
+                                Icon(
+                                    imageVector = when {
+                                        isFavorite -> Icons.Outlined.Favorite
+                                        else -> Icons.Outlined.FavoriteBorder
+                                    },
+                                    contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
+                                )
+                            }
+                        },
+                    )
+                }
             },
         ) { padding ->
             when (state) {
@@ -145,9 +161,7 @@ fun ChapterOverview(
                     PullToRefreshBox(
                         isRefreshing = refreshing.value,
                         onRefresh = startRefresh,
-                        modifier = Modifier
-                            .padding(padding)
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                     ) {
                         StickyTopEffect(
                             items = state.chapters,
@@ -159,7 +173,8 @@ fun ChapterOverview(
                             chapters = state.chapters,
                             modifier = Modifier
                                 .fillMaxSize()
-                                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                                .nestedScroll(topAppBarState.nestedScrollConnection),
+                            contentPadding = padding,
                             navigateToChapter = navigateToChapter,
                         )
                     }

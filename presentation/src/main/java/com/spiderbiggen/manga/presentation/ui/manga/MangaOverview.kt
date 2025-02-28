@@ -2,10 +2,16 @@ package com.spiderbiggen.manga.presentation.ui.manga
 
 import android.content.res.Configuration
 import androidx.compose.animation.ExperimentalSharedTransitionApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -15,6 +21,7 @@ import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -25,10 +32,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,6 +49,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
+import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.explore.ExploreViewModel
@@ -143,32 +153,38 @@ private fun MangaOverviewContent(
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+    val topAppBarState = rememberTopAppBarState()
 
     Scaffold(
+        contentWindowInsets = WindowInsets.systemBars,
         topBar = {
-            TopAppBar(
-                title = { Text("Manga") },
-                scrollBehavior = topAppBarScrollBehavior,
-                actions = {
-                    if (BuildConfig.DEBUG) {
-                        IconButton(onClick = { throw Throwable() }) {
-                            Icon(
-                                Icons.Rounded.BugReport,
-                                contentDescription = "Create a crash report (by crashing)",
-                            )
+            Box(
+                Modifier
+                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
+                    .offset { IntOffset(0, topAppBarState.appBarOffset.floatValue.toInt()) }
+                    .background(MaterialTheme.colorScheme.background)
+                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
+            ) {
+                TopAppBar(
+                    title = { Text("Manga") },
+                    actions = {
+                        if (BuildConfig.DEBUG) {
+                            IconButton(onClick = { throw Throwable() }) {
+                                Icon(
+                                    Icons.Rounded.BugReport,
+                                    contentDescription = "Create a crash report (by crashing)",
+                                )
+                            }
                         }
-                    }
-                },
-            )
+                    },
+                )
+            }
         },
     ) { scaffoldPadding ->
         PullToRefreshBox(
             isRefreshing = refreshing,
             onRefresh = onRefreshClicked,
-            modifier = Modifier
-                .padding(scaffoldPadding)
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
         ) {
             StickyTopEffect(
                 items = manga,
@@ -180,7 +196,8 @@ private fun MangaOverviewContent(
                 imageLoader = imageLoader,
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                    .nestedScroll(topAppBarState.nestedScrollConnection),
+                contentPadding = scaffoldPadding,
                 lazyListState = lazyListState,
                 navigateToManga = navigateToManga,
                 onClickFavorite = onClickFavorite,
