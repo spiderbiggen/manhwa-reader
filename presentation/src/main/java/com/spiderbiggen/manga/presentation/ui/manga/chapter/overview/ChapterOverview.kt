@@ -36,6 +36,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
@@ -151,17 +153,28 @@ fun ChapterOverview(
                     )
                 }
             },
-        ) { padding ->
+        ) { scaffoldPadding ->
             when (state) {
                 is ChapterScreenState.Loading,
                 is ChapterScreenState.Error,
-                -> LoadingSpinner(padding)
+                -> LoadingSpinner(scaffoldPadding)
 
                 is ChapterScreenState.Ready -> {
+                    val pullToRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
                         isRefreshing = refreshing.value,
                         onRefresh = startRefresh,
                         modifier = Modifier.fillMaxSize(),
+                        state = pullToRefreshState,
+                        indicator = @Composable {
+                            Indicator(
+                                modifier = Modifier
+                                    .align(Alignment.TopCenter)
+                                    .offset(y = scaffoldPadding.calculateTopPadding()),
+                                isRefreshing = refreshing.value,
+                                state = pullToRefreshState,
+                            )
+                        },
                     ) {
                         StickyTopEffect(
                             items = state.chapters,
@@ -174,7 +187,7 @@ fun ChapterOverview(
                             modifier = Modifier
                                 .fillMaxSize()
                                 .nestedScroll(topAppBarState.nestedScrollConnection),
-                            contentPadding = padding,
+                            contentPadding = scaffoldPadding,
                             navigateToChapter = navigateToChapter,
                         )
                     }
