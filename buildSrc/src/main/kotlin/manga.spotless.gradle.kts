@@ -29,7 +29,7 @@ if (project == rootProject) {
 
             // define the steps to apply to those files
             trimTrailingWhitespace()
-            indentWithSpaces(4)
+            leadingTabsToSpaces(4)
             endWithNewline()
         }
         kotlin {

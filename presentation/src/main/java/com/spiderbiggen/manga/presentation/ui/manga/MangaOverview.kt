@@ -3,11 +3,14 @@ package com.spiderbiggen.manga.presentation.ui.manga
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,7 +19,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BugReport
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +62,7 @@ import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.explore.ExploreViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.favorites.MangaFavoritesViewModel
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import kotlinx.collections.immutable.ImmutableList
@@ -84,14 +90,15 @@ fun MangaOverview(
             job.cancel()
         }
     }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val data by viewModel.state.collectAsStateWithLifecycle()
     val updatingState by viewModel.updatingState.collectAsState()
 
     MangaOverview(
-        state = state,
+        data = data,
         imageLoader = imageLoader,
         refreshing = updatingState,
-        onRefreshClicked = viewModel::onPullToRefresh,
+        onToggleUnreadRequested = viewModel::onToggleUnread,
+        onRefreshClicked = viewModel::onRefreshRequested,
         navigateToManga = navigateToManga,
         onClickFavorite = viewModel::onClickFavorite,
     )
@@ -117,13 +124,14 @@ fun MangaOverview(
             job.cancel()
         }
     }
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val data by viewModel.state.collectAsStateWithLifecycle()
     val updatingState by viewModel.updatingState.collectAsState()
 
     MangaOverview(
-        state = state,
+        data = data,
         imageLoader = imageLoader,
         refreshing = updatingState,
+        onToggleUnreadRequested = viewModel::onToggleUnread,
         onRefreshClicked = viewModel::onPullToRefresh,
         navigateToManga = navigateToManga,
         onClickFavorite = viewModel::onClickFavorite,
@@ -132,32 +140,37 @@ fun MangaOverview(
 
 @Composable
 fun MangaOverview(
-    state: MangaScreenState,
+    data: MangaScreenData,
     refreshing: Boolean = false,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
+    onToggleUnreadRequested: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
-    when (state) {
+    when (data.state) {
         // TODO create error screen
         // TODO create loading shimmer
         is MangaScreenState.Error,
-        MangaScreenState.Loading,
+        is MangaScreenState.Loading,
         -> MangaOverviewContent(
-            manga = persistentListOf(),
-            refreshing = refreshing,
             imageLoader = imageLoader,
-            onRefreshClicked = onRefreshClicked,
+            manga = persistentListOf(),
+            unreadSelected = data.filterUnread,
+            onToggleUnreadRequested = onToggleUnreadRequested,
+            refreshing = refreshing,
+            onRefreshRequested = onRefreshClicked,
             navigateToManga = navigateToManga,
             onClickFavorite = onClickFavorite,
         )
 
         is MangaScreenState.Ready -> MangaOverviewContent(
-            manga = state.manga,
-            refreshing = refreshing,
             imageLoader = imageLoader,
-            onRefreshClicked = onRefreshClicked,
+            manga = data.state.manga,
+            unreadSelected = data.filterUnread,
+            onToggleUnreadRequested = onToggleUnreadRequested,
+            refreshing = refreshing,
+            onRefreshRequested = onRefreshClicked,
             navigateToManga = navigateToManga,
             onClickFavorite = onClickFavorite,
         )
@@ -167,10 +180,12 @@ fun MangaOverview(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MangaOverviewContent(
-    manga: ImmutableList<MangaViewData>,
-    refreshing: Boolean,
     imageLoader: ImageLoader,
-    onRefreshClicked: () -> Unit = {},
+    manga: ImmutableList<MangaViewData>,
+    unreadSelected: Boolean,
+    onToggleUnreadRequested: () -> Unit = {},
+    refreshing: Boolean,
+    onRefreshRequested: () -> Unit = {},
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
@@ -181,7 +196,7 @@ private fun MangaOverviewContent(
     Scaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
-            Box(
+            Column(
                 Modifier
                     .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
                     .offset { IntOffset(0, topAppBarState.appBarOffset.floatValue.toInt()) }
@@ -201,13 +216,26 @@ private fun MangaOverviewContent(
                         }
                     },
                 )
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    FilterChip(
+                        selected = unreadSelected,
+                        label = { Text("Unread") },
+                        leadingIcon = if (unreadSelected) ({ Icon(Icons.Rounded.Check, null) }) else null,
+                        onClick = onToggleUnreadRequested,
+                    )
+                }
             }
         },
     ) { scaffoldPadding ->
         val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
             isRefreshing = refreshing,
-            onRefresh = onRefreshClicked,
+            onRefresh = onRefreshRequested,
             modifier = Modifier.fillMaxSize(),
             state = pullToRefreshState,
             indicator = @Composable {
@@ -271,18 +299,27 @@ private fun MangaList(
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun PreviewManga(@PreviewParameter(MangaOverviewScreenStateProvider::class) state: MangaScreenState) {
+fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
     MangaReaderTheme {
-        MangaOverview(state = state)
+        MangaOverview(data = state)
     }
 }
 
-class MangaOverviewScreenStateProvider : PreviewParameterProvider<MangaScreenState> {
+class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData> {
     override val values
         get() = sequenceOf(
-            MangaScreenState.Loading,
-            MangaScreenState.Ready(
-                manga = MangaProvider.values.toImmutableList(),
+            MangaScreenData(false, MangaScreenState.Loading),
+            MangaScreenData(
+                filterUnread = false,
+                MangaScreenState.Ready(
+                    manga = MangaProvider.values.toImmutableList(),
+                ),
+            ),
+            MangaScreenData(
+                filterUnread = true,
+                MangaScreenState.Ready(
+                    manga = MangaProvider.values.filter { !it.readAll }.toImmutableList(),
+                ),
             ),
         )
 }

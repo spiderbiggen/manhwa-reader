@@ -7,5 +7,5 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import kotlinx.coroutines.flow.Flow
 
 fun interface GetActiveManga {
-    suspend operator fun invoke(): Either<Flow<List<Pair<Manga, ChapterId?>>>, AppError>
+    operator fun invoke(): Either<Flow<List<Pair<Manga, ChapterId?>>>, AppError>
 }

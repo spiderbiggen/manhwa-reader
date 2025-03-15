@@ -16,6 +16,7 @@ import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,6 +49,8 @@ class MangaFavoritesViewModel @Inject constructor(
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
+    private val mutableUnreadSelected = MutableStateFlow(false)
+
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updatingState = mutableUpdatingState.asStateFlow()
 
@@ -55,8 +59,10 @@ class MangaFavoritesViewModel @Inject constructor(
         get() = mutableSnackbarFlow.asSharedFlow()
 
     private val updater = MutableSharedFlow<Unit>(1)
-    private val mutableState = MutableStateFlow<MangaScreenState>(MangaScreenState.Loading)
-    val state: StateFlow<MangaScreenState>
+    private val mutableState = MutableStateFlow(
+        MangaScreenData(filterUnread = false, state = MangaScreenState.Loading),
+    )
+    val state: StateFlow<MangaScreenData>
         get() = mutableState.asStateFlow()
 
     suspend fun collect() {
@@ -65,25 +71,29 @@ class MangaFavoritesViewModel @Inject constructor(
                 updateMangas(skipCache = false)
             }
             updater.emit(Unit)
-            updateScreenState()
-        }
-    }
-
-    private suspend fun updateScreenState() {
-        when (val result = getActiveManga()) {
-            is Either.Left -> mapSuccess(result.value)
-            is Either.Right -> mutableState.emit(mapError(result.value))
+            when (val result = getActiveManga()) {
+                is Either.Left -> mapSuccess(result.value)
+                is Either.Right -> {
+                    mutableUnreadSelected.collectLatest {
+                        mutableState.emit(MangaScreenData(it, mapError(result.value)))
+                    }
+                }
+            }
         }
     }
 
     private suspend fun mapSuccess(flow: Flow<List<Pair<Manga, ChapterId?>>>) {
-        flow
-            .combine(updater) { manga, _ -> manga }
-            .collect { mangaList ->
+        combine(flow, updater, mutableUnreadSelected) { manga, _, unreadSelected -> manga to unreadSelected }
+            .collectLatest { (mangaList, filterUnread) ->
                 val timeZone = TimeZone.currentSystemDefault()
-                val manga = mangaList.asSequence()
+                val manga = mangaList
+                    .asSequence()
                     .filter { (manga, _) -> isFavorite(manga.id).leftOr(false) }
-                    .map { (manga, chapterId) ->
+                    .map { (mangaList, chapterId) ->
+                        mangaList to (chapterId?.let { isRead(it).leftOr(false) } == true)
+                    }
+                    .filter { (_, readAll) -> !filterUnread || !readAll }
+                    .map { (manga, readAll) ->
                         MangaViewData(
                             id = manga.id,
                             source = manga.source,
@@ -92,11 +102,16 @@ class MangaFavoritesViewModel @Inject constructor(
                             coverImage = manga.coverImage.toExternalForm(),
                             updatedAt = manga.updatedAt.toLocalDateTime(timeZone).date.toString(),
                             isFavorite = true,
-                            readAll = chapterId?.let { isRead(it).leftOr(false) } == true,
+                            readAll = readAll,
                         )
                     }
 
-                mutableState.emit(MangaScreenState.Ready(manga = manga.toImmutableList()))
+                mutableState.emit(
+                    MangaScreenData(
+                        filterUnread = filterUnread,
+                        state = MangaScreenState.Ready(manga = manga.toImmutableList()),
+                    ),
+                )
             }
     }
 
@@ -105,7 +120,13 @@ class MangaFavoritesViewModel @Inject constructor(
         return MangaScreenState.Error("An error occurred")
     }
 
-    fun onPullToRefresh() {
+    fun onToggleUnread() {
+        defaultScope.launch {
+            mutableUnreadSelected.emit(!mutableUnreadSelected.value)
+        }
+    }
+
+    fun onRefreshRequested() {
         defaultScope.launch {
             updateMangas(skipCache = true)
         }

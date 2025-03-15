@@ -4,6 +4,9 @@ import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
+data class MangaScreenData(val filterUnread: Boolean, val state: MangaScreenState)
+
+@Immutable
 sealed interface MangaScreenState {
     @Immutable
     data object Loading : MangaScreenState
