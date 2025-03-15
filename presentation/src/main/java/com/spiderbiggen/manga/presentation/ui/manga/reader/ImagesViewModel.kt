@@ -85,7 +85,7 @@ class ImagesViewModel @Inject constructor(
 
             when (val data = deferredEitherChapter.await().andLeft(deferredEitherImages.await())) {
                 is Either.Left -> {
-                    val (chapter, images) = data.left
+                    val (chapter, images) = data.value
                     surrounding = deferredSurrounding.await().leftOr(surrounding)
                     val isFavorite = isFavorite(mangaId).leftOr(false)
                     val isRead = isRead(chapterId).leftOr(false)
@@ -101,7 +101,7 @@ class ImagesViewModel @Inject constructor(
                     )
                 }
 
-                is Either.Right -> mutableState.emit(mapError(data.right))
+                is Either.Right -> mutableState.emit(mapError(data.value))
             }
         }
     }

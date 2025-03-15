@@ -39,6 +39,7 @@ import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -67,6 +68,7 @@ import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
+import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -82,9 +84,15 @@ import kotlinx.datetime.LocalDate
 @Composable
 fun ChapterOverview(
     viewModel: ChapterViewModel = hiltViewModel(),
+    showSnackbar: suspend (SnackbarData) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
 ) {
+    LaunchedEffect(viewModel, showSnackbar) {
+        viewModel.snackbarFlow.collect {
+            showSnackbar(it)
+        }
+    }
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()

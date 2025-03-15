@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga
 
 import android.content.res.Configuration
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,7 +8,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -27,10 +25,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -53,6 +51,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
+import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -66,7 +65,17 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.launch
 
 @Composable
-fun MangaOverview(viewModel: MangaFavoritesViewModel, imageLoader: ImageLoader, navigateToManga: (MangaId) -> Unit) {
+fun MangaOverview(
+    viewModel: MangaFavoritesViewModel,
+    imageLoader: ImageLoader,
+    showSnackbar: suspend (SnackbarData) -> Unit,
+    navigateToManga: (MangaId) -> Unit,
+) {
+    LaunchedEffect(viewModel, showSnackbar) {
+        viewModel.snackbarFlow.collect {
+            showSnackbar(it)
+        }
+    }
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()
@@ -89,7 +98,17 @@ fun MangaOverview(viewModel: MangaFavoritesViewModel, imageLoader: ImageLoader, 
 }
 
 @Composable
-fun MangaOverview(viewModel: ExploreViewModel, imageLoader: ImageLoader, navigateToManga: (MangaId) -> Unit) {
+fun MangaOverview(
+    viewModel: ExploreViewModel,
+    imageLoader: ImageLoader,
+    showSnackbar: suspend (SnackbarData) -> Unit,
+    navigateToManga: (MangaId) -> Unit,
+) {
+    LaunchedEffect(viewModel, showSnackbar) {
+        viewModel.snackbarFlow.collect {
+            showSnackbar(it)
+        }
+    }
     LifecycleStartEffect(viewModel) {
         val job = lifecycle.coroutineScope.launch {
             viewModel.collect()
@@ -249,7 +268,6 @@ private fun MangaList(
     }
 }
 
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable

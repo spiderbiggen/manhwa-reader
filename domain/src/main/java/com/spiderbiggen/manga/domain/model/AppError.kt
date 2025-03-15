@@ -19,10 +19,5 @@ sealed interface AppError {
         data class Io(val exception: IOException) : Remote
     }
 
-    sealed interface Local : AppError {
-        data object NoCache : Local
-        data object Unknown : Local
-    }
-
     data class Unknown(val exception: Exception) : AppError
 }

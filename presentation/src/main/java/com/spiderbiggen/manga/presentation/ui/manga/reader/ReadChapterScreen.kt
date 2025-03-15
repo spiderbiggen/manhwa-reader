@@ -34,6 +34,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -43,6 +45,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -85,6 +88,7 @@ import kotlinx.coroutines.launch
 fun ReadChapterScreen(
     viewModel: ImagesViewModel = hiltViewModel(),
     imageLoader: ImageLoader,
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     toChapterClicked: (ChapterId) -> Unit,
 ) {
@@ -94,8 +98,9 @@ fun ReadChapterScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ReadChapterScreen(
-        state = state,
+        snackbarHostState = snackbarHostState,
         imageLoader = imageLoader,
+        state = state,
         onBackClick = onBackClick,
         toChapterClicked = toChapterClicked,
         toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
@@ -104,11 +109,11 @@ fun ReadChapterScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReadChapterScreen(
     state: ImagesScreenState,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit = {},
     toChapterClicked: (ChapterId) -> Unit = {},
     toggleFavorite: () -> Unit = {},
@@ -131,6 +136,7 @@ fun ReadChapterScreen(
                 onBackClick = onBackClick,
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             ReaderBottomBar(
                 state = bottomAppBarState,

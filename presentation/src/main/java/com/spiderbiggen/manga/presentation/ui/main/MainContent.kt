@@ -3,7 +3,9 @@ package com.spiderbiggen.manga.presentation.ui.main
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +21,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 @Composable
 fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
     val navController = rememberNavController()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     MangaReaderTheme {
         TrackNavigationSideEffect(navController)
@@ -29,6 +32,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
             composable<MangaRoutes.Host> {
                 MangaHost(
                     coverImageLoader = coverImageLoader,
+                    snackbarHostState = snackbarHostState,
                     navigateToReader = { mangaId, chapterId ->
                         navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
@@ -40,6 +44,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
             ) { backStackEntry ->
                 ReadChapterScreen(
                     imageLoader = chapterImageLoader,
+                    snackbarHostState = snackbarHostState,
                     onBackClick = dropUnlessStarted {
                         navController.popBackStack<MangaRoutes.Host>(inclusive = false)
                     },

@@ -17,13 +17,13 @@ class GetChapterImagesImpl @Inject constructor(
     override suspend fun invoke(id: ChapterId): Either<List<URL>, AppError> =
         when (val either = chapterRepository.getChapterImages(id).either()) {
             is Either.Left -> {
-                val chunks = either.left
+                val chunks = either.value
                 val images = (0 until chunks).map { index ->
                     URL("$baseUrl/api/v1/chapters/${id.inner}/images/$index")
                 }
                 Either.Left(images)
             }
 
-            is Either.Right -> Either.Right(either.right)
+            is Either.Right -> Either.Right(either.value)
         }
 }

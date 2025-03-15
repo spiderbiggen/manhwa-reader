@@ -8,14 +8,17 @@ import com.spiderbiggen.manga.domain.model.Manga
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOr
+import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetActiveManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
+import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
@@ -23,10 +26,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
@@ -37,10 +43,15 @@ class ExploreViewModel @Inject constructor(
     private val isRead: IsRead,
     private val toggleFavorite: ToggleFavorite,
     private val updateMangaFromRemote: UpdateMangaFromRemote,
+    private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updatingState = mutableUpdatingState.asStateFlow()
+
+    private val mutableSnackbarFlow = MutableSharedFlow<SnackbarData>(1)
+    val snackbarFlow: SharedFlow<SnackbarData>
+        get() = mutableSnackbarFlow.asSharedFlow()
 
     private val updater = MutableSharedFlow<Unit>(1)
     private val mutableState = MutableStateFlow<MangaScreenState>(MangaScreenState.Loading)
@@ -59,8 +70,8 @@ class ExploreViewModel @Inject constructor(
 
     private suspend fun updateScreenState() {
         when (val result = getActiveManga()) {
-            is Either.Left -> mapSuccess(result.left)
-            is Either.Right -> mutableState.emit(mapError(result.right))
+            is Either.Left -> mapSuccess(result.value)
+            is Either.Right -> mutableState.emit(mapError(result.value))
         }
     }
 
@@ -106,8 +117,10 @@ class ExploreViewModel @Inject constructor(
 
     private suspend fun updateMangas(skipCache: Boolean) {
         mutableUpdatingState.emit(true)
-        updateMangaFromRemote(skipCache)
-        // TODO show error notice (snackbar?)
+        updateMangaFromRemote(skipCache).leftOrElse {
+            mutableSnackbarFlow.emit(SnackbarData(formatAppError(it)))
+        }
+        yield()
         mutableUpdatingState.emit(false)
     }
 }

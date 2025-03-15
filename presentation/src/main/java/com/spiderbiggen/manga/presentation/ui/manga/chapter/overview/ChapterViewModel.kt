@@ -9,26 +9,33 @@ import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
 import com.spiderbiggen.manga.domain.model.leftOr
+import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapters
 import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
+import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.model.HostedMangaRoutes
+import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.yield
 
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
@@ -40,6 +47,7 @@ class ChapterViewModel @Inject constructor(
     private val toggleFavorite: ToggleFavorite,
     private val updateChaptersFromRemote: UpdateChaptersFromRemote,
     private val mapChapterRowData: MapChapterRowData,
+    private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
     private val args = savedStateHandle.toRoute<HostedMangaRoutes.Chapters>()
@@ -48,9 +56,11 @@ class ChapterViewModel @Inject constructor(
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val refreshingState = mutableUpdatingState.asStateFlow()
 
-    private val mutableScreenState =
-        MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
+    private val mutableSnackbarFlow = MutableSharedFlow<SnackbarData>(1)
+    val snackbarFlow: SharedFlow<SnackbarData>
+        get() = mutableSnackbarFlow.asSharedFlow()
 
+    private val mutableScreenState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
     val state: StateFlow<ChapterScreenState>
         get() = mutableScreenState.asStateFlow()
 
@@ -82,7 +92,7 @@ class ChapterViewModel @Inject constructor(
         val eitherChapters = getChapters(mangaId)
         when (val data = eitherManga.andLeft(eitherChapters)) {
             is Either.Left -> {
-                val (manga, chaptersFlow) = data.left
+                val (manga, chaptersFlow) = data.value
                 mutableScreenState.emit(
                     ChapterScreenState.Ready(
                         title = manga.title,
@@ -106,7 +116,7 @@ class ChapterViewModel @Inject constructor(
                 }
             }
 
-            is Either.Right -> mutableScreenState.emit(mapError(data.right))
+            is Either.Right -> mutableScreenState.emit(mapError(data.value))
         }
     }
 
@@ -117,8 +127,10 @@ class ChapterViewModel @Inject constructor(
 
     private suspend fun updateChapters(skipCache: Boolean) {
         mutableUpdatingState.emit(true)
-        updateChaptersFromRemote(mangaId, skipCache = skipCache)
-        // TODO show error notice (snackbar?)
+        updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
+            mutableSnackbarFlow.emit(SnackbarData(formatAppError(it)))
+        }
+        yield()
         mutableUpdatingState.emit(false)
     }
 }

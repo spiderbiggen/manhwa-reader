@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
@@ -21,6 +23,7 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
+import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.ui.manga.MangaOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
@@ -30,9 +33,14 @@ import com.spiderbiggen.manga.presentation.ui.manga.model.HostedMangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 
 @Composable
-fun MangaHost(coverImageLoader: ImageLoader, navigateToReader: (MangaId, ChapterId) -> Unit) {
+fun MangaHost(
+    coverImageLoader: ImageLoader,
+    snackbarHostState: SnackbarHostState,
+    navigateToReader: (MangaId, ChapterId) -> Unit,
+) {
     val navController = rememberNavController()
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = { MangaNavigationBar(navController) },
         contentWindowInsets = WindowInsets.navigationBars,
     ) { contentPadding ->
@@ -42,6 +50,7 @@ fun MangaHost(coverImageLoader: ImageLoader, navigateToReader: (MangaId, Chapter
             navController = navController,
             modifier = Modifier.padding(contentPadding),
             navigateToReader = navigateToReader,
+            showSnackbar = { snackbarHostState.showSnackbar(it) },
         )
     }
 }
@@ -52,6 +61,7 @@ private fun MangaNavHost(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     navigateToReader: (MangaId, ChapterId) -> Unit,
+    showSnackbar: suspend (SnackbarData) -> Unit,
 ) {
     TrackNavigationSideEffect(navController)
     NavHost(
@@ -63,6 +73,7 @@ private fun MangaNavHost(
         composable<HostedMangaRoutes.Explore> {
             MangaOverview(
                 viewModel = hiltViewModel<ExploreViewModel>(),
+                showSnackbar = showSnackbar,
                 imageLoader = coverImageLoader,
                 navigateToManga = { mangaId ->
                     navController.navigate(HostedMangaRoutes.Chapters(mangaId))
@@ -72,6 +83,7 @@ private fun MangaNavHost(
         composable<HostedMangaRoutes.Favorites> {
             MangaOverview(
                 viewModel = hiltViewModel<MangaFavoritesViewModel>(),
+                showSnackbar = showSnackbar,
                 imageLoader = coverImageLoader,
                 navigateToManga = { mangaId ->
                     navController.navigate(HostedMangaRoutes.Chapters(mangaId))
@@ -87,6 +99,7 @@ private fun MangaNavHost(
         ) { backStackEntry ->
             ChapterOverview(
                 viewModel = hiltViewModel<ChapterViewModel>(),
+                showSnackbar = showSnackbar,
                 onBackClick = dropUnlessStarted { navController.popBackStack() },
                 navigateToChapter = { chapterId ->
                     val mangaId = backStackEntry.toRoute<HostedMangaRoutes.Chapters>().mangaId
