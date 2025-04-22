@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.explore
+package com.spiderbiggen.manga.presentation.ui.manga.overview.explore
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

@@ -36,7 +36,11 @@ fun MangaNavigationBar(navController: NavController, modifier: Modifier = Modifi
                         // Pop up to the start destination of the graph to
                         // avoid building up a large stack of destinations
                         // on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id)
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
                     }
                 },
                 icon = { Icon(rememberVectorPainter(item.icon), null) },

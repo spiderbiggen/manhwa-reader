@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.host
+package com.spiderbiggen.manga.presentation.ui.manga
 
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
@@ -24,13 +24,13 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaNavigationBar
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
-import com.spiderbiggen.manga.presentation.ui.manga.MangaOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
-import com.spiderbiggen.manga.presentation.ui.manga.explore.ExploreViewModel
-import com.spiderbiggen.manga.presentation.ui.manga.favorites.MangaFavoritesViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.HostedMangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
+import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverview
+import com.spiderbiggen.manga.presentation.ui.manga.overview.explore.ExploreViewModel
+import com.spiderbiggen.manga.presentation.ui.manga.overview.favorites.MangaFavoritesViewModel
 
 @Composable
 fun MangaHost(

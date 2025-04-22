@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.favorites
+package com.spiderbiggen.manga.presentation.ui.manga.overview.favorites
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

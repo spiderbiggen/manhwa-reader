@@ -14,7 +14,7 @@ import androidx.navigation.toRoute
 import coil3.ImageLoader
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.host.MangaHost
+import com.spiderbiggen.manga.presentation.ui.manga.MangaHost
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 

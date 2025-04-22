@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga
+package com.spiderbiggen.manga.presentation.ui.manga.overview
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -60,11 +60,11 @@ import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.explore.ExploreViewModel
-import com.spiderbiggen.manga.presentation.ui.manga.favorites.MangaFavoritesViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.manga.overview.explore.ExploreViewModel
+import com.spiderbiggen.manga.presentation.ui.manga.overview.favorites.MangaFavoritesViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
