@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.overview
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -9,7 +10,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -25,18 +25,15 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults.Indicator
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
@@ -44,7 +41,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -54,8 +50,10 @@ import coil3.SingletonImageLoader
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaRow
+import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
+import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
@@ -193,13 +191,12 @@ private fun MangaOverviewContent(
     val manuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarState = rememberTopAppBarState()
 
-    Scaffold(
+    MangaScaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
             Column(
                 Modifier
                     .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                    .offset { IntOffset(0, topAppBarState.appBarOffset.floatValue.toInt()) }
                     .background(MaterialTheme.colorScheme.background)
                     .windowInsetsPadding(TopAppBarDefaults.windowInsets),
             ) {
@@ -225,12 +222,17 @@ private fun MangaOverviewContent(
                     FilterChip(
                         selected = unreadSelected,
                         label = { Text("Unread") },
-                        leadingIcon = if (unreadSelected) ({ Icon(Icons.Rounded.Check, null) }) else null,
+                        leadingIcon = {
+                            AnimatedVisibility(unreadSelected) {
+                                Icon(Icons.Rounded.Check, null)
+                            }
+                        },
                         onClick = onToggleUnreadRequested,
                     )
                 }
             }
         },
+        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
@@ -238,15 +240,6 @@ private fun MangaOverviewContent(
             onRefresh = onRefreshRequested,
             modifier = Modifier.fillMaxSize(),
             state = pullToRefreshState,
-            indicator = @Composable {
-                Indicator(
-                    modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .offset(y = scaffoldPadding.calculateTopPadding()),
-                    isRefreshing = refreshing,
-                    state = pullToRefreshState,
-                )
-            },
         ) {
             StickyTopEffect(
                 items = manga,
@@ -258,7 +251,11 @@ private fun MangaOverviewContent(
                 imageLoader = imageLoader,
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(topAppBarState.nestedScrollConnection),
+                    .nestedScroll(topAppBarState.nestedScrollConnection)
+                    .scrollableFade(
+                        canScrollBackward = { lazyListState.canScrollBackward },
+                        canScrollForward = { lazyListState.canScrollForward },
+                    ),
                 contentPadding = scaffoldPadding,
                 lazyListState = lazyListState,
                 navigateToManga = navigateToManga,
@@ -281,7 +278,7 @@ private fun MangaList(
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(8.dp),
+        contentPadding = contentPadding + PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(mangas, key = { it.id.inner }) { item ->

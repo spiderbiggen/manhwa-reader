@@ -33,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -75,8 +74,10 @@ import com.spiderbiggen.manga.domain.model.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
+import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.bottomappbar.BottomAppBarState
 import com.spiderbiggen.manga.presentation.components.bottomappbar.rememberBottomAppBarState
+import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -127,7 +128,7 @@ fun ReadChapterScreen(
     val bottomAppBarState = rememberBottomAppBarState(lazyListState)
 
     val ready = state.ifReady()
-    Scaffold(
+    MangaScaffold(
         contentWindowInsets = WindowInsets.safeDrawing,
         topBar = {
             ReaderTopAppBar(
@@ -146,6 +147,8 @@ fun ReadChapterScreen(
                 setReadUpToHere = setReadUpToHere,
             )
         },
+        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
+        bottomBarOffset = { bottomAppBarState.appBarOffset.floatValue.toInt() },
     ) { padding ->
         when (state) {
             is ImagesScreenState.Loading -> Box(
@@ -162,7 +165,11 @@ fun ReadChapterScreen(
                 imageLoader = imageLoader,
                 modifier = Modifier
                     .nestedScroll(topAppBarState.nestedScrollConnection)
-                    .nestedScroll(bottomAppBarState.nestedScrollConnection),
+                    .nestedScroll(bottomAppBarState.nestedScrollConnection)
+                    .scrollableFade(
+                        canScrollBackward = { lazyListState.canScrollBackward },
+                        canScrollForward = { lazyListState.canScrollForward },
+                    ),
                 padding = padding,
                 lazyListState = lazyListState,
                 onListClicked = {

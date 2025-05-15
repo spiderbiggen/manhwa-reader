@@ -11,7 +11,6 @@ import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaBottomNavigationItem
 
@@ -32,14 +31,10 @@ fun MangaNavigationBar(navController: NavController, modifier: Modifier = Modifi
                 selected = isSelected,
                 onClick = dropUnlessStarted {
                     if (isSelected) return@dropUnlessStarted
+                    if (navController.popBackStack(route = item.route, inclusive = false, saveState = true))
+                        return@dropUnlessStarted
+
                     navController.navigate(item.route) {
-                        // Pop up to the start destination of the graph to
-                        // avoid building up a large stack of destinations
-                        // on the back stack as users select items
-                        popUpTo(navController.graph.findStartDestination().id) {
-                            saveState = true
-                        }
-                        launchSingleTop = true
                         restoreState = true
                     }
                 },
