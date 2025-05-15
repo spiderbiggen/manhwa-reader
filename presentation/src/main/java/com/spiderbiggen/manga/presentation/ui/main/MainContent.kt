@@ -22,7 +22,6 @@ import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOver
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverview
-import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverviewViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 
 @Composable

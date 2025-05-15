@@ -60,6 +60,7 @@ class TopAppBarState {
 
     val nestedScrollConnection = object : NestedScrollConnection {
         override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            animationJob?.cancel()
             val delta = available.y
             val startOffset = mutableOffset.floatValue
             val newOffset = (startOffset + delta).coerceIn(-appBarHeight, 0f)
