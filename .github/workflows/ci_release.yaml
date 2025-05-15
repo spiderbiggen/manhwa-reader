@@ -62,9 +62,16 @@ jobs:
                 with:
                     name: Builds
                     path: |
-                        app/build/outputs/apk/release/*
-                        app/build/outputs/bundle/release/*
+                        app/build/outputs/apk/release/**/*.apk
 
+    changelog:
+        runs-on: ubuntu-latest
+        needs: build
+        permissions:
+            actions: write
+            contents: write
+        steps:
+            - uses: actions/download-artifact@v4
             - name: Update CHANGELOG
               id: changelog
               uses: requarks/changelog-action@v1
@@ -76,12 +83,11 @@ jobs:
               uses: softprops/action-gh-release@v2
               with:
                   draft: false
-                  makeLatest: true
+                  make_latest: true
                   body: ${{ steps.changelog.outputs.changes }}
                   token: ${{ github.token }}
                   files: |
-                      app/build/outputs/apk/release/*
-                      app/build/outputs/bundle/release/*
+                      app/build/outputs/apk/release/**/*.apk
 
             - name: Commit CHANGELOG.md
               uses: stefanzweifel/git-auto-commit-action@v4
