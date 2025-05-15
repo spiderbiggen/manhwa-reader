@@ -19,7 +19,6 @@ fun TrackNavigationSideEffect(navController: NavHostController) {
     DisposableEffect(navController) {
         val listener = OnDestinationChangedListener { _, destination, arguments ->
             val route = destination.route?.sanitize() ?: return@OnDestinationChangedListener
-            if (destination.hasRoute<MangaRoutes.Host>()) return@OnDestinationChangedListener
 
             Firebase.analytics.logEvent(FirebaseAnalytics.Event.SCREEN_VIEW) {
                 arguments?.let { bundle.putAll(it) }

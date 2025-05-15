@@ -8,7 +8,17 @@ import kotlinx.serialization.Transient
 @Serializable
 sealed interface MangaRoutes {
     @Serializable
-    data object Host
+    data object Overview : MangaRoutes
+
+    @Serializable
+    class Chapters private constructor(private val sMangaId: String) : MangaRoutes {
+        @Transient
+        val mangaId: MangaId = MangaId(sMangaId)
+
+        companion object {
+            operator fun invoke(mangaId: MangaId) = Chapters(mangaId.inner)
+        }
+    }
 
     @Serializable
     class Reader private constructor(private val sMangaId: String, private val sChapterId: String) : MangaRoutes {
@@ -20,25 +30,6 @@ sealed interface MangaRoutes {
 
         companion object {
             operator fun invoke(mangaId: MangaId, chapterId: ChapterId) = Reader(mangaId.inner, chapterId.inner)
-        }
-    }
-}
-
-@Serializable
-sealed interface HostedMangaRoutes {
-    @Serializable
-    data object Explore : MangaRoutes
-
-    @Serializable
-    data object Favorites : MangaRoutes
-
-    @Serializable
-    class Chapters private constructor(private val sMangaId: String) : MangaRoutes {
-        @Transient
-        val mangaId: MangaId = MangaId(sMangaId)
-
-        companion object {
-            operator fun invoke(mangaId: MangaId) = Chapters(mangaId.inner)
         }
     }
 }

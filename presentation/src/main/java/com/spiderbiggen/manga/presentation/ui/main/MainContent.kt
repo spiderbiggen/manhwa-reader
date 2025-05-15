@@ -3,9 +3,13 @@ package com.spiderbiggen.manga.presentation.ui.main
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.IntOffset
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,8 +18,11 @@ import androidx.navigation.toRoute
 import coil3.ImageLoader
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.MangaHost
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOverview
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
+import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverview
+import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverviewViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 
 @Composable
@@ -27,13 +34,30 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
         TrackNavigationSideEffect(navController)
         NavHost(
             navController = navController,
-            startDestination = MangaRoutes.Host,
+            startDestination = MangaRoutes.Overview,
         ) {
-            composable<MangaRoutes.Host> {
-                MangaHost(
-                    coverImageLoader = coverImageLoader,
-                    snackbarHostState = snackbarHostState,
-                    navigateToReader = { mangaId, chapterId ->
+            composable<MangaRoutes.Overview> {
+                MangaOverview(
+                    showSnackbar = { snackbarHostState.showSnackbar(it) },
+                    imageLoader = coverImageLoader,
+                    navigateToManga = { mangaId ->
+                        navController.navigate(MangaRoutes.Chapters(mangaId))
+                    },
+                )
+            }
+
+            composable<MangaRoutes.Chapters>(
+                enterTransition = { slideIn(initialOffset = { IntOffset(it.width, 0) }) },
+                exitTransition = { slideOut(targetOffset = { IntOffset(-it.width, 0) }) },
+                popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
+                popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
+            ) { backStackEntry ->
+                ChapterOverview(
+                    viewModel = hiltViewModel<ChapterViewModel>(),
+                    showSnackbar = { snackbarHostState.showSnackbar(it) },
+                    onBackClick = dropUnlessStarted { navController.popBackStack() },
+                    navigateToChapter = { chapterId ->
+                        val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
                         navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
                 )
@@ -46,7 +70,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                     imageLoader = chapterImageLoader,
                     snackbarHostState = snackbarHostState,
                     onBackClick = dropUnlessStarted {
-                        navController.popBackStack<MangaRoutes.Host>(inclusive = false)
+                        navController.popBackStack<MangaRoutes.Overview>(inclusive = false)
                     },
                     toChapterClicked = { chapterId ->
                         val mangaId = backStackEntry.toRoute<MangaRoutes.Reader>().mangaId

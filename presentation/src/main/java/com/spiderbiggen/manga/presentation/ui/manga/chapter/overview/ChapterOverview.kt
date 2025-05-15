@@ -91,16 +91,8 @@ fun ChapterOverview(
             showSnackbar(it)
         }
     }
-    LifecycleStartEffect(viewModel) {
-        val job = lifecycle.coroutineScope.launch {
-            viewModel.collect()
-        }
-        onStopOrDispose {
-            job.cancel()
-        }
-    }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val refreshingState = viewModel.refreshingState.collectAsState()
+    val refreshingState = viewModel.refreshingState.collectAsStateWithLifecycle()
     ChapterOverview(
         state = state,
         onBackClick = onBackClick,

@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
@@ -19,20 +20,24 @@ import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
-import com.spiderbiggen.manga.presentation.ui.manga.model.HostedMangaRoutes
+import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.yield
@@ -50,25 +55,33 @@ class ChapterViewModel @Inject constructor(
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<HostedMangaRoutes.Chapters>()
+    private val args = savedStateHandle.toRoute<MangaRoutes.Chapters>()
     private val mangaId = args.mangaId
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val refreshingState = mutableUpdatingState.asStateFlow()
+    val refreshingState = mutableUpdatingState
+        .onStart { updateChapters(skipCache = false) }
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = false,
+        )
 
     private val mutableSnackbarFlow = MutableSharedFlow<SnackbarData>(1)
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = mutableSnackbarFlow.asSharedFlow()
 
     private val mutableScreenState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
-    val state: StateFlow<ChapterScreenState>
-        get() = mutableScreenState.asStateFlow()
+    val state: StateFlow<ChapterScreenState> = mutableScreenState
+        .onStart { loadData() }
+        .stateIn(
+            viewModelScope,
+            started = SharingStarted.WhileSubscribed(5_000),
+            initialValue = ChapterScreenState.Loading,
+        )
 
-    suspend fun collect() {
-        withContext(Dispatchers.Default) {
-            launch {
-                updateChapters(skipCache = false)
-            }
+    private suspend fun loadData() = coroutineScope {
+        launch(viewModelScope.coroutineContext + Dispatchers.Main) {
             updateScreenState()
         }
     }
@@ -125,12 +138,14 @@ class ChapterViewModel @Inject constructor(
         return ChapterScreenState.Error("An error occurred")
     }
 
-    private suspend fun updateChapters(skipCache: Boolean) {
-        mutableUpdatingState.emit(true)
-        updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
-            mutableSnackbarFlow.emit(SnackbarData(formatAppError(it)))
+    private suspend fun updateChapters(skipCache: Boolean) = coroutineScope {
+        launch(viewModelScope.coroutineContext + Dispatchers.Default) {
+            mutableUpdatingState.emit(true)
+            updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
+                mutableSnackbarFlow.emit(SnackbarData(formatAppError(it)))
+            }
+            yield()
+            mutableUpdatingState.emit(false)
         }
-        yield()
-        mutableUpdatingState.emit(false)
     }
 }

@@ -4,7 +4,11 @@ import androidx.compose.runtime.Immutable
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-data class MangaScreenData(val filterUnread: Boolean, val state: MangaScreenState)
+data class MangaScreenData(
+    val filterFavorites: Boolean = false,
+    val filterUnread: Boolean = false,
+    val state: MangaScreenState = MangaScreenState.Loading,
+)
 
 @Immutable
 sealed interface MangaScreenState {

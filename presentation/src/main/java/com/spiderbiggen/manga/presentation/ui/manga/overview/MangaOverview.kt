@@ -42,9 +42,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LifecycleStartEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.coroutineScope
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.google.firebase.BuildConfig
@@ -61,16 +60,13 @@ import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
-import com.spiderbiggen.manga.presentation.ui.manga.overview.explore.ExploreViewModel
-import com.spiderbiggen.manga.presentation.ui.manga.overview.favorites.MangaFavoritesViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.launch
 
 @Composable
 fun MangaOverview(
-    viewModel: MangaFavoritesViewModel,
+    viewModel: MangaOverviewViewModel = hiltViewModel(),
     imageLoader: ImageLoader,
     showSnackbar: suspend (SnackbarData) -> Unit,
     navigateToManga: (MangaId) -> Unit,
@@ -80,56 +76,15 @@ fun MangaOverview(
             showSnackbar(it)
         }
     }
-    LifecycleStartEffect(viewModel) {
-        val job = lifecycle.coroutineScope.launch {
-            viewModel.collect()
-        }
-        onStopOrDispose {
-            job.cancel()
-        }
-    }
     val data by viewModel.state.collectAsStateWithLifecycle()
-    val updatingState by viewModel.updatingState.collectAsState()
+    val updatingState by viewModel.updatingState.collectAsStateWithLifecycle()
 
     MangaOverview(
         data = data,
         imageLoader = imageLoader,
         refreshing = updatingState,
         onToggleUnreadRequested = viewModel::onToggleUnread,
-        onRefreshClicked = viewModel::onRefreshRequested,
-        navigateToManga = navigateToManga,
-        onClickFavorite = viewModel::onClickFavorite,
-    )
-}
-
-@Composable
-fun MangaOverview(
-    viewModel: ExploreViewModel,
-    imageLoader: ImageLoader,
-    showSnackbar: suspend (SnackbarData) -> Unit,
-    navigateToManga: (MangaId) -> Unit,
-) {
-    LaunchedEffect(viewModel, showSnackbar) {
-        viewModel.snackbarFlow.collect {
-            showSnackbar(it)
-        }
-    }
-    LifecycleStartEffect(viewModel) {
-        val job = lifecycle.coroutineScope.launch {
-            viewModel.collect()
-        }
-        onStopOrDispose {
-            job.cancel()
-        }
-    }
-    val data by viewModel.state.collectAsStateWithLifecycle()
-    val updatingState by viewModel.updatingState.collectAsState()
-
-    MangaOverview(
-        data = data,
-        imageLoader = imageLoader,
-        refreshing = updatingState,
-        onToggleUnreadRequested = viewModel::onToggleUnread,
+        onToggleFavoritesRequested = viewModel::onToggleFavorites,
         onRefreshClicked = viewModel::onPullToRefresh,
         navigateToManga = navigateToManga,
         onClickFavorite = viewModel::onClickFavorite,
@@ -142,6 +97,7 @@ fun MangaOverview(
     refreshing: Boolean = false,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
     onToggleUnreadRequested: () -> Unit = {},
+    onToggleFavoritesRequested: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
@@ -155,7 +111,9 @@ fun MangaOverview(
             imageLoader = imageLoader,
             manga = persistentListOf(),
             unreadSelected = data.filterUnread,
+            favoritesSelected = data.filterFavorites,
             onToggleUnreadRequested = onToggleUnreadRequested,
+            onToggleFavoritesRequested = onToggleFavoritesRequested,
             refreshing = refreshing,
             onRefreshRequested = onRefreshClicked,
             navigateToManga = navigateToManga,
@@ -166,7 +124,9 @@ fun MangaOverview(
             imageLoader = imageLoader,
             manga = data.state.manga,
             unreadSelected = data.filterUnread,
+            favoritesSelected = data.filterFavorites,
             onToggleUnreadRequested = onToggleUnreadRequested,
+            onToggleFavoritesRequested = onToggleFavoritesRequested,
             refreshing = refreshing,
             onRefreshRequested = onRefreshClicked,
             navigateToManga = navigateToManga,
@@ -181,7 +141,9 @@ private fun MangaOverviewContent(
     imageLoader: ImageLoader,
     manga: ImmutableList<MangaViewData>,
     unreadSelected: Boolean,
+    favoritesSelected: Boolean,
     onToggleUnreadRequested: () -> Unit = {},
+    onToggleFavoritesRequested: () -> Unit = {},
     refreshing: Boolean,
     onRefreshRequested: () -> Unit = {},
     navigateToManga: (MangaId) -> Unit = {},
@@ -219,6 +181,16 @@ private fun MangaOverviewContent(
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+                    FilterChip(
+                        selected = favoritesSelected,
+                        label = { Text("Favorites") },
+                        leadingIcon = {
+                            AnimatedVisibility(favoritesSelected) {
+                                Icon(Icons.Rounded.Check, null)
+                            }
+                        },
+                        onClick = onToggleFavoritesRequested,
+                    )
                     FilterChip(
                         selected = unreadSelected,
                         label = { Text("Unread") },
@@ -305,17 +277,22 @@ fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state
 class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData> {
     override val values
         get() = sequenceOf(
-            MangaScreenData(false, MangaScreenState.Loading),
+            MangaScreenData(),
             MangaScreenData(
-                filterUnread = false,
-                MangaScreenState.Ready(
+                state = MangaScreenState.Ready(
                     manga = MangaProvider.values.toImmutableList(),
                 ),
             ),
             MangaScreenData(
                 filterUnread = true,
-                MangaScreenState.Ready(
+                state = MangaScreenState.Ready(
                     manga = MangaProvider.values.filter { !it.readAll }.toImmutableList(),
+                ),
+            ),
+            MangaScreenData(
+                filterFavorites = true,
+                state = MangaScreenState.Ready(
+                    manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
                 ),
             ),
         )
