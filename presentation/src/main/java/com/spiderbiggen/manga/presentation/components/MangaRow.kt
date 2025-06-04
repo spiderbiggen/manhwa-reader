@@ -105,7 +105,7 @@ private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier
 @Composable
 private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     Row {
-        if (manga.status == "Dropped") {
+        if (manga.status.contentEquals("Dropped", ignoreCase = true)) {
             Icon(
                 Icons.Rounded.Warning,
                 modifier = Modifier.padding(12.dp),

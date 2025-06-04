@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -53,7 +52,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -195,7 +193,6 @@ private fun ReaderTopAppBar(
     Box(
         modifier
             .onSizeChanged { state.appBarHeight = it.height.toFloat() }
-            .offset { IntOffset(0, state.appBarOffset.floatValue.toInt()) }
             .background(MaterialTheme.colorScheme.surface)
             .windowInsetsPadding(TopAppBarDefaults.windowInsets),
     ) {
@@ -279,7 +276,6 @@ private fun ReaderBottomBar(
     Surface(
         Modifier
             .onSizeChanged { state.appBarHeight = it.height.toFloat() }
-            .offset { IntOffset(0, state.appBarOffset.floatValue.toInt()) }
             .fillMaxWidth()
             .windowInsetsPadding(BottomAppBarDefaults.windowInsets),
     ) {

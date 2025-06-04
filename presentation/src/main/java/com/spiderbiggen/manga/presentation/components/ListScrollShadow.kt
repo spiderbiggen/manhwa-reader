@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.presentation.components
 
-import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -11,25 +11,23 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.CompositingStrategy
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 fun Modifier.scrollableFade(
     canScrollBackward: () -> Boolean,
     canScrollForward: () -> Boolean,
-    fadeSize: Dp = 64.dp,
+    topFade: Dp = 32.dp,
+    bottomFade: Dp = 24.dp,
 ): Modifier = composed {
     val fadeTop = canScrollBackward()
     val fadeBottom = canScrollForward()
-    val fadeSize = with(LocalDensity.current) {
-        fadeSize.toPx()
-    }
-    val topFadeSizePx by animateFloatAsState(if (fadeTop) fadeSize else 0f)
-    val bottomFadeSizePx by animateFloatAsState(if (fadeBottom) fadeSize else 0f)
+    val topFadeSize by animateDpAsState(if (fadeTop) topFade else 0.dp)
+    val bottomFadeSize by animateDpAsState(if (fadeBottom) bottomFade else 0.dp)
     graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
         .drawWithContent {
             drawContent()
+            val topFadeSizePx = topFadeSize.toPx()
             drawRect(
                 size = size.copy(height = topFadeSizePx),
                 brush = Brush.verticalGradient(
@@ -39,6 +37,7 @@ fun Modifier.scrollableFade(
                 ),
                 blendMode = BlendMode.DstIn,
             )
+            val bottomFadeSizePx = bottomFadeSize.toPx()
             drawRect(
                 topLeft = Offset(0f, size.height - bottomFadeSizePx),
                 size = size.copy(height = bottomFadeSizePx),
