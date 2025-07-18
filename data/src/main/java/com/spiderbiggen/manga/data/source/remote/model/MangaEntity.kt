@@ -1,7 +1,8 @@
 package com.spiderbiggen.manga.data.source.remote.model
 
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
+import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -16,6 +17,7 @@ data class MangaEntity(
     val dominantColor: Int?,
     val description: String,
     val status: String,
+    @Contextual
     @SerialName("updated_at")
     val updatedAt: Instant,
 )

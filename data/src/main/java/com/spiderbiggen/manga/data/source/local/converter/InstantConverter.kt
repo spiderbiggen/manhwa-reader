@@ -2,8 +2,8 @@ package com.spiderbiggen.manga.data.source.local.converter
 
 import androidx.room.TypeConverter
 import java.time.Instant as JavaInstant
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toKotlinInstant
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 class InstantConverter {
     @TypeConverter
