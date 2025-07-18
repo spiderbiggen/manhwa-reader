@@ -1,6 +1,8 @@
 package com.spiderbiggen.manga.presentation.components.topappbar
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
 import androidx.compose.runtime.MutableFloatState
@@ -12,15 +14,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState.Companion.Saver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState {
-    return rememberSaveable(saver = TopAppBarState.Saver) {
-        TopAppBarState(initialHeight)
-    }
+fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState = rememberSaveable(saver = Saver) {
+    TopAppBarState(initialHeight)
 }
 
 class TopAppBarState {
@@ -47,13 +48,15 @@ class TopAppBarState {
     val appBarOffset: FloatState
         get() = mutableOffset.asFloatState()
 
-    suspend fun animateAppBarOffset(offset: Float) {
+    suspend fun animateAppBarOffset(offset: Float, animationSpec: AnimationSpec<Float> = spring()) {
         val limited = offset.coerceIn(-appBarHeight, 0f)
         if (mutableOffset.floatValue == limited) return
         animationJob = coroutineScope {
             launch {
                 Animatable(mutableOffset.floatValue)
-                    .animateTo(targetValue = offset) { mutableOffset.floatValue = value }
+                    .animateTo(targetValue = offset, animationSpec = animationSpec) {
+                        mutableOffset.floatValue = value
+                    }
             }
         }
     }

@@ -2,6 +2,8 @@ package com.spiderbiggen.manga.presentation.components.bottomappbar
 
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationSpec
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FloatState
@@ -51,13 +53,13 @@ class BottomAppBarState {
     val appBarOffset: FloatState
         get() = mutableOffset.asFloatState()
 
-    suspend fun animateAppBarOffset(offset: Float) {
+    suspend fun animateAppBarOffset(offset: Float, animationSpec: AnimationSpec<Float> = spring()) {
         val limited = offset.coerceIn(0f, appBarHeight)
         if (mutableOffset.floatValue == limited) return
         animationJob = coroutineScope {
             launch {
                 Animatable(mutableOffset.floatValue)
-                    .animateTo(targetValue = offset) { mutableOffset.floatValue = value }
+                    .animateTo(targetValue = offset, animationSpec = animationSpec) { mutableOffset.floatValue = value }
             }
         }
     }
