@@ -72,7 +72,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.Chapt
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.datetime.Clock.System.now
+import kotlin.time.Clock.System.now
 import kotlinx.datetime.LocalDate
 
 @Composable

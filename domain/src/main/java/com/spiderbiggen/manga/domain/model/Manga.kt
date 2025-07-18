@@ -2,7 +2,7 @@ package com.spiderbiggen.manga.domain.model
 
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import java.net.URL
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class Manga(
     val source: String,

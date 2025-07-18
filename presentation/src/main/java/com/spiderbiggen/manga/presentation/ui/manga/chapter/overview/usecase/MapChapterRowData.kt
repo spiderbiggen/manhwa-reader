@@ -25,7 +25,7 @@ class MapChapterRowData @Inject constructor() {
         private val dateFormat: DateTimeFormat<LocalDate> = LocalDate.Format {
             monthName(MonthNames.ENGLISH_FULL)
             char(' ')
-            dayOfMonth(Padding.NONE)
+            day(Padding.NONE)
             char(' ')
             year(Padding.NONE)
         }
