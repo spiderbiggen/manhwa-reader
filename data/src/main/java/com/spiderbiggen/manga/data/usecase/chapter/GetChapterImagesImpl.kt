@@ -11,7 +11,7 @@ import java.net.URL
 import javax.inject.Inject
 
 class GetChapterImagesImpl @Inject constructor(
-    @BaseUrl private val baseUrl: String,
+    @param:BaseUrl private val baseUrl: String,
     private val chapterRepository: ChapterRepository,
 ) : GetChapterImages {
     override suspend fun invoke(id: ChapterId): Either<List<URL>, AppError> =

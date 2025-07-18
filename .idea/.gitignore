@@ -4,3 +4,8 @@
 /sonarlint
 deploymentTargetSelector.xml
 deploymentTargetDropDown.xml
+/*.xml
+
+!/codeStyles
+!/inspectionProfiles
+!/runConfigurations

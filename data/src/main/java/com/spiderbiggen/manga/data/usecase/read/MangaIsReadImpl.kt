@@ -16,9 +16,9 @@ class MangaIsReadImpl @Inject constructor(
     private val getManga: GetManga,
     private val getChapters: GetChapters,
 ) : MangaIsRead {
-    override suspend fun invoke(mangaId: MangaId): Either<Boolean, AppError> {
-        val manga = getManga(mangaId).leftOrElse { return Either.Right(it) }
-        val chapters = getChapters.once(mangaId).leftOrElse { return Either.Right(it) }
+    override suspend fun invoke(id: MangaId): Either<Boolean, AppError> {
+        val manga = getManga(id).leftOrElse { return Either.Right(it) }
+        val chapters = getChapters.once(id).leftOrElse { return Either.Right(it) }
         val hasLastUpdate = chapters.any { it.updatedAt == manga.updatedAt }
         return Either.Left(hasLastUpdate && chapters.all { isRead(it.id).leftOr(false) })
     }

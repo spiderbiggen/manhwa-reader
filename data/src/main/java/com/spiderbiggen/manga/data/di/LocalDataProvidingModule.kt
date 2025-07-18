@@ -27,7 +27,7 @@ object LocalDataProvidingModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context) = MangaDatabaseDecorator(
         Room.databaseBuilder(context, MangaDatabase::class.java, "manga")
-            .fallbackToDestructiveMigration()
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build(),
     )
 
