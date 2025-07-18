@@ -14,8 +14,9 @@ fun MangaReaderTheme(
 ) {
     DynamicMaterialTheme(
         seedColor = seedColor,
-        useDarkTheme = darkTheme,
+        isDark = darkTheme,
         style = PaletteStyle.Expressive,
+        animate = true,
         content = content,
     )
 }
