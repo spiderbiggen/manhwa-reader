@@ -69,7 +69,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                     imageLoader = chapterImageLoader,
                     snackbarHostState = snackbarHostState,
                     onBackClick = dropUnlessStarted {
-                        navController.popBackStack<MangaRoutes.Overview>(inclusive = false)
+                        navController.popBackStack<MangaRoutes.Chapters>(inclusive = false)
                     },
                     toChapterClicked = { chapterId ->
                         val mangaId = backStackEntry.toRoute<MangaRoutes.Reader>().mangaId
