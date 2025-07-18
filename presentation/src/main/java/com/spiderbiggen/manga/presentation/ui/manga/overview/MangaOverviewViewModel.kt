@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.overview
 
 import android.util.Log
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.AppError
@@ -42,8 +43,12 @@ import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
+private const val UNREAD_SELECTED_KEY = "unreadSelected"
+private const val FAVORITE_SELECTED_KEY = "favoriteSelected"
+
 @HiltViewModel
 class MangaOverviewViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getActiveManga: GetActiveManga,
     private val isFavorite: IsFavorite,
     private val isRead: IsRead,
@@ -52,8 +57,22 @@ class MangaOverviewViewModel @Inject constructor(
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
-    private val mutableUnreadSelected = MutableStateFlow(false)
-    private val mutableFavoriteSelected = MutableStateFlow(false)
+    private var unreadSelected: Boolean = savedStateHandle.get<Boolean>("unreadSelected") == true
+        set(value) {
+            field = value
+            savedStateHandle.set(UNREAD_SELECTED_KEY, value)
+        }
+    private val unreadSelectedFlow: StateFlow<Boolean>
+        get() = savedStateHandle.getStateFlow(UNREAD_SELECTED_KEY, unreadSelected)
+
+    private var favoriteSelected: Boolean = savedStateHandle.get<Boolean>("favoriteSelected") == true
+        set(value) {
+            field = value
+            savedStateHandle.set(FAVORITE_SELECTED_KEY, value)
+        }
+    private val favoriteSelectedFlow: StateFlow<Boolean>
+        get() = savedStateHandle.getStateFlow(FAVORITE_SELECTED_KEY, favoriteSelected)
+
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updatingState: StateFlow<Boolean> = mutableUpdatingState
@@ -96,8 +115,8 @@ class MangaOverviewViewModel @Inject constructor(
         val combinedFlows = combine(
             flow,
             updater,
-            mutableUnreadSelected,
-            mutableFavoriteSelected,
+            unreadSelectedFlow,
+            favoriteSelectedFlow,
         ) { manga, _, unreadSelected, favoriteSelected ->
             Triple(manga, unreadSelected, favoriteSelected)
         }
@@ -141,8 +160,8 @@ class MangaOverviewViewModel @Inject constructor(
 
     private suspend fun mapError(result: Either.Right<Flow<List<Pair<Manga, ChapterId?>>>, AppError>) {
         combine(
-            mutableFavoriteSelected,
-            mutableUnreadSelected,
+            favoriteSelectedFlow,
+            unreadSelectedFlow,
         ) { (favorites, unread) -> unread to favorites }
             .collectLatest { (favorites, unread) ->
                 mutableState.emit(
@@ -161,15 +180,11 @@ class MangaOverviewViewModel @Inject constructor(
     }
 
     fun onToggleUnread() {
-        defaultScope.launch {
-            mutableUnreadSelected.emit(!mutableUnreadSelected.value)
-        }
+        unreadSelected = !unreadSelected
     }
 
     fun onToggleFavorites() {
-        defaultScope.launch {
-            mutableFavoriteSelected.emit(!mutableFavoriteSelected.value)
-        }
+        favoriteSelected = !favoriteSelected
     }
 
     fun onPullToRefresh() {
