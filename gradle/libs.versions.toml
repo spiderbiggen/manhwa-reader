@@ -28,9 +28,9 @@ androidX-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = 
 androidX-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 
 # Firebase
-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "33.16.0" }
-firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics-ktx" }
-firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics-ktx" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "34.0.0" }
+firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 
 # Lifecycle
 androidX-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycle" }
