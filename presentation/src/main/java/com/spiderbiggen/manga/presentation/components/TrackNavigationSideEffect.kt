@@ -5,9 +5,9 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.navigation.NavController.OnDestinationChangedListener
 import androidx.navigation.NavHostController
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
+import com.google.firebase.analytics.analytics
 import com.google.firebase.analytics.logEvent
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.Firebase
 
 /**
  * Stores information about navigation events

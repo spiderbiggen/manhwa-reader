@@ -8,8 +8,8 @@ import androidx.core.view.WindowCompat
 import coil3.SingletonImageLoader
 import coil3.disk.DiskCache
 import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.analytics.ktx.analytics
-import com.google.firebase.ktx.Firebase
+import com.google.firebase.analytics.analytics
+import com.google.firebase.Firebase
 import com.spiderbiggen.manga.presentation.ui.main.MainContent
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
