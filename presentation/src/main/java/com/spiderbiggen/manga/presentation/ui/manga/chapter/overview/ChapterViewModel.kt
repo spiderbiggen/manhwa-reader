@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -68,6 +69,9 @@ class ChapterViewModel @Inject constructor(
     private val mutableSnackbarFlow = MutableSharedFlow<SnackbarData>(1)
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = mutableSnackbarFlow.asSharedFlow()
+
+    private val mutableDominantColor = savedStateHandle.getMutableStateFlow<Int?>("dominantColor", null)
+    val dominantColor = mutableDominantColor.map { it?.let { color -> Color(color) } }
 
     private val mutableScreenState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
     val state: StateFlow<ChapterScreenState> = mutableScreenState
@@ -104,20 +108,20 @@ class ChapterViewModel @Inject constructor(
         when (val data = eitherManga.andLeft(eitherChapters)) {
             is Either.Left -> {
                 val (manga, chaptersFlow) = data.value
+                mutableDominantColor.emit(manga.dominantColor)
                 mutableScreenState.emit(
                     ChapterScreenState.Ready(
                         title = manga.title,
-                        dominantColor = manga.dominantColor?.let { Color(it) },
                         isFavorite = isFavorite(mangaId).leftOr(false),
                         chapters = persistentListOf(),
                     ),
                 )
 
                 chaptersFlow.collectLatest { list ->
+                    mutableDominantColor.emit(manga.dominantColor)
                     mutableScreenState.emit(
                         ChapterScreenState.Ready(
                             title = manga.title,
-                            dominantColor = manga.dominantColor?.let { Color(it) },
                             isFavorite = isFavorite(mangaId).leftOr(false),
                             chapters = list
                                 .map { mapChapterRowData(it, isRead(it.id).leftOr(false)) }

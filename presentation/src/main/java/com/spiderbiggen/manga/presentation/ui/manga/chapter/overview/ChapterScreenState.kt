@@ -13,7 +13,6 @@ sealed interface ChapterScreenState {
     @Immutable
     data class Ready(
         val title: String,
-        val dominantColor: Color?,
         val isFavorite: Boolean,
         val chapters: ImmutableList<ChapterRowData>,
     ) : ChapterScreenState

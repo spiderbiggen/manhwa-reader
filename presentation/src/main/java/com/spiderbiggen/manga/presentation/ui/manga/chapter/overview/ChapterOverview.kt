@@ -81,10 +81,16 @@ fun ChapterOverview(
     showSnackbar: suspend (SnackbarData) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
+    onBackgroundColorChanged: (Color) -> Unit,
 ) {
     LaunchedEffect(viewModel, showSnackbar) {
         viewModel.snackbarFlow.collect {
             showSnackbar(it)
+        }
+    }
+    LaunchedEffect(viewModel) {
+        viewModel.dominantColor.collect {
+            it?.let { p1 -> onBackgroundColorChanged(p1) }
         }
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -114,72 +120,70 @@ fun ChapterOverview(
     val topAppBarState = rememberTopAppBarState()
 
     val readyState = state.ifReady()
-    MangaReaderTheme(readyState?.dominantColor ?: Purple80) {
-        MangaScaffold(
-            contentWindowInsets = WindowInsets.systemBars,
-            topBar = {
-                Box(
-                    Modifier
-                        .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                        .background(MaterialTheme.colorScheme.background)
-                        .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-                ) {
-                    TopAppBar(
-                        navigationIcon = {
-                            IconButton(onClick = onBackClick) {
-                                Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
-                            }
-                        },
-                        title = { Text(readyState?.title ?: "Manga") },
-                        actions = {
-                            IconButton(onClick = toggleFavorite) {
-                                val isFavorite = readyState?.isFavorite == true
-                                Icon(
-                                    imageVector = when {
-                                        isFavorite -> Icons.Outlined.Favorite
-                                        else -> Icons.Outlined.FavoriteBorder
-                                    },
-                                    contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
-                                )
-                            }
-                        },
-                    )
-                }
-            },
-            topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
-        ) { scaffoldPadding ->
-            when (state) {
-                is ChapterScreenState.Loading,
-                is ChapterScreenState.Error,
-                -> LoadingSpinner(scaffoldPadding)
+    MangaScaffold(
+        contentWindowInsets = WindowInsets.systemBars,
+        topBar = {
+            Box(
+                Modifier
+                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
+                    .background(MaterialTheme.colorScheme.background)
+                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
+            ) {
+                TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onBackClick) {
+                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                        }
+                    },
+                    title = { Text(readyState?.title ?: "Manga") },
+                    actions = {
+                        IconButton(onClick = toggleFavorite) {
+                            val isFavorite = readyState?.isFavorite == true
+                            Icon(
+                                imageVector = when {
+                                    isFavorite -> Icons.Outlined.Favorite
+                                    else -> Icons.Outlined.FavoriteBorder
+                                },
+                                contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
+                            )
+                        }
+                    },
+                )
+            }
+        },
+        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
+    ) { scaffoldPadding ->
+        when (state) {
+            is ChapterScreenState.Loading,
+            is ChapterScreenState.Error,
+            -> LoadingSpinner(scaffoldPadding)
 
-                is ChapterScreenState.Ready -> {
-                    val pullToRefreshState = rememberPullToRefreshState()
-                    PullToRefreshBox(
-                        isRefreshing = refreshing.value,
-                        onRefresh = startRefresh,
-                        modifier = Modifier.fillMaxSize(),
-                        state = pullToRefreshState,
-                    ) {
-                        StickyTopEffect(
-                            items = state.chapters,
-                            listState = lazyListState,
-                            manuallyScrolled = manuallyScrolled,
-                        )
-                        ChaptersList(
-                            lazyListState = lazyListState,
-                            chapters = state.chapters,
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .nestedScroll(topAppBarState.nestedScrollConnection)
-                                .scrollableFade(
-                                    canScrollBackward = { lazyListState.canScrollBackward },
-                                    canScrollForward = { lazyListState.canScrollForward },
-                                ),
-                            contentPadding = scaffoldPadding,
-                            navigateToChapter = navigateToChapter,
-                        )
-                    }
+            is ChapterScreenState.Ready -> {
+                val pullToRefreshState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = refreshing.value,
+                    onRefresh = startRefresh,
+                    modifier = Modifier.fillMaxSize(),
+                    state = pullToRefreshState,
+                ) {
+                    StickyTopEffect(
+                        items = state.chapters,
+                        listState = lazyListState,
+                        manuallyScrolled = manuallyScrolled,
+                    )
+                    ChaptersList(
+                        lazyListState = lazyListState,
+                        chapters = state.chapters,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(topAppBarState.nestedScrollConnection)
+                            .scrollableFade(
+                                canScrollBackward = { lazyListState.canScrollBackward },
+                                canScrollForward = { lazyListState.canScrollForward },
+                            ),
+                        contentPadding = scaffoldPadding,
+                        navigateToChapter = navigateToChapter,
+                    )
                 }
             }
         }
@@ -271,7 +275,7 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
 @Composable
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     val refreshing = remember { mutableStateOf(false) }
-    MangaReaderTheme(state.ifReady()?.dominantColor ?: Purple80) {
+    MangaReaderTheme {
         ChapterOverview(
             state = state,
             onBackClick = {},
@@ -289,7 +293,6 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
             ChapterScreenState.Loading,
             ChapterScreenState.Ready(
                 title = "Heavenly Martial God",
-                dominantColor = Color(0xFFFF1818),
                 isFavorite = true,
                 chapters = ChapterProvider.values.toImmutableList(),
             ),

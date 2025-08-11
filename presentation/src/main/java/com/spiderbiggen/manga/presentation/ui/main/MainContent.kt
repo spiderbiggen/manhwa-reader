@@ -7,7 +7,11 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.dropUnlessStarted
@@ -18,6 +22,7 @@ import androidx.navigation.toRoute
 import coil3.ImageLoader
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.theme.Purple80
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
@@ -29,7 +34,8 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    MangaReaderTheme {
+    var dominantColor by remember { mutableStateOf(Purple80) }
+    MangaReaderTheme(dominantColor) {
         TrackNavigationSideEffect(navController)
         NavHost(
             navController = navController,
@@ -43,6 +49,10 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                         navController.navigate(MangaRoutes.Chapters(mangaId))
                     },
                 )
+                DisposableEffect(true) {
+                    dominantColor = Purple80
+                    onDispose {}
+                }
             }
 
             composable<MangaRoutes.Chapters>(
@@ -59,6 +69,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                         val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
                         navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
+                    onBackgroundColorChanged = { dominantColor = it },
                 )
             }
             composable<MangaRoutes.Reader>(
