@@ -18,7 +18,7 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v5
 
             -   name: Setup JDK
                 uses: actions/setup-java@v4
@@ -60,11 +60,11 @@ jobs:
         runs-on: ubuntu-latest
         steps:
             # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v5
                 with:
                     ref: "master"
 
-            -   uses: actions/checkout@v4
+            -   uses: actions/checkout@v5
                 with:
                     clean: false
 
