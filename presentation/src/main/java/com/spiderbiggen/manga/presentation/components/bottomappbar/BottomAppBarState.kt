@@ -16,6 +16,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.util.fastCoerceAtLeast
+import androidx.compose.ui.util.fastCoerceIn
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -59,32 +61,34 @@ class BottomAppBarState {
         animationJob = coroutineScope {
             launch {
                 Animatable(mutableOffset.floatValue)
-                    .animateTo(targetValue = offset, animationSpec = animationSpec) { mutableOffset.floatValue = value }
+                    .animateTo(targetValue = offset, animationSpec = animationSpec) {
+                        mutableOffset.floatValue = value
+                    }
             }
         }
     }
 
     val nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
-            val delta = consumed.y
+        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+            animationJob?.cancel()
+            val yScroll = available.y
 
-            val maxBottomOffsetValue = appBarHeight - getBottomPadding(lazyListState, appBarHeight)
-            mutableOffset.floatValue = (mutableOffset.floatValue - delta)
-                .coerceIn(0f, maxBottomOffsetValue.coerceAtLeast(0f))
+            val lastItemIsVisible = lastItemIsVisible(lazyListState)
+            if (lastItemIsVisible && yScroll < 0f) {
+                val delta = yScroll.fastCoerceAtLeast(-mutableOffset.floatValue)
+                mutableOffset.floatValue = (mutableOffset.floatValue + delta).fastCoerceAtLeast(0f)
+            } else {
+                mutableOffset.floatValue = (mutableOffset.floatValue - yScroll).fastCoerceIn(0f, appBarHeight)
+            }
             return Offset.Zero
         }
 
-        private fun getBottomPadding(lazyListState: LazyListState, maxBottomOffSet: Float): Float {
+        private fun lastItemIsVisible(lazyListState: LazyListState): Boolean {
             val info = lazyListState.layoutInfo
-            val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return maxBottomOffSet
+            val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return false
 
             val count = info.totalItemsCount
-            if (lastVisibleItem.index + 2 < count) return 0f
-
-            val consumedSize = lastVisibleItem.offset + lastVisibleItem.size + info.afterContentPadding
-            val bottomOverflow = (consumedSize - info.viewportEndOffset)
-            val bottomPadding = (maxBottomOffSet - bottomOverflow).coerceAtLeast(0f)
-            return bottomPadding
+            return lastVisibleItem.index + 1 >= count
         }
     }
 

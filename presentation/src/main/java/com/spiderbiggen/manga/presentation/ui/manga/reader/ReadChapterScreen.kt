@@ -5,7 +5,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -14,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -25,11 +28,13 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.BookmarkAdded
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -163,8 +168,8 @@ fun ReadChapterScreen(
                 state = state,
                 imageLoader = imageLoader,
                 modifier = Modifier
-                    .nestedScroll(topAppBarState.nestedScrollConnection)
                     .nestedScroll(bottomAppBarState.nestedScrollConnection)
+                    .nestedScroll(topAppBarState.nestedScrollConnection)
                     .scrollableFade(
                         canScrollBackward = { lazyListState.canScrollBackward },
                         canScrollForward = { lazyListState.canScrollForward },
@@ -215,6 +220,7 @@ private fun ReaderTopAppBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReadyImagesOverview(
     state: ImagesScreenState.Ready,
@@ -239,7 +245,24 @@ private fun ReadyImagesOverview(
             ListImage(it, imageLoader, Modifier.fillParentMaxWidth())
         }
         item(key = "setReadEffect", contentType = "Effect") {
-            LaunchedEffect(true) { setRead() }
+            Column(
+                Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 32.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(
+                    Icons.Outlined.CheckCircle,
+                    contentDescription = "Success indicator",
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(64.dp),
+                )
+                Text("Chapter Finished", style = MaterialTheme.typography.titleLargeEmphasized)
+            }
+            LaunchedEffect(true) {
+                setRead()
+            }
         }
     }
     ListImagePreloader(imageLoader, lazyListState, state.images)

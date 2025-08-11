@@ -14,14 +14,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
+import androidx.compose.ui.util.fastCoerceIn
 import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState.Companion.Saver
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState = rememberSaveable(saver = Saver) {
-    TopAppBarState(initialHeight)
+fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState {
+    return rememberSaveable(saver = Saver) {
+        TopAppBarState(initialHeight)
+    }
 }
 
 class TopAppBarState {
@@ -49,7 +52,7 @@ class TopAppBarState {
         get() = mutableOffset.asFloatState()
 
     suspend fun animateAppBarOffset(offset: Float, animationSpec: AnimationSpec<Float> = spring()) {
-        val limited = offset.coerceIn(-appBarHeight, 0f)
+        val limited = offset.fastCoerceIn(-appBarHeight, 0f)
         if (mutableOffset.floatValue == limited) return
         animationJob = coroutineScope {
             launch {
@@ -66,7 +69,7 @@ class TopAppBarState {
             animationJob?.cancel()
             val delta = available.y
             val startOffset = mutableOffset.floatValue
-            val newOffset = (startOffset + delta).coerceIn(-appBarHeight, 0f)
+            val newOffset = (startOffset + delta).fastCoerceIn(-appBarHeight, 0f)
             if (newOffset == startOffset) return Offset.Zero
             mutableOffset.floatValue = newOffset
             val consumedDelta = newOffset - startOffset
