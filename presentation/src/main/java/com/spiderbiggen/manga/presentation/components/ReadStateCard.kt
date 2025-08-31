@@ -11,12 +11,14 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 
 @Composable
 fun ReadStateCard(
     isRead: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.elevatedShape,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val containerColor: Color by animateColorAsState(
@@ -30,6 +32,7 @@ fun ReadStateCard(
         onClick = onClick,
         modifier = modifier,
         colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
+        shape = shape,
         content = {
             val contentColor by animateColorAsState(
                 LocalContentColor.current.let {

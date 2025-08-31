@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -54,6 +56,7 @@ private val COVER_SIZE = DpSize(60.dp, 80.dp)
 fun MangaRow(
     manga: MangaViewData,
     imageLoader: ImageLoader,
+    shape: Shape = CardDefaults.elevatedShape,
     navigateToManga: (MangaId) -> Unit,
     onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
@@ -61,6 +64,7 @@ fun MangaRow(
     ReadStateCard(
         isRead = manga.readAll,
         onClick = dropUnlessStarted { navigateToManga(manga.id) },
+        shape = shape,
         modifier = modifier,
     ) {
         Row(
@@ -157,6 +161,7 @@ fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaVie
                     manga = state,
                     modifier = Modifier.padding(16.dp),
                     imageLoader = SingletonImageLoader.get(LocalContext.current),
+                    shape = CardDefaults.elevatedShape,
                     navigateToManga = {},
                     onClickFavorite = {},
                 )

@@ -52,6 +52,7 @@ import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.scrollableFade
+import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
@@ -60,6 +61,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.immutableListOf
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
@@ -138,7 +140,7 @@ fun MangaOverview(
 @Composable
 private fun MangaOverviewContent(
     imageLoader: ImageLoader,
-    manga: ImmutableList<MangaViewData>,
+    manga: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
     unreadSelected: Boolean,
     favoritesSelected: Boolean,
     onToggleUnreadRequested: () -> Unit = {},
@@ -238,7 +240,7 @@ private fun MangaOverviewContent(
 
 @Composable
 private fun MangaList(
-    mangas: ImmutableList<MangaViewData>,
+    mangas: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
     imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -246,20 +248,31 @@ private fun MangaList(
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
+    val largeCornerSize = MaterialTheme.shapes.medium.topEnd
+    val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
         contentPadding = contentPadding + PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        items(mangas, key = { it.id.inner }) { item ->
-            MangaRow(
-                manga = item,
-                imageLoader = imageLoader,
-                navigateToManga = navigateToManga,
-                onClickFavorite = onClickFavorite,
-                modifier = Modifier.animateItem(),
-            )
+        mangas.forEach { (key, values) ->
+            section(
+                header = key,
+                items = values,
+                largeCornerSize = largeCornerSize,
+                smallCornerSize = smallCornerSize,
+                key = { it.id.inner }
+            ) { item, shape ->
+                MangaRow(
+                    manga = item,
+                    imageLoader = imageLoader,
+                    shape = shape,
+                    navigateToManga = navigateToManga,
+                    onClickFavorite = onClickFavorite,
+                    modifier = Modifier.animateItem(),
+                )
+            }
         }
     }
 }
@@ -279,19 +292,25 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
             MangaScreenData(),
             MangaScreenData(
                 state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.toImmutableList(),
+                    manga = persistentListOf(
+                        "header" to MangaProvider.values.toImmutableList(),
+                    )
                 ),
             ),
             MangaScreenData(
                 filterUnread = true,
                 state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.filter { !it.readAll }.toImmutableList(),
+                    manga = persistentListOf(
+                        "header" to MangaProvider.values.filter { !it.readAll }.toImmutableList(),
+                    )
                 ),
             ),
             MangaScreenData(
                 filterFavorites = true,
                 state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
+                    manga = persistentListOf(
+                        "header" to MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
+                    )
                 ),
             ),
         )
