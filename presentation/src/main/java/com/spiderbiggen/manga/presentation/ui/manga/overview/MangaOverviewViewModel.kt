@@ -20,7 +20,7 @@ import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.manga.overview.model.MangaState
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -41,7 +41,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 private const val UNREAD_SELECTED_KEY = "unreadSelected"
 private const val FAVORITE_SELECTED_KEY = "favoriteSelected"
@@ -52,6 +51,8 @@ class MangaOverviewViewModel @Inject constructor(
     private val getActiveManga: GetActiveManga,
     private val isFavorite: IsFavorite,
     private val isRead: IsRead,
+    private val mapMangaViewData: MapMangaViewData,
+    private val splitMangasIntoSections: SplitMangasIntoSections,
     private val toggleFavorite: ToggleFavorite,
     private val updateMangaFromRemote: UpdateMangaFromRemote,
     private val formatAppError: FormatAppError,
@@ -72,7 +73,6 @@ class MangaOverviewViewModel @Inject constructor(
         }
     private val favoriteSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(FAVORITE_SELECTED_KEY, favoriteSelected)
-
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updatingState: StateFlow<Boolean> = mutableUpdatingState
@@ -123,40 +123,32 @@ class MangaOverviewViewModel @Inject constructor(
 
         combinedFlows.collectLatest { (mangaList, filterUnread, filterFavorites) ->
             val timeZone = TimeZone.Companion.currentSystemDefault()
-            val manga = mangaList
+            val filteredManga = mangaList
                 .asSequence()
                 .map { (manga, chapterId) ->
-                    Triple(
-                        manga,
-                        chapterId?.let { isRead(it).leftOr(false) } == true,
-                        isFavorite(manga.id).leftOr(false),
+                    MangaState(
+                        manga = manga,
+                        isRead = chapterId?.let { isRead(it).leftOr(false) } == true,
+                        isFavorite = isFavorite(manga.id).leftOr(false),
                     )
                 }
                 .filter { (_, readAll, _) -> !filterUnread || !readAll }
                 .filter { (_, _, favorite) -> !filterFavorites || favorite }
-                .map { (manga, readAll, favorite) ->
-                    MangaViewData(
-                        id = manga.id,
-                        source = manga.source,
-                        title = manga.title,
-                        status = manga.status,
-                        coverImage = manga.coverImage.toExternalForm(),
-                        updatedAt = manga.updatedAt.toLocalDateTime(timeZone).date.toString(),
-                        isFavorite = favorite,
-                        readAll = readAll,
-                    )
-                }
+                .toList()
+            val sectionedManga = splitMangasIntoSections(filteredManga, timeZone)
+            val viewData = sectionedManga.map { (key, values) ->
+                key to values.map { mapMangaViewData(it, timeZone) }.toImmutableList()
+            }
 
             mutableState.emit(
                 MangaScreenData(
                     filterFavorites = filterFavorites,
                     filterUnread = filterUnread,
-                    state = MangaScreenState.Ready(manga = manga.toImmutableList()),
+                    state = MangaScreenState.Ready(manga = viewData.toImmutableList()),
                 ),
             )
         }
     }
-
 
     private suspend fun mapError(result: Either.Right<Flow<List<Pair<Manga, ChapterId?>>>, AppError>) {
         combine(
