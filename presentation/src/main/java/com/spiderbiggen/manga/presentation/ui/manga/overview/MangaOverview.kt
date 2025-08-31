@@ -61,7 +61,6 @@ import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.immutableListOf
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
@@ -262,7 +261,7 @@ private fun MangaList(
                 items = values,
                 largeCornerSize = largeCornerSize,
                 smallCornerSize = smallCornerSize,
-                key = { it.id.inner }
+                key = { it.id.inner },
             ) { item, shape ->
                 MangaRow(
                     manga = item,
@@ -294,7 +293,7 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
                 state = MangaScreenState.Ready(
                     manga = persistentListOf(
                         "header" to MangaProvider.values.toImmutableList(),
-                    )
+                    ),
                 ),
             ),
             MangaScreenData(
@@ -302,7 +301,7 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
                 state = MangaScreenState.Ready(
                     manga = persistentListOf(
                         "header" to MangaProvider.values.filter { !it.readAll }.toImmutableList(),
-                    )
+                    ),
                 ),
             ),
             MangaScreenData(
@@ -310,7 +309,7 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
                 state = MangaScreenState.Ready(
                     manga = persistentListOf(
                         "header" to MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
-                    )
+                    ),
                 ),
             ),
         )

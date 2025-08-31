@@ -14,7 +14,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 
-
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 inline fun <T> LazyListScope.section(
     header: String,

@@ -74,7 +74,6 @@ class MangaOverviewViewModel @Inject constructor(
     private val favoriteSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(FAVORITE_SELECTED_KEY, favoriteSelected)
 
-
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updatingState: StateFlow<Boolean> = mutableUpdatingState
         .onStart { updateMangas(skipCache = false) }
@@ -137,7 +136,7 @@ class MangaOverviewViewModel @Inject constructor(
                 .filter { (_, _, favorite) -> !filterFavorites || favorite }
                 .toList()
             val sectionedManga = splitMangasIntoSections(filteredManga, timeZone)
-            val viewData = sectionedManga.map { (key,  values) ->
+            val viewData = sectionedManga.map { (key, values) ->
                 key to values.map { mapMangaViewData(it, timeZone) }.toImmutableList()
             }
 
@@ -150,7 +149,6 @@ class MangaOverviewViewModel @Inject constructor(
             )
         }
     }
-
 
     private suspend fun mapError(result: Either.Right<Flow<List<Pair<Manga, ChapterId?>>>, AppError>) {
         combine(
