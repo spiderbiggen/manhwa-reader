@@ -75,7 +75,7 @@ google-dagger-hiltAndroid = { group = "com.google.dagger", name = "hilt-android"
 google-dagger-hiltAndroidCompiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
 
 # Retrofit
-okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version = "5.1.0" }
+okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version = "5.2.0" }
 okhttp = { group = "com.squareup.okhttp3", name = "okhttp" }
 okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor" }
 retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version = "3.0.0" }
