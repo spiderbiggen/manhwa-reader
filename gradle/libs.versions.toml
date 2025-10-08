@@ -107,7 +107,7 @@ spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plu
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
-google-ksp = { id = "com.google.devtools.ksp", version = "2.2.20-2.0.3" }
+google-ksp = { id = "com.google.devtools.ksp", version = "2.2.20-2.0.4" }
 google-daggerHilt = { id = "com.google.dagger.hilt.android", version.ref = "dagger" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-gms-google-services" }
 google-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.6" }
