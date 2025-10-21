@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,6 +49,8 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
+import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
@@ -134,7 +136,7 @@ fun MangaOverview(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaOverviewContent(
     imageLoader: ImageLoader,
@@ -180,11 +182,12 @@ private fun MangaOverviewContent(
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
+
                     FilterChip(
                         selected = favoritesSelected,
                         label = { Text("Favorites") },
                         leadingIcon = {
-                            AnimatedVisibility(favoritesSelected) {
+                            ExpressiveAnimatedVisibility(favoritesSelected) {
                                 Icon(Icons.Rounded.Check, null)
                             }
                         },
@@ -194,7 +197,7 @@ private fun MangaOverviewContent(
                         selected = unreadSelected,
                         label = { Text("Unread") },
                         leadingIcon = {
-                            AnimatedVisibility(unreadSelected) {
+                            ExpressiveAnimatedVisibility(unreadSelected) {
                                 Icon(Icons.Rounded.Check, null)
                             }
                         },
@@ -236,6 +239,7 @@ private fun MangaOverviewContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaList(
     mangas: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
@@ -246,6 +250,9 @@ private fun MangaList(
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val intOffsetAnimateSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
+
     val largeCornerSize = MaterialTheme.shapes.medium.topEnd
     val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
     LazyColumn(
@@ -268,7 +275,11 @@ private fun MangaList(
                     shape = shape,
                     navigateToManga = navigateToManga,
                     onClickFavorite = onClickFavorite,
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier.animateItem(
+                        fadeInSpec = floatAnimationSpec,
+                        placementSpec = intOffsetAnimateSpec,
+                        fadeOutSpec = floatAnimationSpec,
+                    ),
                 )
             }
         }

@@ -5,6 +5,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -14,6 +16,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,14 +35,17 @@ import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverview
 import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    var dominantColor by remember { mutableStateOf(Purple80) }
-    MangaReaderTheme(dominantColor) {
+    val dominantColor = remember { mutableStateOf(Purple80) }
+    MangaReaderTheme(dominantColor.value) {
         TrackNavigationSideEffect(navController)
+
+        val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
         NavHost(
             navController = navController,
             startDestination = MangaRoutes.Overview,
@@ -49,18 +58,12 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                         navController.navigate(MangaRoutes.Chapters(mangaId))
                     },
                 )
-                DisposableEffect(true) {
-                    dominantColor = Purple80
-                    onDispose {}
+
+                LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+                    dominantColor.value = Purple80
                 }
             }
-
-            composable<MangaRoutes.Chapters>(
-                enterTransition = { slideIn(initialOffset = { IntOffset(it.width, 0) }) },
-                exitTransition = { slideOut(targetOffset = { IntOffset(-it.width, 0) }) },
-                popEnterTransition = { slideIn(initialOffset = { IntOffset(-it.width, 0) }) },
-                popExitTransition = { slideOut(targetOffset = { IntOffset(it.width, 0) }) },
-            ) { backStackEntry ->
+            composable<MangaRoutes.Chapters> { backStackEntry ->
                 ChapterOverview(
                     viewModel = hiltViewModel<ChapterViewModel>(),
                     showSnackbar = { snackbarHostState.showSnackbar(it) },
@@ -69,12 +72,12 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                         val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
                         navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
-                    onBackgroundColorChanged = { dominantColor = it },
+                    onBackgroundColorChanged = { dominantColor.value = it },
                 )
             }
             composable<MangaRoutes.Reader>(
-                enterTransition = { fadeIn(animationSpec = tween(700)) },
-                exitTransition = { fadeOut(animationSpec = tween(700)) },
+                enterTransition = { fadeIn(animationSpec = animationSpec) },
+                exitTransition = { fadeOut(animationSpec = animationSpec) },
             ) { backStackEntry ->
                 ReadChapterScreen(
                     imageLoader = chapterImageLoader,

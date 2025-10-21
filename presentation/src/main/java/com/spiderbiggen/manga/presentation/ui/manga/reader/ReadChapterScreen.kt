@@ -32,11 +32,11 @@ import androidx.compose.material.icons.outlined.CheckCircle
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.BottomAppBarDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -114,6 +114,7 @@ fun ReadChapterScreen(
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun ReadChapterScreen(
     state: ImagesScreenState,
@@ -161,34 +162,46 @@ fun ReadChapterScreen(
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
 
-            is ImagesScreenState.Ready -> ReadyImagesOverview(
-                state = state,
-                imageLoader = imageLoader,
-                modifier = Modifier
-                    .nestedScroll(bottomAppBarState.nestedScrollConnection)
-                    .nestedScroll(topAppBarState.nestedScrollConnection)
-                    .scrollableFade(
-                        canScrollBackward = { lazyListState.canScrollBackward },
-                        canScrollForward = { lazyListState.canScrollForward },
-                    ),
-                padding = padding,
-                lazyListState = lazyListState,
-                onListClicked = {
-                    coroutineScope.launch {
-                        lazyListState.animateScrollBy(-topAppBarState.appBarOffset.floatValue)
-                    }
-                    coroutineScope.launch {
-                        topAppBarState.animateAppBarOffset(0f)
-                    }
-                    coroutineScope.launch {
-                        bottomAppBarState.animateAppBarOffset(0f)
-                    }
-                },
-                setRead = setRead,
-            )
+            is ImagesScreenState.Ready -> {
+                val animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+                ReadyImagesOverview(
+                    state = state,
+                    imageLoader = imageLoader,
+                    modifier = Modifier
+                        .nestedScroll(bottomAppBarState.nestedScrollConnection)
+                        .nestedScroll(topAppBarState.nestedScrollConnection)
+                        .scrollableFade(
+                            canScrollBackward = { lazyListState.canScrollBackward },
+                            canScrollForward = { lazyListState.canScrollForward },
+                        ),
+                    padding = padding,
+                    lazyListState = lazyListState,
+                    onListClicked = {
+                        coroutineScope.launch {
+                            lazyListState.animateScrollBy(
+                                value = -topAppBarState.appBarOffset.floatValue,
+                                animationSpec = animationSpec,
+                            )
+                        }
+                        coroutineScope.launch {
+                            topAppBarState.animateAppBarOffset(
+                                offset = 0f,
+                                animationSpec = animationSpec,
+                            )
+                        }
+                        coroutineScope.launch {
+                            bottomAppBarState.animateAppBarOffset(
+                                offset = 0f,
+                                animationSpec = animationSpec,
+                            )
+                        }
+                    },
+                    setRead = setRead,
+                )
+            }
 
             is ImagesScreenState.Error -> Text(state.errorMessage)
         }
@@ -244,7 +257,7 @@ private fun ReadyImagesOverview(
         items(state.images, key = { it }) {
             ListImage(it, imageLoader, Modifier.fillParentMaxWidth())
         }
-        item(key = "setReadEffect", contentType = "Effect") {
+        item(key = "setReadEffect", contentType = "EndEffect") {
             Column(
                 Modifier
                     .fillMaxWidth()
@@ -268,6 +281,7 @@ private fun ReadyImagesOverview(
     ListImagePreloader(imageLoader, lazyListState, state.images)
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
     val asyncPainter = rememberAsyncImagePainter(
@@ -291,7 +305,7 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
         )
 
         else -> Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            LoadingIndicator()
         }
     }
 }

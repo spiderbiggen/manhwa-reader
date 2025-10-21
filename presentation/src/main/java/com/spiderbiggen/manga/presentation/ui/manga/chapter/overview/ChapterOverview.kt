@@ -27,6 +27,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -105,7 +108,7 @@ fun ChapterOverview(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun ChapterOverview(
     state: ChapterScreenState,
     onBackClick: () -> Unit,
@@ -164,6 +167,13 @@ fun ChapterOverview(
                     onRefresh = startRefresh,
                     modifier = Modifier.fillMaxSize(),
                     state = pullToRefreshState,
+                    indicator = {
+                        PullToRefreshDefaults.LoadingIndicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = refreshing.value,
+                            state = pullToRefreshState,
+                        )
+                    },
                 ) {
                     StickyTopEffect(
                         items = state.chapters,
@@ -189,6 +199,7 @@ fun ChapterOverview(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
@@ -197,6 +208,8 @@ private fun ChaptersList(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val intOffsetAnimateSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
@@ -210,7 +223,11 @@ private fun ChaptersList(
             ChapterRow(
                 item = item,
                 navigateToChapter = navigateToChapter,
-                modifier = Modifier.animateItem(),
+                modifier = Modifier.animateItem(
+                    fadeInSpec = floatAnimationSpec,
+                    placementSpec = intOffsetAnimateSpec,
+                    fadeOutSpec = floatAnimationSpec,
+                ),
             )
         }
     }

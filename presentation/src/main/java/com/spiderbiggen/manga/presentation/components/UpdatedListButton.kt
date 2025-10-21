@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.components
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyListState
@@ -22,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
+import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -35,7 +35,7 @@ fun <T : Any> UpdatedListButton(
     scope: CoroutineScope = rememberCoroutineScope(),
     manuallyScrolled: Boolean = rememberManualScrollState(listState),
 ) {
-    var previousFirstId: String? by rememberSaveable { mutableStateOf(null) }
+    val previousFirstId = rememberSaveable { mutableStateOf<String?>(null) }
     var isUpdated: Boolean by rememberSaveable { mutableStateOf(false) }
     val isScrolled by remember { derivedStateOf { listState.canScrollBackward } }
     LaunchedEffect(isScrolled) {
@@ -44,10 +44,10 @@ fun <T : Any> UpdatedListButton(
         }
         if (isUpdated) return@LaunchedEffect
         val firstId = collection.firstOrNull()?.let { key(it) }
-        isUpdated = previousFirstId != null && previousFirstId != firstId
-        previousFirstId = firstId
+        isUpdated = previousFirstId.value?.let { it == firstId } == false
+        previousFirstId.value = firstId
     }
-    AnimatedVisibility(LocalInspectionMode.current || (manuallyScrolled && isUpdated)) {
+    ExpressiveAnimatedVisibility(LocalInspectionMode.current || (manuallyScrolled && isUpdated)) {
         ElevatedButton(
             onClick = { scope.launch { listState.animateScrollToItem(0) } },
             modifier = modifier,
