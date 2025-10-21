@@ -14,11 +14,13 @@ fun MangaReaderTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     content: @Composable () -> Unit,
 ) {
+    val motionScheme = MotionScheme.expressive()
     DynamicMaterialExpressiveTheme(
         seedColor = seedColor,
-        motionScheme = MotionScheme.expressive(),
+        motionScheme = motionScheme,
         isDark = darkTheme,
         animate = true,
         content = content,
+        animationSpec = motionScheme.slowEffectsSpec()
     )
 }

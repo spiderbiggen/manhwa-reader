@@ -152,5 +152,5 @@ private enum class ScaffoldLayoutContent {
     MainContent,
     Snackbar,
     Fab,
-    BottomBar
+    BottomBar,
 }

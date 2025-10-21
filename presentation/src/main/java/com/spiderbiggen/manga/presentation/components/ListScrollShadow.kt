@@ -1,6 +1,8 @@
 package com.spiderbiggen.manga.presentation.components
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -14,6 +16,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 fun Modifier.scrollableFade(
     canScrollBackward: () -> Boolean,
     canScrollForward: () -> Boolean,
@@ -22,8 +25,10 @@ fun Modifier.scrollableFade(
 ): Modifier = composed {
     val fadeTop = canScrollBackward()
     val fadeBottom = canScrollForward()
-    val topFadeSize by animateDpAsState(if (fadeTop) topFade else 0.dp)
-    val bottomFadeSize by animateDpAsState(if (fadeBottom) bottomFade else 0.dp)
+
+    val animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Dp>()
+    val topFadeSize by animateDpAsState(if (fadeTop) topFade else 0.dp, animationSpec)
+    val bottomFadeSize by animateDpAsState(if (fadeBottom) bottomFade else 0.dp, animationSpec)
     graphicsLayer(compositingStrategy = CompositingStrategy.Offscreen)
         .drawWithContent {
             drawContent()
