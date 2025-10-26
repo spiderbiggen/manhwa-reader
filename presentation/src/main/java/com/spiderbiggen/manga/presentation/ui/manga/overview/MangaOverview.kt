@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,7 +27,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -49,12 +49,12 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
-import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
@@ -134,7 +134,7 @@ fun MangaOverview(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaOverviewContent(
     imageLoader: ImageLoader,
@@ -183,20 +183,24 @@ private fun MangaOverviewContent(
                     FilterChip(
                         selected = favoritesSelected,
                         label = { Text("Favorites") },
-                        leadingIcon = {
-                            AnimatedVisibility(favoritesSelected) {
+                        leadingIcon = if (favoritesSelected) {
+                            {
                                 Icon(Icons.Rounded.Check, null)
                             }
+                        } else {
+                            null
                         },
                         onClick = onToggleFavoritesRequested,
                     )
                     FilterChip(
                         selected = unreadSelected,
                         label = { Text("Unread") },
-                        leadingIcon = {
-                            AnimatedVisibility(unreadSelected) {
+                        leadingIcon = if (unreadSelected) {
+                            {
                                 Icon(Icons.Rounded.Check, null)
                             }
+                        } else {
+                            null
                         },
                         onClick = onToggleUnreadRequested,
                     )
@@ -236,6 +240,7 @@ private fun MangaOverviewContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaList(
     mangas: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
@@ -246,13 +251,16 @@ private fun MangaList(
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+
     val largeCornerSize = MaterialTheme.shapes.medium.topEnd
     val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
         contentPadding = contentPadding + PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         mangas.forEach { (key, values) ->
             section(
@@ -265,10 +273,14 @@ private fun MangaList(
                 MangaRow(
                     manga = item,
                     imageLoader = imageLoader,
-                    shape = shape,
                     navigateToManga = navigateToManga,
                     onClickFavorite = onClickFavorite,
-                    modifier = Modifier.animateItem(),
+                    modifier = Modifier.animateItem(
+                        fadeInSpec = floatAnimationSpec,
+                        placementSpec = intOffsetAnimateSpec,
+                        fadeOutSpec = floatAnimationSpec,
+                    ),
+                    shape = shape,
                 )
             }
         }

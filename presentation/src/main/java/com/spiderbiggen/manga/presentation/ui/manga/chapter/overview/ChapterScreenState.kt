@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.ui.graphics.Color
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import kotlinx.collections.immutable.ImmutableList
 
@@ -11,11 +10,8 @@ sealed interface ChapterScreenState {
     data object Loading : ChapterScreenState
 
     @Immutable
-    data class Ready(
-        val title: String,
-        val isFavorite: Boolean,
-        val chapters: ImmutableList<ChapterRowData>,
-    ) : ChapterScreenState
+    data class Ready(val title: String, val isFavorite: Boolean, val chapters: ImmutableList<ChapterRowData>) :
+        ChapterScreenState
 
     @Immutable
     data class Error(val message: String) : ChapterScreenState

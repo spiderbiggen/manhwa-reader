@@ -1,9 +1,7 @@
-@file:OptIn(ExperimentalSharedTransitionApi::class)
 
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import android.content.res.Configuration
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,20 +18,20 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.text.font.FontWeight
@@ -51,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -61,17 +61,19 @@ import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.scrollableFade
+import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
+import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlin.time.Clock.System.now
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -105,7 +107,7 @@ fun ChapterOverview(
 }
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun ChapterOverview(
     state: ChapterScreenState,
     onBackClick: () -> Unit,
@@ -189,6 +191,7 @@ fun ChapterOverview(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
@@ -197,30 +200,48 @@ private fun ChaptersList(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
+    val largeCornerSize = MaterialTheme.shapes.medium.topEnd
+    val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
+    val intOffsetAnimateSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        contentPadding = contentPadding + PaddingValues(start = 8.dp, end = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        items(
+        section(
+            header = null,
             items = chapters,
+            smallCornerSize = smallCornerSize,
+            largeCornerSize = largeCornerSize,
             key = { item -> item.id.inner },
-        ) { item ->
+        ) { item, shape ->
             ChapterRow(
                 item = item,
                 navigateToChapter = navigateToChapter,
-                modifier = Modifier.animateItem(),
+                modifier = Modifier.animateItem(
+                    fadeInSpec = floatAnimationSpec,
+                    placementSpec = intOffsetAnimateSpec,
+                    fadeOutSpec = floatAnimationSpec,
+                ),
+                shape = shape,
             )
         }
     }
 }
 
 @Composable
-private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> Unit, modifier: Modifier = Modifier) {
+private fun ChapterRow(
+    item: ChapterRowData,
+    navigateToChapter: (ChapterId) -> Unit,
+    modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.elevatedShape,
+) {
     ReadStateCard(
         isRead = item.isRead,
         onClick = dropUnlessStarted { navigateToChapter(item.id) },
+        shape = shape,
         modifier = modifier
             .fillMaxWidth()
             .defaultMinSize(minHeight = 48.dp),
@@ -233,12 +254,13 @@ private fun ChapterRow(item: ChapterRowData, navigateToChapter: (ChapterId) -> U
             NumberDisplay(item, Modifier.align(Alignment.Top))
             Column(verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)) {
                 Text(
-                    item.date,
-                    style = MaterialTheme.typography.bodyMedium,
+                    text = item.date,
+                    fontWeight = if (!item.isRead) FontWeight.Bold else null,
+                    style = MaterialTheme.typography.bodyLarge,
                 )
                 item.title?.let {
                     Text(
-                        it,
+                        text = it,
                         fontWeight = if (!item.isRead) FontWeight.Bold else null,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -253,7 +275,7 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
     Box(
         modifier
             .background(
-                MaterialTheme.colorScheme.primaryContainer,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 shape = MaterialTheme.shapes.medium,
             )
             .size(56.dp),
