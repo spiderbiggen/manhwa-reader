@@ -182,24 +182,27 @@ private fun MangaOverviewContent(
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-
                     FilterChip(
                         selected = favoritesSelected,
                         label = { Text("Favorites") },
-                        leadingIcon = {
-                            ExpressiveAnimatedVisibility(favoritesSelected) {
+                        leadingIcon = if (favoritesSelected) {
+                            {
                                 Icon(Icons.Rounded.Check, null)
                             }
+                        } else {
+                            null
                         },
                         onClick = onToggleFavoritesRequested,
                     )
                     FilterChip(
                         selected = unreadSelected,
                         label = { Text("Unread") },
-                        leadingIcon = {
-                            ExpressiveAnimatedVisibility(unreadSelected) {
+                        leadingIcon = if (unreadSelected) {
+                            {
                                 Icon(Icons.Rounded.Check, null)
                             }
+                        } else {
+                            null
                         },
                         onClick = onToggleUnreadRequested,
                     )
@@ -250,8 +253,8 @@ private fun MangaList(
     navigateToManga: (MangaId) -> Unit = {},
     onClickFavorite: (MangaId) -> Unit = {},
 ) {
-    val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
-    val intOffsetAnimateSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 
     val largeCornerSize = MaterialTheme.shapes.medium.topEnd
     val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
@@ -259,7 +262,7 @@ private fun MangaList(
         modifier = modifier,
         state = lazyListState,
         contentPadding = contentPadding + PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         mangas.forEach { (key, values) ->
             section(
@@ -272,7 +275,6 @@ private fun MangaList(
                 MangaRow(
                     manga = item,
                     imageLoader = imageLoader,
-                    shape = shape,
                     navigateToManga = navigateToManga,
                     onClickFavorite = onClickFavorite,
                     modifier = Modifier.animateItem(
@@ -280,6 +282,7 @@ private fun MangaList(
                         placementSpec = intOffsetAnimateSpec,
                         fadeOutSpec = floatAnimationSpec,
                     ),
+                    shape = shape,
                 )
             }
         }

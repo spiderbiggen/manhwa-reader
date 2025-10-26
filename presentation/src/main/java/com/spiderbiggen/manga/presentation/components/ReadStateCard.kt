@@ -27,7 +27,7 @@ fun ReadStateCard(
     val containerColor: Color by animateColorAsState(
         when {
             !isRead -> MaterialTheme.colorScheme.surfaceContainer
-            else -> MaterialTheme.colorScheme.surfaceContainerLowest
+            else -> MaterialTheme.colorScheme.surfaceContainerLow
         },
         label = "card color",
         animationSpec = animationSpec,

@@ -1,25 +1,14 @@
 package com.spiderbiggen.manga.presentation.ui.main
 
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideIn
-import androidx.compose.animation.slideOut
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.LifecycleEventEffect
-import androidx.lifecycle.compose.LifecycleResumeEffect
-import androidx.lifecycle.compose.LifecycleStartEffect
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -42,25 +31,23 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
     val snackbarHostState = remember { SnackbarHostState() }
 
     val dominantColor = remember { mutableStateOf(Purple80) }
-    MangaReaderTheme(dominantColor.value) {
-        TrackNavigationSideEffect(navController)
+    TrackNavigationSideEffect(navController)
 
+    MangaReaderTheme(dominantColor.value) {
         val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
         NavHost(
             navController = navController,
             startDestination = MangaRoutes.Overview,
         ) {
             composable<MangaRoutes.Overview> {
-                MangaOverview(
-                    showSnackbar = { snackbarHostState.showSnackbar(it) },
-                    imageLoader = coverImageLoader,
-                    navigateToManga = { mangaId ->
-                        navController.navigate(MangaRoutes.Chapters(mangaId))
-                    },
-                )
-
-                LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
-                    dominantColor.value = Purple80
+                MangaReaderTheme(Purple80) {
+                    MangaOverview(
+                        showSnackbar = { snackbarHostState.showSnackbar(it) },
+                        imageLoader = coverImageLoader,
+                        navigateToManga = { mangaId ->
+                            navController.navigate(MangaRoutes.Chapters(mangaId))
+                        },
+                    )
                 }
             }
             composable<MangaRoutes.Chapters> { backStackEntry ->

@@ -16,7 +16,7 @@ import kotlinx.collections.immutable.ImmutableList
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 inline fun <T> LazyListScope.section(
-    header: String,
+    header: String?,
     items: ImmutableList<T>,
     largeCornerSize: CornerSize,
     smallCornerSize: CornerSize,
@@ -38,14 +38,17 @@ inline fun <T> LazyListScope.section(
         bottomEnd = largeCornerSize,
     )
 
-    val lastIndex = items.lastIndex
-    item {
-        Text(
-            header,
-            style = MaterialTheme.typography.headlineMediumEmphasized,
-            modifier = Modifier.padding(vertical = 4.dp),
-        )
+    header?.let {
+        item {
+            Text(
+                it,
+                style = MaterialTheme.typography.headlineMediumEmphasized,
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
+        }
     }
+
+    val lastIndex = items.lastIndex
     items(
         items.size,
         key = key?.let { key -> { key(items[it]) } },

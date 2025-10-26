@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.components
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -56,10 +57,10 @@ private val COVER_SIZE = DpSize(60.dp, 80.dp)
 fun MangaRow(
     manga: MangaViewData,
     imageLoader: ImageLoader,
-    shape: Shape = CardDefaults.elevatedShape,
     navigateToManga: (MangaId) -> Unit,
     onClickFavorite: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
+    shape: Shape = CardDefaults.elevatedShape,
 ) {
     ReadStateCard(
         isRead = manga.readAll,
@@ -118,11 +119,13 @@ private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
             )
         }
         IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
-            Icon(
-                if (manga.isFavorite) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                contentDescription = if (manga.isFavorite) "Unfavorite" else "Favorite",
-                tint = if (manga.isFavorite) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
-            )
+            AnimatedContent(manga.isFavorite) {
+                Icon(
+                    if (it) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
+                    contentDescription = if (it) "Unfavorite" else "Favorite",
+                    tint = if (it) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
+                )
+            }
         }
     }
 }
@@ -159,11 +162,11 @@ fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaVie
             Surface {
                 MangaRow(
                     manga = state,
-                    modifier = Modifier.padding(16.dp),
                     imageLoader = SingletonImageLoader.get(LocalContext.current),
-                    shape = CardDefaults.elevatedShape,
                     navigateToManga = {},
                     onClickFavorite = {},
+                    modifier = Modifier.padding(16.dp),
+                    shape = CardDefaults.elevatedShape,
                 )
             }
         }

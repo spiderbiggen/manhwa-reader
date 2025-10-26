@@ -19,8 +19,7 @@ fun MangaReaderTheme(
         seedColor = seedColor,
         motionScheme = motionScheme,
         isDark = darkTheme,
-        animate = true,
+        animate = false,
         content = content,
-        animationSpec = motionScheme.slowEffectsSpec()
     )
 }
