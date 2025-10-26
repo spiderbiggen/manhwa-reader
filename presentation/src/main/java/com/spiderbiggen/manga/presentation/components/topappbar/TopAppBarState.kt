@@ -21,10 +21,8 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState {
-    return rememberSaveable(saver = Saver) {
-        TopAppBarState(initialHeight)
-    }
+fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState = rememberSaveable(saver = Saver) {
+    TopAppBarState(initialHeight)
 }
 
 class TopAppBarState {

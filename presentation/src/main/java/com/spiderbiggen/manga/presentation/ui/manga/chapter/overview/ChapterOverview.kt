@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
@@ -72,9 +71,9 @@ import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
+import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlin.time.Clock.System.now
 import kotlinx.datetime.LocalDate
 
 @Composable
@@ -162,7 +161,7 @@ fun ChapterOverview(
 
             is ChapterScreenState.Ready -> {
                 val pullToRefreshState = rememberPullToRefreshState()
-                PullToRefreshBox (
+                PullToRefreshBox(
                     isRefreshing = refreshing.value,
                     onRefresh = startRefresh,
                     modifier = Modifier.fillMaxSize(),
@@ -226,7 +225,7 @@ private fun ChaptersList(
                     placementSpec = intOffsetAnimateSpec,
                     fadeOutSpec = floatAnimationSpec,
                 ),
-                shape = shape
+                shape = shape,
             )
         }
     }

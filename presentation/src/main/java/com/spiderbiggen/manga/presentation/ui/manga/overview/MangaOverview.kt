@@ -49,14 +49,12 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
-import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
-import com.spiderbiggen.manga.presentation.extensions.plus
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
