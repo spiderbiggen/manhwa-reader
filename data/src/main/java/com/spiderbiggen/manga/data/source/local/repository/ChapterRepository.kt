@@ -2,7 +2,8 @@ package com.spiderbiggen.manga.data.source.local.repository
 
 import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
 import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
-import com.spiderbiggen.manga.domain.model.Chapter
+import com.spiderbiggen.manga.domain.model.chapter.Chapter
+import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import javax.inject.Inject
@@ -19,15 +20,25 @@ class ChapterRepository @Inject constructor(
     private val chapterDao
         get() = chapterDaoProvider.get()
 
-    fun getChapterFlow(mangaId: MangaId): Result<Flow<List<Chapter>>> = runCatching {
-        chapterDao.getFlowForMangaId(mangaId).map { entities ->
-            entities.map(toDomain::invoke)
+    fun getChaptersAsFlow(mangaId: MangaId): Result<Flow<List<ChapterForOverview>>> = runCatching {
+        chapterDao.getFlowForMangaOverview(mangaId).map { entities ->
+            entities.map {
+                ChapterForOverview(
+                    chapter = toDomain.invoke(it.chapter),
+                    isRead = it.isRead,
+                )
+            }
         }
     }
 
-    suspend fun getChapters(mangaId: MangaId): Result<List<Chapter>> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.getForMangaId(mangaId).map(toDomain::invoke)
+    fun getChapterAsFlow(id: ChapterId): Result<Flow<ChapterForOverview?>> = runCatching {
+        chapterDao.getFlowForChapterOverview(id).map {
+            it?.let {
+                ChapterForOverview(
+                    chapter = toDomain.invoke(it.chapter),
+                    isRead = it.isRead,
+                )
+            }
         }
     }
 

@@ -311,7 +311,7 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
                 filterUnread = true,
                 state = MangaScreenState.Ready(
                     manga = persistentListOf(
-                        "header" to MangaProvider.values.filter { !it.readAll }.toImmutableList(),
+                        "header" to MangaProvider.values.filter { !it.isRead }.toImmutableList(),
                     ),
                 ),
             ),
@@ -335,7 +335,7 @@ object MangaProvider {
         status = "Ongoing",
         updatedAt = "2023-04-23",
         isFavorite = false,
-        readAll = false,
+        isRead = false,
     )
 
     val values
@@ -345,12 +345,12 @@ object MangaProvider {
                 id = MangaId("2"),
                 status = "Dropped",
                 isFavorite = true,
-                readAll = false,
+                isRead = false,
             ),
             baseViewData.copy(
                 id = MangaId("3"),
                 isFavorite = true,
-                readAll = true,
+                isRead = true,
             ),
         )
 }

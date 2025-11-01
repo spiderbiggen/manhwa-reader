@@ -6,21 +6,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
-import com.spiderbiggen.manga.domain.model.Manga
-import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.model.leftOrElse
-import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
+import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
-import com.spiderbiggen.manga.domain.usecase.manga.GetActiveManga
-import com.spiderbiggen.manga.domain.usecase.read.IsRead
+import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
-import com.spiderbiggen.manga.presentation.ui.manga.overview.model.MangaState
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -48,9 +43,7 @@ private const val FAVORITE_SELECTED_KEY = "favoriteSelected"
 @HiltViewModel
 class MangaOverviewViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val getActiveManga: GetActiveManga,
-    private val isFavorite: IsFavorite,
-    private val isRead: IsRead,
+    private val getOverviewManga: GetOverviewManga,
     private val mapMangaViewData: MapMangaViewData,
     private val splitMangasIntoSections: SplitMangasIntoSections,
     private val toggleFavorite: ToggleFavorite,
@@ -104,14 +97,14 @@ class MangaOverviewViewModel @Inject constructor(
                 updateMangas(skipCache = false)
             }
             updater.emit(Unit)
-            when (val result = getActiveManga()) {
+            when (val result = getOverviewManga()) {
                 is Either.Left -> mapSuccess(result.value)
                 is Either.Right -> mapError(result)
             }
         }
     }
 
-    private suspend fun mapSuccess(flow: Flow<List<Pair<Manga, ChapterId?>>>) {
+    private suspend fun mapSuccess(flow: Flow<List<MangaForOverview>>) {
         val combinedFlows = combine(
             flow,
             updater,
@@ -122,18 +115,11 @@ class MangaOverviewViewModel @Inject constructor(
         }
 
         combinedFlows.collectLatest { (mangaList, filterUnread, filterFavorites) ->
-            val timeZone = TimeZone.Companion.currentSystemDefault()
+            val timeZone = TimeZone.currentSystemDefault()
             val filteredManga = mangaList
                 .asSequence()
-                .map { (manga, chapterId) ->
-                    MangaState(
-                        manga = manga,
-                        isRead = chapterId?.let { isRead(it).leftOr(false) } == true,
-                        isFavorite = isFavorite(manga.id).leftOr(false),
-                    )
-                }
-                .filter { (_, readAll, _) -> !filterUnread || !readAll }
-                .filter { (_, _, favorite) -> !filterFavorites || favorite }
+                .filter { !filterUnread || !it.isRead }
+                .filter { !filterFavorites || it.isFavorite }
                 .toList()
             val sectionedManga = splitMangasIntoSections(filteredManga, timeZone)
             val viewData = sectionedManga.map { (key, values) ->
@@ -150,7 +136,7 @@ class MangaOverviewViewModel @Inject constructor(
         }
     }
 
-    private suspend fun mapError(result: Either.Right<Flow<List<Pair<Manga, ChapterId?>>>, AppError>) {
+    private suspend fun mapError(result: Either.Right<Flow<List<MangaForOverview>>, AppError>) {
         combine(
             favoriteSelectedFlow,
             unreadSelectedFlow,

@@ -1,9 +1,6 @@
-package com.spiderbiggen.manga.domain.model
+package com.spiderbiggen.manga.domain.model.chapter
 
 import com.spiderbiggen.manga.domain.model.id.ChapterId
-import java.text.DecimalFormat
-import java.text.DecimalFormatSymbols
-import java.util.Locale
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 

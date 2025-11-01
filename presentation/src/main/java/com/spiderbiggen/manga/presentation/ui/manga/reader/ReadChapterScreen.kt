@@ -59,6 +59,7 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
@@ -74,7 +75,7 @@ import coil3.compose.asPainter
 import coil3.compose.rememberAsyncImagePainter
 import coil3.request.ErrorResult
 import coil3.request.SuccessResult
-import com.spiderbiggen.manga.domain.model.SurroundingChapters
+import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
@@ -97,9 +98,6 @@ fun ReadChapterScreen(
     onBackClick: () -> Unit,
     toChapterClicked: (ChapterId) -> Unit,
 ) {
-    LaunchedEffect(viewModel) {
-        viewModel.collect()
-    }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     ReadChapterScreen(
@@ -371,7 +369,11 @@ fun PreviewImagesOverview() {
     val previewHandler = AsyncImagePreviewHandler { _, request ->
         when (request.data.toString()) {
             "1" -> {
-                val image = context.resources.getDrawable(R.mipmap.preview_cover_placeholder, null).asImage()
+                val image = ResourcesCompat.getDrawable(
+                    context.resources,
+                    R.mipmap.preview_cover_placeholder,
+                    null,
+                )!!.asImage()
                 AsyncImagePainter.State.Success(image.asPainter(context), SuccessResult(image, request))
             }
 

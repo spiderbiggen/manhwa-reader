@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -58,7 +57,8 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
-import com.spiderbiggen.manga.domain.model.Chapter
+import com.spiderbiggen.manga.domain.model.chapter.Chapter
+import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
@@ -283,7 +283,8 @@ private fun ChapterRow(
             )
             val textPlaceables = measurables.drop(1).map { it.measure(textConstraints) }
             val textHeight =
-                textPlaceables.sumOf { it.measuredHeight } + (textPlaceables.size - 1).coerceAtLeast(0) * verticalPadding
+                textPlaceables.sumOf { it.measuredHeight } +
+                    (textPlaceables.size - 1).coerceAtLeast(0) * verticalPadding
 
             val height = max(constraints.minHeight, textHeight.toInt())
             layout(constraints.maxWidth, height) {
@@ -358,90 +359,106 @@ private object ChapterProvider {
     private val mapChapterRowData = MapChapterRowData()
 
     val values = sequenceOf(
-        mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000000"),
-                index = 30u,
-                title = null,
-                date = LocalDate.parse("2023-04-16"),
-                updatedAt = now(),
+        mapChapterRowData.invoke(
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000000"),
+                    index = 30u,
+                    title = null,
+                    date = LocalDate.parse("2023-04-16"),
+                    updatedAt = now(),
+                ),
+                isRead = false,
             ),
-            isRead = false,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000001"),
-                index = 29u,
-                subIndex = 5u,
-                title = null,
-                date = LocalDate.parse("2023-04-12"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000001"),
+                    index = 29u,
+                    subIndex = 5u,
+                    title = null,
+                    date = LocalDate.parse("2023-04-12"),
+                    updatedAt = now(),
+                ),
+                isRead = true,
             ),
-            isRead = true,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000002"),
-                index = 29u,
-                subIndex = 4u,
-                title = null,
-                date = LocalDate.parse("2023-04-12"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000002"),
+                    index = 29u,
+                    subIndex = 4u,
+                    title = null,
+                    date = LocalDate.parse("2023-04-12"),
+                    updatedAt = now(),
+                ),
+                isRead = true,
             ),
-            isRead = true,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000003"),
-                index = 29u,
-                subIndex = 3u,
-                title = null,
-                date = LocalDate.parse("2023-04-12"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000003"),
+                    index = 29u,
+                    subIndex = 3u,
+                    title = null,
+                    date = LocalDate.parse("2023-04-12"),
+                    updatedAt = now(),
+                ),
+                isRead = true,
             ),
-            isRead = true,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000004"),
-                index = 29u,
-                subIndex = 2u,
-                title = null,
-                date = LocalDate.parse("2023-04-12"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000004"),
+                    index = 29u,
+                    subIndex = 2u,
+                    title = null,
+                    date = LocalDate.parse("2023-04-12"),
+                    updatedAt = now(),
+                ),
+                isRead = true,
             ),
-            isRead = true,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000005"),
-                index = 29u,
-                subIndex = 1u,
-                title = null,
-                date = LocalDate.parse("2023-04-12"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000005"),
+                    index = 29u,
+                    subIndex = 1u,
+                    title = null,
+                    date = LocalDate.parse("2023-04-12"),
+                    updatedAt = now(),
+                ),
+                isRead = true,
             ),
-            isRead = true,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000006"),
-                index = 29u,
-                title = null,
-                date = LocalDate.parse("2023-03-15"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000006"),
+                    index = 29u,
+                    title = null,
+                    date = LocalDate.parse("2023-03-15"),
+                    updatedAt = now(),
+                ),
+                isRead = false,
             ),
-            isRead = false,
         ),
         mapChapterRowData(
-            chapter = Chapter(
-                id = ChapterId("000007"),
-                index = 28u,
-                title = "Long title to make the title take two lines at least, add a bit more to match the updated design",
-                date = LocalDate.parse("2023-02-28"),
-                updatedAt = now(),
+            ChapterForOverview(
+                chapter = Chapter(
+                    id = ChapterId("000007"),
+                    index = 28u,
+                    title = "Long title to make the title take two lines at least and just a bit more",
+                    date = LocalDate.parse("2023-02-28"),
+                    updatedAt = now(),
+                ),
+                isRead = false,
             ),
-            isRead = false,
         ),
     )
 }

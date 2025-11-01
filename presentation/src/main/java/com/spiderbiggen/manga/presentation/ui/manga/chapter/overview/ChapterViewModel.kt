@@ -9,13 +9,10 @@ import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
-import com.spiderbiggen.manga.domain.model.leftOr
 import com.spiderbiggen.manga.domain.model.leftOrElse
-import com.spiderbiggen.manga.domain.usecase.chapter.GetChapters
-import com.spiderbiggen.manga.domain.usecase.favorite.IsFavorite
+import com.spiderbiggen.manga.domain.usecase.chapter.GetOverviewChapters
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
-import com.spiderbiggen.manga.domain.usecase.read.IsRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
@@ -35,6 +32,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -44,10 +42,8 @@ import kotlinx.coroutines.yield
 @HiltViewModel
 class ChapterViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val getChapters: GetChapters,
+    private val getOverviewChapters: GetOverviewChapters,
     private val getManga: GetManga,
-    private val isFavorite: IsFavorite,
-    private val isRead: IsRead,
     private val toggleFavorite: ToggleFavorite,
     private val updateChaptersFromRemote: UpdateChaptersFromRemote,
     private val mapChapterRowData: MapChapterRowData,
@@ -73,8 +69,8 @@ class ChapterViewModel @Inject constructor(
     private val mutableDominantColor = savedStateHandle.getMutableStateFlow<Int?>("dominantColor", null)
     val dominantColor = mutableDominantColor.map { it?.let { color -> Color(color) } }
 
-    private val mutableScreenState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
-    val state: StateFlow<ChapterScreenState> = mutableScreenState
+    private val mutableState = MutableStateFlow<ChapterScreenState>(ChapterScreenState.Loading)
+    val state: StateFlow<ChapterScreenState> = mutableState
         .onStart { loadData() }
         .stateIn(
             viewModelScope,
@@ -95,43 +91,47 @@ class ChapterViewModel @Inject constructor(
     }
 
     fun toggleFavorite() {
-        toggleFavorite(mangaId)
-        val state = mutableScreenState.value
-        if (state is ChapterScreenState.Ready) {
-            mutableScreenState.compareAndSet(state, state.copy(isFavorite = !state.isFavorite))
+        defaultScope.launch {
+            toggleFavorite(mangaId)
         }
     }
 
     private suspend fun updateScreenState() {
         val eitherManga = getManga(mangaId)
-        val eitherChapters = getChapters(mangaId)
+        val eitherChapters = getOverviewChapters(mangaId)
         when (val data = eitherManga.andLeft(eitherChapters)) {
             is Either.Left -> {
-                val (manga, chaptersFlow) = data.value
-                mutableDominantColor.emit(manga.dominantColor)
-                mutableScreenState.emit(
-                    ChapterScreenState.Ready(
-                        title = manga.title,
-                        isFavorite = isFavorite(mangaId).leftOr(false),
-                        chapters = persistentListOf(),
-                    ),
-                )
+                val (mangaFlow, chaptersFlow) = data.value
+                val combinedFlows = combine(
+                    mangaFlow,
+                    chaptersFlow,
+                ) { manga, chapters ->
+                    Triple(manga.manga, manga.isFavorite, chapters)
+                }
 
-                chaptersFlow.collectLatest { list ->
+                combinedFlows.collectLatest { (manga, isFavorite, chapters) ->
                     mutableDominantColor.emit(manga.dominantColor)
-                    mutableScreenState.emit(
+                    mutableState.emit(
                         ChapterScreenState.Ready(
                             title = manga.title,
-                            isFavorite = isFavorite(mangaId).leftOr(false),
-                            chapters = list
-                                .map { mapChapterRowData(it, isRead(it.id).leftOr(false)) }
+                            isFavorite = isFavorite,
+                            chapters = persistentListOf(),
+                        ),
+                    )
+
+                    mutableState.emit(
+                        ChapterScreenState.Ready(
+                            title = manga.title,
+                            isFavorite = isFavorite,
+                            chapters = chapters
+                                .map { mapChapterRowData(it) }
                                 .toImmutableList(),
                         ),
                     )
                 }
             }
 
-            is Either.Right -> mutableScreenState.emit(mapError(data.value))
+            is Either.Right -> mutableState.emit(mapError(data.value))
         }
     }
 

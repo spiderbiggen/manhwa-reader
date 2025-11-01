@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.domain.model
+package com.spiderbiggen.manga.domain.model.manga
 
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import java.net.URL

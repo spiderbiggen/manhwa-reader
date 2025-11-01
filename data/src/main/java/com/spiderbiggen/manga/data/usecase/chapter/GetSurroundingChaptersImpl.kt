@@ -4,7 +4,7 @@ import com.spiderbiggen.manga.data.source.local.repository.ChapterRepository
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
-import com.spiderbiggen.manga.domain.model.SurroundingChapters
+import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.usecase.chapter.GetSurroundingChapters
 import javax.inject.Inject

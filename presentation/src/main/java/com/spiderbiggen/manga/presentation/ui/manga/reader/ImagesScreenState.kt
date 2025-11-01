@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.reader
 
 import androidx.compose.runtime.Immutable
-import com.spiderbiggen.manga.domain.model.SurroundingChapters
+import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable

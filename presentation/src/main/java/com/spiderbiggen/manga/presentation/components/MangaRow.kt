@@ -35,6 +35,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.dropUnlessStarted
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
@@ -63,7 +64,7 @@ fun MangaRow(
     shape: Shape = CardDefaults.elevatedShape,
 ) {
     ReadStateCard(
-        isRead = manga.readAll,
+        isRead = manga.isRead,
         onClick = dropUnlessStarted { navigateToManga(manga.id) },
         shape = shape,
         modifier = modifier,
@@ -139,7 +140,10 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
     ) {
         Text(
             text = manga.title,
-            style = if (manga.readAll) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleMediumEmphasized,
+            style = when {
+                manga.isRead -> MaterialTheme.typography.titleMedium
+                else -> MaterialTheme.typography.titleMediumEmphasized
+            },
         )
         manga.updatedAt?.let {
             Text(it, style = MaterialTheme.typography.bodyMedium)
@@ -154,7 +158,7 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
-        context.resources.getDrawable(R.mipmap.preview_cover_placeholder, null).asImage()
+        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
     }
 
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
@@ -187,7 +191,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                     status = "Ongoing",
                     updatedAt = DATE_STRING,
                     isFavorite = false,
-                    readAll = false,
+                    isRead = false,
                 ),
                 MangaViewData(
                     source = "Asura",
@@ -197,7 +201,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                     status = "Ongoing",
                     updatedAt = DATE_STRING,
                     isFavorite = true,
-                    readAll = true,
+                    isRead = true,
                 ),
                 MangaViewData(
                     source = "Asura",
@@ -207,7 +211,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                     status = "Dropped",
                     updatedAt = DATE_STRING,
                     isFavorite = true,
-                    readAll = true,
+                    isRead = true,
                 ),
             )
         }

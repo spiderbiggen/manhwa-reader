@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.data.source.local.model
+package com.spiderbiggen.manga.data.source.local.model.manga
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

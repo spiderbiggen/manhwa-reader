@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.overview
 
-import com.spiderbiggen.manga.presentation.ui.manga.overview.model.MangaState
+import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import javax.inject.Inject
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.days
@@ -13,7 +13,10 @@ class SplitMangasIntoSections @Inject constructor() {
     /**
      * Assumes the list is sorted
      */
-    operator fun invoke(mangas: List<MangaState>, timeZone: TimeZone): List<Pair<String, List<MangaState>>> {
+    operator fun invoke(
+        mangas: List<MangaForOverview>,
+        timeZone: TimeZone,
+    ): List<Pair<String, List<MangaForOverview>>> {
         val now = now()
         val localNow = now.toLocalDateTime(timeZone)
         return mangas

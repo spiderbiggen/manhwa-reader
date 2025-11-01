@@ -1,10 +1,11 @@
-package com.spiderbiggen.manga.data.source.local.model
+package com.spiderbiggen.manga.data.source.local.model.chapter
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
+import com.spiderbiggen.manga.data.source.local.model.manga.LocalMangaEntity
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlin.time.Instant

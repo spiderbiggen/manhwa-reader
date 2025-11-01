@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.domain.model
+package com.spiderbiggen.manga.domain.model.chapter
 
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 

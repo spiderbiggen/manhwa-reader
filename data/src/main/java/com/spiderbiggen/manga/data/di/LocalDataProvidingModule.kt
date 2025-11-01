@@ -6,8 +6,10 @@ import android.content.SharedPreferences
 import androidx.room.Room
 import com.spiderbiggen.manga.data.source.local.MangaDatabase
 import com.spiderbiggen.manga.data.source.local.MangaDatabaseDecorator
+import com.spiderbiggen.manga.data.source.local.dao.ChapterReadStatusDao
 import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
 import com.spiderbiggen.manga.data.source.local.dao.LocalMangaDao
+import com.spiderbiggen.manga.data.source.local.dao.MangaFavoriteStatusDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -36,4 +38,12 @@ object LocalDataProvidingModule {
 
     @Provides
     fun provideChapterDao(decorator: MangaDatabaseDecorator): LocalChapterDao = decorator.localChapterDao()
+
+    @Provides
+    fun provideMangaFavoriteStatusDao(decorator: MangaDatabaseDecorator): MangaFavoriteStatusDao =
+        decorator.mangaFavoriteStatusDao()
+
+    @Provides
+    fun provideChapterReadStatusDao(decorator: MangaDatabaseDecorator): ChapterReadStatusDao =
+        decorator.chapterReadStatusDao()
 }

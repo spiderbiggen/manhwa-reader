@@ -3,7 +3,8 @@ package com.spiderbiggen.manga.data.source.local.dao
 import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
-import com.spiderbiggen.manga.data.source.local.model.LocalChapterEntity
+import com.spiderbiggen.manga.data.source.local.model.chapter.LocalChapterEntity
+import com.spiderbiggen.manga.data.source.local.model.chapter.LocalChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlinx.coroutines.flow.Flow
@@ -18,6 +19,29 @@ interface LocalChapterDao {
 
     @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
     fun getFlowForMangaId(mangaId: MangaId): Flow<List<LocalChapterEntity>>
+
+    @Query(
+        """
+        SELECT *, COALESCE(r.is_read, 0) as is_read
+        FROM chapter c
+            LEFT JOIN chapter_read_status r ON c.id = r.id
+        WHERE c.manga_id = :mangaId 
+        ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC
+        """,
+    )
+    fun getFlowForMangaOverview(mangaId: MangaId): Flow<List<LocalChapterForOverview>>
+
+    @Query(
+        """
+        SELECT *, COALESCE(r.is_read, 0) as is_read
+        FROM chapter c
+            LEFT JOIN chapter_read_status r ON c.id = r.id
+        WHERE c.id = :id 
+        ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC
+        LIMIT 1
+        """,
+    )
+    fun getFlowForChapterOverview(id: ChapterId): Flow<LocalChapterForOverview?>
 
     @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
     suspend fun getForMangaId(mangaId: MangaId): List<LocalChapterEntity>

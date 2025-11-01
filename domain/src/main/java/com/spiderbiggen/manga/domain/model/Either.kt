@@ -1,8 +1,11 @@
 package com.spiderbiggen.manga.domain.model
 
 sealed interface Either<L, R> {
-    data class Left<L, R>(val value: L) : Either<L, R>
-    data class Right<L, R>(val value: R) : Either<L, R>
+    @JvmInline
+    value class Left<L, R>(val value: L) : Either<L, R>
+
+    @JvmInline
+    value class Right<L, R>(val value: R) : Either<L, R>
 }
 
 inline fun <L, O, R> Either<L, R>.mapLeft(block: (L) -> O): Either<O, R> = when (this) {

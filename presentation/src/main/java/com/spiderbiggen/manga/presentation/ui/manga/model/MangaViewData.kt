@@ -12,5 +12,5 @@ data class MangaViewData(
     val coverImage: String,
     val updatedAt: String?,
     val isFavorite: Boolean,
-    val readAll: Boolean,
+    val isRead: Boolean,
 )
