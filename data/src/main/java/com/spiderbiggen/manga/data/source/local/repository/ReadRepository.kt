@@ -27,21 +27,24 @@ class ReadRepository @Inject constructor(
                 .filterKeys { it.startsWith(READ_KEY_PREFIX) }
                 .mapNotNull { (key, value) ->
                     val id = ChapterId(key.substringAfter('_'))
-                    if (value as Boolean) id else null
+                    if ((value as? Boolean) == true) id else null
                 }
                 .toSet()
 
             if (oldChapterIds.isEmpty()) return@runBlocking
             val date = now()
-            readDaoProvider.get().insert(
-                oldChapterIds.map {
-                    ChapterReadStatusEntity(
-                        id = it,
-                        isRead = true,
-                        updatedAt = date,
-                    )
-                },
-            )
+
+                oldChapterIds.chunked(25).map {
+                    it.map {
+                        ChapterReadStatusEntity(
+                            id = it,
+                            isRead = true,
+                            updatedAt = date,
+                        )
+                    }
+                }.forEach {
+                    readDaoProvider.get().insert(it)
+                }
 
             sharedPreferences.edit {
                 oldChapterIds.forEach {
