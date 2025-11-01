@@ -13,44 +13,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
 
 class ReadRepository @Inject constructor(
-    private val sharedPreferences: SharedPreferences,
     private val readDaoProvider: Provider<ChapterReadStatusDao>,
 ) {
-
-    private companion object {
-        private const val READ_KEY_PREFIX = "read"
-    }
-
-    init {
-        // This is a temporary solution until the app is migrated to Room.
-        runBlocking {
-            val oldChapterIds = sharedPreferences.all
-                .filterKeys { it.startsWith(READ_KEY_PREFIX) }
-                .mapNotNull { (key, value) ->
-                    val id = ChapterId(key.substringAfter('_'))
-                    if (value as Boolean) id else null
-                }
-                .toSet()
-
-            if (oldChapterIds.isEmpty()) return@runBlocking
-            val date = now()
-            readDaoProvider.get().insert(
-                oldChapterIds.map {
-                    ChapterReadStatusEntity(
-                        id = it,
-                        isRead = true,
-                        updatedAt = date,
-                    )
-                },
-            )
-
-            sharedPreferences.edit {
-                oldChapterIds.forEach {
-                    remove("${READ_KEY_PREFIX}_${it.inner}")
-                }
-            }
-        }
-    }
 
     fun getFlow(id: ChapterId): Result<Flow<Boolean?>> = runCatching {
         readDaoProvider.get().isReadFlow(id)
