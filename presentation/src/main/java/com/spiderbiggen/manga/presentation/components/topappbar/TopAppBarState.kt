@@ -71,7 +71,6 @@ class TopAppBarState {
             if (newOffset == startOffset) return Offset.Zero
             mutableOffset.floatValue = newOffset
             val consumedDelta = newOffset - startOffset
-            println("TopAppBarState.onPreScroll, available: $available, consumed: $consumedDelta")
             return Offset(0f, consumedDelta)
         }
     }

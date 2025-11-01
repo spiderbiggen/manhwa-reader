@@ -7,6 +7,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
@@ -24,30 +25,28 @@ fun ReadStateCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val animationSpec = MaterialTheme.motionScheme.fastEffectsSpec<Color>()
+    val targetContainerColor = when {
+        !isRead -> MaterialTheme.colorScheme.surfaceContainer
+        else -> MaterialTheme.colorScheme.surfaceContainerLow
+    }
     val containerColor: Color by animateColorAsState(
-        when {
-            !isRead -> MaterialTheme.colorScheme.surfaceContainer
-            else -> MaterialTheme.colorScheme.surfaceContainerLow
-        },
+        targetContainerColor,
         label = "card color",
+        animationSpec = animationSpec,
+    )
+    val contentColor by animateColorAsState(
+        contentColorFor(targetContainerColor).let { if (isRead) it.copy(alpha = 0.7f) else it },
+        label = "content color",
         animationSpec = animationSpec,
     )
     ElevatedCard(
         onClick = onClick,
         modifier = modifier,
-        colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = containerColor,
+            contentColor = contentColor,
+        ),
         shape = shape,
-        content = {
-            val contentColor by animateColorAsState(
-                LocalContentColor.current.let {
-                    if (isRead) it.copy(alpha = 0.7f) else it
-                },
-                animationSpec = animationSpec,
-            )
-
-            CompositionLocalProvider(LocalContentColor provides contentColor) {
-                content()
-            }
-        },
+        content = content,
     )
 }

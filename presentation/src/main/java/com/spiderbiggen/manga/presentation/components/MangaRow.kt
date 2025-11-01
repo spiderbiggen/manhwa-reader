@@ -13,6 +13,7 @@ import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -28,7 +29,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -85,7 +85,7 @@ private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier
     val context = LocalPlatformContext.current
     val density = LocalDensity.current
     val asyncPainter = rememberAsyncImagePainter(
-        model = remember(context) {
+        model = remember(context, density) {
             val size = with(density) {
                 val (width, height) = COVER_SIZE.toSize().toIntSize()
                 Size(width, height)
@@ -130,6 +130,7 @@ private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
     Column(
@@ -137,12 +138,11 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
         Text(
-            manga.title,
-            fontWeight = if (!manga.readAll) FontWeight.Bold else null,
-            style = MaterialTheme.typography.bodyLarge,
+            text = manga.title,
+            style = if (manga.readAll) MaterialTheme.typography.titleMedium else MaterialTheme.typography.titleMediumEmphasized,
         )
         manga.updatedAt?.let {
-            Text(it, style = MaterialTheme.typography.bodySmall)
+            Text(it, style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -174,37 +174,47 @@ fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaVie
 }
 
 class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
-    override val values
-        get() = sequenceOf(
-            MangaViewData(
-                source = "Asura",
-                id = MangaId("712dd47d646544338484357604d6cf80"),
-                title = "Heavenly Martial God",
-                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-                status = "Ongoing",
-                updatedAt = "2023-04-23",
-                isFavorite = false,
-                readAll = false,
-            ),
-            MangaViewData(
-                source = "Asura",
-                id = MangaId("712dd47d646544338484357604d6cf81"),
-                title = "Heavenly Martial God",
-                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-                status = "Ongoing",
-                updatedAt = "2023-04-23",
-                isFavorite = true,
-                readAll = true,
-            ),
-            MangaViewData(
-                source = "Asura",
-                id = MangaId("712dd47d646544338484357604d6cf81"),
-                title = "Heavenly Martial God",
-                coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-                status = "Dropped",
-                updatedAt = "2023-04-23",
-                isFavorite = true,
-                readAll = true,
-            ),
-        )
+
+    override val values: Sequence<MangaViewData>
+        get() {
+
+            return sequenceOf(
+                MangaViewData(
+                    source = "Asura",
+                    id = MangaId("1"),
+                    title = TITLE,
+                    coverImage = COVER_IMAGE,
+                    status = "Ongoing",
+                    updatedAt = DATE_STRING,
+                    isFavorite = false,
+                    readAll = false,
+                ),
+                MangaViewData(
+                    source = "Asura",
+                    id = MangaId("2"),
+                    title = TITLE,
+                    coverImage = COVER_IMAGE,
+                    status = "Ongoing",
+                    updatedAt = DATE_STRING,
+                    isFavorite = true,
+                    readAll = true,
+                ),
+                MangaViewData(
+                    source = "Asura",
+                    id = MangaId("3"),
+                    title = TITLE,
+                    coverImage = COVER_IMAGE,
+                    status = "Dropped",
+                    updatedAt = DATE_STRING,
+                    isFavorite = true,
+                    readAll = true,
+                ),
+            )
+        }
+
+    private companion object {
+        private const val DATE_STRING = "2023-04-23"
+        private const val TITLE = "Heavenly Martial God"
+        private const val COVER_IMAGE = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"
+    }
 }

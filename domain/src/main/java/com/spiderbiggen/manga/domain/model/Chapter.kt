@@ -9,15 +9,19 @@ import kotlinx.datetime.LocalDate
 
 data class Chapter(
     val id: ChapterId,
-    val number: Double,
+    val index: UInt,
+    val subIndex: UInt? = null,
     val title: String?,
     val date: LocalDate,
     val updatedAt: Instant,
 ) {
-    fun displayNumber(): String = df.format(number)
-
     fun displayTitle(): String = buildString {
-        append(displayNumber())
+        append(index)
+        subIndex?.let {
+            append('.')
+            append(it)
+        }
+
         title?.let {
             when {
                 it[0].isLetterOrDigit() -> append(" - ")
@@ -25,12 +29,5 @@ data class Chapter(
             }
             append(it)
         }
-    }
-
-    private companion object {
-        // This is to show symbol . instead of ,
-        val otherSymbols = DecimalFormatSymbols(Locale.ROOT)
-        // Define the maximum number of decimals (number of symbols #)
-        val df = DecimalFormat("#.##", otherSymbols)
     }
 }

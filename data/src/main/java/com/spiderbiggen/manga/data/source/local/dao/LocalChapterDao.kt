@@ -16,10 +16,10 @@ interface LocalChapterDao {
     @Query("SELECT * FROM chapter where id = :id")
     suspend fun get(id: ChapterId): LocalChapterEntity?
 
-    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC")
+    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
     fun getFlowForMangaId(mangaId: MangaId): Flow<List<LocalChapterEntity>>
 
-    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY number DESC")
+    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
     suspend fun getForMangaId(mangaId: MangaId): List<LocalChapterEntity>
 
     @Query("DELETE FROM chapter where manga_id = :mangaId AND id NOT IN (:knownIds)")
@@ -28,8 +28,8 @@ interface LocalChapterDao {
     @Query(
         """
         SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
-        WHERE c2.id = :id AND c1.number < c2.number
-        ORDER BY c1.number DESC
+        WHERE c2.id = :id AND c1.index_num < c2.index_num OR (c1.index_num = c2.index_num AND COALESCE(c1.sub_index, 0) < COALESCE(c2.sub_index, 0))
+        ORDER BY c1.index_num DESC, COALESCE(c1.sub_index, 0) DESC
         """,
     )
     suspend fun getPreviousChapters(id: ChapterId): List<LocalChapterEntity>
@@ -37,8 +37,8 @@ interface LocalChapterDao {
     @Query(
         """
         SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
-        WHERE c2.id = :id AND c1.number < c2.number
-        ORDER BY c1.number DESC
+        WHERE c2.id = :id AND c1.index_num < c2.index_num OR (c1.index_num = c2.index_num AND COALESCE(c1.sub_index, 0) < COALESCE(c2.sub_index, 0))
+        ORDER BY c1.index_num DESC, COALESCE(c1.sub_index, 0) DESC
         LIMIT 1
         """,
     )
@@ -47,8 +47,8 @@ interface LocalChapterDao {
     @Query(
         """
         SELECT c1.* FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
-        WHERE c2.id = :id AND c1.number > c2.number
-        ORDER BY c1.number ASC
+        WHERE c2.id = :id AND c1.index_num > c2.index_num OR (c1.index_num = c2.index_num AND COALESCE(c1.sub_index, 0) > COALESCE(c2.sub_index, 0))
+        ORDER BY c1.index_num ASC, COALESCE(c1.sub_index, 0) ASC
         LIMIT 1
         """,
     )

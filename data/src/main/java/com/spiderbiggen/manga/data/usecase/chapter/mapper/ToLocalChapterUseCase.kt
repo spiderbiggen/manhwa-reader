@@ -9,11 +9,12 @@ class ToLocalChapterUseCase @Inject constructor() {
     operator fun invoke(id: MangaId, entity: ChapterEntity) = LocalChapterEntity(
         id = entity.id,
         mangaId = id,
-        number = entity.number,
+        index = entity.index.toInt(),
+        subIndex = entity.subIndex?.toInt(),
         title = entity.title,
         date = entity.date,
         updatedAt = entity.updatedAt,
-        imageChunks = entity.images,
+        imageChunks = entity.images.toInt(),
     )
 
     operator fun invoke(id: MangaId, entities: List<ChapterEntity>): List<LocalChapterEntity> =

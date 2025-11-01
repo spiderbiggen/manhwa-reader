@@ -1,24 +1,23 @@
-
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.outlined.Favorite
@@ -28,30 +27,34 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
@@ -67,10 +70,11 @@ import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
-import com.spiderbiggen.manga.presentation.extensions.plus
+import com.spiderbiggen.manga.presentation.theme.FontFamilies
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
+import kotlin.math.max
 import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -201,9 +205,9 @@ private fun ChaptersList(
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
     val largeCornerSize = MaterialTheme.shapes.medium.topEnd
-    val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
+    val smallCornerSize = CornerSize(0f)
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
-    val intOffsetAnimateSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
+    val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
@@ -231,6 +235,7 @@ private fun ChaptersList(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ChapterRow(
     item: ChapterRowData,
@@ -242,28 +247,54 @@ private fun ChapterRow(
         isRead = item.isRead,
         onClick = dropUnlessStarted { navigateToChapter(item.id) },
         shape = shape,
-        modifier = modifier
-            .fillMaxWidth()
-            .defaultMinSize(minHeight = 48.dp),
+        modifier = modifier.fillMaxWidth(),
     ) {
-        Row(
-            Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            NumberDisplay(item, Modifier.align(Alignment.Top))
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically)) {
+        Layout(
+            modifier = Modifier
+                .defaultMinSize(minHeight = 48.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            content = {
+                val typography = MaterialTheme.typography
+                NumberDisplay(item)
                 Text(
                     text = item.date,
-                    fontWeight = if (!item.isRead) FontWeight.Bold else null,
-                    style = MaterialTheme.typography.bodyLarge,
+                    style = if (item.isRead) typography.titleMedium else typography.titleMediumEmphasized,
+                    textAlign = TextAlign.End,
                 )
                 item.title?.let {
                     Text(
                         text = it,
-                        fontWeight = if (!item.isRead) FontWeight.Bold else null,
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = if (item.isRead) typography.bodyMedium else typography.bodyMediumEmphasized,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.End,
                     )
+                }
+            },
+        ) { measurables, constraints ->
+            val horizontalPadding = 8.dp.toPx()
+            val verticalPadding = 4.dp.toPx()
+
+            val contentConstraints = constraints.copy(minHeight = 0)
+            val numberPlaceable = measurables[0].measure(contentConstraints)
+
+            val textConstraints = contentConstraints.copy(
+                maxWidth = (constraints.maxWidth - numberPlaceable.width - horizontalPadding).toInt(),
+            )
+            val textPlaceables = measurables.drop(1).map { it.measure(textConstraints) }
+            val textHeight =
+                textPlaceables.sumOf { it.measuredHeight } + (textPlaceables.size - 1).coerceAtLeast(0) * verticalPadding
+
+            val height = max(constraints.minHeight, textHeight.toInt())
+            layout(constraints.maxWidth, height) {
+                numberPlaceable.placeRelative(0, (constraints.minHeight - numberPlaceable.measuredHeight) / 2)
+
+                if (textPlaceables.isNotEmpty()) {
+                    var textY = (constraints.minHeight - textHeight).coerceAtLeast(0f) / 2f
+                    textPlaceables.forEach {
+                        it.placeRelative(constraints.maxWidth - it.width, textY.toInt())
+                        textY += it.measuredHeight + verticalPadding
+                    }
                 }
             }
         }
@@ -271,23 +302,26 @@ private fun ChapterRow(
 }
 
 @Composable
-private fun NumberDisplay(item: ChapterRowData, modifier: Modifier) {
-    Box(
-        modifier
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = MaterialTheme.shapes.medium,
+private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
+    CompositionLocalProvider(LocalContentColor provides LocalContentColor.current.copy(alpha = 1f)) {
+        val padding = with(LocalDensity.current) { 3.sp.toDp() }
+        Row(
+            modifier = modifier,
+            horizontalArrangement = Arrangement.spacedBy(padding),
+        ) {
+            Text(
+                text = item.index.toString(),
+                style = MaterialTheme.typography.titleLarge,
+                fontFamily = FontFamilies.Coiny,
             )
-            .size(56.dp),
-        contentAlignment = Alignment.Center,
-    ) {
-        Text(
-            text = item.number,
-            modifier = Modifier.padding(4.dp),
-            style = MaterialTheme.typography.titleLarge,
-            textAlign = TextAlign.Center,
-            color = MaterialTheme.colorScheme.onPrimaryContainer,
-        )
+            item.subIndex?.let {
+                Text(
+                    text = it.toString(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontFamily = FontFamilies.Coiny,
+                )
+            }
+        }
     }
 }
 
@@ -327,7 +361,7 @@ private object ChapterProvider {
         mapChapterRowData(
             chapter = Chapter(
                 id = ChapterId("000000"),
-                number = 30.0,
+                index = 30u,
                 title = null,
                 date = LocalDate.parse("2023-04-16"),
                 updatedAt = now(),
@@ -337,7 +371,8 @@ private object ChapterProvider {
         mapChapterRowData(
             chapter = Chapter(
                 id = ChapterId("000001"),
-                number = 29.5,
+                index = 29u,
+                subIndex = 5u,
                 title = null,
                 date = LocalDate.parse("2023-04-12"),
                 updatedAt = now(),
@@ -347,7 +382,51 @@ private object ChapterProvider {
         mapChapterRowData(
             chapter = Chapter(
                 id = ChapterId("000002"),
-                number = 29.0,
+                index = 29u,
+                subIndex = 4u,
+                title = null,
+                date = LocalDate.parse("2023-04-12"),
+                updatedAt = now(),
+            ),
+            isRead = true,
+        ),
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000003"),
+                index = 29u,
+                subIndex = 3u,
+                title = null,
+                date = LocalDate.parse("2023-04-12"),
+                updatedAt = now(),
+            ),
+            isRead = true,
+        ),
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000004"),
+                index = 29u,
+                subIndex = 2u,
+                title = null,
+                date = LocalDate.parse("2023-04-12"),
+                updatedAt = now(),
+            ),
+            isRead = true,
+        ),
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000005"),
+                index = 29u,
+                subIndex = 1u,
+                title = null,
+                date = LocalDate.parse("2023-04-12"),
+                updatedAt = now(),
+            ),
+            isRead = true,
+        ),
+        mapChapterRowData(
+            chapter = Chapter(
+                id = ChapterId("000006"),
+                index = 29u,
                 title = null,
                 date = LocalDate.parse("2023-03-15"),
                 updatedAt = now(),
@@ -356,9 +435,9 @@ private object ChapterProvider {
         ),
         mapChapterRowData(
             chapter = Chapter(
-                id = ChapterId("000003"),
-                number = 28.0,
-                title = "Long title to make the title take two lines at least",
+                id = ChapterId("000007"),
+                index = 28u,
+                title = "Long title to make the title take two lines at least, add a bit more to match the updated design",
                 date = LocalDate.parse("2023-02-28"),
                 updatedAt = now(),
             ),

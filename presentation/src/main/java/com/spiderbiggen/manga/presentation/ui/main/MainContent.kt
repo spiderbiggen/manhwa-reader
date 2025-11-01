@@ -8,6 +8,9 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
@@ -30,7 +33,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val dominantColor = remember { mutableStateOf(Purple80) }
+    val dominantColor = rememberSaveable(stateSaver = ColorSaver) { mutableStateOf(Purple80) }
     TrackNavigationSideEffect(navController)
 
     MangaReaderTheme(dominantColor.value) {
@@ -81,3 +84,8 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
         }
     }
 }
+
+val ColorSaver = Saver<Color, Long>(
+    save = { it.value.toLong() },
+    restore = { Color(it.toULong()) },
+)

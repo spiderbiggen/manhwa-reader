@@ -9,7 +9,8 @@ import kotlin.time.Instant
 class ToDomainChapterUseCase @Inject constructor() {
     operator fun invoke(entity: ChapterEntity): Chapter = Chapter(
         id = entity.id,
-        number = entity.number,
+        index = entity.index,
+        subIndex = entity.subIndex,
         title = entity.title,
         date = entity.date,
         updatedAt = entity.updatedAt,
@@ -17,9 +18,10 @@ class ToDomainChapterUseCase @Inject constructor() {
 
     operator fun invoke(entity: LocalChapterEntity): Chapter = Chapter(
         id = entity.id,
-        number = entity.number,
+        index = entity.index.toUInt(),
+        subIndex = entity.subIndex?.toUInt(),
         title = entity.title,
         date = entity.date,
-        updatedAt = entity.updatedAt ?: Instant.DISTANT_PAST, // This should only happen once XD
+        updatedAt = entity.updatedAt,
     )
 }

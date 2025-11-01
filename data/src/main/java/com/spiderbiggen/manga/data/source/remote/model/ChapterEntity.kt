@@ -10,12 +10,14 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class ChapterEntity(
     val id: ChapterId,
-    val number: Double,
+    val index: UInt,
+    @SerialName("sub_index")
+    val subIndex: UInt?,
     val title: String?,
     val date: LocalDate,
     @Contextual
     @SerialName("updated_at")
     val updatedAt: Instant,
     @SerialName("images")
-    val images: Int,
+    val images: UInt,
 )

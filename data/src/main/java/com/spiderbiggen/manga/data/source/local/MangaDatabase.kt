@@ -21,7 +21,7 @@ import com.spiderbiggen.manga.data.source.local.model.LocalMangaEntity
         LocalChapterEntity::class,
         LocalMangaEntity::class,
     ],
-    version = 5,
+    version = 6,
     autoMigrations = [],
     exportSchema = true,
 )

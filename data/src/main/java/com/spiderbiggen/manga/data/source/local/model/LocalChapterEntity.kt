@@ -17,7 +17,7 @@ import kotlinx.datetime.LocalDate
     ],
     indices = [
         Index("manga_id"),
-        Index("number"),
+        Index("index_num", "sub_index"),
     ],
 )
 data class LocalChapterEntity(
@@ -25,11 +25,14 @@ data class LocalChapterEntity(
     val id: ChapterId,
     @ColumnInfo("manga_id")
     val mangaId: MangaId,
-    val number: Double,
+    @ColumnInfo("index_num")
+    val index: Int,
+    @ColumnInfo("sub_index")
+    val subIndex: Int? = null,
     val title: String? = null,
     val date: LocalDate,
     @ColumnInfo("updated_at")
-    val updatedAt: Instant? = null,
+    val updatedAt: Instant,
     @ColumnInfo("image_chunks", defaultValue = "0")
     val imageChunks: Int,
 )

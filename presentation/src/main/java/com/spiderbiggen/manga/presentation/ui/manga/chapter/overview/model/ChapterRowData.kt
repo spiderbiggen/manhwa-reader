@@ -6,8 +6,8 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 @Immutable
 data class ChapterRowData(
     val id: ChapterId,
-    val number: String,
-    val isHalfNumber: Boolean,
+    val index: UInt,
+    val subIndex: UInt?,
     val title: String?,
     val date: String,
     val isRead: Boolean,

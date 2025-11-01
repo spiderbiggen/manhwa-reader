@@ -20,13 +20,13 @@ interface MangaService {
     @GET("api/v1/mangas/{id}")
     suspend fun getManga(@Path("id") id: MangaId): Response<MangaEntity>
 
-    @GET("api/v1/mangas/{id}/chapters")
+    @GET("api/v2/mangas/{id}/chapters")
     suspend fun getMangaChapters(@Path("id") id: MangaId): Response<List<ChapterEntity>>
 
-    @GET("api/v1/mangas/{id}/chapters")
+    @GET("api/v2/mangas/{id}/chapters")
     @Headers("Cache-Control: max-age=60")
     suspend fun getMangaChaptersSkipCache(@Path("id") id: MangaId): Response<List<ChapterEntity>>
 
-    @GET("api/v1/chapters/{id}")
+    @GET("api/v2/chapters/{id}")
     suspend fun getChapter(@Path("id") id: ChapterId): Response<ChapterEntity>
 }
