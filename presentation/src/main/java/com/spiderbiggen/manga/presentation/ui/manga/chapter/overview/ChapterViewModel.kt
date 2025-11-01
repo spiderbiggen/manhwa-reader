@@ -115,14 +115,6 @@ class ChapterViewModel @Inject constructor(
                         ChapterScreenState.Ready(
                             title = manga.title,
                             isFavorite = isFavorite,
-                            chapters = persistentListOf(),
-                        ),
-                    )
-
-                    mutableState.emit(
-                        ChapterScreenState.Ready(
-                            title = manga.title,
-                            isFavorite = isFavorite,
                             chapters = chapters
                                 .map { mapChapterRowData(it) }
                                 .toImmutableList(),

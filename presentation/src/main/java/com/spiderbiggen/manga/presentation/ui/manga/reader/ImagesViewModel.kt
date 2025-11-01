@@ -10,6 +10,7 @@ import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.leftOrElse
+import com.spiderbiggen.manga.domain.model.mapRight
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manga.domain.usecase.chapter.GetSurroundingChapters

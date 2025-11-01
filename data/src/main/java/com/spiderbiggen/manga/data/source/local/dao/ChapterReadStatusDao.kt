@@ -5,6 +5,8 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.spiderbiggen.manga.data.source.local.model.chapter.ChapterReadStatusEntity
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.id.MangaId
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 
 @Dao

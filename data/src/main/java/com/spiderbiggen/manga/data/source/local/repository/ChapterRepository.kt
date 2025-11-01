@@ -34,6 +34,7 @@ class ChapterRepository @Inject constructor(
     fun getChapterAsFlow(id: ChapterId): Result<Flow<ChapterForOverview?>> = runCatching {
         chapterDao.getFlowForChapterOverview(id).map {
             it?.let {
+                println(it)
                 ChapterForOverview(
                     chapter = toDomain.invoke(it.chapter),
                     isRead = it.isRead,
@@ -42,11 +43,6 @@ class ChapterRepository @Inject constructor(
         }
     }
 
-    suspend fun getChapter(id: ChapterId): Result<Chapter?> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.get(id)!!.let(toDomain::invoke)
-        }
-    }
 
     suspend fun getChapterImages(id: ChapterId): Result<Int> = runCatching {
         withContext(Dispatchers.IO) {
@@ -54,9 +50,9 @@ class ChapterRepository @Inject constructor(
         }
     }
 
-    suspend fun getPreviousChapters(id: ChapterId): Result<List<Chapter>> = runCatching {
+    suspend fun getPreviousChapters(id: ChapterId): Result<Set<ChapterId>> = runCatching {
         withContext(Dispatchers.IO) {
-            chapterDao.getPreviousChapters(id).map(toDomain::invoke)
+            chapterDao.getPreviousChapterIds(id).toSet()
         }
     }
 
