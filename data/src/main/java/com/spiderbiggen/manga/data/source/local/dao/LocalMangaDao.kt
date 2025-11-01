@@ -37,7 +37,10 @@ interface LocalMangaDao {
             LEFT JOIN manga_favorite_status f on f.id = m.id
             LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
             LEFT JOIN (
-                SELECT c.manga_id, MIN(COALESCE(is_read, 0)) as is_read FROM chapter_read_status r JOIN chapter c ON r.id = c.id
+                SELECT c.manga_id, MIN(COALESCE(is_read, 0)) as is_read 
+                    FROM manga m 
+                    JOIN chapter c ON m.id = c.manga_id
+                    LEFT JOIN chapter_read_status r ON c.id = r.id
                 GROUP BY c.manga_id
             ) r ON r.manga_id = m.id
         WHERE m.status <> 'Dropped'
