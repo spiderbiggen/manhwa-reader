@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.data.source.local.repository
 
 import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
 import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
-import com.spiderbiggen.manga.domain.model.chapter.Chapter
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
@@ -43,7 +42,6 @@ class ChapterRepository @Inject constructor(
         }
     }
 
-
     suspend fun getChapterImages(id: ChapterId): Result<Int> = runCatching {
         withContext(Dispatchers.IO) {
             chapterDao.get(id)!!.imageChunks
@@ -56,15 +54,15 @@ class ChapterRepository @Inject constructor(
         }
     }
 
-    suspend fun getPreviousChapter(id: ChapterId): Result<Chapter?> = runCatching {
+    suspend fun getPreviousChapterId(id: ChapterId): Result<ChapterId?> = runCatching {
         withContext(Dispatchers.IO) {
-            chapterDao.getPrevChapterId(id)?.let(toDomain::invoke)
+            chapterDao.getPrevChapterId(id)
         }
     }
 
-    suspend fun getNextChapter(id: ChapterId): Result<Chapter?> = runCatching {
+    suspend fun getNextChapterId(id: ChapterId): Result<ChapterId?> = runCatching {
         withContext(Dispatchers.IO) {
-            chapterDao.getNextChapterId(id)?.let(toDomain::invoke)
+            chapterDao.getNextChapterId(id)
         }
     }
 }

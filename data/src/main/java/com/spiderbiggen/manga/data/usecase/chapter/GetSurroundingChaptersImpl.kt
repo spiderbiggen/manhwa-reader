@@ -15,11 +15,12 @@ class GetSurroundingChaptersImpl @Inject constructor(private val chapterReposito
     GetSurroundingChapters {
     override suspend fun invoke(id: ChapterId): Either<SurroundingChapters, AppError> = runCatching {
         coroutineScope {
-            val deferredPrev = async { chapterRepository.getPreviousChapter(id) }
-            val deferredNext = async { chapterRepository.getNextChapter(id) }
-            val prev = deferredPrev.await().getOrThrow()
-            val next = deferredNext.await().getOrThrow()
-            SurroundingChapters(prev?.id, next?.id)
+            val deferredPrev = async { chapterRepository.getPreviousChapterId(id) }
+            val deferredNext = async { chapterRepository.getNextChapterId(id) }
+            SurroundingChapters(
+                previous = deferredPrev.await().getOrThrow(),
+                next = deferredNext.await().getOrThrow(),
+            )
         }
     }.either()
 }
