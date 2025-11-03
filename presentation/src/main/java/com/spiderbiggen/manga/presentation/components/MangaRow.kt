@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.presentation.components
 
 import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,10 +18,12 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.LocalMotionScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -108,6 +111,7 @@ private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier
     )
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     Row {
@@ -120,13 +124,9 @@ private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
             )
         }
         IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
-            AnimatedContent(manga.isFavorite) {
-                Icon(
-                    if (it) Icons.Rounded.Favorite else Icons.Rounded.FavoriteBorder,
-                    contentDescription = if (it) "Unfavorite" else "Favorite",
-                    tint = if (it) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.outline,
-                )
-            }
+            FavoriteToggle(
+                isFavorite = manga.isFavorite,
+            )
         }
     }
 }
@@ -181,7 +181,6 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
 
     override val values: Sequence<MangaViewData>
         get() {
-
             return sequenceOf(
                 MangaViewData(
                     source = "Asura",

@@ -78,6 +78,7 @@ import coil3.request.SuccessResult
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.bottomappbar.BottomAppBarState
@@ -324,13 +325,7 @@ private fun ReaderBottomBar(
     ) {
         Row(Modifier.padding(horizontal = 16.dp)) {
             IconButton(onClick = toggleFavorite) {
-                Icon(
-                    imageVector = when (screenState?.isFavorite) {
-                        true -> Icons.Outlined.Favorite
-                        else -> Icons.Outlined.FavoriteBorder
-                    },
-                    contentDescription = "Favorite",
-                )
+                FavoriteToggle(isFavorite = screenState?.isFavorite == true)
             }
             IconButton(onClick = setReadUpToHere) {
                 Icon(

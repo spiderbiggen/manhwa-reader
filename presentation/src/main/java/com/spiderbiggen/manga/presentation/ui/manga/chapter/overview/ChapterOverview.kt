@@ -19,8 +19,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.outlined.Favorite
-import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -60,6 +58,7 @@ import androidx.lifecycle.compose.dropUnlessStarted
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
@@ -143,14 +142,7 @@ fun ChapterOverview(
                     title = { Text(readyState?.title ?: "Manga") },
                     actions = {
                         IconButton(onClick = toggleFavorite) {
-                            val isFavorite = readyState?.isFavorite == true
-                            Icon(
-                                imageVector = when {
-                                    isFavorite -> Icons.Outlined.Favorite
-                                    else -> Icons.Outlined.FavoriteBorder
-                                },
-                                contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
-                            )
+                            FavoriteToggle(isFavorite = readyState?.isFavorite == true)
                         }
                     },
                 )
