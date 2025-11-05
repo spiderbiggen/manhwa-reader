@@ -33,25 +33,21 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val dominantColor = rememberSaveable(stateSaver = ColorSaver) { mutableStateOf(Purple80) }
     TrackNavigationSideEffect(navController)
-
-    MangaReaderTheme(dominantColor.value) {
+    MangaReaderTheme {
         val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
         NavHost(
             navController = navController,
             startDestination = MangaRoutes.Overview,
         ) {
             composable<MangaRoutes.Overview> {
-                MangaReaderTheme(Purple80) {
-                    MangaOverview(
-                        showSnackbar = { snackbarHostState.showSnackbar(it) },
-                        imageLoader = coverImageLoader,
-                        navigateToManga = { mangaId ->
-                            navController.navigate(MangaRoutes.Chapters(mangaId))
-                        },
-                    )
-                }
+                MangaOverview(
+                    showSnackbar = { snackbarHostState.showSnackbar(it) },
+                    imageLoader = coverImageLoader,
+                    navigateToManga = { mangaId ->
+                        navController.navigate(MangaRoutes.Chapters(mangaId))
+                    },
+                )
             }
             composable<MangaRoutes.Chapters> { backStackEntry ->
                 ChapterOverview(
@@ -62,7 +58,6 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                         val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
                         navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
                     },
-                    onBackgroundColorChanged = { dominantColor.value = it },
                 )
             }
             composable<MangaRoutes.Reader>(

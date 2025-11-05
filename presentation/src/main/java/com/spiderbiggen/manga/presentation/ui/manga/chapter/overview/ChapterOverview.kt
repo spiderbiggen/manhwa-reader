@@ -85,16 +85,10 @@ fun ChapterOverview(
     showSnackbar: suspend (SnackbarData) -> Unit,
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
-    onBackgroundColorChanged: (Color) -> Unit,
 ) {
     LaunchedEffect(viewModel, showSnackbar) {
         viewModel.snackbarFlow.collect {
             showSnackbar(it)
-        }
-    }
-    LaunchedEffect(viewModel) {
-        viewModel.dominantColor.collect {
-            it?.let { p1 -> onBackgroundColorChanged(p1) }
         }
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
