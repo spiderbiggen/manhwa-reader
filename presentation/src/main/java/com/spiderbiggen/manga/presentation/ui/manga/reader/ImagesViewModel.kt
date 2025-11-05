@@ -60,10 +60,8 @@ class ImagesViewModel @Inject constructor(
             initialValue = mutableState.value,
         )
 
-    suspend fun loadData() = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Main) {
-            updateScreenState()
-        }
+    suspend fun loadData() {
+        updateScreenState()
     }
 
     private suspend fun updateScreenState() = coroutineScope {

@@ -78,10 +78,8 @@ class ChapterViewModel @Inject constructor(
             initialValue = ChapterScreenState.Loading,
         )
 
-    private suspend fun loadData() = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Main) {
-            updateScreenState()
-        }
+    private suspend fun loadData() {
+        updateScreenState()
     }
 
     fun onClickRefresh() {
