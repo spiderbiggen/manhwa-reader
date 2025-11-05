@@ -7,9 +7,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.Flow
 
-class ReadRepository @Inject constructor(
-    private val readDaoProvider: Provider<ChapterReadStatusDao>,
-) {
+class ReadRepository @Inject constructor(private val readDaoProvider: Provider<ChapterReadStatusDao>) {
 
     fun getFlow(id: ChapterId): Result<Flow<Boolean?>> = runCatching {
         readDaoProvider.get().isReadFlow(id)

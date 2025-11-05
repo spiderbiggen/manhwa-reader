@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.components.bottomappbar
 
-
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.spring
@@ -23,11 +22,10 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun rememberBottomAppBarState(lazyListState: LazyListState, initialHeight: Float = 0f): BottomAppBarState {
-    return rememberSaveable(lazyListState, saver = BottomAppBarState.saver(lazyListState)) {
+fun rememberBottomAppBarState(lazyListState: LazyListState, initialHeight: Float = 0f): BottomAppBarState =
+    rememberSaveable(lazyListState, saver = BottomAppBarState.saver(lazyListState)) {
         BottomAppBarState(lazyListState, initialHeight)
     }
-}
 
 class BottomAppBarState {
     constructor(lazyListState: LazyListState, bottomAppBarHeight: Float) : this(lazyListState, bottomAppBarHeight, 0f)
@@ -93,16 +91,15 @@ class BottomAppBarState {
     }
 
     companion object {
-        internal fun saver(lazyListState: LazyListState): Saver<BottomAppBarState, *> =
-            listSaver(
-                save = { listOf(it.appBarHeight, it.mutableOffset.floatValue) },
-                restore = {
-                    BottomAppBarState(
-                        lazyListState = lazyListState,
-                        height = it[0],
-                        offset = it[1],
-                    )
-                }
-            )
+        internal fun saver(lazyListState: LazyListState): Saver<BottomAppBarState, *> = listSaver(
+            save = { listOf(it.appBarHeight, it.mutableOffset.floatValue) },
+            restore = {
+                BottomAppBarState(
+                    lazyListState = lazyListState,
+                    height = it[0],
+                    offset = it[1],
+                )
+            },
+        )
     }
 }

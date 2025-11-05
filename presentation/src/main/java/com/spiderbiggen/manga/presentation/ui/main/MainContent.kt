@@ -6,11 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.graphics.Color
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
@@ -20,7 +16,6 @@ import androidx.navigation.toRoute
 import coil3.ImageLoader
 import com.spiderbiggen.manga.presentation.components.TrackNavigationSideEffect
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.theme.Purple80
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
@@ -79,8 +74,3 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
         }
     }
 }
-
-val ColorSaver = Saver<Color, Long>(
-    save = { it.value.toLong() },
-    restore = { Color(it.toULong()) },
-)

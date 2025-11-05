@@ -4,7 +4,7 @@ plugins {
     id("com.diffplug.spotless")
 }
 
-private val ktlintVersion = "1.3.1"
+private val ktlintVersion = "1.7.1"
 
 if (project == rootProject) {
     spotless { predeclareDeps() }

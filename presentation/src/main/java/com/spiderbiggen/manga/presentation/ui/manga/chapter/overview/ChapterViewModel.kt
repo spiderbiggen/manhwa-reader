@@ -21,7 +21,6 @@ import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope

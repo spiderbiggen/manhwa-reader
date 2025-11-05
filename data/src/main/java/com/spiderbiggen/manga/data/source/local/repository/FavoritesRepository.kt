@@ -7,9 +7,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.Flow
 
-class FavoritesRepository @Inject constructor(
-    private val favoritesDaoProvider: Provider<MangaFavoriteStatusDao>,
-) {
+class FavoritesRepository @Inject constructor(private val favoritesDaoProvider: Provider<MangaFavoriteStatusDao>) {
     fun getFlow(id: MangaId): Result<Flow<Boolean?>> = runCatching {
         favoritesDaoProvider.get().isFavoriteFlow(id)
     }

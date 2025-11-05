@@ -73,12 +73,10 @@ object FavoriteIconPaths {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FavoriteToggle(
-    isFavorite: Boolean,
-    modifier: Modifier = Modifier,
-) {
+fun FavoriteToggle(isFavorite: Boolean, modifier: Modifier = Modifier) {
     val scale by animateFloatAsState(
-        targetValue = if (isFavorite) 1f else 0f, label = "scale",
+        targetValue = if (isFavorite) 1f else 0f,
+        label = "scale",
         animationSpec = LocalMotionScheme.current.fastSpatialSpec(),
     )
     val painter = rememberVectorPainter(
