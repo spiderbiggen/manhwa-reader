@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.components
 
 import android.animation.ValueAnimator
+import android.content.res.Configuration
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animation
 import androidx.compose.animation.core.animateFloatAsState
@@ -12,6 +13,7 @@ import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.LocalMotionScheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.vector.Path
 import androidx.compose.ui.graphics.vector.PathData
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
@@ -108,7 +111,7 @@ fun FavoriteToggle(isFavorite: Boolean, modifier: Modifier = Modifier) {
         ) {
             Path(
                 pathData = FavoriteIconPaths.Fill,
-                fill = SolidColor(MaterialTheme.colorScheme.secondary),
+                fill = SolidColor(MaterialTheme.colorScheme.primary),
                 strokeLineWidth = 1f,
                 strokeLineCap = StrokeCap.Butt,
                 strokeLineJoin = StrokeJoin.Bevel,
@@ -126,12 +129,17 @@ fun FavoriteToggle(isFavorite: Boolean, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview(wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable
 fun FavoriteTogglePreview() {
     MangaReaderTheme {
-        var isFavorite by remember { mutableStateOf(true) }
-        IconButton(onClick = { isFavorite = !isFavorite }) {
-            FavoriteToggle(isFavorite = isFavorite)
+        Surface {
+            var isFavorite by remember { mutableStateOf(true) }
+            IconButton(onClick = { isFavorite = !isFavorite }) {
+                FavoriteToggle(isFavorite = isFavorite)
+            }
         }
     }
 }
