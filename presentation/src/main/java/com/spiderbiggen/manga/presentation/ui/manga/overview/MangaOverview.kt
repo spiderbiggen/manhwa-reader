@@ -31,6 +31,7 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
@@ -70,7 +71,8 @@ fun MangaOverview(
     showSnackbar: suspend (SnackbarData) -> Unit,
     navigateToManga: (MangaId) -> Unit,
 ) {
-    LaunchedEffect(viewModel, showSnackbar) {
+    val showSnackbar by rememberUpdatedState(showSnackbar)
+    LaunchedEffect(viewModel) {
         viewModel.snackbarFlow.collect {
             showSnackbar(it)
         }
@@ -259,7 +261,7 @@ private fun MangaList(
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(top = 8.dp, start = 8.dp, end = 8.dp),
+        contentPadding = contentPadding + PaddingValues(all = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         mangas.forEach { (key, values) ->

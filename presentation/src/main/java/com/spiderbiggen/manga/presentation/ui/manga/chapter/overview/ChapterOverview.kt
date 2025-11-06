@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -13,17 +12,14 @@ import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.CardDefaults
@@ -31,30 +27,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -72,10 +63,10 @@ import androidx.lifecycle.compose.dropUnlessStarted
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.presentation.components.Card
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
-import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
@@ -83,11 +74,9 @@ import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
-import com.spiderbiggen.manga.presentation.theme.FontFamilies
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
-import kotlin.math.max
 import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -100,7 +89,8 @@ fun ChapterOverview(
     onBackClick: () -> Unit,
     navigateToChapter: (ChapterId) -> Unit,
 ) {
-    LaunchedEffect(viewModel, showSnackbar) {
+    val showSnackbar by rememberUpdatedState(showSnackbar)
+    LaunchedEffect(viewModel) {
         viewModel.snackbarFlow.collect {
             showSnackbar(it)
         }
