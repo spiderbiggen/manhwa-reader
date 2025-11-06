@@ -83,7 +83,6 @@ dependencies {
     implementation(libs.androidX.compose.uiGraphics)
     implementation(libs.androidX.compose.material3)
     implementation(libs.androidX.compose.materialIcons)
-    implementation(libs.androidX.compose.google.fonts)
     implementation(libs.androidX.compose.uiTooling)
     implementation(libs.androidX.compose.uiTestManifest)
     implementation(libs.androidX.compose.uiToolingPreview)
