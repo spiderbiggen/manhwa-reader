@@ -22,6 +22,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -58,8 +59,10 @@ class ImagesViewModel @Inject constructor(
             initialValue = mutableState.value,
         )
 
-    suspend fun loadData() {
-        updateScreenState()
+    suspend fun loadData() = coroutineScope {
+        launch(viewModelScope.coroutineContext + Dispatchers.Main) {
+            updateScreenState()
+        }
     }
 
     private suspend fun updateScreenState() = coroutineScope {

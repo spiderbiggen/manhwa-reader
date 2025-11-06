@@ -93,12 +93,14 @@ class MangaOverviewViewModel @Inject constructor(
 
     suspend fun loadData() = coroutineScope {
         launch(viewModelScope.coroutineContext + Dispatchers.Default) {
-            updateMangas(skipCache = false)
-        }
-        updater.emit(Unit)
-        when (val result = getOverviewManga()) {
-            is Either.Left -> mapSuccess(result.value)
-            is Either.Right -> mapError(result)
+            launch {
+                updateMangas(skipCache = false)
+            }
+            updater.emit(Unit)
+            when (val result = getOverviewManga()) {
+                is Either.Left -> mapSuccess(result.value)
+                is Either.Right -> mapError(result)
+            }
         }
     }
 
