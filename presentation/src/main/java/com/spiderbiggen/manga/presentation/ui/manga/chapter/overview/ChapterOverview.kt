@@ -245,8 +245,7 @@ private fun ChapterRow(
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.elevatedShape,
 ) {
-    ReadStateCard(
-        isRead = item.isRead,
+    Card(
         onClick = dropUnlessStarted { navigateToChapter(item.id) },
         shape = shape,
         modifier = modifier.fillMaxWidth(),
@@ -258,20 +257,22 @@ private fun ChapterRow(
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            val typography = MaterialTheme.typography
             NumberDisplay(item)
-            Column(
-                verticalArrangement = Arrangement.Center,
-            ) {
-                val headerStyle = if (item.isRead) typography.bodyLarge else typography.bodyLargeEmphasized
+            Column(verticalArrangement = Arrangement.Center) {
                 Text(
                     text = item.date,
-                    style = headerStyle,
+                    style = when {
+                        item.isRead -> MaterialTheme.typography.titleMedium
+                        else -> MaterialTheme.typography.titleMediumEmphasized
+                    },
                 )
                 item.title?.let {
                     Text(
                         text = it,
-                        style = if (item.isRead) typography.bodyMedium else typography.bodyMediumEmphasized,
+                        style = when {
+                            item.isRead -> MaterialTheme.typography.bodyMedium
+                            else -> MaterialTheme.typography.bodyMediumEmphasized
+                        },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -281,9 +282,10 @@ private fun ChapterRow(
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
-    val maxTextWidth = rememberMaxTextWidth(MaterialTheme.typography.titleLarge)
+    val maxTextWidth = rememberMaxTextWidth(MaterialTheme.typography.titleLargeEmphasized)
     val padding = with(LocalDensity.current) { 3.sp.toDp() }
     Row(
         modifier = modifier.widthIn(min = maxTextWidth),
@@ -292,7 +294,10 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = item.index.toString(),
-            style = MaterialTheme.typography.titleLarge,
+            style = when {
+                item.isRead -> MaterialTheme.typography.titleLarge
+                else -> MaterialTheme.typography.titleLargeEmphasized
+            },
             textAlign = TextAlign.Center,
             modifier = Modifier
                 .fillMaxHeight()
@@ -301,7 +306,10 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
         item.subIndex?.let {
             Text(
                 text = it.toString(),
-                style = MaterialTheme.typography.titleMedium,
+                style = when {
+                    item.isRead -> MaterialTheme.typography.titleMedium
+                    else -> MaterialTheme.typography.titleMediumEmphasized
+                },
                 modifier = Modifier.alignBy { 0 },
             )
         }
@@ -320,6 +328,7 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
 }
 
 @Preview("Light")
+@Preview("Light", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable

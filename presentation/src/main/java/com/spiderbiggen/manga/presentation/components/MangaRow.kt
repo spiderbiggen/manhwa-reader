@@ -1,29 +1,21 @@
 package com.spiderbiggen.manga.presentation.components
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FavoriteBorder
-import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.LocalMotionScheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +27,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
@@ -66,8 +59,7 @@ fun MangaRow(
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.elevatedShape,
 ) {
-    ReadStateCard(
-        isRead = manga.isRead,
+    Card(
         onClick = dropUnlessStarted { navigateToManga(manga.id) },
         shape = shape,
         modifier = modifier,
@@ -75,7 +67,7 @@ fun MangaRow(
         Row(
             Modifier.padding(8.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             CoverImage(manga.coverImage, imageLoader)
             MangaInfoColumn(manga, Modifier.weight(1f))
@@ -115,18 +107,8 @@ private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier
 @Composable
 private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     Row {
-        if (manga.status.contentEquals("Dropped", ignoreCase = true)) {
-            Icon(
-                Icons.Rounded.Warning,
-                modifier = Modifier.padding(12.dp),
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.error,
-            )
-        }
         IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
-            FavoriteToggle(
-                isFavorite = manga.isFavorite,
-            )
+            FavoriteToggle(manga.isFavorite)
         }
     }
 }
@@ -138,15 +120,20 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
         modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
+        val titleStyle = when {
+            manga.isRead -> MaterialTheme.typography.titleLarge
+            else -> MaterialTheme.typography.titleLargeEmphasized
+        }
         Text(
             text = manga.title,
-            style = when {
-                manga.isRead -> MaterialTheme.typography.titleMedium
-                else -> MaterialTheme.typography.titleMediumEmphasized
-            },
+            style = titleStyle,
+            autoSize = TextAutoSize.StepBased(maxFontSize = titleStyle.fontSize),
         )
         manga.updatedAt?.let {
-            Text(it, style = MaterialTheme.typography.bodyMedium)
+            Text(
+                text = it,
+                style = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }
@@ -154,6 +141,8 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 @OptIn(ExperimentalCoilApi::class)
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     val context = LocalPlatformContext.current
@@ -198,16 +187,6 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                     title = TITLE,
                     coverImage = COVER_IMAGE,
                     status = "Ongoing",
-                    updatedAt = DATE_STRING,
-                    isFavorite = true,
-                    isRead = true,
-                ),
-                MangaViewData(
-                    source = "Asura",
-                    id = MangaId("3"),
-                    title = TITLE,
-                    coverImage = COVER_IMAGE,
-                    status = "Dropped",
                     updatedAt = DATE_STRING,
                     isFavorite = true,
                     isRead = true,
