@@ -63,10 +63,10 @@ import androidx.lifecycle.compose.dropUnlessStarted
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
-import com.spiderbiggen.manga.presentation.components.Card
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
+import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
@@ -235,7 +235,8 @@ private fun ChapterRow(
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.elevatedShape,
 ) {
-    Card(
+    ReadStateCard(
+        isRead = item.isRead,
         onClick = dropUnlessStarted { navigateToChapter(item.id) },
         shape = shape,
         modifier = modifier.fillMaxWidth(),

@@ -12,18 +12,28 @@ import androidx.compose.ui.graphics.Shape
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun Card(
+fun ReadStateCard(
+    isRead: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val colors = CardDefaults.cardColors(
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
+    ).let {
+        when {
+            isRead -> {
+                val alpha = it.containerColor.alpha * 0.9f
+                it.copy(contentColor = it.contentColor.copy(alpha = alpha))
+            }
+            else -> it
+        }
+    }
     MaterialCard(
         onClick = onClick,
         modifier = modifier,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        ),
+        colors = colors,
         shape = shape,
         content = content,
     )

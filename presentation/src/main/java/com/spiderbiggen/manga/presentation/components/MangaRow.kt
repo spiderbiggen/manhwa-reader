@@ -59,7 +59,8 @@ fun MangaRow(
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.elevatedShape,
 ) {
-    Card(
+    ReadStateCard(
+        isRead = manga.isRead,
         onClick = dropUnlessStarted { navigateToManga(manga.id) },
         shape = shape,
         modifier = modifier,
