@@ -24,7 +24,7 @@ fun ReadStateCard(
     ).let {
         when {
             isRead -> {
-                val alpha = it.containerColor.alpha * 0.9f
+                val alpha = it.containerColor.alpha * 0.8f
                 it.copy(contentColor = it.contentColor.copy(alpha = alpha))
             }
             else -> it
