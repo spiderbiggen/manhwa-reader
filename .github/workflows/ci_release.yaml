@@ -54,7 +54,7 @@ jobs:
                     echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
                     echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
-            -   name: Create debug build
+            -   name: Create release build
                 run: ./gradlew app:bundleRelease app:assembleRelease
 
             -   name: Upload build
@@ -89,10 +89,3 @@ jobs:
                   token: ${{ github.token }}
                   files: |
                       **/*.apk
-
-            - name: Commit CHANGELOG.md
-              uses: stefanzweifel/git-auto-commit-action@v7
-              with:
-                  branch: master
-                  commit_message: 'docs: update CHANGELOG.md for ${{ github.ref_name }} [skip ci]'
-                  file_pattern: CHANGELOG.md
