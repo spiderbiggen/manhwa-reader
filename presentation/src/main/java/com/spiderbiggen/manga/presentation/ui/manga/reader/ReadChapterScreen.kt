@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,23 +21,16 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowLeft
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.outlined.BookmarkAdded
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.CheckCircle
-import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -55,7 +47,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -81,7 +77,6 @@ import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.bottomappbar.BottomAppBarState
 import com.spiderbiggen.manga.presentation.components.bottomappbar.rememberBottomAppBarState
-import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -169,11 +164,7 @@ fun ReadChapterScreen(
                     imageLoader = imageLoader,
                     modifier = Modifier
                         .nestedScroll(bottomAppBarState.nestedScrollConnection)
-                        .nestedScroll(topAppBarState.nestedScrollConnection)
-                        .scrollableFade(
-                            canScrollBackward = { lazyListState.canScrollBackward },
-                            canScrollForward = { lazyListState.canScrollForward },
-                        ),
+                        .nestedScroll(topAppBarState.nestedScrollConnection),
                     padding = padding,
                     lazyListState = lazyListState,
                     onListClicked = {
@@ -222,7 +213,7 @@ private fun ReaderTopAppBar(
         TopAppBar(
             navigationIcon = {
                 IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                    Icon(painterResource(R.drawable.arrow_back), "Back")
                 }
             },
             title = { Text(title) },
@@ -258,12 +249,12 @@ private fun ReadyImagesOverview(
             Column(
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 32.dp),
+                    .padding(horizontal = 16.dp, vertical = 64.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 Icon(
-                    Icons.Outlined.CheckCircle,
+                    painterResource(R.drawable.check_circle),
                     contentDescription = "Success indicator",
                     tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(64.dp),
@@ -307,6 +298,7 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReaderBottomBar(
     state: BottomAppBarState,
@@ -315,87 +307,110 @@ private fun ReaderBottomBar(
     toggleFavorite: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
-    Surface(
+    FlexibleBottomAppBar(
         Modifier
             .onSizeChanged { state.appBarHeight = it.height.toFloat() }
-            .fillMaxWidth()
-            .windowInsetsPadding(BottomAppBarDefaults.windowInsets),
+            .fillMaxWidth(),
     ) {
-        Row(Modifier.padding(horizontal = 16.dp)) {
-            IconButton(onClick = toggleFavorite) {
-                FavoriteToggle(isFavorite = screenState?.isFavorite == true)
-            }
-            IconButton(onClick = setReadUpToHere) {
-                Icon(
-                    imageVector = when (screenState?.isRead) {
-                        true -> Icons.Outlined.BookmarkAdded
-                        else -> Icons.Outlined.BookmarkBorder
-                    },
-                    contentDescription = "Read",
-                )
-            }
+        IconButton(onClick = toggleFavorite) {
+            FavoriteToggle(
+                isFavorite = screenState?.isFavorite == true,
+                favoriteContentColor = LocalContentColor.current
+            )
+        }
+        IconButton(onClick = setReadUpToHere) {
+            Icon(
+                painter = when (screenState?.isRead) {
+                    true -> painterResource(R.drawable.book_read)
+                    else -> painterResource(R.drawable.book_unread)
+                },
+                contentDescription = "Read",
+            )
+        }
 
-            val previousChapterId = screenState?.surrounding?.previous
-            IconButton(
-                onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
-                enabled = previousChapterId != null,
-            ) {
-                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowLeft, null)
-            }
-            val nextChapterId = screenState?.surrounding?.next
-            IconButton(
-                onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
-                enabled = nextChapterId != null,
-            ) {
-                Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
-            }
+        val previousChapterId = screenState?.surrounding?.previous
+        IconButton(
+            onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
+            enabled = previousChapterId != null,
+        ) {
+            Icon(painterResource(R.drawable.arrow_back), null)
+        }
+        val nextChapterId = screenState?.surrounding?.next
+        IconButton(
+            onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
+            enabled = nextChapterId != null,
+        ) {
+            Icon(painterResource(R.drawable.arrow_forward), null)
         }
     }
 }
 
 @OptIn(ExperimentalCoilApi::class)
 @Preview("Light")
+@Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable
-fun PreviewImagesOverview() {
+fun PreviewReadChapterScreen(
+    @PreviewParameter(ReadChapterScreenProvider::class) data: ImagesScreenState.Ready,
+) {
     val context = LocalPlatformContext.current
-    val previewHandler = AsyncImagePreviewHandler { _, request ->
-        when (request.data.toString()) {
-            "1" -> {
-                val image = ResourcesCompat.getDrawable(
-                    context.resources,
-                    R.mipmap.preview_cover_placeholder,
-                    null,
-                )!!.asImage()
-                AsyncImagePainter.State.Success(image.asPainter(context), SuccessResult(image, request))
+    val previewHandler = remember(context) {
+        AsyncImagePreviewHandler { _, request ->
+            when (request.data.toString()) {
+                "1" -> {
+                    val image = ResourcesCompat.getDrawable(
+                        context.resources,
+                        R.mipmap.preview_cover_placeholder,
+                        null,
+                    )!!.asImage()
+                    AsyncImagePainter.State.Success(image.asPainter(context), SuccessResult(image, request))
+                }
+
+                "2" -> AsyncImagePainter.State.Loading(null)
+                "3" -> AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
+
+                else -> AsyncImagePainter.State.Empty
             }
-
-            "2" -> AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
-            "3" -> AsyncImagePainter.State.Loading(null)
-
-            else -> AsyncImagePainter.State.Empty
         }
     }
 
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
-            ReadChapterScreen(
-                state = ImagesScreenState.Ready(
-                    title = "Heavenly Martial God",
-                    isFavorite = true,
-                    isRead = false,
-                    surrounding = SurroundingChapters(
-                        previous = null,
-                        next = null,
-                    ),
-                    images = persistentListOf(
-                        "1",
-                        "2",
-                        "3",
-                        "4",
-                    ),
-                ),
-            )
+            ReadChapterScreen(state = data)
         }
     }
+}
+
+class ReadChapterScreenProvider : PreviewParameterProvider<ImagesScreenState.Ready> {
+    override val values: Sequence<ImagesScreenState.Ready>
+        get() = sequenceOf(
+            ImagesScreenState.Ready(
+                title = "Heavenly Martial God",
+                isFavorite = false,
+                isRead = false,
+                surrounding = SurroundingChapters(
+                    previous = null,
+                    next = null,
+                ),
+                images = persistentListOf(
+                    "1",
+                    "2",
+                    "3",
+                    "4",
+                ),
+            ),
+            ImagesScreenState.Ready(
+                title = "Heavenly Martial God",
+                isFavorite = true,
+                isRead = true,
+                surrounding = SurroundingChapters(
+                    previous = ChapterId(""),
+                    next = ChapterId(""),
+                ),
+                images = persistentListOf(
+                    "1",
+                ),
+            ),
+        )
 }

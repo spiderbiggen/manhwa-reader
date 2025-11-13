@@ -15,9 +15,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BugReport
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -36,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -47,6 +45,7 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
+import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
@@ -169,7 +168,7 @@ private fun MangaOverviewContent(
                         if (BuildConfig.DEBUG) {
                             IconButton(onClick = { throw Throwable() }) {
                                 Icon(
-                                    Icons.Rounded.BugReport,
+                                    painterResource(R.drawable.bug_report),
                                     contentDescription = "Create a crash report (by crashing)",
                                 )
                             }
@@ -187,7 +186,7 @@ private fun MangaOverviewContent(
                         label = { Text("Favorites") },
                         leadingIcon = if (favoritesSelected) {
                             {
-                                Icon(Icons.Rounded.Check, null)
+                                Icon(painterResource(R.drawable.check), null)
                             }
                         } else {
                             null
@@ -199,7 +198,7 @@ private fun MangaOverviewContent(
                         label = { Text("Unread") },
                         leadingIcon = if (unreadSelected) {
                             {
-                                Icon(Icons.Rounded.Check, null)
+                                Icon(painterResource(R.drawable.check), null)
                             }
                         } else {
                             null

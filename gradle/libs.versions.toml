@@ -53,7 +53,6 @@ androidX-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test
 androidX-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version = "2.9.6" }
 androidX-hilt-navigationCompose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
 androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0-alpha08" }
-androidX-compose-materialIcons = { group = "androidx.compose.material", name = "material-icons-extended" }
 
 # Room
 androidX-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }

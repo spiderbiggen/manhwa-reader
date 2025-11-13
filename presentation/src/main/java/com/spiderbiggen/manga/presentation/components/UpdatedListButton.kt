@@ -3,8 +3,6 @@ package com.spiderbiggen.manga.presentation.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowUpward
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -20,7 +18,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import kotlinx.collections.immutable.ImmutableCollection
 import kotlinx.coroutines.CoroutineScope
@@ -56,7 +56,7 @@ fun <T : Any> UpdatedListButton(
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Icon(Icons.Rounded.ArrowUpward, contentDescription = null)
+                Icon(painterResource(R.drawable.arrow_upward), contentDescription = null)
                 Text("New Updates")
             }
         }

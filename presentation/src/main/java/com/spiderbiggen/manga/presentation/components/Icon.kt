@@ -5,6 +5,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MaterialTheme.LocalMotionScheme
 import androidx.compose.material3.Surface
@@ -69,7 +70,12 @@ object FavoriteIconPaths {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun FavoriteToggle(isFavorite: Boolean, modifier: Modifier = Modifier) {
+fun FavoriteToggle(
+    isFavorite: Boolean,
+    modifier: Modifier = Modifier,
+    contentColor: Color = LocalContentColor.current,
+    favoriteContentColor: Color = MaterialTheme.colorScheme.primary,
+) {
     val scale by animateFloatAsState(
         targetValue = if (isFavorite) 1f else 0f,
         label = "scale",
@@ -87,7 +93,7 @@ fun FavoriteToggle(isFavorite: Boolean, modifier: Modifier = Modifier) {
         ) {
             Path(
                 FavoriteIconPaths.Outline,
-                fill = SolidColor(MaterialTheme.colorScheme.outline),
+                fill = SolidColor(contentColor),
                 strokeLineWidth = 1f,
                 strokeLineCap = StrokeCap.Butt,
                 strokeLineJoin = StrokeJoin.Bevel,
@@ -104,7 +110,7 @@ fun FavoriteToggle(isFavorite: Boolean, modifier: Modifier = Modifier) {
         ) {
             Path(
                 pathData = FavoriteIconPaths.Fill,
-                fill = SolidColor(MaterialTheme.colorScheme.primary),
+                fill = SolidColor(favoriteContentColor),
                 strokeLineWidth = 1f,
                 strokeLineCap = StrokeCap.Butt,
                 strokeLineJoin = StrokeJoin.Bevel,

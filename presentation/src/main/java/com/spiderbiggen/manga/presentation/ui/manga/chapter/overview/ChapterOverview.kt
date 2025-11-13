@@ -20,8 +20,6 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -45,6 +43,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -77,6 +76,7 @@ import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBa
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.R
 import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -134,7 +134,7 @@ fun ChapterOverview(
                 TopAppBar(
                     navigationIcon = {
                         IconButton(onClick = onBackClick) {
-                            Icon(Icons.AutoMirrored.Rounded.ArrowBack, "Back")
+                            Icon(painterResource(R.drawable.arrow_back), "Back")
                         }
                     },
                     title = { Text(readyState?.title ?: "Manga") },
