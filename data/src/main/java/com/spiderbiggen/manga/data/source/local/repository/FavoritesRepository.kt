@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.data.source.local.repository
 
-import com.spiderbiggen.manga.data.source.local.dao.MangaFavoriteStatusDao
-import com.spiderbiggen.manga.data.source.local.model.manga.MangaFavoriteStatusEntity
+import com.spiderbiggen.manga.data.source.local.room.dao.MangaFavoriteStatusDao
+import com.spiderbiggen.manga.data.source.local.room.model.manga.MangaFavoriteStatusEntity
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import javax.inject.Inject
 import javax.inject.Provider

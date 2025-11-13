@@ -3,7 +3,11 @@ package com.spiderbiggen.manga.data.source.remote.di
 import android.content.Context
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.data.di.BaseUrl
+import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.MangaService
+import com.spiderbiggen.manga.data.source.remote.ProfileService
+import com.spiderbiggen.manga.data.source.remote.interceptors.AuthorizationInterceptor
+import com.spiderbiggen.manga.data.source.remote.interceptors.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,25 +46,48 @@ object RemoteProvider {
     fun provideCache(@ApplicationContext context: Context): Cache = Cache(context.cacheDir, CACHE_SIZE)
 
     @Provides
-    fun provideOkHttpClient(cache: Cache?): OkHttpClient = OkHttpClient.Builder()
+    fun provideOkHttpClientBuilder(cache: Cache?): OkHttpClient.Builder = OkHttpClient.Builder()
         .cache(cache).apply {
             if (BuildConfig.DEBUG) {
                 addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
             }
         }
-        .build()
 
     @Provides
-    fun provideRetrofitBuilder(okHttpClient: OkHttpClient, json: Json): Retrofit.Builder {
+    fun provideOkHttpClient(builder: OkHttpClient.Builder): OkHttpClient = builder.build()
+
+    @Provides
+    fun provideRetrofitBuilder(okHttpClient: OkHttpClient, json: Json, @BaseUrl baseUrl: String): Retrofit.Builder {
         val contentType = "application/json".toMediaType()
         return Retrofit.Builder()
             .addConverterFactory(json.asConverterFactory(contentType))
             .client(okHttpClient)
+            .baseUrl("$baseUrl/")
     }
 
     @Provides
-    fun provideMangaService(builder: Retrofit.Builder, @BaseUrl baseUrl: String): MangaService =
-        builder.baseUrl("$baseUrl/")
-            .build()
+    fun provideMangaService(builder: Retrofit.Builder): MangaService =
+        builder.build()
             .create(MangaService::class.java)
+
+    @Provides
+    fun provideAuthService(builder: Retrofit.Builder): AuthService =
+        builder.build()
+            .create(AuthService::class.java)
+
+    @Provides
+    fun provideProfileService(
+        builder: Retrofit.Builder,
+        okHttpBuilder: OkHttpClient.Builder,
+        authInterceptor: AuthorizationInterceptor,
+        authenticator: TokenAuthenticator,
+    ): ProfileService {
+        val okHttpClient = okHttpBuilder
+            .addInterceptor(authInterceptor)
+            .authenticator(authenticator)
+            .build()
+        return builder.client(okHttpClient)
+            .build()
+            .create(ProfileService::class.java)
+    }
 }

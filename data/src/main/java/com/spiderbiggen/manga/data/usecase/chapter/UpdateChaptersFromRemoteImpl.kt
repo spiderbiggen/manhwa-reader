@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.chapter
 
-import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
+import com.spiderbiggen.manga.data.source.local.room.dao.LocalChapterDao
 import com.spiderbiggen.manga.data.source.remote.model.ChapterEntity
 import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteChaptersUseCase
 import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToLocalChapterUseCase

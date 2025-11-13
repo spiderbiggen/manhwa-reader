@@ -77,6 +77,10 @@ dependencies {
     ksp(libs.androidX.room.compiler)
     testImplementation(libs.androidX.room.test)
 
+    // Datastore
+    implementation(libs.androidX.datastore.preferences)
+
+
     // Retrofit
     implementation(platform(libs.retrofit.bom))
     implementation(libs.retrofit)

@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.chapter.mapper
 
-import com.spiderbiggen.manga.data.source.local.model.chapter.LocalChapterEntity
+import com.spiderbiggen.manga.data.source.local.room.model.chapter.LocalChapterEntity
 import com.spiderbiggen.manga.data.source.remote.model.ChapterEntity
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
 import javax.inject.Inject

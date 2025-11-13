@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.data.source.local.repository
 
-import com.spiderbiggen.manga.data.source.local.dao.LocalMangaDao
+import com.spiderbiggen.manga.data.source.local.room.dao.LocalMangaDao
 import com.spiderbiggen.manga.data.usecase.manga.mapper.ToDomainMangaUseCase
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview

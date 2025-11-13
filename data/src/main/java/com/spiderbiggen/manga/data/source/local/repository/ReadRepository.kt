@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.data.source.local.repository
 
-import com.spiderbiggen.manga.data.source.local.dao.ChapterReadStatusDao
-import com.spiderbiggen.manga.data.source.local.model.chapter.ChapterReadStatusEntity
+import com.spiderbiggen.manga.data.source.local.room.dao.ChapterReadStatusDao
+import com.spiderbiggen.manga.data.source.local.room.model.chapter.ChapterReadStatusEntity
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import javax.inject.Inject
 import javax.inject.Provider

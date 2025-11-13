@@ -1,5 +1,8 @@
 package com.spiderbiggen.manga.data.di
 
+import com.spiderbiggen.manga.data.usecase.auth.LoginImpl
+import com.spiderbiggen.manga.data.usecase.auth.LogoutImpl
+import com.spiderbiggen.manga.data.usecase.auth.RegisterImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetChapterImagesImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetChapterImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetOverviewChaptersImpl
@@ -14,6 +17,10 @@ import com.spiderbiggen.manga.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manga.data.usecase.read.ToggleReadImpl
+import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
+import com.spiderbiggen.manga.domain.usecase.auth.Login
+import com.spiderbiggen.manga.domain.usecase.auth.Logout
+import com.spiderbiggen.manga.domain.usecase.auth.Register
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manga.domain.usecase.chapter.GetOverviewChapters
@@ -28,6 +35,7 @@ import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.domain.usecase.read.ToggleRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
+import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -36,6 +44,18 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DataBindingModule {
+
+    @Binds
+    abstract fun bindLogin(useCase: LoginImpl): Login
+
+    @Binds
+    abstract fun bindRegister(useCase: RegisterImpl): Register
+
+    @Binds
+    abstract fun bindLogout(useCase: LogoutImpl): Logout
+
+    @Binds
+    abstract fun bindGetUser(useCase: GetUserImpl): GetUser
 
     @Binds
     abstract fun bindGetOverviewManga(useCase: GetOverviewMangaImpl): GetOverviewManga
