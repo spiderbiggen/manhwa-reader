@@ -26,6 +26,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -34,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -47,7 +49,6 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -320,7 +321,14 @@ private fun ReaderBottomBar(
             )
         }
         when (screenState?.isRead) {
-            true -> Icon(painterResource(R.drawable.book_read), contentDescription = "Read")
+            true ->
+                Box(
+                    modifier = Modifier.minimumInteractiveComponentSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Icon(painterResource(R.drawable.book_read), contentDescription = "Read")
+                }
+
             else -> {
                 IconButton(onClick = setReadUpToHere) {
                     Icon(
@@ -354,9 +362,7 @@ private fun ReaderBottomBar(
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable
-fun PreviewReadChapterScreen(
-    @PreviewParameter(ReadChapterScreenProvider::class) data: ImagesScreenState.Ready,
-) {
+fun PreviewReadChapterScreen(@PreviewParameter(ReadChapterScreenProvider::class) data: ImagesScreenState.Ready) {
     val context = LocalPlatformContext.current
     val previewHandler = remember(context) {
         AsyncImagePreviewHandler { _, request ->
