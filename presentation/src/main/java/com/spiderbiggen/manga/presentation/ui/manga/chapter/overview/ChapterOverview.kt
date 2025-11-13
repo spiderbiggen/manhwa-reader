@@ -69,7 +69,6 @@ import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
-import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
@@ -171,11 +170,7 @@ fun ChapterOverview(
                         chapters = state.chapters,
                         modifier = Modifier
                             .fillMaxSize()
-                            .nestedScroll(topAppBarState.nestedScrollConnection)
-                            .scrollableFade(
-                                canScrollBackward = { lazyListState.canScrollBackward },
-                                canScrollForward = { lazyListState.canScrollForward },
-                            ),
+                            .nestedScroll(topAppBarState.nestedScrollConnection),
                         contentPadding = scaffoldPadding,
                         navigateToChapter = navigateToChapter,
                     )
@@ -337,10 +332,14 @@ fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) st
     }
 }
 
-class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScreenState> {
+class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScreenState.Ready> {
     override val values
         get() = sequenceOf(
-            ChapterScreenState.Loading,
+            ChapterScreenState.Ready(
+                title = "Heavenly Martial God",
+                isFavorite = false,
+                chapters = ChapterProvider.values.toImmutableList(),
+            ),
             ChapterScreenState.Ready(
                 title = "Heavenly Martial God",
                 isFavorite = true,
@@ -352,8 +351,9 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
 private object ChapterProvider {
     private val mapChapterRowData = MapChapterRowData()
 
-    val values = sequenceOf(
-        mapChapterRowData.invoke(
+    val values: Sequence<ChapterRowData>
+        get() = sequenceOf(
+        mapChapterRowData(
             ChapterForOverview(
                 chapter = Chapter(
                     id = ChapterId("000000"),

@@ -51,7 +51,6 @@ import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
-import com.spiderbiggen.manga.presentation.components.scrollableFade
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
@@ -227,11 +226,7 @@ private fun MangaOverviewContent(
                 imageLoader = imageLoader,
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(topAppBarState.nestedScrollConnection)
-                    .scrollableFade(
-                        canScrollBackward = { lazyListState.canScrollBackward },
-                        canScrollForward = { lazyListState.canScrollForward },
-                    ),
+                    .nestedScroll(topAppBarState.nestedScrollConnection),
                 contentPadding = scaffoldPadding,
                 lazyListState = lazyListState,
                 navigateToManga = navigateToManga,

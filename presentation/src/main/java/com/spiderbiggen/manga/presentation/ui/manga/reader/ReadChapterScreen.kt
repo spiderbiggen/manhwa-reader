@@ -47,6 +47,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -315,17 +316,19 @@ private fun ReaderBottomBar(
         IconButton(onClick = toggleFavorite) {
             FavoriteToggle(
                 isFavorite = screenState?.isFavorite == true,
-                favoriteContentColor = LocalContentColor.current
+                favoriteContentColor = LocalContentColor.current,
             )
         }
-        IconButton(onClick = setReadUpToHere) {
-            Icon(
-                painter = when (screenState?.isRead) {
-                    true -> painterResource(R.drawable.book_read)
-                    else -> painterResource(R.drawable.book_unread)
-                },
-                contentDescription = "Read",
-            )
+        when (screenState?.isRead) {
+            true -> Icon(painterResource(R.drawable.book_read), contentDescription = "Read")
+            else -> {
+                IconButton(onClick = setReadUpToHere) {
+                    Icon(
+                        painter = painterResource(R.drawable.book_unread),
+                        contentDescription = "Mark as read",
+                    )
+                }
+            }
         }
 
         val previousChapterId = screenState?.surrounding?.previous
