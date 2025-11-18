@@ -2,6 +2,8 @@ package com.spiderbiggen.manga.presentation.ui.main
 
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,7 +18,9 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -30,24 +34,51 @@ import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.ChapterView
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
 import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverview
 import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
+import com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen
+import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverview
+import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileViewModel
+import com.spiderbiggen.manga.presentation.ui.profile.overview.model.ProfileViewState
+import com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationScreen
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
+    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val profileState = profileViewModel.state.collectAsStateWithLifecycle()
+
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
 
     TrackNavigationSideEffect(navController)
     MangaReaderTheme {
-        val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
+        val animationSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
+        val offsetAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
         NavHost(
             navController = navController,
             startDestination = MangaRoutes.Overview,
+            enterTransition = {
+                slideInHorizontally(offsetAnimationSpec) { it } + fadeIn(animationSpec)
+            },
+            exitTransition = {
+                slideOutHorizontally(offsetAnimationSpec) { -it / 2 }
+            },
+            popEnterTransition = {
+                slideInHorizontally(offsetAnimationSpec) { -it / 2 }
+            },
+            popExitTransition = {
+                slideOutHorizontally(offsetAnimationSpec) { it }
+            },
         ) {
             composable<MangaRoutes.Overview> {
                 MangaOverview(
                     showSnackbar = { snackbarHostState.showSnackbar(it) },
                     imageLoader = coverImageLoader,
+                    navigateToProfile = {
+                        when (profileState.value) {
+                            is ProfileViewState.Unauthenticated -> navController.navigate(MangaRoutes.Login)
+                            is ProfileViewState.Authenticated -> navController.navigate(MangaRoutes.Profile)
+                        }
+                    },
                     navigateToManga = { mangaId ->
                         navController.navigate(MangaRoutes.Chapters(mangaId))
                     },
@@ -80,6 +111,33 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
                     },
                 )
             }
+            composable<MangaRoutes.Profile> {
+                ProfileOverview(
+                    navigateBack = dropUnlessStarted {
+                        navController.popBackStack()
+                    },
+                    navigateToLogin = dropUnlessStarted {
+                        navController.navigate(MangaRoutes.Login)
+                    },
+                )
+            }
+            composable<MangaRoutes.Login> {
+                LoginScreen(
+                    navigateBack = dropUnlessStarted {
+                        navController.popBackStack()
+                    },
+                    navigateToRegistration = dropUnlessStarted {
+                        navController.navigate(MangaRoutes.Registration)
+                    },
+                )
+            }
+            composable<MangaRoutes.Registration> {
+                RegistrationScreen(
+                    navigateBack = dropUnlessStarted {
+                        navController.popBackStack()
+                    },
+                )
+            }
         }
 
         StatusBarProtection()
@@ -98,10 +156,10 @@ private fun StatusBarProtection(
             colors = listOf(
                 color.copy(alpha = 1f),
                 color.copy(alpha = .8f),
-                Color.Transparent
+                Color.Transparent,
             ),
             startY = 0f,
-            endY = calculatedHeight
+            endY = calculatedHeight,
         )
         drawRect(
             brush = gradient,

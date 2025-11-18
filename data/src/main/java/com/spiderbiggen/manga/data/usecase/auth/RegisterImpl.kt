@@ -29,14 +29,15 @@ class RegisterImpl @Inject constructor(
         runCatching {
             val body = RegisterBody(
                 username = username,
-                email = email,
+                email = email?.takeUnless { it.isEmpty() },
                 password = password,
             )
             val response = authService.get().register(body)
             if (response.isSuccessful) {
                 val session = response.body()!!
                 authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
+            } else {
+                throw HttpException(response)
             }
-            throw HttpException(response)
         }.either()
 }

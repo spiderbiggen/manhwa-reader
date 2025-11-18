@@ -67,6 +67,7 @@ fun MangaOverview(
     viewModel: MangaOverviewViewModel = hiltViewModel(),
     imageLoader: ImageLoader,
     showSnackbar: suspend (SnackbarData) -> Unit,
+    navigateToProfile: () -> Unit,
     navigateToManga: (MangaId) -> Unit,
 ) {
     val showSnackbar by rememberUpdatedState(showSnackbar)
@@ -82,6 +83,7 @@ fun MangaOverview(
         data = data,
         imageLoader = imageLoader,
         refreshing = updatingState,
+        onProfileClicked = navigateToProfile,
         onToggleUnreadRequested = viewModel::onToggleUnread,
         onToggleFavoritesRequested = viewModel::onToggleFavorites,
         onRefreshClicked = viewModel::onPullToRefresh,
@@ -95,6 +97,7 @@ fun MangaOverview(
     data: MangaScreenData,
     refreshing: Boolean = false,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
+    onProfileClicked: () -> Unit = {},
     onToggleUnreadRequested: () -> Unit = {},
     onToggleFavoritesRequested: () -> Unit = {},
     onRefreshClicked: () -> Unit = {},
@@ -111,6 +114,7 @@ fun MangaOverview(
             manga = persistentListOf(),
             unreadSelected = data.filterUnread,
             favoritesSelected = data.filterFavorites,
+            onProfileClicked = onProfileClicked,
             onToggleUnreadRequested = onToggleUnreadRequested,
             onToggleFavoritesRequested = onToggleFavoritesRequested,
             refreshing = refreshing,
@@ -124,6 +128,7 @@ fun MangaOverview(
             manga = data.state.manga,
             unreadSelected = data.filterUnread,
             favoritesSelected = data.filterFavorites,
+            onProfileClicked = onProfileClicked,
             onToggleUnreadRequested = onToggleUnreadRequested,
             onToggleFavoritesRequested = onToggleFavoritesRequested,
             refreshing = refreshing,
@@ -141,6 +146,7 @@ private fun MangaOverviewContent(
     manga: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
     unreadSelected: Boolean,
     favoritesSelected: Boolean,
+    onProfileClicked: () -> Unit = {},
     onToggleUnreadRequested: () -> Unit = {},
     onToggleFavoritesRequested: () -> Unit = {},
     refreshing: Boolean,
@@ -171,6 +177,12 @@ private fun MangaOverviewContent(
                                     contentDescription = "Create a crash report (by crashing)",
                                 )
                             }
+                        }
+                        IconButton(onClick = onProfileClicked) {
+                            Icon(
+                                painterResource(R.drawable.account_circle),
+                                contentDescription = "Profile",
+                            )
                         }
                     },
                 )

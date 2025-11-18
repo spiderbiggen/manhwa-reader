@@ -2,8 +2,6 @@ package com.spiderbiggen.manga.data.usecase.auth
 
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.AuthService
-import com.spiderbiggen.manga.data.source.remote.ProfileService
-import com.spiderbiggen.manga.data.source.remote.model.UserEntity
 import com.spiderbiggen.manga.data.source.remote.model.auth.LoginBody
 import com.spiderbiggen.manga.data.source.remote.usecase.GetCurrentUser
 import com.spiderbiggen.manga.data.usecase.either
@@ -35,7 +33,8 @@ class LoginImpl @Inject constructor(
         if (response.isSuccessful) {
             val session = response.body()!!
             authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
+        } else {
+            throw HttpException(response)
         }
-        throw HttpException(response)
     }.either()
 }

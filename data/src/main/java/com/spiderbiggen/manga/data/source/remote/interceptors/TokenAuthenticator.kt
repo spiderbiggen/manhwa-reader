@@ -3,6 +3,7 @@ package com.spiderbiggen.manga.data.source.remote.interceptors
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody
+import javax.inject.Inject
 import javax.inject.Provider
 import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
@@ -12,7 +13,7 @@ import okhttp3.Response
 import okhttp3.Route
 
 @Singleton
-class TokenAuthenticator(
+class TokenAuthenticator @Inject constructor(
     private val apiService: Provider<AuthService>,
     private val repository: Provider<AuthenticationRepository>,
 ) : Authenticator {

@@ -49,6 +49,9 @@ import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
@@ -313,10 +316,9 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
     }
 }
 
-@Preview("Light")
-@Preview("Light", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@PreviewLightDark
+@PreviewDynamicColors
+@PreviewFontScale
 @Composable
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
     val refreshing = remember { mutableStateOf(false) }
