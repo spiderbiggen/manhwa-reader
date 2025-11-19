@@ -53,7 +53,6 @@ dependencies {
 
     // Dagger
     implementation(libs.google.dagger.hiltAndroid)
-    implementation(libs.ui.text.google.fonts)
     ksp(libs.google.dagger.hiltAndroidCompiler)
 
     // Hilt
