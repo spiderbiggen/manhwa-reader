@@ -3,6 +3,7 @@ package com.spiderbiggen.manga.presentation.components
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -24,20 +25,6 @@ inline fun <T> LazyListScope.section(
     noinline contentType: (item: T) -> Any? = { null },
     crossinline content: @Composable LazyItemScope.(T, Shape) -> Unit,
 ) {
-    val defaultShape: Shape = RoundedCornerShape(smallCornerSize)
-    val topShape: Shape = RoundedCornerShape(
-        topStart = largeCornerSize,
-        topEnd = largeCornerSize,
-        bottomStart = smallCornerSize,
-        bottomEnd = smallCornerSize,
-    )
-    val bottomShape: Shape = RoundedCornerShape(
-        topStart = smallCornerSize,
-        topEnd = smallCornerSize,
-        bottomStart = largeCornerSize,
-        bottomEnd = largeCornerSize,
-    )
-
     header?.let {
         item {
             Text(
@@ -49,16 +36,20 @@ inline fun <T> LazyListScope.section(
     }
 
     val lastIndex = items.lastIndex
-    items(
-        items.size,
-        key = key?.let { key -> { key(items[it]) } },
-        contentType = { contentType(items[it]) },
-    ) { index ->
-        val shape = when (index) {
-            0 -> topShape
-            lastIndex -> bottomShape
-            else -> defaultShape
-        }
-        content(items[index], shape)
-    }
+    itemsIndexed(
+        items = items,
+        key = key?.let { key -> { _, it -> key(it) } },
+        contentType = { _, it -> contentType(it) },
+        itemContent = { index, it ->
+            val topCornerSize = if (index == 0) largeCornerSize else smallCornerSize
+            val bottomCornerSize = if (index == lastIndex) largeCornerSize else smallCornerSize
+            val shape = RoundedCornerShape(
+                topStart = topCornerSize,
+                topEnd = topCornerSize,
+                bottomEnd = bottomCornerSize,
+                bottomStart = bottomCornerSize,
+            )
+            content(it, shape)
+        },
+    )
 }

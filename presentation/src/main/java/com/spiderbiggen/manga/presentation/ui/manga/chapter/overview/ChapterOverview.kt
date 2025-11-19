@@ -62,6 +62,7 @@ import androidx.lifecycle.compose.dropUnlessStarted
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
@@ -75,7 +76,6 @@ import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBa
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
-import com.spiderbiggen.manga.presentation.R
 import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -338,6 +338,11 @@ class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScree
             ChapterScreenState.Ready(
                 title = "Heavenly Martial God",
                 isFavorite = false,
+                chapters = ChapterProvider.values.take(1).toImmutableList(),
+            ),
+            ChapterScreenState.Ready(
+                title = "Heavenly Martial God",
+                isFavorite = false,
                 chapters = ChapterProvider.values.toImmutableList(),
             ),
             ChapterScreenState.Ready(
@@ -353,106 +358,106 @@ private object ChapterProvider {
 
     val values: Sequence<ChapterRowData>
         get() = sequenceOf(
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000000"),
-                    index = 30u,
-                    title = null,
-                    date = LocalDate.parse("2023-04-16"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000000"),
+                        index = 30u,
+                        title = null,
+                        date = LocalDate.parse("2023-04-16"),
+                        updatedAt = now(),
+                    ),
+                    isRead = false,
                 ),
-                isRead = false,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000001"),
-                    index = 29u,
-                    subIndex = 5u,
-                    title = null,
-                    date = LocalDate.parse("2023-04-12"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000001"),
+                        index = 29u,
+                        subIndex = 5u,
+                        title = null,
+                        date = LocalDate.parse("2023-04-12"),
+                        updatedAt = now(),
+                    ),
+                    isRead = false,
                 ),
-                isRead = false,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000002"),
-                    index = 29u,
-                    subIndex = 4u,
-                    title = null,
-                    date = LocalDate.parse("2023-04-12"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000002"),
+                        index = 29u,
+                        subIndex = 4u,
+                        title = null,
+                        date = LocalDate.parse("2023-04-12"),
+                        updatedAt = now(),
+                    ),
+                    isRead = true,
                 ),
-                isRead = true,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000003"),
-                    index = 29u,
-                    subIndex = 3u,
-                    title = null,
-                    date = LocalDate.parse("2023-04-12"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000003"),
+                        index = 29u,
+                        subIndex = 3u,
+                        title = null,
+                        date = LocalDate.parse("2023-04-12"),
+                        updatedAt = now(),
+                    ),
+                    isRead = true,
                 ),
-                isRead = true,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000004"),
-                    index = 29u,
-                    subIndex = 2u,
-                    title = null,
-                    date = LocalDate.parse("2023-04-12"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000004"),
+                        index = 29u,
+                        subIndex = 2u,
+                        title = null,
+                        date = LocalDate.parse("2023-04-12"),
+                        updatedAt = now(),
+                    ),
+                    isRead = true,
                 ),
-                isRead = true,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000005"),
-                    index = 29u,
-                    subIndex = 1u,
-                    title = null,
-                    date = LocalDate.parse("2023-04-12"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000005"),
+                        index = 29u,
+                        subIndex = 1u,
+                        title = null,
+                        date = LocalDate.parse("2023-04-12"),
+                        updatedAt = now(),
+                    ),
+                    isRead = true,
                 ),
-                isRead = true,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000006"),
-                    index = 29u,
-                    title = null,
-                    date = LocalDate.parse("2023-03-15"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000006"),
+                        index = 29u,
+                        title = null,
+                        date = LocalDate.parse("2023-03-15"),
+                        updatedAt = now(),
+                    ),
+                    isRead = false,
                 ),
-                isRead = false,
             ),
-        ),
-        mapChapterRowData(
-            ChapterForOverview(
-                chapter = Chapter(
-                    id = ChapterId("000007"),
-                    index = 28u,
-                    title = "Long title to make the title take two lines at least and just a bit more",
-                    date = LocalDate.parse("2023-02-28"),
-                    updatedAt = now(),
+            mapChapterRowData(
+                ChapterForOverview(
+                    chapter = Chapter(
+                        id = ChapterId("000007"),
+                        index = 28u,
+                        title = "Long title to make the title take two lines at least and just a bit more",
+                        date = LocalDate.parse("2023-02-28"),
+                        updatedAt = now(),
+                    ),
+                    isRead = false,
                 ),
-                isRead = false,
             ),
-        ),
-    )
+        )
 }
