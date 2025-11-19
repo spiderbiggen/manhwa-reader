@@ -16,7 +16,7 @@ kotlin = "2.2.21"
 lifecycle = "2.9.4"
 room = "2.8.3"
 spotless-plugin-gradle = "8.1.0"
-ui-text-google-fonts = "1.9.4"
+ui-text-google-fonts = "1.9.5"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
