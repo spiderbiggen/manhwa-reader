@@ -13,7 +13,7 @@ espresso-core = "3.7.0"
 google-gms-google-services = "4.4.4"
 junit = "4.13.2"
 kotlin = "2.2.21"
-lifecycle = "2.9.4"
+lifecycle = "2.10.0"
 room = "2.8.4"
 spotless-plugin-gradle = "8.1.0"
 
