@@ -9,8 +9,8 @@ import com.spiderbiggen.manga.data.source.remote.ProfileService
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
 import com.spiderbiggen.manga.data.usecase.auth.RefreshAccessToken
 import com.spiderbiggen.manga.data.usecase.either
-import com.spiderbiggen.manga.data.usecase.image.EncodeBitmap
 import com.spiderbiggen.manga.data.usecase.image.DecodeAvatarBitmap
+import com.spiderbiggen.manga.data.usecase.image.EncodeBitmap
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andThenLeft
@@ -44,7 +44,6 @@ class UpdateAvatarImpl @Inject constructor(
         .andThenLeft { invalidateAvatarCache() }
         .andThenLeft { fetchCurrentUser() }
         .mapLeft {}
-
 
     private fun processBitmap(avatar: URI) = runCatching {
         val uri = Uri.parse(avatar.toString())

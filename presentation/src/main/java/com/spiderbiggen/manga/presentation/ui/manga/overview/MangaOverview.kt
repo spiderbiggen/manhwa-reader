@@ -10,11 +10,13 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -30,7 +32,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
+import coil3.compose.AsyncImage
 import com.google.firebase.BuildConfig
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.R
@@ -58,6 +63,7 @@ import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -65,6 +71,7 @@ import kotlinx.collections.immutable.toImmutableList
 @Composable
 fun MangaOverview(
     viewModel: MangaOverviewViewModel = hiltViewModel(),
+    profileState: ProfileState,
     imageLoader: ImageLoader,
     showSnackbar: suspend (SnackbarData) -> Unit,
     navigateToProfile: () -> Unit,
@@ -81,6 +88,7 @@ fun MangaOverview(
 
     MangaOverview(
         data = data,
+        profileState = profileState,
         imageLoader = imageLoader,
         refreshing = updatingState,
         onProfileClicked = navigateToProfile,
@@ -95,6 +103,7 @@ fun MangaOverview(
 @Composable
 fun MangaOverview(
     data: MangaScreenData,
+    profileState: ProfileState,
     refreshing: Boolean = false,
     imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
     onProfileClicked: () -> Unit = {},
@@ -111,6 +120,7 @@ fun MangaOverview(
         is MangaScreenState.Loading,
         -> MangaOverviewContent(
             imageLoader = imageLoader,
+            profileState = profileState,
             manga = persistentListOf(),
             unreadSelected = data.filterUnread,
             favoritesSelected = data.filterFavorites,
@@ -125,6 +135,7 @@ fun MangaOverview(
 
         is MangaScreenState.Ready -> MangaOverviewContent(
             imageLoader = imageLoader,
+            profileState = profileState,
             manga = data.state.manga,
             unreadSelected = data.filterUnread,
             favoritesSelected = data.filterFavorites,
@@ -143,6 +154,7 @@ fun MangaOverview(
 @Composable
 private fun MangaOverviewContent(
     imageLoader: ImageLoader,
+    profileState: ProfileState,
     manga: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
     unreadSelected: Boolean,
     favoritesSelected: Boolean,
@@ -168,6 +180,26 @@ private fun MangaOverviewContent(
                     .windowInsetsPadding(TopAppBarDefaults.windowInsets),
             ) {
                 TopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onProfileClicked) {
+                            when (profileState) {
+                                is ProfileState.Unauthenticated -> Icon(
+                                    painterResource(R.drawable.account_circle),
+                                    contentDescription = "Profile",
+                                )
+
+                                is ProfileState.Authenticated -> AsyncImage(
+                                    model = profileState.avatarUrl,
+                                    contentDescription = "Profile",
+                                    contentScale = ContentScale.Crop,
+                                    error = painterResource(R.drawable.account_circle),
+                                    modifier = Modifier
+                                        .size(48.dp)
+                                        .clip(CircleShape),
+                                )
+                            }
+                        }
+                    },
                     title = { Text("Manga") },
                     actions = {
                         if (BuildConfig.DEBUG) {
@@ -177,12 +209,6 @@ private fun MangaOverviewContent(
                                     contentDescription = "Create a crash report (by crashing)",
                                 )
                             }
-                        }
-                        IconButton(onClick = onProfileClicked) {
-                            Icon(
-                                painterResource(R.drawable.account_circle),
-                                contentDescription = "Profile",
-                            )
                         }
                     },
                 )
@@ -296,7 +322,7 @@ private fun MangaList(
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
     MangaReaderTheme {
-        MangaOverview(data = state)
+        MangaOverview(data = state, profileState = ProfileState.Unauthenticated)
     }
 }
 

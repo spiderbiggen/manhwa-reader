@@ -10,9 +10,7 @@ import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.roundToInt
 
-class DecodeAvatarBitmap @Inject constructor(
-    @ApplicationContext private val context: Provider<Context>,
-) {
+class DecodeAvatarBitmap @Inject constructor(@ApplicationContext private val context: Provider<Context>) {
     operator fun invoke(uri: Uri): Result<Bitmap> = runCatching {
         context.get().contentResolver.decodeSimpleImage(uri)
     }

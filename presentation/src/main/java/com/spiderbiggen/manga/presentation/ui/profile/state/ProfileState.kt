@@ -9,8 +9,5 @@ sealed interface ProfileState {
     data object Unauthenticated : ProfileState
 
     @Immutable
-    data class Authenticated(
-        val name: String,
-        val avatarUrl: String,
-    ) : ProfileState
+    data class Authenticated(val name: String, val avatarUrl: String) : ProfileState
 }

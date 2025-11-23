@@ -201,10 +201,11 @@ private fun UnauthenticatedUserProfile(padding: PaddingValues, onLoginClick: () 
 @PreviewDynamicColors
 @PreviewFontScale
 @Composable
-private fun ProfileOverviewPreview(@PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState) =
-    MangaReaderTheme {
-        ProfileOverviewContent(state)
-    }
+private fun ProfileOverviewPreview(
+    @PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState,
+) = MangaReaderTheme {
+    ProfileOverviewContent(state)
+}
 
 private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<ProfileOverviewViewState> {
     override val values = sequenceOf(

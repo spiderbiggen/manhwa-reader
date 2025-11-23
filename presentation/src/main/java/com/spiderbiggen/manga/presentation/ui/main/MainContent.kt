@@ -12,7 +12,9 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -38,14 +40,14 @@ import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 import com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen
 import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverview
 import com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationScreen
-import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
+import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) {
     val profileViewModel: ProfileViewModel = hiltViewModel()
-    val profileState = profileViewModel.state.collectAsStateWithLifecycle()
+    val profileState by profileViewModel.state.collectAsStateWithLifecycle()
 
     val navController = rememberNavController()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -57,7 +59,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
             chapterImageLoader = chapterImageLoader,
             navController = navController,
             snackbarHostState = snackbarHostState,
-            profileState = { profileState.value },
+            profileState = profileState,
         )
         StatusBarProtection()
     }
@@ -70,10 +72,11 @@ private fun NavHost(
     chapterImageLoader: ImageLoader,
     navController: NavHostController = rememberNavController(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    profileState: () -> ProfileState = { ProfileState.Unauthenticated },
+    profileState: ProfileState = ProfileState.Unauthenticated,
 ) {
     val animationSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
     val offsetAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
+    val derivedProfileState = rememberUpdatedState(profileState)
     NavHost(
         navController = navController,
         startDestination = MangaRoutes.Overview,
@@ -92,10 +95,11 @@ private fun NavHost(
     ) {
         composable<MangaRoutes.Overview> {
             MangaOverview(
+                profileState = profileState,
                 showSnackbar = { snackbarHostState.showSnackbar(it) },
                 imageLoader = coverImageLoader,
                 navigateToProfile = {
-                    when (profileState()) {
+                    when (derivedProfileState.value) {
                         is ProfileState.Unauthenticated -> navController.navigate(MangaRoutes.Login)
                         is ProfileState.Authenticated -> navController.navigate(MangaRoutes.Profile)
                     }
@@ -119,7 +123,7 @@ private fun NavHost(
         composable<MangaRoutes.Login> {
             LoginScreen(
                 navigateBack = dropUnlessStarted {
-                    when (profileState()) {
+                    when (derivedProfileState.value) {
                         is ProfileState.Unauthenticated -> navController.popBackStack(
                             MangaRoutes.Overview,
                             inclusive = false,
@@ -142,7 +146,7 @@ private fun NavHost(
         composable<MangaRoutes.Registration> {
             RegistrationScreen(
                 navigateBack = dropUnlessStarted {
-                    when (profileState()) {
+                    when (derivedProfileState.value) {
                         is ProfileState.Unauthenticated -> navController.popBackStack()
 
                         is ProfileState.Authenticated -> {
