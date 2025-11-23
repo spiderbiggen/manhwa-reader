@@ -261,11 +261,7 @@ private fun MangaOverviewContent(
 }
 
 @Composable
-private fun CheckedFilterChip(
-    selected: Boolean,
-    label: @Composable () -> Unit,
-    onClick: () -> Unit,
-) {
+private fun CheckedFilterChip(selected: Boolean, label: @Composable () -> Unit, onClick: () -> Unit) {
     FilterChip(
         selected = selected,
         label = label,
