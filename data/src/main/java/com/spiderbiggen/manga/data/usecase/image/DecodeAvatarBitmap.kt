@@ -5,7 +5,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.math.roundToInt
@@ -17,7 +19,14 @@ class DecodeAvatarBitmap @Inject constructor(@ApplicationContext private val con
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {
         val bytes = openInputStream(uri)!!.use { source ->
-            source.readAllBytes()
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                source.readAllBytes()
+            } else {
+                ByteArrayOutputStream().use { sink ->
+                    source.copyTo(sink)
+                    sink.toByteArray()
+                }
+            }
         }
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
