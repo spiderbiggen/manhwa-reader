@@ -59,6 +59,9 @@ androidX-room-compiler = { group = "androidx.room", name = "room-compiler", vers
 androidX-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 androidX-room-test = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
+# Datastore
+androidX-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.1.7" }
+
 # Coroutines
 kotlinX-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
 kotlinX-coroutines-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutines" }
@@ -94,6 +97,7 @@ coil-bom = { group = "io.coil-kt.coil3", name = "coil-bom", version.ref = "coil-
 coil = { group = "io.coil-kt.coil3", name = "coil" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp" }
+coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg" }
 coil-test = { group = "io.coil-kt.coil3", name = "coil-test" }
 
 # Material kolor

@@ -8,7 +8,12 @@ class FormatAppError @Inject constructor() {
         is AppError.Remote.Http -> "HTTP ${error.code}: ${error.message}"
         is AppError.Remote.Io -> "IO: ${error.exception.message}"
         is AppError.Remote.NoConnection -> "Couldn't connect to server"
+        is AppError.Remote.BadRequest -> "Bad request"
         is AppError.Remote.NotFound -> "Resource not found"
-        is AppError.Unknown -> "Internal error"
+        is AppError.Remote.Conflict -> "Conflict"
+        is AppError.Auth.Unauthorized -> "Not authorized"
+        is AppError.Auth.Forbidden -> "Access forbidden"
+        is AppError.Auth.Invalid -> "Invalid data"
+        is AppError.Unknown -> "Internal error: ${error.exception.message}"
     }
 }

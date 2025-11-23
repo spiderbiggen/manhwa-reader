@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.data.source.local.repository
 
-import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
+import com.spiderbiggen.manga.data.source.local.room.dao.LocalChapterDao
 import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
@@ -33,7 +33,6 @@ class ChapterRepository @Inject constructor(
     fun getChapterAsFlow(id: ChapterId): Result<Flow<ChapterForOverview?>> = runCatching {
         chapterDao.getFlowForChapterOverview(id).map {
             it?.let {
-                println(it)
                 ChapterForOverview(
                     chapter = toDomain.invoke(it.chapter),
                     isRead = it.isRead,

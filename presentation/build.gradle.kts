@@ -23,6 +23,14 @@ android {
             useSupportLibrary = true
         }
     }
+    buildTypes {
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+        }
+        release {
+            buildConfigField("boolean", "DEBUG", "false")
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -36,6 +44,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -96,6 +105,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+    implementation(libs.coil.svg)
     implementation(libs.coil.test)
 
     // Material Kolor

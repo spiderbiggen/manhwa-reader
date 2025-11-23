@@ -69,12 +69,6 @@ class MangaOverviewViewModel @Inject constructor(
 
     private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val updatingState: StateFlow<Boolean> = mutableUpdatingState
-        .onStart { updateMangas(skipCache = false) }
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false,
-        )
 
     private val mutableSnackbarFlow = MutableSharedFlow<SnackbarData>(1)
     val snackbarFlow: SharedFlow<SnackbarData>
@@ -93,10 +87,8 @@ class MangaOverviewViewModel @Inject constructor(
 
     suspend fun loadData() = coroutineScope {
         launch(viewModelScope.coroutineContext + Dispatchers.Default) {
-            launch {
-                updateMangas(skipCache = false)
-            }
             updater.emit(Unit)
+            updateMangas(skipCache = false)
             when (val result = getOverviewManga()) {
                 is Either.Left -> mapSuccess(result.value)
                 is Either.Right -> mapError(result)

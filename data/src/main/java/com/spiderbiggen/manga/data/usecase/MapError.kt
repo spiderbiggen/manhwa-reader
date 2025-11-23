@@ -14,7 +14,11 @@ fun Throwable.toAppError(): AppError = when (this) {
 
     is HttpException -> {
         when (val code = this.code()) {
+            400 -> AppError.Remote.BadRequest
+            401 -> AppError.Auth.Unauthorized
+            403 -> AppError.Auth.Forbidden
             404 -> AppError.Remote.NotFound
+            409 -> AppError.Remote.Conflict
             else -> AppError.Remote.Http(code, this.message)
         }
     }

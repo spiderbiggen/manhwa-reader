@@ -11,6 +11,15 @@ sealed interface MangaRoutes {
     data object Overview : MangaRoutes
 
     @Serializable
+    data object Profile : MangaRoutes
+
+    @Serializable
+    data object Login : MangaRoutes
+
+    @Serializable
+    data object Registration : MangaRoutes
+
+    @Serializable
     class Chapters private constructor(private val sMangaId: String) : MangaRoutes {
         @Transient
         val mangaId: MangaId = MangaId(sMangaId)

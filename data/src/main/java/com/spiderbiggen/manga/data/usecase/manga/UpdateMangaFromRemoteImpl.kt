@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.manga
 
-import com.spiderbiggen.manga.data.source.local.dao.LocalMangaDao
+import com.spiderbiggen.manga.data.source.local.room.dao.LocalMangaDao
 import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteMangaUseCase
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.data.usecase.manga.mapper.ToLocalMangaUseCase

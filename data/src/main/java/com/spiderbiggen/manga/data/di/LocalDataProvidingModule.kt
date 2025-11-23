@@ -1,15 +1,16 @@
 package com.spiderbiggen.manga.data.di
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.room.Room
-import com.spiderbiggen.manga.data.source.local.MangaDatabase
-import com.spiderbiggen.manga.data.source.local.MangaDatabaseDecorator
-import com.spiderbiggen.manga.data.source.local.dao.ChapterReadStatusDao
-import com.spiderbiggen.manga.data.source.local.dao.LocalChapterDao
-import com.spiderbiggen.manga.data.source.local.dao.LocalMangaDao
-import com.spiderbiggen.manga.data.source.local.dao.MangaFavoriteStatusDao
+import com.spiderbiggen.manga.data.source.local.room.MangaDatabase
+import com.spiderbiggen.manga.data.source.local.room.MangaDatabaseDecorator
+import com.spiderbiggen.manga.data.source.local.room.dao.ChapterReadStatusDao
+import com.spiderbiggen.manga.data.source.local.room.dao.LocalChapterDao
+import com.spiderbiggen.manga.data.source.local.room.dao.LocalMangaDao
+import com.spiderbiggen.manga.data.source.local.room.dao.MangaFavoriteStatusDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -46,4 +47,7 @@ object LocalDataProvidingModule {
     @Provides
     fun provideChapterReadStatusDao(decorator: MangaDatabaseDecorator): ChapterReadStatusDao =
         decorator.chapterReadStatusDao()
+
+    @Provides
+    fun provideContentResolver(@ApplicationContext context: Context): ContentResolver = context.contentResolver
 }

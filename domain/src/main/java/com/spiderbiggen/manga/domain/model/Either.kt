@@ -8,6 +8,11 @@ sealed interface Either<L, R> {
     value class Right<L, R>(val value: R) : Either<L, R>
 }
 
+inline fun <L, R, T> Either<L, R>.fold(ifLeft: (L) -> T, ifRight: (R) -> T): T = when (this) {
+    is Either.Left -> ifLeft(value)
+    is Either.Right -> ifRight(value)
+}
+
 inline fun <L, O, R> Either<L, R>.mapLeft(block: (L) -> O): Either<O, R> = when (this) {
     is Either.Left -> Either.Left(block(value))
     is Either.Right -> Either.Right(value)

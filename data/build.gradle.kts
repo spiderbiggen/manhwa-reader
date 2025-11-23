@@ -19,6 +19,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
+    buildTypes {
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+        }
+        release {
+            buildConfigField("boolean", "DEBUG", "false")
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -29,6 +37,9 @@ android {
             jvmTarget = JvmTarget.JVM_17
             optIn.add("kotlin.time.ExperimentalTime")
         }
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
@@ -77,6 +88,9 @@ dependencies {
     ksp(libs.androidX.room.compiler)
     testImplementation(libs.androidX.room.test)
 
+    // Datastore
+    implementation(libs.androidX.datastore.preferences)
+
     // Retrofit
     implementation(platform(libs.retrofit.bom))
     implementation(libs.retrofit)
@@ -85,6 +99,10 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    // Coil
+    implementation(platform(libs.coil.bom))
+    implementation(libs.coil)
 
     // Testing
     testImplementation(libs.junit)
