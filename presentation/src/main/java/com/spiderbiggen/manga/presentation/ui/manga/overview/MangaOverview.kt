@@ -218,28 +218,14 @@ private fun MangaOverviewContent(
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    FilterChip(
+                    CheckedFilterChip(
                         selected = favoritesSelected,
                         label = { Text("Favorites") },
-                        leadingIcon = if (favoritesSelected) {
-                            {
-                                Icon(painterResource(R.drawable.check), null)
-                            }
-                        } else {
-                            null
-                        },
                         onClick = onToggleFavoritesRequested,
                     )
-                    FilterChip(
+                    CheckedFilterChip(
                         selected = unreadSelected,
                         label = { Text("Unread") },
-                        leadingIcon = if (unreadSelected) {
-                            {
-                                Icon(painterResource(R.drawable.check), null)
-                            }
-                        } else {
-                            null
-                        },
                         onClick = onToggleUnreadRequested,
                     )
                 }
@@ -272,6 +258,26 @@ private fun MangaOverviewContent(
             )
         }
     }
+}
+
+@Composable
+private fun CheckedFilterChip(
+    selected: Boolean,
+    label: @Composable () -> Unit,
+    onClick: () -> Unit,
+) {
+    FilterChip(
+        selected = selected,
+        label = label,
+        leadingIcon = if (selected) {
+            {
+                Icon(painterResource(R.drawable.check), null)
+            }
+        } else {
+            null
+        },
+        onClick = onClick,
+    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
