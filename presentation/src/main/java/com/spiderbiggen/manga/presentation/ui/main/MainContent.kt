@@ -54,7 +54,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
 
     TrackNavigationSideEffect(navController)
     MangaReaderTheme {
-        NavHost(
+        MangaNavHost(
             coverImageLoader = coverImageLoader,
             chapterImageLoader = chapterImageLoader,
             navController = navController,
@@ -67,7 +67,7 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun NavHost(
+private fun MangaNavHost(
     coverImageLoader: ImageLoader,
     chapterImageLoader: ImageLoader,
     navController: NavHostController = rememberNavController(),
