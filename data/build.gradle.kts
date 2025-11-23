@@ -19,9 +19,13 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
-
-    buildFeatures {
-        buildConfig = true
+    buildTypes {
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+        }
+        release {
+            buildConfigField("boolean", "DEBUG", "false")
+        }
     }
 
     compileOptions {
@@ -34,13 +38,8 @@ android {
             optIn.add("kotlin.time.ExperimentalTime")
         }
     }
-    buildTypes {
-        debug {
-            buildConfigField("boolean", "DEBUG", "true")
-        }
-        release {
-            buildConfigField("boolean", "DEBUG", "false")
-        }
+    buildFeatures {
+        buildConfig = true
     }
 }
 
