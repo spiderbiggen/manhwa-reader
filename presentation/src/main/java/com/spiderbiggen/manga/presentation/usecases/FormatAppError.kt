@@ -14,6 +14,6 @@ class FormatAppError @Inject constructor() {
         is AppError.Auth.Unauthorized -> "Not authorized"
         is AppError.Auth.Forbidden -> "Access forbidden"
         is AppError.Auth.Invalid -> "Invalid data"
-        is AppError.Unknown -> "Internal error"
+        is AppError.Unknown -> "Internal error: ${error.exception.message}"
     }
 }

@@ -35,8 +35,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
@@ -49,6 +52,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
@@ -56,9 +60,9 @@ import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
     navigateBack: () -> Unit,
-    navigateToRegistration: () -> Unit
+    navigateToRegistration: () -> Unit,
 ) {
-    val loginState by viewModel.loginState.collectAsState()
+    val loginState by viewModel.state.collectAsState()
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
@@ -86,38 +90,23 @@ private fun LoginScreenContent(
     onLogin: (String, String) -> Unit = { _, _ -> },
     onRegistrationClick: () -> Unit = {},
 ) {
-    PredictiveBackHandler(enabled = loginState is LoginState.Loading) {
-        it.collect {
-            // Do nothing
-        }
-    }
-    BackHandler(enabled = loginState is LoginState.Loading) {
-    }
-    val topAppBarState = rememberTopAppBarState()
+    InterruptBackHandler(enabled = loginState is LoginState.Loading)
 
     val username = rememberTextFieldState()
     val password = rememberTextFieldState()
 
     Scaffold(
-        contentWindowInsets = WindowInsets.systemBars,
         topBar = {
-            Box(
-                Modifier
-                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                    .background(MaterialTheme.colorScheme.background)
-                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-            ) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick, enabled = loginState !is LoginState.Loading) {
-                            Icon(painterResource(R.drawable.arrow_back), "Back")
-                        }
-                    },
-                    title = {
-                        Text("Login")
-                    },
-                )
-            }
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick, enabled = loginState !is LoginState.Loading) {
+                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                    }
+                },
+                title = {
+                    Text("Login")
+                },
+            )
         },
     ) { paddingValues ->
         Column(
@@ -132,7 +121,11 @@ private fun LoginScreenContent(
                 state = username,
                 label = { Text("Username") },
                 enabled = loginState !is LoginState.Loading,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentType = ContentType.Username + ContentType.EmailAddress
+                    },
                 lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
@@ -142,7 +135,11 @@ private fun LoginScreenContent(
                 state = password,
                 label = { Text("Password") },
                 enabled = loginState !is LoginState.Loading,
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentType = ContentType.Password
+                    },
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Go,
                 ),
@@ -196,11 +193,10 @@ private fun LoginScreenContent(
 @PreviewDynamicColors
 @PreviewFontScale
 @Composable
-private fun LoginScreenPreview(
-    @PreviewParameter(LoginStatePreviewProvider::class) state: LoginState,
-) = MangaReaderTheme {
-    LoginScreenContent(loginState = state)
-}
+private fun LoginScreenPreview(@PreviewParameter(LoginStatePreviewProvider::class) state: LoginState) =
+    MangaReaderTheme {
+        LoginScreenContent(loginState = state)
+    }
 
 private class LoginStatePreviewProvider : PreviewParameterProvider<LoginState> {
     override val values = sequenceOf(

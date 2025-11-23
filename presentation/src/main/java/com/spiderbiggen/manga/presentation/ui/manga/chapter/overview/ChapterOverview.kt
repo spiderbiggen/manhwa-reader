@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -48,13 +47,11 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -192,8 +189,6 @@ private fun ChaptersList(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
-    val largeCornerSize = MaterialTheme.shapes.medium.topEnd
-    val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
     LazyColumn(
@@ -205,8 +200,6 @@ private fun ChaptersList(
         section(
             header = null,
             items = chapters,
-            smallCornerSize = smallCornerSize,
-            largeCornerSize = largeCornerSize,
             key = { item -> item.id.inner },
         ) { item, shape ->
             ChapterRow(

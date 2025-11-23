@@ -4,14 +4,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
@@ -33,12 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.ContentType
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.contentType
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -47,77 +47,57 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
 @Composable
-fun RegistrationScreen(
-    viewModel: LoginViewModel = hiltViewModel(),
-    navigateBack: () -> Unit,
-) {
-    val loginData by viewModel.loginState.collectAsState()
-    val state = rememberUpdatedState(newValue = loginData.state)
+fun RegistrationScreen(viewModel: LoginViewModel = hiltViewModel(), navigateBack: () -> Unit) {
+    val registrationState by viewModel.state.collectAsState()
 
-    LaunchedEffect(state.value) {
-        if (state.value is LoginState.Success) {
+    LaunchedEffect(registrationState) {
+        if (registrationState is RegistrationState.Success) {
             navigateBack()
         }
     }
 
-    LoginScreenContent(
-        loginData = loginData,
+    RegistrationScreenContent(
+        registrationState = registrationState,
         onBackClick = {
-            if (state.value !is LoginState.Loading) {
+            if (registrationState !is RegistrationState.Loading) {
                 navigateBack()
             }
         },
-        onToggleType = viewModel::toggleType,
-        onLogin = viewModel::handleLogin,
         onRegister = viewModel::handleRegister,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun LoginScreenContent(
-    loginData: LoginData,
+private fun RegistrationScreenContent(
+    registrationState: RegistrationState,
     onBackClick: () -> Unit = {},
-    onToggleType: () -> Unit = {},
-    onLogin: (String, String) -> Unit = { _, _ -> },
     onRegister: (String, String, String) -> Unit = { _, _, _ -> },
 ) {
-
-    val topAppBarState = rememberTopAppBarState()
-
-    val loginState = loginData.state
+    val isLoading = registrationState is RegistrationState.Loading
+    InterruptBackHandler(enabled = isLoading)
 
     val username = rememberTextFieldState()
     val email = rememberTextFieldState()
     val password = rememberTextFieldState()
 
     Scaffold(
-        contentWindowInsets = WindowInsets.systemBars,
         topBar = {
-            Box(
-                Modifier
-                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                    .background(MaterialTheme.colorScheme.background)
-                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-            ) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(painterResource(R.drawable.arrow_back), "Back")
-                        }
-                    },
-                    title = {
-                        when (loginData.type) {
-                            LoginType.Login -> Text("Login")
-                            LoginType.Register -> Text("Register")
-                        }
-                    },
-                )
-            }
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick, enabled = !isLoading) {
+                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                    }
+                },
+                title = {
+                    Text("Register")
+                },
+            )
         },
     ) { paddingValues ->
         Column(
@@ -131,108 +111,73 @@ private fun LoginScreenContent(
             OutlinedTextField(
                 state = username,
                 label = { Text("Username") },
-                enabled = loginState !is LoginState.Loading,
-                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentType = ContentType.NewUsername
+                    },
                 lineLimits = TextFieldLineLimits.SingleLine,
                 keyboardOptions = KeyboardOptions(
                     imeAction = ImeAction.Next,
                 ),
             )
-            if (loginData.type == LoginType.Register) {
-                OutlinedTextField(
-                    state = email,
-                    label = { Text("Email") },
-                    enabled = loginState !is LoginState.Loading,
-                    modifier = Modifier.fillMaxWidth(),
-                    lineLimits = TextFieldLineLimits.SingleLine,
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Next,
-                    ),
-                )
-            }
+            OutlinedTextField(
+                state = email,
+                label = { Text("Email") },
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentType = ContentType.EmailAddress
+                    },
+                lineLimits = TextFieldLineLimits.SingleLine,
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next,
+                ),
+            )
             OutlinedSecureTextField(
                 state = password,
                 label = { Text("Password") },
-                enabled = loginState !is LoginState.Loading,
-                modifier = Modifier.fillMaxWidth(),
+                enabled = !isLoading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .semantics {
+                        contentType = ContentType.NewPassword
+                    },
                 keyboardOptions = KeyboardOptions(
+                    autoCorrect = false,
+                    keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Go,
                 ),
                 onKeyboardAction = {
-                    // TODO clean up
-                    if (loginState !is LoginState.Loading) {
-                        when (loginData.type) {
-                            LoginType.Login -> onLogin(
-                                username.text.toString(),
-                                password.text.toString(),
-                            )
-
-                            LoginType.Register -> onRegister(
-                                username.text.toString(),
-                                email.text.toString(),
-                                password.text.toString(),
-                            )
-                        }
-                    }
+                    onRegister(
+                        username.text.toString(),
+                        email.text.toString(),
+                        password.text.toString(),
+                    )
                 },
             )
-            if (loginState is LoginState.Error) {
+            if (registrationState is RegistrationState.Error) {
                 Text(
-                    text = loginState.message,
+                    text = registrationState.message,
                     color = MaterialTheme.colorScheme.error,
                 )
             }
-            Row(
-                Modifier.width(IntrinsicSize.Min),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                if (loginState is LoginState.Loading) {
-                    LoadingIndicator()
-                } else if (loginData.type == LoginType.Login) {
-                    Button(
-                        onClick = {
-                            onLogin(
-                                username.text.toString(),
-                                password.text.toString(),
-                            )
-                        },
-                        modifier = Modifier
-                            .width(IntrinsicSize.Max)
-                            .weight(1f),
-                    ) {
-                        Text("Login")
-                    }
-                    Button(
-                        onClick = onToggleType,
-                        modifier = Modifier
-                            .width(IntrinsicSize.Max)
-                            .weight(1f),
-                    ) {
-                        Text("To Registration")
-                    }
-                } else {
-                    Button(
-                        onClick = {
-                            onRegister(
-                                username.text.toString(),
-                                email.text.toString(),
-                                password.text.toString(),
-                            )
-                        },
-                        modifier = Modifier
-                            .width(IntrinsicSize.Max)
-                            .weight(1f),
-                    ) {
-                        Text("Register")
-                    }
-                    Button(
-                        onClick = onToggleType,
-                        modifier = Modifier
-                            .width(IntrinsicSize.Max)
-                            .weight(1f),
-                    ) {
-                        Text("Switch to login")
-                    }
+            if (isLoading) {
+                LoadingIndicator()
+            } else {
+                Button(
+                    onClick = {
+                        onRegister(
+                            username.text.toString(),
+                            email.text.toString(),
+                            password.text.toString(),
+                        )
+                    },
+                ) {
+                    Text("Register")
                 }
             }
         }
@@ -243,19 +188,16 @@ private fun LoginScreenContent(
 @PreviewDynamicColors
 @PreviewFontScale
 @Composable
-private fun LoginScreenPreview(
-    @PreviewParameter(LoginDataPreviewProvider::class) data: LoginData,
+private fun RegistrationScreenPreview(
+    @PreviewParameter(RegistrationStatePreviewProvider::class) data: RegistrationState,
 ) = MangaReaderTheme {
-    LoginScreenContent(loginData = data)
+    RegistrationScreenContent(data)
 }
 
-private class LoginDataPreviewProvider : PreviewParameterProvider<LoginData> {
+private class RegistrationStatePreviewProvider : PreviewParameterProvider<RegistrationState> {
     override val values = sequenceOf(
-        LoginData(type = LoginType.Login, state = LoginState.Idle),
-        LoginData(type = LoginType.Login, state = LoginState.Loading),
-        LoginData(type = LoginType.Login, state = LoginState.Error("Could not log in")),
-        LoginData(type = LoginType.Register, state = LoginState.Idle),
-        LoginData(type = LoginType.Register, state = LoginState.Loading),
-        LoginData(type = LoginType.Register, state = LoginState.Error("Could not register")),
+        RegistrationState.Idle,
+        RegistrationState.Loading,
+        RegistrationState.Error("Could not register"),
     )
 }

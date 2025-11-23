@@ -1,13 +1,18 @@
 package com.spiderbiggen.manga.presentation.ui.profile.overview
 
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -15,6 +20,9 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -23,12 +31,13 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -42,11 +51,13 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.profile.overview.model.ProfileViewState
+import com.spiderbiggen.manga.presentation.ui.profile.overview.model.ProfileOverviewViewState
+import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
+import kotlin.time.Clock.System.now
 
 @Composable
 fun ProfileOverview(
-    viewModel: ProfileViewModel = hiltViewModel(),
+    viewModel: ProfileOverviewViewModel = hiltViewModel(),
     navigateBack: () -> Unit,
     navigateToLogin: () -> Unit,
 ) {
@@ -55,15 +66,19 @@ fun ProfileOverview(
         state = state,
         onBackClick = navigateBack,
         onLoginClick = navigateToLogin,
+        onChangeAvatarClick = viewModel::handleChangeAvatar,
+        onLogoutClick = viewModel::handleLogout,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileOverviewContent(
-    state: ProfileViewState,
-    onBackClick: () -> Unit,
-    onLoginClick: () -> Unit,
+    state: ProfileOverviewViewState,
+    onBackClick: () -> Unit = {},
+    onLoginClick: () -> Unit = {},
+    onChangeAvatarClick: (Uri) -> Unit = {},
+    onLogoutClick: () -> Unit = {},
 ) {
     val topAppBarState = rememberTopAppBarState()
 
@@ -89,47 +104,95 @@ fun ProfileOverviewContent(
         topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         when (state) {
-            is ProfileViewState.Authenticated -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(scaffoldPadding)
-                        .padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    state.avatarUrl?.let {
-                        AsyncImage(
-                            model = it,
-                            contentDescription = "User Avatar",
-                            modifier = Modifier
-                                .size(128.dp)
-                                .clip(CircleShape),
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(text = state.name, style = MaterialTheme.typography.headlineSmall)
-                    state.email?.let {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(text = it, style = MaterialTheme.typography.bodyLarge)
-                    }
-                }
-            }
+            is ProfileOverviewViewState.Authenticated -> AuthenticatedUserProfile(
+                state = state,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(scaffoldPadding),
+                onChangeAvatarClick = onChangeAvatarClick,
+                onLogoutClick = onLogoutClick,
+            )
 
-            is ProfileViewState.Unauthenticated -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(scaffoldPadding)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
+            is ProfileOverviewViewState.Unauthenticated -> {
+                UnauthenticatedUserProfile(scaffoldPadding, onLoginClick)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun AuthenticatedUserProfile(
+    state: ProfileOverviewViewState.Authenticated,
+    modifier: Modifier = Modifier,
+    onChangeAvatarClick: (Uri) -> Unit = {},
+    onLogoutClick: () -> Unit = {},
+) {
+    val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+        // Callback is invoked after the user selects a media item or closes the
+        // photo picker.
+        if (uri != null) {
+            Log.d("PhotoPicker", "Selected URI: $uri")
+            onChangeAvatarClick(uri)
+        } else {
+            Log.d("PhotoPicker", "No media selected")
+        }
+    }
+
+    Column(
+        modifier = modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Column(
+            Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box {
+                key(state.avatarUrl, state.updatedAt) {
+                    AsyncImage(
+                        model = state.avatarUrl,
+                        error = painterResource(R.drawable.account_circle),
+                        contentDescription = "User Avatar",
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(128.dp)
+                            .clip(CircleShape),
+                    )
+                }
+                FilledIconButton(
+                    onClick = { pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
+                    modifier = Modifier.align(Alignment.BottomEnd),
                 ) {
-                    Text("Not logged in")
-                    Button(onClick = onLoginClick) {
-                        Text("Login")
-                    }
+                    Icon(painterResource(R.drawable.edit), "Edit Avatar")
                 }
             }
+            Text(text = state.name, style = MaterialTheme.typography.headlineMediumEmphasized)
+            Text(text = state.updatedAt.toString(), style = MaterialTheme.typography.bodySmall)
+            state.email?.let {
+                Text(text = it, style = MaterialTheme.typography.bodyLarge)
+            }
+            HorizontalDivider()
+            Button(onClick = onLogoutClick) {
+                Text("Logout")
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnauthenticatedUserProfile(padding: PaddingValues, onLoginClick: () -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .padding(16.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text("Not logged in")
+        Button(onClick = onLoginClick) {
+            Text("Login")
         }
     }
 }
@@ -138,23 +201,20 @@ fun ProfileOverviewContent(
 @PreviewDynamicColors
 @PreviewFontScale
 @Composable
-private fun ProfileOverviewPreview(
-    @PreviewParameter(ProfileViewStatePreviewProvider::class) state: ProfileViewState,
-) = MangaReaderTheme {
-    ProfileOverviewContent(
-        state = state,
-        onBackClick = {},
-        onLoginClick = {},
-    )
-}
+private fun ProfileOverviewPreview(@PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState) =
+    MangaReaderTheme {
+        ProfileOverviewContent(state)
+    }
 
-private class ProfileViewStatePreviewProvider : PreviewParameterProvider<ProfileViewState> {
+private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<ProfileOverviewViewState> {
     override val values = sequenceOf(
-        ProfileViewState.Unauthenticated,
-        ProfileViewState.Authenticated(
+        ProfileOverviewViewState.Unauthenticated,
+        ProfileOverviewViewState.Authenticated(
+            id = "",
             name = "Spiderbiggen",
             email = "spiderbiggen@gmail.com",
-            avatarUrl = null,
+            avatarUrl = "example.com",
+            updatedAt = now(),
         ),
     )
 }

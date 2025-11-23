@@ -97,6 +97,7 @@ coil-bom = { group = "io.coil-kt.coil3", name = "coil-bom", version.ref = "coil-
 coil = { group = "io.coil-kt.coil3", name = "coil" }
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp" }
+coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg" }
 coil-test = { group = "io.coil-kt.coil3", name = "coil-test" }
 
 # Material kolor

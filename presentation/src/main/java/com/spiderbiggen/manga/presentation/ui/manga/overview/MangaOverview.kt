@@ -262,8 +262,6 @@ private fun MangaList(
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 
-    val largeCornerSize = MaterialTheme.shapes.medium.topEnd
-    val smallCornerSize = MaterialTheme.shapes.extraSmall.topEnd
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
@@ -274,8 +272,6 @@ private fun MangaList(
             section(
                 header = key,
                 items = values,
-                largeCornerSize = largeCornerSize,
-                smallCornerSize = smallCornerSize,
                 key = { it.id.inner },
             ) { item, shape ->
                 MangaRow(

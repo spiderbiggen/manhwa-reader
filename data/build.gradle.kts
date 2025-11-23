@@ -20,6 +20,10 @@ android {
         consumerProguardFiles("consumer-rules.pro")
     }
 
+    buildFeatures {
+        buildConfig = true
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -28,6 +32,14 @@ android {
         compilerOptions {
             jvmTarget = JvmTarget.JVM_17
             optIn.add("kotlin.time.ExperimentalTime")
+        }
+    }
+    buildTypes {
+        debug {
+            buildConfigField("boolean", "DEBUG", "true")
+        }
+        release {
+            buildConfigField("boolean", "DEBUG", "false")
         }
     }
 }
@@ -80,7 +92,6 @@ dependencies {
     // Datastore
     implementation(libs.androidX.datastore.preferences)
 
-
     // Retrofit
     implementation(platform(libs.retrofit.bom))
     implementation(libs.retrofit)
@@ -89,6 +100,10 @@ dependencies {
     implementation(platform(libs.okhttp.bom))
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
+
+    // Coil
+    implementation(platform(libs.coil.bom))
+    implementation(libs.coil)
 
     // Testing
     testImplementation(libs.junit)

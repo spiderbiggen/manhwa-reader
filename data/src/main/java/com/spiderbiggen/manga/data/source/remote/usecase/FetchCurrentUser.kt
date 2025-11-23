@@ -10,12 +10,12 @@ import javax.inject.Inject
 import javax.inject.Provider
 import retrofit2.HttpException
 
-class GetCurrentUser @Inject constructor(
+class FetchCurrentUser @Inject constructor(
     private val profileService: Provider<ProfileService>,
     private val authenticationRepository: Provider<AuthenticationRepository>,
 ) {
     suspend operator fun invoke(): Either<UserEntity, AppError> = runCatching {
-        val response = profileService.get().getSelf();
+        val response = profileService.get().getSelf()
         if (!response.isSuccessful) {
             throw HttpException(response)
         }

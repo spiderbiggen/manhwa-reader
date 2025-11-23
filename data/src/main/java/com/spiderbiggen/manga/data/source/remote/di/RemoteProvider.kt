@@ -1,7 +1,9 @@
 package com.spiderbiggen.manga.data.source.remote.di
 
 import android.content.Context
-import com.google.firebase.BuildConfig
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
+import com.spiderbiggen.manga.data.BuildConfig
 import com.spiderbiggen.manga.data.di.BaseUrl
 import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.MangaService
@@ -46,12 +48,15 @@ object RemoteProvider {
     fun provideCache(@ApplicationContext context: Context): Cache = Cache(context.cacheDir, CACHE_SIZE)
 
     @Provides
-    fun provideOkHttpClientBuilder(cache: Cache?): OkHttpClient.Builder = OkHttpClient.Builder()
-        .cache(cache).apply {
-            if (BuildConfig.DEBUG) {
-                addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
-            }
+    fun provideImageLoader(@ApplicationContext context: Context): ImageLoader = SingletonImageLoader.get(context)
+
+    @Provides
+    fun provideOkHttpClientBuilder(cache: Cache?): OkHttpClient.Builder = OkHttpClient.Builder().apply {
+        cache(cache)
+        if (BuildConfig.DEBUG) {
+            addNetworkInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         }
+    }
 
     @Provides
     fun provideOkHttpClient(builder: OkHttpClient.Builder): OkHttpClient = builder.build()
@@ -66,14 +71,12 @@ object RemoteProvider {
     }
 
     @Provides
-    fun provideMangaService(builder: Retrofit.Builder): MangaService =
-        builder.build()
-            .create(MangaService::class.java)
+    fun provideMangaService(builder: Retrofit.Builder): MangaService = builder.build()
+        .create(MangaService::class.java)
 
     @Provides
-    fun provideAuthService(builder: Retrofit.Builder): AuthService =
-        builder.build()
-            .create(AuthService::class.java)
+    fun provideAuthService(builder: Retrofit.Builder): AuthService = builder.build()
+        .create(AuthService::class.java)
 
     @Provides
     fun provideProfileService(

@@ -33,7 +33,6 @@ class ChapterRepository @Inject constructor(
     fun getChapterAsFlow(id: ChapterId): Result<Flow<ChapterForOverview?>> = runCatching {
         chapterDao.getFlowForChapterOverview(id).map {
             it?.let {
-                println(it)
                 ChapterForOverview(
                     chapter = toDomain.invoke(it.chapter),
                     isRead = it.isRead,

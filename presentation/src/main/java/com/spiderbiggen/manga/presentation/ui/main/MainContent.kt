@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -36,9 +37,9 @@ import com.spiderbiggen.manga.presentation.ui.manga.overview.MangaOverview
 import com.spiderbiggen.manga.presentation.ui.manga.reader.ReadChapterScreen
 import com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen
 import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverview
-import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileViewModel
-import com.spiderbiggen.manga.presentation.ui.profile.overview.model.ProfileViewState
 import com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationScreen
+import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
+import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -51,96 +52,135 @@ fun MainContent(coverImageLoader: ImageLoader, chapterImageLoader: ImageLoader) 
 
     TrackNavigationSideEffect(navController)
     MangaReaderTheme {
-        val animationSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
-        val offsetAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
         NavHost(
+            coverImageLoader = coverImageLoader,
+            chapterImageLoader = chapterImageLoader,
             navController = navController,
-            startDestination = MangaRoutes.Overview,
-            enterTransition = {
-                slideInHorizontally(offsetAnimationSpec) { it } + fadeIn(animationSpec)
-            },
-            exitTransition = {
-                slideOutHorizontally(offsetAnimationSpec) { -it / 2 }
-            },
-            popEnterTransition = {
-                slideInHorizontally(offsetAnimationSpec) { -it / 2 }
-            },
-            popExitTransition = {
-                slideOutHorizontally(offsetAnimationSpec) { it }
-            },
-        ) {
-            composable<MangaRoutes.Overview> {
-                MangaOverview(
-                    showSnackbar = { snackbarHostState.showSnackbar(it) },
-                    imageLoader = coverImageLoader,
-                    navigateToProfile = {
-                        when (profileState.value) {
-                            is ProfileViewState.Unauthenticated -> navController.navigate(MangaRoutes.Login)
-                            is ProfileViewState.Authenticated -> navController.navigate(MangaRoutes.Profile)
-                        }
-                    },
-                    navigateToManga = { mangaId ->
-                        navController.navigate(MangaRoutes.Chapters(mangaId))
-                    },
-                )
-            }
-            composable<MangaRoutes.Chapters> { backStackEntry ->
-                ChapterOverview(
-                    viewModel = hiltViewModel<ChapterViewModel>(),
-                    showSnackbar = { snackbarHostState.showSnackbar(it) },
-                    onBackClick = dropUnlessStarted { navController.popBackStack() },
-                    navigateToChapter = { chapterId ->
-                        val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
-                        navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
-                    },
-                )
-            }
-            composable<MangaRoutes.Reader>(
-                enterTransition = { fadeIn(animationSpec = animationSpec) },
-                exitTransition = { fadeOut(animationSpec = animationSpec) },
-            ) { backStackEntry ->
-                ReadChapterScreen(
-                    imageLoader = chapterImageLoader,
-                    snackbarHostState = snackbarHostState,
-                    onBackClick = dropUnlessStarted {
-                        navController.popBackStack<MangaRoutes.Chapters>(inclusive = false)
-                    },
-                    toChapterClicked = { chapterId ->
-                        val mangaId = backStackEntry.toRoute<MangaRoutes.Reader>().mangaId
-                        navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
-                    },
-                )
-            }
-            composable<MangaRoutes.Profile> {
-                ProfileOverview(
-                    navigateBack = dropUnlessStarted {
-                        navController.popBackStack()
-                    },
-                    navigateToLogin = dropUnlessStarted {
-                        navController.navigate(MangaRoutes.Login)
-                    },
-                )
-            }
-            composable<MangaRoutes.Login> {
-                LoginScreen(
-                    navigateBack = dropUnlessStarted {
-                        navController.popBackStack()
-                    },
-                    navigateToRegistration = dropUnlessStarted {
-                        navController.navigate(MangaRoutes.Registration)
-                    },
-                )
-            }
-            composable<MangaRoutes.Registration> {
-                RegistrationScreen(
-                    navigateBack = dropUnlessStarted {
-                        navController.popBackStack()
-                    },
-                )
-            }
+            snackbarHostState = snackbarHostState,
+            profileState = { profileState.value },
+        )
+        StatusBarProtection()
+    }
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun NavHost(
+    coverImageLoader: ImageLoader,
+    chapterImageLoader: ImageLoader,
+    navController: NavHostController = rememberNavController(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    profileState: () -> ProfileState = { ProfileState.Unauthenticated },
+) {
+    val animationSpec = MaterialTheme.motionScheme.slowEffectsSpec<Float>()
+    val offsetAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
+    NavHost(
+        navController = navController,
+        startDestination = MangaRoutes.Overview,
+        enterTransition = {
+            slideInHorizontally(offsetAnimationSpec) { it } + fadeIn(animationSpec)
+        },
+        exitTransition = {
+            slideOutHorizontally(offsetAnimationSpec) { -it / 2 }
+        },
+        popEnterTransition = {
+            slideInHorizontally(offsetAnimationSpec) { -it / 2 }
+        },
+        popExitTransition = {
+            slideOutHorizontally(offsetAnimationSpec) { it } + fadeOut(animationSpec)
+        },
+    ) {
+        composable<MangaRoutes.Overview> {
+            MangaOverview(
+                showSnackbar = { snackbarHostState.showSnackbar(it) },
+                imageLoader = coverImageLoader,
+                navigateToProfile = {
+                    when (profileState()) {
+                        is ProfileState.Unauthenticated -> navController.navigate(MangaRoutes.Login)
+                        is ProfileState.Authenticated -> navController.navigate(MangaRoutes.Profile)
+                    }
+                },
+                navigateToManga = { mangaId ->
+                    navController.navigate(MangaRoutes.Chapters(mangaId))
+                },
+            )
         }
 
-        StatusBarProtection()
+        composable<MangaRoutes.Profile> {
+            ProfileOverview(
+                navigateBack = dropUnlessStarted {
+                    navController.popBackStack()
+                },
+                navigateToLogin = dropUnlessStarted {
+                    navController.navigate(MangaRoutes.Login)
+                },
+            )
+        }
+        composable<MangaRoutes.Login> {
+            LoginScreen(
+                navigateBack = dropUnlessStarted {
+                    when (profileState()) {
+                        is ProfileState.Unauthenticated -> navController.popBackStack(
+                            MangaRoutes.Overview,
+                            inclusive = false,
+                        )
+
+                        is ProfileState.Authenticated -> {
+                            if (!navController.popBackStack(MangaRoutes.Profile, inclusive = false)) {
+                                navController.navigate(MangaRoutes.Profile) {
+                                    popUpTo(MangaRoutes.Overview)
+                                }
+                            }
+                        }
+                    }
+                },
+                navigateToRegistration = dropUnlessStarted {
+                    navController.navigate(MangaRoutes.Registration)
+                },
+            )
+        }
+        composable<MangaRoutes.Registration> {
+            RegistrationScreen(
+                navigateBack = dropUnlessStarted {
+                    when (profileState()) {
+                        is ProfileState.Unauthenticated -> navController.popBackStack()
+
+                        is ProfileState.Authenticated -> {
+                            if (!navController.popBackStack(MangaRoutes.Profile, inclusive = false)) {
+                                navController.navigate(MangaRoutes.Profile) {
+                                    popUpTo(MangaRoutes.Overview)
+                                }
+                            }
+                        }
+                    }
+                },
+            )
+        }
+
+        composable<MangaRoutes.Chapters> { backStackEntry ->
+            ChapterOverview(
+                viewModel = hiltViewModel<ChapterViewModel>(),
+                showSnackbar = { snackbarHostState.showSnackbar(it) },
+                onBackClick = dropUnlessStarted { navController.popBackStack() },
+                navigateToChapter = { chapterId ->
+                    val mangaId = backStackEntry.toRoute<MangaRoutes.Chapters>().mangaId
+                    navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
+                },
+            )
+        }
+        composable<MangaRoutes.Reader> { backStackEntry ->
+            ReadChapterScreen(
+                imageLoader = chapterImageLoader,
+                snackbarHostState = snackbarHostState,
+                onBackClick = dropUnlessStarted {
+                    navController.popBackStack<MangaRoutes.Chapters>(inclusive = false)
+                },
+                toChapterClicked = { chapterId ->
+                    val mangaId = backStackEntry.toRoute<MangaRoutes.Reader>().mangaId
+                    navController.navigate(MangaRoutes.Reader(mangaId, chapterId))
+                },
+            )
+        }
     }
 }
 
@@ -149,7 +189,6 @@ private fun StatusBarProtection(
     color: Color = MaterialTheme.colorScheme.background,
     heightProvider: () -> Float = calculateGradientHeight(),
 ) {
-
     Canvas(Modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()
         val gradient = Brush.verticalGradient(

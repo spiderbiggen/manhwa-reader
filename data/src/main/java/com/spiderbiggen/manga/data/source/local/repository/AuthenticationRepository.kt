@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.data.source.local.repository
 
 import android.content.Context
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
 import com.spiderbiggen.manga.data.source.local.preferences.AuthenticationPreferences
 import com.spiderbiggen.manga.data.source.local.preferences.AuthenticationPreferencesSerializer
@@ -8,30 +9,30 @@ import com.spiderbiggen.manga.data.source.remote.model.UserEntity
 import com.spiderbiggen.manga.data.source.remote.model.auth.TokenEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
-import javax.inject.Provider
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-
 
 private val Context.authdataStore by dataStore(
     fileName = "auth-preferences",
     serializer = AuthenticationPreferencesSerializer,
+    corruptionHandler = ReplaceFileCorruptionHandler(
+        produceNewData = { AuthenticationPreferencesSerializer.defaultValue },
+    ),
 )
 
-class AuthenticationRepository @Inject constructor(
-    @param:ApplicationContext private val context: Provider<Context>,
-) {
+@Singleton
+class AuthenticationRepository @Inject constructor(@ApplicationContext context: Context) {
 
-
-    private val dataStore
-        get() = context.get().authdataStore
+    private val dataStore = context.authdataStore
 
     suspend fun clear() {
-        dataStore.updateData { null }
+        dataStore.updateData { AuthenticationPreferences.Unauthenticated }
     }
 
-    suspend fun getAuthTokens(): AuthenticationPreferences? = dataStore.data.first()
+    suspend fun getAuthTokens(): AuthenticationPreferences.Authenticated? =
+        dataStore.data.firstOrNull() as? AuthenticationPreferences.Authenticated
 
     suspend fun getAccessToken(): TokenEntity? = getAuthTokens()?.accessToken
 
@@ -39,15 +40,27 @@ class AuthenticationRepository @Inject constructor(
 
     suspend fun getUser(): UserEntity? = getAuthTokens()?.user
 
-    fun getUserFlow(): Flow<UserEntity?> = dataStore.data.map { it?.user }
+    fun getUserFlow(): Flow<UserEntity?> = dataStore.data.map {
+        (it as? AuthenticationPreferences.Authenticated)?.user
+    }
 
     suspend fun saveTokens(accessToken: TokenEntity, refreshToken: TokenEntity) {
         dataStore.updateData {
-            AuthenticationPreferences(accessToken, refreshToken)
+            when (it) {
+                is AuthenticationPreferences.Authenticated ->
+                    it.copy(accessToken = accessToken, refreshToken = refreshToken)
+
+                else -> AuthenticationPreferences.Authenticated(accessToken, refreshToken)
+            }
         }
     }
 
-    suspend fun saveUser(user: UserEntity): UserEntity? =
-        dataStore.updateData { it?.copy(user = user) }
-            ?.user
+    suspend fun saveUser(user: UserEntity): UserEntity? {
+        val result = dataStore.updateData { data ->
+            (data as? AuthenticationPreferences.Authenticated)
+                ?.copy(user = user)
+                ?: data
+        }
+        return (result as? AuthenticationPreferences.Authenticated)?.user
+    }
 }

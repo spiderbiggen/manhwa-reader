@@ -27,6 +27,7 @@ fun ReadStateCard(
                 val alpha = it.contentColor.alpha * 0.8f
                 it.copy(contentColor = it.contentColor.copy(alpha = alpha))
             }
+
             else -> it
         }
     }

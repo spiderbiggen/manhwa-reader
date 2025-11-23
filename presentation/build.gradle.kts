@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
+    implementation(libs.coil.svg)
     implementation(libs.coil.test)
 
     // Material Kolor

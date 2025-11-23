@@ -18,6 +18,7 @@ import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manga.data.usecase.read.ToggleReadImpl
 import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
+import com.spiderbiggen.manga.data.usecase.user.profile.UpdateAvatarImpl
 import com.spiderbiggen.manga.domain.usecase.auth.Login
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
 import com.spiderbiggen.manga.domain.usecase.auth.Register
@@ -36,6 +37,7 @@ import com.spiderbiggen.manga.domain.usecase.read.ToggleRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
+import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -56,6 +58,9 @@ abstract class DataBindingModule {
 
     @Binds
     abstract fun bindGetUser(useCase: GetUserImpl): GetUser
+
+    @Binds
+    abstract fun bindUpdateAvatar(useCase: UpdateAvatarImpl): UpdateAvatar
 
     @Binds
     abstract fun bindGetOverviewManga(useCase: GetOverviewMangaImpl): GetOverviewManga

@@ -15,24 +15,21 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(
-    private val login: Login,
-    private val formatAppError: FormatAppError,
-) : ViewModel() {
+class LoginViewModel @Inject constructor(private val login: Login, private val formatAppError: FormatAppError) :
+    ViewModel() {
 
-    private val _loginState = MutableStateFlow<LoginState>(LoginState.Idle)
-    val loginState = _loginState.asStateFlow()
+    private val _state = MutableStateFlow<LoginState>(LoginState.Idle)
+    val state = _state.asStateFlow()
 
     fun handleLogin(username: String, password: String) {
         defaultScope.launch {
-            if (_loginState.value is LoginState.Loading) return@launch
-            _loginState.emit(LoginState.Loading)
-            delay(2500)
+            if (_state.value is LoginState.Loading) return@launch
+            _state.emit(LoginState.Loading)
             val newState = when (val result = login(username, password)) {
                 is Either.Left<*, *> -> LoginState.Success
                 is Either.Right<*, AppError> -> LoginState.Error(formatAppError(result.value))
             }
-            _loginState.emit(newState)
+            _state.emit(newState)
         }
     }
 }

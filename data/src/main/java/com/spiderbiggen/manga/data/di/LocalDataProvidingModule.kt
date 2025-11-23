@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.data.di
 
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
@@ -46,4 +47,7 @@ object LocalDataProvidingModule {
     @Provides
     fun provideChapterReadStatusDao(decorator: MangaDatabaseDecorator): ChapterReadStatusDao =
         decorator.chapterReadStatusDao()
+
+    @Provides
+    fun provideContentResolver(@ApplicationContext context: Context): ContentResolver = context.contentResolver
 }
