@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.profile.state
 
 import androidx.compose.runtime.Immutable
-import kotlin.time.Instant
 
 @Immutable
 sealed interface ProfileState {

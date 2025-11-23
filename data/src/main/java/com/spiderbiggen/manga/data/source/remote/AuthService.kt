@@ -6,7 +6,6 @@ import com.spiderbiggen.manga.data.source.remote.model.auth.RegisterBody
 import com.spiderbiggen.manga.data.source.remote.model.auth.SessionResponse
 import retrofit2.Response
 import retrofit2.http.Body
-import retrofit2.http.DELETE
 import retrofit2.http.HTTP
 import retrofit2.http.POST
 

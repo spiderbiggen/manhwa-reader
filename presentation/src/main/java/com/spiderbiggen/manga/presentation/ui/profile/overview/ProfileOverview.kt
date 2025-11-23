@@ -52,7 +52,6 @@ import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.profile.overview.model.ProfileOverviewViewState
-import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlin.time.Clock.System.now
 
 @Composable
