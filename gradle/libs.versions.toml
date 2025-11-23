@@ -60,7 +60,7 @@ androidX-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = 
 androidX-room-test = { group = "androidx.room", name = "room-testing", version.ref = "room" }
 
 # Datastore
-androidX-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.1.7" }
+androidX-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version = "1.2.0" }
 
 # Coroutines
 kotlinX-coroutines-core = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "coroutines" }
