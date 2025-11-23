@@ -14,7 +14,7 @@ interface MangaService {
     suspend fun getAllMangas(): Response<List<MangaEntity>>
 
     @GET("api/v1/mangas")
-    @Headers("Cache-Control: max-age=60")
+    @Headers("Cache-Control: max-age=15")
     suspend fun getAllMangasUncached(): Response<List<MangaEntity>>
 
     @GET("api/v1/mangas/{id}")
