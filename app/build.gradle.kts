@@ -24,8 +24,8 @@ android {
         applicationId = "com.spiderbiggen.manga"
         minSdk = 26
         targetSdk = 36
-        versionCode = 55
-        versionName = "1.19.2"
+        versionCode = 56
+        versionName = "1.19.3"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
