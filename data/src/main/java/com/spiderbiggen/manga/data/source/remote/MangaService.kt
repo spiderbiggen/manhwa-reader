@@ -24,7 +24,7 @@ interface MangaService {
     suspend fun getMangaChapters(@Path("id") id: MangaId): Response<List<ChapterEntity>>
 
     @GET("api/v2/mangas/{id}/chapters")
-    @Headers("Cache-Control: max-age=60")
+    @Headers("Cache-Control: max-age=15")
     suspend fun getMangaChaptersSkipCache(@Path("id") id: MangaId): Response<List<ChapterEntity>>
 
     @GET("api/v2/chapters/{id}")

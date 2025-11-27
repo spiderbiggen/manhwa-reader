@@ -1,10 +1,13 @@
-package com.spiderbiggen.manga.presentation.ui.profile.overview.model
+package com.spiderbiggen.manga.presentation.ui.profile.overview
 
 import androidx.compose.runtime.Immutable
 import kotlin.time.Instant
 
 @Immutable
 sealed interface ProfileOverviewViewState {
+    @Immutable
+    data object Unknown : ProfileOverviewViewState
+
     @Immutable
     data object Unauthenticated : ProfileOverviewViewState
 

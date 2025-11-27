@@ -49,14 +49,15 @@ import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 @Composable
 fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
-    navigateBack: () -> Unit,
-    navigateToRegistration: () -> Unit,
+    onBackClick: () -> Unit,
+    onRegisterClick: () -> Unit,
+    onSuccess: () -> Unit,
 ) {
     val loginState by viewModel.state.collectAsState()
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {
-            navigateBack()
+            onSuccess()
         }
     }
 
@@ -64,11 +65,11 @@ fun LoginScreen(
         loginState = loginState,
         onBackClick = {
             if (loginState !is LoginState.Loading) {
-                navigateBack()
+                onBackClick()
             }
         },
         onLogin = viewModel::handleLogin,
-        onRegistrationClick = navigateToRegistration,
+        onRegisterlick = onRegisterClick,
     )
 }
 
@@ -78,7 +79,7 @@ private fun LoginScreenContent(
     loginState: LoginState,
     onBackClick: () -> Unit = {},
     onLogin: (String, String) -> Unit = { _, _ -> },
-    onRegistrationClick: () -> Unit = {},
+    onRegisterlick: () -> Unit = {},
 ) {
     InterruptBackHandler(enabled = loginState is LoginState.Loading)
 
@@ -166,7 +167,7 @@ private fun LoginScreenContent(
                             this.append("Don't have an account? ")
                             this.withLink(
                                 LinkAnnotation.Clickable("Register") {
-                                    onRegistrationClick()
+                                    onRegisterlick()
                                 },
                             ) {
                                 append("Register instead")

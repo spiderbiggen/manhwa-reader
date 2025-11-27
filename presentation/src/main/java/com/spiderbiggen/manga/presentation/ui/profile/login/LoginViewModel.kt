@@ -2,8 +2,7 @@ package com.spiderbiggen.manga.presentation.ui.profile.login
 
 import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
-import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
+import com.spiderbiggen.manga.domain.model.fold
 import com.spiderbiggen.manga.domain.usecase.auth.Login
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
@@ -24,10 +23,10 @@ class LoginViewModel @Inject constructor(private val login: Login, private val f
         defaultScope.launch {
             if (_state.value is LoginState.Loading) return@launch
             _state.emit(LoginState.Loading)
-            val newState = when (val result = login(username, password)) {
-                is Either.Left<*, *> -> LoginState.Success
-                is Either.Right<*, AppError> -> LoginState.Error(formatAppError(result.value))
-            }
+            val newState = login(username, password).fold(
+                { LoginState.Success },
+                { LoginState.Error(formatAppError(it)) },
+            )
             _state.emit(newState)
         }
     }

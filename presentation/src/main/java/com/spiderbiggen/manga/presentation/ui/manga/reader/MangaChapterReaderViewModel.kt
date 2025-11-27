@@ -1,10 +1,8 @@
 package com.spiderbiggen.manga.presentation.ui.manga.reader
 
 import android.util.Log
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.toRoute
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
@@ -18,7 +16,11 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.read.SetRead
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaRoutes
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterListViewModel
+import com.spiderbiggen.manga.presentation.ui.manga.reader.navigation.MangaChapterReaderRoute
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
@@ -32,9 +34,9 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class ImagesViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+@HiltViewModel(assistedFactory = MangaChapterReaderViewModel.Factory::class)
+class MangaChapterReaderViewModel @AssistedInject constructor(
+    @Assisted navKey: MangaChapterReaderRoute,
     private val getChapter: GetChapter,
     private val getSurroundingChapters: GetSurroundingChapters,
     private val getChapterImages: GetChapterImages,
@@ -44,13 +46,12 @@ class ImagesViewModel @Inject constructor(
     private val setReadUpToChapter: SetReadUpToChapter,
 ) : ViewModel() {
 
-    private val args = savedStateHandle.toRoute<MangaRoutes.Reader>()
-    private val mangaId = args.mangaId
-    private val chapterId = args.chapterId
+    private val mangaId = navKey.mangaId
+    private val chapterId = navKey.chapterId
 
     private var surrounding = SurroundingChapters()
 
-    private val mutableState = MutableStateFlow<ImagesScreenState>(ImagesScreenState.Loading)
+    private val mutableState = MutableStateFlow<MangaChapterReaderScreenState>(MangaChapterReaderScreenState.Loading)
     val state = mutableState.asStateFlow()
         .onStart { loadData() }
         .stateIn(
@@ -79,7 +80,7 @@ class ImagesViewModel @Inject constructor(
                 return@coroutineScope
             }
 
-        this@ImagesViewModel.surrounding = surrounding
+        this@MangaChapterReaderViewModel.surrounding = surrounding
         when (val data = chapterFlow.andLeft(isFavoriteFlow)) {
             is Either.Left -> {
                 val (chapterFlow, isFavoriteFlow) = data.value
@@ -92,7 +93,7 @@ class ImagesViewModel @Inject constructor(
 
                 combinedFlows.collect { (chapter, isRead, isFavorite) ->
                     mutableState.emit(
-                        ImagesScreenState.Ready(
+                        MangaChapterReaderScreenState.Ready(
                             title = chapter.displayTitle(),
                             surrounding = surrounding,
                             isFavorite = isFavorite,
@@ -125,8 +126,13 @@ class ImagesViewModel @Inject constructor(
         }
     }
 
-    fun mapError(error: AppError): ImagesScreenState.Error {
+    fun mapError(error: AppError): MangaChapterReaderScreenState.Error {
         Log.e("ImagesViewModel", "failed to get images $error")
-        return ImagesScreenState.Error("An error occurred")
+        return MangaChapterReaderScreenState.Error("An error occurred")
+    }
+
+    @AssistedFactory
+    interface Factory {
+        fun create(navKey: MangaChapterReaderRoute): MangaChapterReaderViewModel
     }
 }
