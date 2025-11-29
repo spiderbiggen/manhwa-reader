@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.overview
+package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import android.content.res.Configuration
 import androidx.compose.foundation.background
@@ -23,30 +23,27 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.ImageLoader
-import coil3.SingletonImageLoader
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
@@ -57,7 +54,6 @@ import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
-import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
@@ -69,102 +65,80 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
 @Composable
-fun MangaOverview(
-    viewModel: MangaOverviewViewModel = hiltViewModel(),
+fun MangaListScreen(
+    viewModel: MangaListViewModel,
+    snackbarHostState: SnackbarHostState,
     profileState: ProfileState,
-    imageLoader: ImageLoader,
-    showSnackbar: suspend (SnackbarData) -> Unit,
-    navigateToProfile: () -> Unit,
-    navigateToManga: (MangaId) -> Unit,
+    onProfileClick: () -> Unit,
+    onMangaClick: (MangaId) -> Unit,
 ) {
-    val showSnackbar by rememberUpdatedState(showSnackbar)
-    LaunchedEffect(viewModel) {
+    LaunchedEffect(viewModel, snackbarHostState) {
         viewModel.snackbarFlow.collect {
-            showSnackbar(it)
+            snackbarHostState.showSnackbar(it)
         }
     }
-    val data by viewModel.state.collectAsStateWithLifecycle()
-    val updatingState by viewModel.updatingState.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
 
-    MangaOverview(
-        data = data,
+    MangaListScreen(
+        state = state,
+        snackbarHostState = snackbarHostState,
         profileState = profileState,
-        imageLoader = imageLoader,
-        refreshing = updatingState,
-        onProfileClicked = navigateToProfile,
-        onToggleUnreadRequested = viewModel::onToggleUnread,
-        onToggleFavoritesRequested = viewModel::onToggleFavorites,
-        onRefreshClicked = viewModel::onPullToRefresh,
-        navigateToManga = navigateToManga,
-        onClickFavorite = viewModel::onClickFavorite,
+        isRefreshing = isRefreshing,
+        onRefresh = viewModel::onRefresh,
+        onProfileClicked = onProfileClick,
+        onToggleUnread = viewModel::onToggleUnread,
+        onToggleFavorites = viewModel::onToggleFavorites,
+        onMangaClick = onMangaClick,
+        onFavoriteClick = viewModel::onFavoriteClick,
     )
 }
 
 @Composable
-fun MangaOverview(
-    data: MangaScreenData,
+fun MangaListScreen(
+    state: MangaScreenData,
+    snackbarHostState: SnackbarHostState,
     profileState: ProfileState,
-    refreshing: Boolean = false,
-    imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
+    isRefreshing: Boolean = false,
+    onRefresh: () -> Unit = {},
     onProfileClicked: () -> Unit = {},
-    onToggleUnreadRequested: () -> Unit = {},
-    onToggleFavoritesRequested: () -> Unit = {},
-    onRefreshClicked: () -> Unit = {},
-    navigateToManga: (MangaId) -> Unit = {},
-    onClickFavorite: (MangaId) -> Unit = {},
+    onToggleUnread: () -> Unit = {},
+    onToggleFavorites: () -> Unit = {},
+    onMangaClick: (MangaId) -> Unit = {},
+    onFavoriteClick: (MangaId) -> Unit = {},
 ) {
-    when (data.state) {
-        // TODO create error screen
-        // TODO create loading shimmer
-        is MangaScreenState.Error,
-        is MangaScreenState.Loading,
-        -> MangaOverviewContent(
-            imageLoader = imageLoader,
-            profileState = profileState,
-            manga = persistentListOf(),
-            unreadSelected = data.filterUnread,
-            favoritesSelected = data.filterFavorites,
-            onProfileClicked = onProfileClicked,
-            onToggleUnreadRequested = onToggleUnreadRequested,
-            onToggleFavoritesRequested = onToggleFavoritesRequested,
-            refreshing = refreshing,
-            onRefreshRequested = onRefreshClicked,
-            navigateToManga = navigateToManga,
-            onClickFavorite = onClickFavorite,
-        )
-
-        is MangaScreenState.Ready -> MangaOverviewContent(
-            imageLoader = imageLoader,
-            profileState = profileState,
-            manga = data.state.manga,
-            unreadSelected = data.filterUnread,
-            favoritesSelected = data.filterFavorites,
-            onProfileClicked = onProfileClicked,
-            onToggleUnreadRequested = onToggleUnreadRequested,
-            onToggleFavoritesRequested = onToggleFavoritesRequested,
-            refreshing = refreshing,
-            onRefreshRequested = onRefreshClicked,
-            navigateToManga = navigateToManga,
-            onClickFavorite = onClickFavorite,
-        )
-    }
+    val manga = (state.state as? MangaScreenState.Ready)?.manga ?: persistentListOf()
+    MangaOverviewContent(
+        snackbarHostState = snackbarHostState,
+        profileState = profileState,
+        manga = manga,
+        isUnreadSelected = state.filterUnread,
+        isFavoritesSelected = state.filterFavorites,
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+        onProfileClicked = onProfileClicked,
+        onToggleUnreadRequested = onToggleUnread,
+        onToggleFavoritesRequested = onToggleFavorites,
+        onMangaClick = onMangaClick,
+        onFavoriteClick = onFavoriteClick,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaOverviewContent(
-    imageLoader: ImageLoader,
+    snackbarHostState: SnackbarHostState,
     profileState: ProfileState,
     manga: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
-    unreadSelected: Boolean,
-    favoritesSelected: Boolean,
+    isUnreadSelected: Boolean,
+    isFavoritesSelected: Boolean,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit = {},
     onProfileClicked: () -> Unit = {},
     onToggleUnreadRequested: () -> Unit = {},
     onToggleFavoritesRequested: () -> Unit = {},
-    refreshing: Boolean,
-    onRefreshRequested: () -> Unit = {},
-    navigateToManga: (MangaId) -> Unit = {},
-    onClickFavorite: (MangaId) -> Unit = {},
+    onMangaClick: (MangaId) -> Unit = {},
+    onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
@@ -194,8 +168,8 @@ private fun MangaOverviewContent(
                                     contentScale = ContentScale.Crop,
                                     error = painterResource(R.drawable.account_circle),
                                     modifier = Modifier
-                                        .size(48.dp)
-                                        .clip(CircleShape),
+                                        .clip(CircleShape)
+                                        .size(24.dp),
                                 )
                             }
                         }
@@ -205,7 +179,7 @@ private fun MangaOverviewContent(
                         if (BuildConfig.DEBUG) {
                             IconButton(onClick = { throw Throwable() }) {
                                 Icon(
-                                    painterResource(R.drawable.bug_report),
+                                    painter = painterResource(R.drawable.bug_report),
                                     contentDescription = "Create a crash report (by crashing)",
                                 )
                             }
@@ -219,42 +193,42 @@ private fun MangaOverviewContent(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     CheckedFilterChip(
-                        selected = favoritesSelected,
+                        selected = isFavoritesSelected,
                         label = { Text("Favorites") },
                         onClick = onToggleFavoritesRequested,
                     )
                     CheckedFilterChip(
-                        selected = unreadSelected,
+                        selected = isUnreadSelected,
                         label = { Text("Unread") },
                         onClick = onToggleUnreadRequested,
                     )
                 }
             }
         },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
         topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
-        val pullToRefreshState = rememberPullToRefreshState()
         PullToRefreshBox(
-            isRefreshing = refreshing,
-            onRefresh = onRefreshRequested,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
             modifier = Modifier.fillMaxSize(),
-            state = pullToRefreshState,
         ) {
             StickyTopEffect(
                 items = manga,
                 listState = lazyListState,
-                manuallyScrolled = manuallyScrolled,
+                isManuallyScrolled = manuallyScrolled,
             )
             MangaList(
                 mangas = manga,
-                imageLoader = imageLoader,
                 modifier = Modifier
                     .fillMaxSize()
                     .nestedScroll(topAppBarState.nestedScrollConnection),
                 contentPadding = scaffoldPadding,
                 lazyListState = lazyListState,
-                navigateToManga = navigateToManga,
-                onClickFavorite = onClickFavorite,
+                onMangaClick = onMangaClick,
+                onFavoriteClick = onFavoriteClick,
             )
         }
     }
@@ -280,12 +254,11 @@ private fun CheckedFilterChip(selected: Boolean, label: @Composable () -> Unit, 
 @Composable
 private fun MangaList(
     mangas: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
-    imageLoader: ImageLoader,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
-    navigateToManga: (MangaId) -> Unit = {},
-    onClickFavorite: (MangaId) -> Unit = {},
+    onMangaClick: (MangaId) -> Unit = {},
+    onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
@@ -304,9 +277,8 @@ private fun MangaList(
             ) { item, shape ->
                 MangaRow(
                     manga = item,
-                    imageLoader = imageLoader,
-                    navigateToManga = navigateToManga,
-                    onClickFavorite = onClickFavorite,
+                    onMangaClick = onMangaClick,
+                    onMangaFavoriteToggleClick = onFavoriteClick,
                     modifier = Modifier.animateItem(
                         fadeInSpec = floatAnimationSpec,
                         placementSpec = intOffsetAnimateSpec,
@@ -323,8 +295,13 @@ private fun MangaList(
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
+    val snackbarHostState = remember { SnackbarHostState() }
     MangaReaderTheme {
-        MangaOverview(data = state, profileState = ProfileState.Unauthenticated)
+        MangaListScreen(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            profileState = ProfileState.Unauthenticated,
+        )
     }
 }
 

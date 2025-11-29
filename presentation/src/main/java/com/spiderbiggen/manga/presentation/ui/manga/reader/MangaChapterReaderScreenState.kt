@@ -5,9 +5,9 @@ import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
-sealed interface ImagesScreenState {
+sealed interface MangaChapterReaderScreenState {
     @Immutable
-    data object Loading : ImagesScreenState
+    data object Loading : MangaChapterReaderScreenState
 
     @Immutable
     data class Ready(
@@ -16,10 +16,10 @@ sealed interface ImagesScreenState {
         val isRead: Boolean,
         val surrounding: SurroundingChapters,
         val images: ImmutableList<String>,
-    ) : ImagesScreenState
+    ) : MangaChapterReaderScreenState
 
     @Immutable
-    data class Error(val errorMessage: String) : ImagesScreenState
+    data class Error(val errorMessage: String) : MangaChapterReaderScreenState
 
     fun ifReady(): Ready? = this as? Ready
 }

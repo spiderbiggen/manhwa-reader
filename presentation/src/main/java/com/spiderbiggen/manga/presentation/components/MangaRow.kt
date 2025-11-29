@@ -22,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -33,8 +32,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toIntSize
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.dropUnlessStarted
-import coil3.ImageLoader
-import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImagePreviewHandler
@@ -53,15 +50,14 @@ private val COVER_SIZE = DpSize(60.dp, 80.dp)
 @Composable
 fun MangaRow(
     manga: MangaViewData,
-    imageLoader: ImageLoader,
-    navigateToManga: (MangaId) -> Unit,
-    onClickFavorite: (MangaId) -> Unit,
+    onMangaClick: (MangaId) -> Unit,
+    onMangaFavoriteToggleClick: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
     shape: Shape = CardDefaults.elevatedShape,
 ) {
     ReadStateCard(
         isRead = manga.isRead,
-        onClick = dropUnlessStarted { navigateToManga(manga.id) },
+        onClick = { onMangaClick(manga.id) },
         shape = shape,
         modifier = modifier,
     ) {
@@ -70,15 +66,15 @@ fun MangaRow(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            CoverImage(manga.coverImage, imageLoader)
+            CoverImage(manga.coverImage)
             MangaInfoColumn(manga, Modifier.weight(1f))
-            IconRow(manga, onClickFavorite)
+            IconRow(manga, onMangaFavoriteToggleClick)
         }
     }
 }
 
 @Composable
-private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
+private fun CoverImage(url: String, modifier: Modifier = Modifier) {
     val context = LocalPlatformContext.current
     val density = LocalDensity.current
     val asyncPainter = rememberAsyncImagePainter(
@@ -92,7 +88,6 @@ private fun CoverImage(url: String, imageLoader: ImageLoader, modifier: Modifier
                 .size(size)
                 .build()
         },
-        imageLoader = imageLoader,
     )
     Image(
         painter = asyncPainter,
@@ -150,15 +145,13 @@ fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaVie
     val previewHandler = AsyncImagePreviewHandler {
         ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
     }
-
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
             Surface {
                 MangaRow(
                     manga = state,
-                    imageLoader = SingletonImageLoader.get(LocalContext.current),
-                    navigateToManga = {},
-                    onClickFavorite = {},
+                    onMangaClick = {},
+                    onMangaFavoriteToggleClick = {},
                     modifier = Modifier.padding(16.dp),
                     shape = CardDefaults.elevatedShape,
                 )

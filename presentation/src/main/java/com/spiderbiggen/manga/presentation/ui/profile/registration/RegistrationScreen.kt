@@ -44,12 +44,16 @@ import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
 @Composable
-fun RegistrationScreen(viewModel: LoginViewModel = hiltViewModel(), navigateBack: () -> Unit) {
+fun RegistrationScreen(
+    viewModel: RegistrationViewModel = hiltViewModel(),
+    onBackClick: () -> Unit,
+    onSuccess: () -> Unit,
+) {
     val registrationState by viewModel.state.collectAsState()
 
     LaunchedEffect(registrationState) {
         if (registrationState is RegistrationState.Success) {
-            navigateBack()
+            onSuccess()
         }
     }
 
@@ -57,7 +61,7 @@ fun RegistrationScreen(viewModel: LoginViewModel = hiltViewModel(), navigateBack
         registrationState = registrationState,
         onBackClick = {
             if (registrationState !is RegistrationState.Loading) {
-                navigateBack()
+                onBackClick()
             }
         },
         onRegister = viewModel::handleRegister,

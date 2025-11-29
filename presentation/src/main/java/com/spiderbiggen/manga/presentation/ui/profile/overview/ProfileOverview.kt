@@ -26,12 +26,16 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,27 +48,37 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.profile.overview.model.ProfileOverviewViewState
 import kotlin.time.Clock.System.now
 
 @Composable
 fun ProfileOverview(
-    viewModel: ProfileOverviewViewModel = hiltViewModel(),
-    navigateBack: () -> Unit,
-    navigateToLogin: () -> Unit,
+    viewModel: ProfileOverviewViewModel,
+    snackbarHostState: SnackbarHostState,
+    onBackClick: () -> Unit,
+    onLogout: () -> Unit,
 ) {
+    LaunchedEffect(viewModel, snackbarHostState) {
+        viewModel.snackbarFlow.collect {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
+
     val state by viewModel.state.collectAsStateWithLifecycle()
+    LaunchedEffect(state) {
+        if (state is ProfileOverviewViewState.Unauthenticated) {
+            onLogout()
+        }
+    }
     ProfileOverviewContent(
         state = state,
-        onBackClick = navigateBack,
-        onLoginClick = navigateToLogin,
+        snackbarHostState = snackbarHostState,
+        onBackClick = onBackClick,
         onChangeAvatarClick = viewModel::handleChangeAvatar,
         onLogoutClick = viewModel::handleLogout,
     )
@@ -74,8 +88,8 @@ fun ProfileOverview(
 @Composable
 fun ProfileOverviewContent(
     state: ProfileOverviewViewState,
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit = {},
-    onLoginClick: () -> Unit = {},
     onChangeAvatarClick: (Uri) -> Unit = {},
     onLogoutClick: () -> Unit = {},
 ) {
@@ -100,6 +114,9 @@ fun ProfileOverviewContent(
                 )
             }
         },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
         topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         when (state) {
@@ -112,8 +129,8 @@ fun ProfileOverviewContent(
                 onLogoutClick = onLogoutClick,
             )
 
-            is ProfileOverviewViewState.Unauthenticated -> {
-                UnauthenticatedUserProfile(scaffoldPadding, onLoginClick)
+            else -> {
+                LoadingUserProfile(scaffoldPadding)
             }
         }
     }
@@ -167,7 +184,6 @@ private fun AuthenticatedUserProfile(
                 }
             }
             Text(text = state.name, style = MaterialTheme.typography.headlineMediumEmphasized)
-            Text(text = state.updatedAt.toString(), style = MaterialTheme.typography.bodySmall)
             state.email?.let {
                 Text(text = it, style = MaterialTheme.typography.bodyLarge)
             }
@@ -180,7 +196,7 @@ private fun AuthenticatedUserProfile(
 }
 
 @Composable
-private fun UnauthenticatedUserProfile(padding: PaddingValues, onLoginClick: () -> Unit) {
+private fun LoadingUserProfile(padding: PaddingValues) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -190,9 +206,6 @@ private fun UnauthenticatedUserProfile(padding: PaddingValues, onLoginClick: () 
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Text("Not logged in")
-        Button(onClick = onLoginClick) {
-            Text("Login")
-        }
     }
 }
 
@@ -203,11 +216,16 @@ private fun UnauthenticatedUserProfile(padding: PaddingValues, onLoginClick: () 
 private fun ProfileOverviewPreview(
     @PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState,
 ) = MangaReaderTheme {
-    ProfileOverviewContent(state)
+    val snackbarHostState = remember { SnackbarHostState() }
+    ProfileOverviewContent(
+        state = state,
+        snackbarHostState = snackbarHostState,
+    )
 }
 
 private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<ProfileOverviewViewState> {
     override val values = sequenceOf(
+        ProfileOverviewViewState.Unknown,
         ProfileOverviewViewState.Unauthenticated,
         ProfileOverviewViewState.Authenticated(
             id = "",

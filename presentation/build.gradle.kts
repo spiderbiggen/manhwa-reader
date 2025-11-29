@@ -90,15 +90,17 @@ dependencies {
     implementation(libs.androidX.compose.ui)
     implementation(libs.androidX.compose.uiGraphics)
     implementation(libs.androidX.compose.material3)
+    implementation(libs.androidX.compose.animation)
+    implementation(libs.androidX.compose.foundation)
     implementation(libs.androidX.compose.uiTooling)
     implementation(libs.androidX.compose.uiTestManifest)
     implementation(libs.androidX.compose.uiToolingPreview)
 
     // Navigation
     implementation(libs.androidX.hilt.navigationCompose)
-    implementation(libs.androidX.navigation.compose)
-    implementation(libs.androidX.compose.animation)
-    implementation(libs.androidX.compose.foundation)
+    implementation(libs.androidX.navigation3.runtime)
+    implementation(libs.androidX.navigation3.ui)
+    implementation(libs.androidX.lifecycle.viewmodel.navigation3)
 
     // Coil
     implementation(platform(libs.coil.bom))

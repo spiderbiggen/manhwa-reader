@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.overview
+package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import android.util.Log
 import androidx.lifecycle.SavedStateHandle
@@ -41,16 +41,17 @@ private const val UNREAD_SELECTED_KEY = "unreadSelected"
 private const val FAVORITE_SELECTED_KEY = "favoriteSelected"
 
 @HiltViewModel
-class MangaOverviewViewModel @Inject constructor(
+class MangaListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val getOverviewManga: GetOverviewManga,
-    private val mapMangaViewData: MapMangaViewData,
+    private val mapMangaListViewData: MapMangaListViewData,
     private val splitMangasIntoSections: SplitMangasIntoSections,
     private val toggleFavorite: ToggleFavorite,
     private val updateMangaFromRemote: UpdateMangaFromRemote,
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
+    // TODO clean up search and/or filters
     private var unreadSelected: Boolean = savedStateHandle.get<Boolean>("unreadSelected") == true
         set(value) {
             field = value
@@ -67,14 +68,12 @@ class MangaOverviewViewModel @Inject constructor(
     private val favoriteSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(FAVORITE_SELECTED_KEY, favoriteSelected)
 
-    private val mutableUpdatingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val updatingState: StateFlow<Boolean> = mutableUpdatingState
+    private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
-    private val mutableSnackbarFlow = MutableSharedFlow<SnackbarData>(1)
+    private val _snackbarFlow = MutableSharedFlow<SnackbarData>(1)
     val snackbarFlow: SharedFlow<SnackbarData>
-        get() = mutableSnackbarFlow.asSharedFlow()
-
-    private val updater = MutableSharedFlow<Unit>(1)
+        get() = _snackbarFlow.asSharedFlow()
 
     private val mutableState = MutableStateFlow(MangaScreenData())
     val state: StateFlow<MangaScreenData> = mutableState
@@ -87,7 +86,6 @@ class MangaOverviewViewModel @Inject constructor(
 
     suspend fun loadData() = coroutineScope {
         launch(viewModelScope.coroutineContext + Dispatchers.Default) {
-            updater.emit(Unit)
             updateMangas(skipCache = false)
             when (val result = getOverviewManga()) {
                 is Either.Left -> mapSuccess(result.value)
@@ -99,10 +97,9 @@ class MangaOverviewViewModel @Inject constructor(
     private suspend fun mapSuccess(flow: Flow<List<MangaForOverview>>) {
         val combinedFlows = combine(
             flow,
-            updater,
             unreadSelectedFlow,
             favoriteSelectedFlow,
-        ) { manga, _, unreadSelected, favoriteSelected ->
+        ) { manga, unreadSelected, favoriteSelected ->
             Triple(manga, unreadSelected, favoriteSelected)
         }
 
@@ -115,7 +112,7 @@ class MangaOverviewViewModel @Inject constructor(
                 .toList()
             val sectionedManga = splitMangasIntoSections(filteredManga, timeZone)
             val viewData = sectionedManga.map { (key, values) ->
-                key to values.map { mapMangaViewData(it, timeZone) }.toImmutableList()
+                key to values.map { mapMangaListViewData(it, timeZone) }.toImmutableList()
             }
 
             mutableState.emit(
@@ -157,27 +154,26 @@ class MangaOverviewViewModel @Inject constructor(
         favoriteSelected = !favoriteSelected
     }
 
-    fun onPullToRefresh() {
+    fun onRefresh() {
         defaultScope.launch {
             updateMangas(skipCache = true)
         }
     }
 
-    fun onClickFavorite(mangaId: MangaId) {
+    fun onFavoriteClick(mangaId: MangaId) {
         defaultScope.launch {
             toggleFavorite(mangaId)
-            updater.emit(Unit)
         }
     }
 
     private suspend fun updateMangas(skipCache: Boolean) = coroutineScope {
         launch(viewModelScope.coroutineContext + Dispatchers.Default) {
-            mutableUpdatingState.emit(true)
+            _isRefreshing.emit(true)
             updateMangaFromRemote(skipCache).leftOrElse {
-                mutableSnackbarFlow.emit(SnackbarData(formatAppError(it)))
+                _snackbarFlow.emit(SnackbarData(formatAppError(it)))
             }
             yield()
-            mutableUpdatingState.emit(false)
+            _isRefreshing.emit(false)
         }
     }
 }

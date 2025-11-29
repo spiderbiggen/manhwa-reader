@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.chapter.overview
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -25,17 +25,17 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
@@ -71,56 +71,57 @@ import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
-import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.model.ChapterRowData
-import com.spiderbiggen.manga.presentation.ui.manga.chapter.overview.usecase.MapChapterRowData
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 
 @Composable
-fun ChapterOverview(
-    viewModel: ChapterViewModel = hiltViewModel(),
-    showSnackbar: suspend (SnackbarData) -> Unit,
+fun ChapterListScreen(
+    viewModel: MangaChapterListViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
-    navigateToChapter: (ChapterId) -> Unit,
+    onChapterClick: (ChapterId) -> Unit,
 ) {
-    val showSnackbar by rememberUpdatedState(showSnackbar)
     LaunchedEffect(viewModel) {
         viewModel.snackbarFlow.collect {
-            showSnackbar(it)
+            snackbarHostState.showSnackbar(it)
         }
     }
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val refreshingState = viewModel.refreshingState.collectAsStateWithLifecycle()
-    ChapterOverview(
+    val isRefreshing by viewModel.isRefreshing.collectAsStateWithLifecycle()
+    ChapterListScreen(
         state = state,
+        snackbarHostState = snackbarHostState,
+        isRefreshing = isRefreshing,
         onBackClick = onBackClick,
-        refreshing = refreshingState,
-        startRefresh = dropUnlessStarted { viewModel.onClickRefresh() },
-        toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
-        navigateToChapter = navigateToChapter,
+        onRefresh = viewModel::onRefresh,
+        onToggleFavorite = viewModel::onToggleFavorite,
+        onChapterClick = onChapterClick,
     )
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-fun ChapterOverview(
-    state: ChapterScreenState,
-    onBackClick: () -> Unit,
-    refreshing: State<Boolean>,
-    startRefresh: () -> Unit,
-    toggleFavorite: () -> Unit,
-    navigateToChapter: (ChapterId) -> Unit,
+fun ChapterListScreen(
+    state: MangaChapterScreenState,
+    snackbarHostState: SnackbarHostState,
+    isRefreshing: Boolean = false,
+    onBackClick: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+    onToggleFavorite: () -> Unit = {},
+    onChapterClick: (ChapterId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val manuallyScrolled = rememberManualScrollState(lazyListState)
+    val isManuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarState = rememberTopAppBarState()
 
-    val readyState = state.ifReady()
+    val readyState = state as? MangaChapterScreenState.Ready
     MangaScaffold(
         contentWindowInsets = WindowInsets.systemBars,
         topBar = {
@@ -138,32 +139,33 @@ fun ChapterOverview(
                     },
                     title = { Text(readyState?.title ?: "Manga") },
                     actions = {
-                        IconButton(onClick = toggleFavorite) {
+                        IconButton(onClick = onToggleFavorite) {
                             FavoriteToggle(isFavorite = readyState?.isFavorite == true)
                         }
                     },
                 )
             }
         },
+        snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        },
         topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         when (state) {
-            is ChapterScreenState.Loading,
-            is ChapterScreenState.Error,
+            is MangaChapterScreenState.Loading,
+            is MangaChapterScreenState.Error,
             -> LoadingSpinner(scaffoldPadding)
 
-            is ChapterScreenState.Ready -> {
-                val pullToRefreshState = rememberPullToRefreshState()
+            is MangaChapterScreenState.Ready -> {
                 PullToRefreshBox(
-                    isRefreshing = refreshing.value,
-                    onRefresh = startRefresh,
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefresh,
                     modifier = Modifier.fillMaxSize(),
-                    state = pullToRefreshState,
                 ) {
                     StickyTopEffect(
                         items = state.chapters,
                         listState = lazyListState,
-                        manuallyScrolled = manuallyScrolled,
+                        isManuallyScrolled = isManuallyScrolled,
                     )
                     ChaptersList(
                         lazyListState = lazyListState,
@@ -172,7 +174,7 @@ fun ChapterOverview(
                             .fillMaxSize()
                             .nestedScroll(topAppBarState.nestedScrollConnection),
                         contentPadding = scaffoldPadding,
-                        navigateToChapter = navigateToChapter,
+                        onChapterClick = onChapterClick,
                     )
                 }
             }
@@ -184,7 +186,7 @@ fun ChapterOverview(
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
-    navigateToChapter: (ChapterId) -> Unit,
+    onChapterClick: (ChapterId) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
     lazyListState: LazyListState = rememberLazyListState(),
@@ -204,7 +206,7 @@ private fun ChaptersList(
         ) { item, shape ->
             ChapterRow(
                 item = item,
-                navigateToChapter = navigateToChapter,
+                navigateToChapter = onChapterClick,
                 modifier = Modifier
                     .animateItem(
                         fadeInSpec = floatAnimationSpec,
@@ -313,42 +315,58 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
 @PreviewDynamicColors
 @PreviewFontScale
 @Composable
-fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: ChapterScreenState) {
-    val refreshing = remember { mutableStateOf(false) }
+fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: MangaChapterScreenState) {
+    val isRefreshing = remember { mutableStateOf(false) }
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     MangaReaderTheme {
-        ChapterOverview(
+        ChapterListScreen(
             state = state,
-            onBackClick = {},
-            navigateToChapter = {},
-            refreshing = refreshing,
-            startRefresh = {},
-            toggleFavorite = {},
+            snackbarHostState = snackbarHostState,
+            isRefreshing = isRefreshing.value,
+            onRefresh = {
+                coroutineScope.launch {
+                    isRefreshing.value = true
+                    delay(2000)
+                    isRefreshing.value = false
+                }
+            },
+            onChapterClick = {
+                coroutineScope.launch {
+                    snackbarHostState.showSnackbar("Clicked on chapter $it")
+                }
+            },
         )
     }
 }
 
-class ChapterOverviewScreenStateProvider : PreviewParameterProvider<ChapterScreenState.Ready> {
-    override val values
-        get() = sequenceOf(
-            ChapterScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = false,
-                chapters = ChapterProvider.values.take(1).toImmutableList(),
-            ),
-            ChapterScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = false,
-                chapters = ChapterProvider.values.toImmutableList(),
-            ),
-            ChapterScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = true,
-                chapters = ChapterProvider.values.toImmutableList(),
-            ),
-        )
+class ChapterOverviewScreenStateProvider : PreviewParameterProvider<MangaChapterScreenState.Ready> {
+    override val values: Sequence<MangaChapterScreenState.Ready>
+        get() {
+            val title = "Heavenly Martial God"
+            return sequenceOf(
+                MangaChapterScreenState.Ready(
+                    title = title,
+                    isFavorite = false,
+                    chapters = ChapterProvider.values.take(1).toImmutableList(),
+                ),
+                MangaChapterScreenState.Ready(
+                    title = title,
+                    isFavorite = false,
+                    chapters = ChapterProvider.values.toImmutableList(),
+                ),
+                MangaChapterScreenState.Ready(
+                    title = title,
+                    isFavorite = true,
+                    chapters = ChapterProvider.values.toImmutableList(),
+                ),
+            )
+        }
 }
 
 private object ChapterProvider {
+
+    private const val CHAPTER_DATE = "2023-04-12"
     private val mapChapterRowData = MapChapterRowData()
 
     val values: Sequence<ChapterRowData>
@@ -372,7 +390,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 5u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = false,
@@ -385,7 +403,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 4u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,
@@ -398,7 +416,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 3u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,
@@ -411,7 +429,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 2u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,
@@ -424,7 +442,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 1u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,

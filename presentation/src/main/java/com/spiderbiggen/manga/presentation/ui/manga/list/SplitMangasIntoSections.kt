@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.overview
+package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import javax.inject.Inject

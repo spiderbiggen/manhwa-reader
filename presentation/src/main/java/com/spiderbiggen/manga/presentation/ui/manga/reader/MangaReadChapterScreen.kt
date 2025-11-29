@@ -26,7 +26,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
@@ -48,7 +47,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -59,8 +57,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
-import coil3.ImageLoader
-import coil3.SingletonImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImagePainter
@@ -75,8 +71,8 @@ import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
-import com.spiderbiggen.manga.presentation.components.ListImagePreloader
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
+import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.bottomappbar.BottomAppBarState
 import com.spiderbiggen.manga.presentation.components.bottomappbar.rememberBottomAppBarState
 import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState
@@ -87,21 +83,19 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun ReadChapterScreen(
-    viewModel: ImagesViewModel = hiltViewModel(),
-    imageLoader: ImageLoader,
-    snackbarHostState: SnackbarHostState,
+fun MangaChapterReaderScreen(
+    viewModel: MangaChapterReaderViewModel = hiltViewModel(),
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
-    toChapterClicked: (ChapterId) -> Unit,
+    onChapterClick: (ChapterId) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    ReadChapterScreen(
+    MangaChapterReaderScreen(
         snackbarHostState = snackbarHostState,
-        imageLoader = imageLoader,
         state = state,
         onBackClick = onBackClick,
-        toChapterClicked = toChapterClicked,
+        onChapterClick = onChapterClick,
         toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
         setRead = dropUnlessStarted { viewModel.updateReadState() },
         setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
@@ -110,12 +104,11 @@ fun ReadChapterScreen(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ReadChapterScreen(
-    state: ImagesScreenState,
-    imageLoader: ImageLoader = SingletonImageLoader.get(LocalContext.current),
+fun MangaChapterReaderScreen(
+    state: MangaChapterReaderScreenState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit = {},
-    toChapterClicked: (ChapterId) -> Unit = {},
+    onChapterClick: (ChapterId) -> Unit = {},
     toggleFavorite: () -> Unit = {},
     setRead: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
@@ -141,7 +134,7 @@ fun ReadChapterScreen(
             ReaderBottomBar(
                 state = bottomAppBarState,
                 screenState = ready,
-                toChapterClicked = toChapterClicked,
+                toChapterClicked = onChapterClick,
                 toggleFavorite = toggleFavorite,
                 setReadUpToHere = setReadUpToHere,
             )
@@ -150,7 +143,7 @@ fun ReadChapterScreen(
         bottomBarOffset = { bottomAppBarState.appBarOffset.floatValue.toInt() },
     ) { padding ->
         when (state) {
-            is ImagesScreenState.Loading -> Box(
+            is MangaChapterReaderScreenState.Loading -> Box(
                 modifier = Modifier
                     .padding(padding)
                     .fillMaxSize(),
@@ -159,11 +152,10 @@ fun ReadChapterScreen(
                 LoadingIndicator()
             }
 
-            is ImagesScreenState.Ready -> {
+            is MangaChapterReaderScreenState.Ready -> {
                 val animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
                 ReadyImagesOverview(
                     state = state,
-                    imageLoader = imageLoader,
                     modifier = Modifier
                         .nestedScroll(bottomAppBarState.nestedScrollConnection)
                         .nestedScroll(topAppBarState.nestedScrollConnection),
@@ -193,7 +185,7 @@ fun ReadChapterScreen(
                 )
             }
 
-            is ImagesScreenState.Error -> Text(state.errorMessage)
+            is MangaChapterReaderScreenState.Error -> Text(state.errorMessage)
         }
     }
 }
@@ -226,8 +218,7 @@ private fun ReaderTopAppBar(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReadyImagesOverview(
-    state: ImagesScreenState.Ready,
-    imageLoader: ImageLoader,
+    state: MangaChapterReaderScreenState.Ready,
     modifier: Modifier = Modifier,
     padding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
@@ -245,7 +236,7 @@ private fun ReadyImagesOverview(
         state = lazyListState,
     ) {
         items(state.images, key = { it }) {
-            ListImage(it, imageLoader, Modifier.fillParentMaxWidth())
+            ListImage(it, Modifier.fillParentMaxWidth())
         }
         item(key = "setReadEffect", contentType = "EndEffect") {
             Column(
@@ -268,17 +259,13 @@ private fun ReadyImagesOverview(
             }
         }
     }
-    ListImagePreloader(imageLoader, lazyListState, state.images)
+    PreloadImages(lazyListState, state.images)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifier = Modifier) {
-    val asyncPainter = rememberAsyncImagePainter(
-        model = model,
-        imageLoader = imageLoader,
-    )
-
+private fun ListImage(model: String, modifier: Modifier = Modifier) {
+    val asyncPainter = rememberAsyncImagePainter(model)
     val painterState = asyncPainter.state.collectAsState()
     when (val state = painterState.value) {
         is AsyncImagePainter.State.Success -> Image(
@@ -304,7 +291,7 @@ private fun ListImage(model: String, imageLoader: ImageLoader, modifier: Modifie
 @Composable
 private fun ReaderBottomBar(
     state: BottomAppBarState,
-    screenState: ImagesScreenState.Ready?,
+    screenState: MangaChapterReaderScreenState.Ready?,
     toChapterClicked: (ChapterId) -> Unit = {},
     toggleFavorite: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
@@ -362,7 +349,9 @@ private fun ReaderBottomBar(
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable
-fun PreviewReadChapterScreen(@PreviewParameter(ReadChapterScreenProvider::class) data: ImagesScreenState.Ready) {
+fun PreviewReadChapterScreen(
+    @PreviewParameter(ReadChapterScreenProvider::class) data: MangaChapterReaderScreenState.Ready,
+) {
     val context = LocalPlatformContext.current
     val previewHandler = remember(context) {
         AsyncImagePreviewHandler { _, request ->
@@ -386,15 +375,15 @@ fun PreviewReadChapterScreen(@PreviewParameter(ReadChapterScreenProvider::class)
 
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
-            ReadChapterScreen(state = data)
+            MangaChapterReaderScreen(state = data)
         }
     }
 }
 
-class ReadChapterScreenProvider : PreviewParameterProvider<ImagesScreenState.Ready> {
-    override val values: Sequence<ImagesScreenState.Ready>
+class ReadChapterScreenProvider : PreviewParameterProvider<MangaChapterReaderScreenState.Ready> {
+    override val values: Sequence<MangaChapterReaderScreenState.Ready>
         get() = sequenceOf(
-            ImagesScreenState.Ready(
+            MangaChapterReaderScreenState.Ready(
                 title = "Heavenly Martial God",
                 isFavorite = false,
                 isRead = false,
@@ -409,7 +398,7 @@ class ReadChapterScreenProvider : PreviewParameterProvider<ImagesScreenState.Rea
                     "4",
                 ),
             ),
-            ImagesScreenState.Ready(
+            MangaChapterReaderScreenState.Ready(
                 title = "Heavenly Martial God",
                 isFavorite = true,
                 isRead = true,

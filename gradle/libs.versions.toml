@@ -14,6 +14,8 @@ google-gms-google-services = "4.4.4"
 junit = "4.13.2"
 kotlin = "2.2.21"
 lifecycle = "2.10.0"
+nav3Core = "1.0.0"
+lifecycleViewmodelNav3 = "2.10.0"
 room = "2.8.4"
 spotless-plugin-gradle = "8.1.0"
 
@@ -47,11 +49,15 @@ androidX-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidX-compose-uiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidX-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidX-compose-uiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0-alpha09" }
+androidX-hilt-navigationCompose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
 androidX-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidX-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidX-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version = "2.9.6" }
-androidX-hilt-navigationCompose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
-androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0-alpha09" }
+
+# Navigation 3
+androidX-navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "nav3Core" }
+androidX-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
+androidX-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 
 # Room
 androidX-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }

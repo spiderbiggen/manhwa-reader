@@ -14,8 +14,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 @HiltViewModel
-class LoginViewModel @Inject constructor(private val register: Register, private val formatAppError: FormatAppError) :
-    ViewModel() {
+class RegistrationViewModel @Inject constructor(
+    private val register: Register,
+    private val formatAppError: FormatAppError,
+) : ViewModel() {
     private val _state = MutableStateFlow<RegistrationState>(RegistrationState.Idle)
     val state = _state.asStateFlow()
 

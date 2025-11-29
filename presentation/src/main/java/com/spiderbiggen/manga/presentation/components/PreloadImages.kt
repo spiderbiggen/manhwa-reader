@@ -7,25 +7,25 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
-import coil3.ImageLoader
+import coil3.SingletonImageLoader
 import coil3.request.ImageRequest
+import kotlinx.collections.immutable.ImmutableList
 
 @Composable
-fun <T : Any?> ListImagePreloader(
-    imageLoader: ImageLoader,
-    lazyListState: LazyListState,
-    items: List<T>,
-    preloadCount: Int = 5,
-) {
+fun <T : Any?> PreloadImages(lazyListState: LazyListState, items: ImmutableList<T>, count: Int = 5) {
     val context = LocalContext.current
+    val imageLoader by rememberUpdatedState(SingletonImageLoader.get(context))
+
+    // TODO simplify
     var loaded by remember { mutableIntStateOf(lazyListState.layoutInfo.visibleItemsInfo.size) }
     val firstVisibleIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
     val visibleCount by remember { derivedStateOf { lazyListState.layoutInfo.visibleItemsInfo.size } }
     val limited by remember {
         derivedStateOf {
-            val preloadIndex = firstVisibleIndex + visibleCount + preloadCount
+            val preloadIndex = firstVisibleIndex + visibleCount + count
             val limited = preloadIndex.coerceAtMost(items.size - 1)
             if (limited < loaded) loaded else limited
         }

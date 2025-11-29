@@ -30,10 +30,10 @@ fun rememberManualScrollState(listState: LazyListState): Boolean {
 fun <T : Any?> StickyTopEffect(
     items: ImmutableCollection<T>,
     listState: LazyListState,
-    manuallyScrolled: Boolean = rememberManualScrollState(listState),
+    isManuallyScrolled: Boolean = rememberManualScrollState(listState),
 ) {
-    LaunchedEffect(items, manuallyScrolled) {
-        if (!manuallyScrolled) {
+    LaunchedEffect(items, isManuallyScrolled) {
+        if (!isManuallyScrolled) {
             // scroll to top to ensure latest added element gets visible
             listState.animateScrollToItem(0)
         }
