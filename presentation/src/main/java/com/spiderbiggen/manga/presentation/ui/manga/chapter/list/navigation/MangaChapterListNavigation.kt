@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation
 
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack

@@ -341,27 +341,32 @@ fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) st
 }
 
 class ChapterOverviewScreenStateProvider : PreviewParameterProvider<MangaChapterScreenState.Ready> {
-    override val values
-        get() = sequenceOf(
-            MangaChapterScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = false,
-                chapters = ChapterProvider.values.take(1).toImmutableList(),
-            ),
-            MangaChapterScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = false,
-                chapters = ChapterProvider.values.toImmutableList(),
-            ),
-            MangaChapterScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = true,
-                chapters = ChapterProvider.values.toImmutableList(),
-            ),
-        )
+    override val values: Sequence<MangaChapterScreenState.Ready>
+        get() {
+            val title = "Heavenly Martial God"
+            return sequenceOf(
+                MangaChapterScreenState.Ready(
+                    title = title,
+                    isFavorite = false,
+                    chapters = ChapterProvider.values.take(1).toImmutableList(),
+                ),
+                MangaChapterScreenState.Ready(
+                    title = title,
+                    isFavorite = false,
+                    chapters = ChapterProvider.values.toImmutableList(),
+                ),
+                MangaChapterScreenState.Ready(
+                    title = title,
+                    isFavorite = true,
+                    chapters = ChapterProvider.values.toImmutableList(),
+                ),
+            )
+        }
 }
 
 private object ChapterProvider {
+
+    private const val CHAPTER_DATE = "2023-04-12"
     private val mapChapterRowData = MapChapterRowData()
 
     val values: Sequence<ChapterRowData>
@@ -385,7 +390,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 5u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = false,
@@ -398,7 +403,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 4u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,
@@ -411,7 +416,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 3u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,
@@ -424,7 +429,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 2u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,
@@ -437,7 +442,7 @@ private object ChapterProvider {
                         index = 29u,
                         subIndex = 1u,
                         title = null,
-                        date = LocalDate.parse("2023-04-12"),
+                        date = LocalDate.parse(CHAPTER_DATE),
                         updatedAt = now(),
                     ),
                     isRead = true,

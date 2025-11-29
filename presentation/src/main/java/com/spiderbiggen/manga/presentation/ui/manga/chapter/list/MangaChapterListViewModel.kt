@@ -132,7 +132,7 @@ class MangaChapterListViewModel @AssistedInject constructor(
     }
 
     @AssistedFactory
-    interface Factory {
+    fun interface Factory {
         fun create(navKey: MangaChapterListRoute): MangaChapterListViewModel
     }
 }

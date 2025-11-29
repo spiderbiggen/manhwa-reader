@@ -1,17 +1,14 @@
 package com.spiderbiggen.manga.presentation.ui.profile.overview
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.leftOrElse
-import com.spiderbiggen.manga.domain.model.mapRight
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverviewViewState
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.net.URI
