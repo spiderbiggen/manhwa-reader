@@ -1,92 +1,77 @@
 package com.spiderbiggen.manga.presentation.components.topappbar
 
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.DecayAnimationSpec
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.TopAppBarState
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.FloatState
-import androidx.compose.runtime.MutableFloatState
-import androidx.compose.runtime.asFloatState
-import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.listSaver
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.util.fastCoerceIn
-import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState.Companion.Saver
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
+import androidx.compose.ui.unit.Velocity
 
+@ExperimentalMaterial3Api
 @Composable
-fun rememberTopAppBarState(initialHeight: Float = 0f): TopAppBarState = rememberSaveable(saver = Saver) {
-    TopAppBarState(initialHeight)
+fun TopAppBarDefaults.scrollWithContentBehavior(
+    state: TopAppBarState = rememberTopAppBarState(),
+    canScroll: () -> Boolean = { true },
+    reverseLayout: Boolean = false,
+): TopAppBarScrollBehavior = remember(state, canScroll, reverseLayout) {
+    ScrollWithContentBehavior(state, canScroll, reverseLayout)
 }
 
-class TopAppBarState {
-    constructor(topAppBarHeight: Float) : this(topAppBarHeight, 0f)
-    private constructor(height: Float, offset: Float) {
-        mutableOffset = mutableFloatStateOf(offset)
-        mutableHeight = height
-    }
+@ExperimentalMaterial3Api
+internal class ScrollWithContentBehavior(
+    override val state: TopAppBarState,
+    val canScroll: () -> Boolean = { true },
+    val reverseLayout: Boolean = false,
+) : TopAppBarScrollBehavior {
+    override val snapAnimationSpec: AnimationSpec<Float>? = null
+    override val flingAnimationSpec: DecayAnimationSpec<Float>? = null
+    override val isPinned: Boolean = false
 
-    private var mutableHeight: Float
-    var appBarHeight: Float
-        get() = mutableHeight
-        set(value) {
-            if (mutableOffset.floatValue < -value) {
-                mutableOffset.floatValue = -value
+    override val nestedScrollConnection =
+        object : NestedScrollConnection {
+            override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
+                if (!canScroll()) return Offset.Zero
+                val prevHeightOffset = state.heightOffset
+                state.heightOffset += available.y
+                // The state's heightOffset is coerce in a minimum value of heightOffsetLimit and a
+                // maximum value 0f, so we check if its value was actually changed after the
+                // available.y was added to it in order to tell if the top app bar is currently
+                // collapsing or expanding.
+                // Note that when the content was set with a revered layout, we always return a
+                // zero offset.
+                return if (!reverseLayout && prevHeightOffset != state.heightOffset) {
+                    // We're in the middle of top app bar collapse or expand.
+                    // Consume only the scroll on the Y axis.
+                    available.copy(x = 0f)
+                } else {
+                    Offset.Zero
+                }
             }
 
-            mutableHeight = value
-        }
+            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+                if (!canScroll()) return Offset.Zero
+                state.contentOffset += consumed.y
+                if (!reverseLayout) state.heightOffset += consumed.y
+                return Offset.Zero
+            }
 
-    private var animationJob: Job? = null
-
-    private val mutableOffset: MutableFloatState
-    val appBarOffset: FloatState
-        get() = mutableOffset.asFloatState()
-
-    suspend fun animateAppBarOffset(offset: Float, animationSpec: AnimationSpec<Float> = spring()) {
-        val limited = offset.fastCoerceIn(-appBarHeight, 0f)
-        if (mutableOffset.floatValue == limited) return
-        animationJob = coroutineScope {
-            launch {
-                Animatable(mutableOffset.floatValue)
-                    .animateTo(targetValue = offset, animationSpec = animationSpec) {
-                        mutableOffset.floatValue = value
-                    }
+            override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
+                if (
+                    available.y > 0f &&
+                    (state.heightOffset == 0f || state.heightOffset == state.heightOffsetLimit)
+                ) {
+                    // Reset the total content offset to zero when scrolling all the way down.
+                    // This will eliminate some float precision inaccuracies.
+                    state.contentOffset = 0f
+                }
+                return super.onPostFling(consumed, available)
             }
         }
-    }
-
-    val nestedScrollConnection = object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            animationJob?.cancel()
-            val delta = available.y
-            val startOffset = mutableOffset.floatValue
-            val newOffset = (startOffset + delta).fastCoerceIn(-appBarHeight, 0f)
-            if (newOffset == startOffset) return Offset.Zero
-            mutableOffset.floatValue = newOffset
-            val consumedDelta = newOffset - startOffset
-            return Offset(0f, consumedDelta)
-        }
-    }
-
-    companion object {
-        /**
-         * The default [Saver] implementation for [TopAppBarState].
-         */
-        val Saver: Saver<TopAppBarState, *> = listSaver(
-            save = { listOf(it.appBarHeight, it.mutableOffset.floatValue) },
-            restore = {
-                TopAppBarState(
-                    height = it[0],
-                    offset = it[1],
-                )
-            },
-        )
-    }
 }

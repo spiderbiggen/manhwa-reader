@@ -5,18 +5,14 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -29,7 +25,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,8 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -52,7 +47,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
-import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
+import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlin.time.Clock.System.now
 
@@ -75,6 +71,7 @@ fun ProfileOverview(
             onLogout()
         }
     }
+
     ProfileOverviewContent(
         state = state,
         snackbarHostState = snackbarHostState,
@@ -93,31 +90,24 @@ fun ProfileOverviewContent(
     onChangeAvatarClick: (Uri) -> Unit = {},
     onLogoutClick: () -> Unit = {},
 ) {
-    val topAppBarState = rememberTopAppBarState()
+    val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior()
 
     MangaScaffold(
-        contentWindowInsets = WindowInsets.systemBars,
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
-            Box(
-                Modifier
-                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                    .background(MaterialTheme.colorScheme.background)
-                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-            ) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(painterResource(R.drawable.arrow_back), "Back")
-                        }
-                    },
-                    title = { Text("Profile") },
-                )
-            }
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                    }
+                },
+                title = { Text("Profile") },
+                scrollBehavior = topAppBarScrollBehavior,
+            )
         },
-        snackbarHost = {
+        snackbar = {
             SnackbarHost(snackbarHostState)
         },
-        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         when (state) {
             is ProfileOverviewViewState.Authenticated -> AuthenticatedUserProfile(

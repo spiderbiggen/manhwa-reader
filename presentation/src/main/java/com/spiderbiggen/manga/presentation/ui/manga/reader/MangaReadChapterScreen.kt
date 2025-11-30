@@ -4,19 +4,15 @@ import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -32,7 +28,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
@@ -70,13 +65,14 @@ import coil3.request.SuccessResult
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.bottomappbar.BottomAppBarState
 import com.spiderbiggen.manga.presentation.components.bottomappbar.rememberBottomAppBarState
-import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBarState
-import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
+import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
@@ -102,7 +98,7 @@ fun MangaChapterReaderScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun MangaChapterReaderScreen(
     state: MangaChapterReaderScreenState,
@@ -116,20 +112,26 @@ fun MangaChapterReaderScreen(
 ) {
     val lazyListState = rememberLazyListState()
 
-    val topAppBarState = rememberTopAppBarState()
+    val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior()
     val bottomAppBarState = rememberBottomAppBarState(lazyListState)
 
     val ready = state.ifReady()
     MangaScaffold(
-        contentWindowInsets = WindowInsets.safeDrawing,
+        modifier = Modifier
+            .nestedScroll(bottomAppBarState.nestedScrollConnection)
+            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
-            ReaderTopAppBar(
-                state = topAppBarState,
-                title = ready?.title.orEmpty(),
-                onBackClick = onBackClick,
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
+                        Icon(painterResource(arrow_back), "Back")
+                    }
+                },
+                title = { Text(text = ready?.title.orEmpty()) },
+                scrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
+        snackbar = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             ReaderBottomBar(
                 state = bottomAppBarState,
@@ -139,13 +141,11 @@ fun MangaChapterReaderScreen(
                 setReadUpToHere = setReadUpToHere,
             )
         },
-        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
-        bottomBarOffset = { bottomAppBarState.appBarOffset.floatValue.toInt() },
-    ) { padding ->
+    ) { contentPadding ->
         when (state) {
             is MangaChapterReaderScreenState.Loading -> Box(
                 modifier = Modifier
-                    .padding(padding)
+                    .padding(contentPadding)
                     .fillMaxSize(),
                 contentAlignment = Alignment.Center,
             ) {
@@ -155,25 +155,17 @@ fun MangaChapterReaderScreen(
             is MangaChapterReaderScreenState.Ready -> {
                 val animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
                 ReadyImagesOverview(
+                    modifier = Modifier.fillMaxSize(),
                     state = state,
-                    modifier = Modifier
-                        .nestedScroll(bottomAppBarState.nestedScrollConnection)
-                        .nestedScroll(topAppBarState.nestedScrollConnection),
-                    padding = padding,
+                    padding = contentPadding,
                     lazyListState = lazyListState,
                     onListClicked = {
-                        coroutineScope.launch {
-                            lazyListState.animateScrollBy(
-                                value = -topAppBarState.appBarOffset.floatValue,
-                                animationSpec = animationSpec,
-                            )
-                        }
-                        coroutineScope.launch {
-                            topAppBarState.animateAppBarOffset(
-                                offset = 0f,
-                                animationSpec = animationSpec,
-                            )
-                        }
+                        // coroutineScope.launch {
+                        //     topAppBarScrollBehavior.nestedScrollConnection.onPostFling(
+                        //         offset = 0f,
+                        //         animationSpec = animationSpec,
+                        //     )
+                        // }
                         coroutineScope.launch {
                             bottomAppBarState.animateAppBarOffset(
                                 offset = 0f,
@@ -187,31 +179,6 @@ fun MangaChapterReaderScreen(
 
             is MangaChapterReaderScreenState.Error -> Text(state.errorMessage)
         }
-    }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun ReaderTopAppBar(
-    state: TopAppBarState,
-    title: String,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    Box(
-        modifier
-            .onSizeChanged { state.appBarHeight = it.height.toFloat() }
-            .background(MaterialTheme.colorScheme.surface)
-            .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-    ) {
-        TopAppBar(
-            navigationIcon = {
-                IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
-                    Icon(painterResource(R.drawable.arrow_back), "Back")
-                }
-            },
-            title = { Text(title) },
-        )
     }
 }
 

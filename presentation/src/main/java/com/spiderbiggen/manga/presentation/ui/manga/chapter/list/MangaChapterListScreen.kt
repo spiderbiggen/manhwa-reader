@@ -1,21 +1,16 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -28,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -71,7 +64,8 @@ import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
-import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
+import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlin.time.Clock.System.now
@@ -119,37 +113,32 @@ fun ChapterListScreen(
 ) {
     val lazyListState = rememberLazyListState()
     val isManuallyScrolled = rememberManualScrollState(lazyListState)
-    val topAppBarState = rememberTopAppBarState()
+    val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
+        canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+    )
 
     val readyState = state as? MangaChapterScreenState.Ready
     MangaScaffold(
-        contentWindowInsets = WindowInsets.systemBars,
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
-            Box(
-                Modifier
-                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                    .background(MaterialTheme.colorScheme.background)
-                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-            ) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onBackClick) {
-                            Icon(painterResource(R.drawable.arrow_back), "Back")
-                        }
-                    },
-                    title = { Text(readyState?.title ?: "Manga") },
-                    actions = {
-                        IconButton(onClick = onToggleFavorite) {
-                            FavoriteToggle(isFavorite = readyState?.isFavorite == true)
-                        }
-                    },
-                )
-            }
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                    }
+                },
+                title = { Text(readyState?.title ?: "Manga") },
+                actions = {
+                    IconButton(onClick = onToggleFavorite) {
+                        FavoriteToggle(isFavorite = readyState?.isFavorite == true)
+                    }
+                },
+                scrollBehavior = topAppBarScrollBehavior,
+            )
         },
-        snackbarHost = {
+        snackbar = {
             SnackbarHost(snackbarHostState)
         },
-        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         when (state) {
             is MangaChapterScreenState.Loading,
@@ -160,7 +149,6 @@ fun ChapterListScreen(
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = onRefresh,
-                    modifier = Modifier.fillMaxSize(),
                 ) {
                     StickyTopEffect(
                         items = state.chapters,
@@ -170,9 +158,7 @@ fun ChapterListScreen(
                     ChaptersList(
                         lazyListState = lazyListState,
                         chapters = state.chapters,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(topAppBarState.nestedScrollConnection),
+                        modifier = Modifier.fillMaxSize(),
                         contentPadding = scaffoldPadding,
                         onChapterClick = onChapterClick,
                     )

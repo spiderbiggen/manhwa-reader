@@ -1,18 +1,10 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import android.content.res.Configuration
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.systemBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,7 +18,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -54,7 +44,8 @@ import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
-import com.spiderbiggen.manga.presentation.components.topappbar.rememberTopAppBarState
+import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
@@ -142,78 +133,54 @@ private fun MangaOverviewContent(
 ) {
     val lazyListState = rememberLazyListState()
     val manuallyScrolled = rememberManualScrollState(lazyListState)
-    val topAppBarState = rememberTopAppBarState()
+    val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
+        canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+    )
 
     MangaScaffold(
-        contentWindowInsets = WindowInsets.systemBars,
         topBar = {
-            Column(
-                Modifier
-                    .onSizeChanged { topAppBarState.appBarHeight = it.height.toFloat() }
-                    .background(MaterialTheme.colorScheme.background)
-                    .windowInsetsPadding(TopAppBarDefaults.windowInsets),
-            ) {
-                TopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onProfileClicked) {
-                            when (profileState) {
-                                is ProfileState.Unauthenticated -> Icon(
-                                    painterResource(R.drawable.account_circle),
-                                    contentDescription = "Profile",
-                                )
+            TopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onProfileClicked) {
+                        when (profileState) {
+                            is ProfileState.Unauthenticated -> Icon(
+                                painterResource(R.drawable.account_circle),
+                                contentDescription = "Profile",
+                            )
 
-                                is ProfileState.Authenticated -> AsyncImage(
-                                    model = profileState.avatarUrl,
-                                    contentDescription = "Profile",
-                                    contentScale = ContentScale.Crop,
-                                    error = painterResource(R.drawable.account_circle),
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .size(24.dp),
-                                )
-                            }
+                            is ProfileState.Authenticated -> AsyncImage(
+                                model = profileState.avatarUrl,
+                                contentDescription = "Profile",
+                                contentScale = ContentScale.Crop,
+                                error = painterResource(R.drawable.account_circle),
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(24.dp),
+                            )
                         }
-                    },
-                    title = { Text("Manga") },
-                    actions = {
-                        if (BuildConfig.DEBUG) {
-                            IconButton(onClick = { throw Throwable() }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.bug_report),
-                                    contentDescription = "Create a crash report (by crashing)",
-                                )
-                            }
+                    }
+                },
+                title = { Text("Manga") },
+                actions = {
+                    if (BuildConfig.DEBUG) {
+                        IconButton(onClick = { throw Throwable() }) {
+                            Icon(
+                                painter = painterResource(R.drawable.bug_report),
+                                contentDescription = "Create a crash report (by crashing)",
+                            )
                         }
-                    },
-                )
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    CheckedFilterChip(
-                        selected = isFavoritesSelected,
-                        label = { Text("Favorites") },
-                        onClick = onToggleFavoritesRequested,
-                    )
-                    CheckedFilterChip(
-                        selected = isUnreadSelected,
-                        label = { Text("Unread") },
-                        onClick = onToggleUnreadRequested,
-                    )
-                }
-            }
+                    }
+                },
+                scrollBehavior = topAppBarScrollBehavior,
+            )
         },
-        snackbarHost = {
+        snackbar = {
             SnackbarHost(snackbarHostState)
         },
-        topBarOffset = { topAppBarState.appBarOffset.floatValue.toInt() },
     ) { scaffoldPadding ->
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
-            modifier = Modifier.fillMaxSize(),
         ) {
             StickyTopEffect(
                 items = manga,
@@ -224,7 +191,7 @@ private fun MangaOverviewContent(
                 mangas = manga,
                 modifier = Modifier
                     .fillMaxSize()
-                    .nestedScroll(topAppBarState.nestedScrollConnection),
+                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                 contentPadding = scaffoldPadding,
                 lazyListState = lazyListState,
                 onMangaClick = onMangaClick,
