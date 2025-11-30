@@ -94,6 +94,8 @@ dependencies {
     implementation(project(":presentation"))
 
     implementation(libs.androidX.core.ktx)
+    implementation(libs.androidX.core.splashscreen)
+    implementation(libs.android.material)
 
     // Firebase
     implementation(platform(libs.firebase.bom))

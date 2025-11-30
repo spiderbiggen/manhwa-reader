@@ -27,6 +27,8 @@ espresso-core = { group = "androidx.test.espresso", name = "espresso-core", vers
 # Android
 androidX-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
 androidX-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+android-material = { group = "com.google.android.material", name = "material", version = "1.13.0" }
+androidX-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version = "1.2.0" }
 
 # Firebase
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "34.6.0" }
