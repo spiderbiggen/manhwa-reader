@@ -180,6 +180,7 @@ private fun MangaOverviewContent(
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
+            topOffSet = { (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit).toInt() }
         ) {
             StickyTopEffect(
                 items = manga,

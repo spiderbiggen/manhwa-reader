@@ -149,6 +149,7 @@ fun ChapterListScreen(
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = onRefresh,
+                    topOffSet = { (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit).toInt() }
                 ) {
                     StickyTopEffect(
                         items = state.chapters,
