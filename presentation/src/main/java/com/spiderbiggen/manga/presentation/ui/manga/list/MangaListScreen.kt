@@ -138,6 +138,7 @@ private fun MangaOverviewContent(
     )
 
     MangaScaffold(
+        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -174,10 +175,8 @@ private fun MangaOverviewContent(
                 scrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbar = {
-            SnackbarHost(snackbarHostState)
-        },
-    ) { scaffoldPadding ->
+        snackbar = { SnackbarHost(snackbarHostState) },
+    ) { contentPadding ->
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
@@ -189,10 +188,8 @@ private fun MangaOverviewContent(
             )
             MangaList(
                 mangas = manga,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                contentPadding = scaffoldPadding,
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = contentPadding,
                 lazyListState = lazyListState,
                 onMangaClick = onMangaClick,
                 onFavoriteClick = onFavoriteClick,
