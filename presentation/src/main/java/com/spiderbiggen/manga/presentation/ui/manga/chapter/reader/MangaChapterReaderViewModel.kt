@@ -1,8 +1,7 @@
-package com.spiderbiggen.manga.presentation.ui.manga.reader
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andLeft
@@ -16,21 +15,20 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.read.SetRead
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.manga.reader.navigation.MangaChapterReaderRoute
+import com.spiderbiggen.manga.presentation.extensions.launchDefault
+import com.spiderbiggen.manga.presentation.extensions.suspended
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.MangaChapterReaderRoute
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 
 @HiltViewModel(assistedFactory = MangaChapterReaderViewModel.Factory::class)
 class MangaChapterReaderViewModel @AssistedInject constructor(
@@ -49,22 +47,20 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
 
     private var surrounding = SurroundingChapters()
 
-    private val mutableState = MutableStateFlow<MangaChapterReaderScreenState>(MangaChapterReaderScreenState.Loading)
-    val state = mutableState.asStateFlow()
+    private val _state = MutableStateFlow<MangaChapterReaderScreenState>(MangaChapterReaderScreenState.Loading)
+    val state = _state.asStateFlow()
         .onStart { loadData() }
         .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = mutableState.value,
+            defaultScope,
+            started = SharingStarted.WhileSubscribed(500),
+            initialValue = _state.value,
         )
 
-    suspend fun loadData() = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Main) {
-            updateScreenState()
-        }
+    suspend fun loadData() = launchDefault {
+        updateScreenState()
     }
 
-    private suspend fun updateScreenState() = coroutineScope {
+    private suspend fun updateScreenState() {
         val deferredEitherImages = getChapterImages(chapterId)
         val deferredSurrounding = getSurroundingChapters(chapterId)
 
@@ -74,8 +70,8 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
         val (images, surrounding) = deferredEitherImages
             .andLeft(deferredSurrounding)
             .leftOrElse {
-                mutableState.emit(mapError(it))
-                return@coroutineScope
+                _state.emit(mapError(it))
+                return
             }
 
         this@MangaChapterReaderViewModel.surrounding = surrounding
@@ -90,7 +86,7 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
                 }
 
                 combinedFlows.collect { (chapter, isRead, isFavorite) ->
-                    mutableState.emit(
+                    _state.emit(
                         MangaChapterReaderScreenState.Ready(
                             title = chapter.displayTitle(),
                             surrounding = surrounding,
@@ -102,26 +98,20 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
                 }
             }
 
-            is Either.Right -> mutableState.emit(mapError(data.value))
+            is Either.Right -> _state.emit(mapError(data.value))
         }
     }
 
-    fun toggleFavorite() {
-        defaultScope.launch {
-            toggleFavorite(mangaId)
-        }
+    fun toggleFavorite() = suspended {
+        toggleFavorite(mangaId)
     }
 
-    fun updateReadState() {
-        defaultScope.launch {
-            setRead(chapterId, true)
-        }
+    fun updateReadState() = suspended {
+        setRead(chapterId, true)
     }
 
-    fun setReadUpToHere() {
-        defaultScope.launch {
-            setReadUpToChapter(chapterId)
-        }
+    fun setReadUpToHere() = suspended {
+        setReadUpToChapter(chapterId)
     }
 
     fun mapError(error: AppError): MangaChapterReaderScreenState.Error {

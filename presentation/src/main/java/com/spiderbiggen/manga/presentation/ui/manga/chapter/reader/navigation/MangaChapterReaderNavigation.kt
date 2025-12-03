@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.reader.navigation
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -7,8 +7,8 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import com.spiderbiggen.manga.presentation.ui.manga.reader.MangaChapterReaderScreen
-import com.spiderbiggen.manga.presentation.ui.manga.reader.MangaChapterReaderViewModel
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.MangaChapterReaderScreen
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.MangaChapterReaderViewModel
 import kotlinx.serialization.Serializable
 
 @Serializable

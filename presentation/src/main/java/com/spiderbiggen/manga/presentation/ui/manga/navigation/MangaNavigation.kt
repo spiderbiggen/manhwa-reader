@@ -9,10 +9,10 @@ import com.spiderbiggen.manga.presentation.navigation.popUpToInclusive
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.MangaChapterListRoute
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.mangaChapterListDestination
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.navigateToMangaList
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.MangaChapterReaderRoute
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.mangaChapterReaderDestination
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.navigateToMangaReader
 import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.mangaDestination
-import com.spiderbiggen.manga.presentation.ui.manga.reader.navigation.MangaChapterReaderRoute
-import com.spiderbiggen.manga.presentation.ui.manga.reader.navigation.mangaChapterReaderDestination
-import com.spiderbiggen.manga.presentation.ui.manga.reader.navigation.navigateToMangaReader
 import com.spiderbiggen.manga.presentation.ui.profile.navigation.navigateToProfile
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 

@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.reader
+package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -286,7 +286,7 @@ private fun ReaderBottomBar(
             onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
             enabled = previousChapterId != null,
         ) {
-            Icon(painterResource(R.drawable.arrow_back), null)
+            Icon(painterResource(arrow_back), null)
         }
         val nextChapterId = screenState?.surrounding?.next
         IconButton(
