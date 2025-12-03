@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 import javax.inject.Inject
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

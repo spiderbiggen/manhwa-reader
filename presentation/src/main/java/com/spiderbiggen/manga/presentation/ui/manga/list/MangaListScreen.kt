@@ -38,7 +38,6 @@ import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
-import com.spiderbiggen.manga.presentation.components.MangaRow
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
@@ -47,9 +46,10 @@ import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -138,7 +138,6 @@ private fun MangaOverviewContent(
     )
 
     MangaScaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -180,7 +179,9 @@ private fun MangaOverviewContent(
         PullToRefreshBox(
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
-            topOffSet = { (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit).toInt() }
+            topOffSet = {
+                (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit).toInt()
+            },
         ) {
             StickyTopEffect(
                 items = manga,
@@ -189,7 +190,9 @@ private fun MangaOverviewContent(
             )
             MangaList(
                 mangas = manga,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                 contentPadding = contentPadding,
                 lazyListState = lazyListState,
                 onMangaClick = onMangaClick,

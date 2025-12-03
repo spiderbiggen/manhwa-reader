@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.ui.manga.model
+package com.spiderbiggen.manga.presentation.ui.manga.list.model
 
 import androidx.compose.runtime.Immutable
 import com.spiderbiggen.manga.domain.model.id.MangaId

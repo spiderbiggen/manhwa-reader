@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.components
+package com.spiderbiggen.manga.presentation.ui.manga.list.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -42,8 +42,9 @@ import coil3.request.ImageRequest
 import coil3.size.Size
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 
 private val COVER_SIZE = DpSize(60.dp, 80.dp)
 
@@ -104,7 +105,7 @@ private fun CoverImage(url: String, modifier: Modifier = Modifier) {
 private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     Row {
         IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
-            FavoriteToggle(manga.isFavorite)
+            _root_ide_package_.com.spiderbiggen.manga.presentation.components.FavoriteToggle(manga.isFavorite)
         }
     }
 }
