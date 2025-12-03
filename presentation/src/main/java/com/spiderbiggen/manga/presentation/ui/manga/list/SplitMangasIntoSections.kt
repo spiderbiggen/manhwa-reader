@@ -14,7 +14,7 @@ class SplitMangasIntoSections @Inject constructor() {
      * Assumes the list is sorted
      */
     operator fun invoke(
-        mangas: List<MangaForOverview>,
+        mangas: Sequence<MangaForOverview>,
         timeZone: TimeZone,
     ): List<Pair<String, List<MangaForOverview>>> {
         val now = now()

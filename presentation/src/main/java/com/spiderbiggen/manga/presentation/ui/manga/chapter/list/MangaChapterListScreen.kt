@@ -119,7 +119,6 @@ fun ChapterListScreen(
 
     val readyState = state as? MangaChapterScreenState.Ready
     MangaScaffold(
-        modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             TopAppBar(
                 navigationIcon = {
@@ -159,7 +158,9 @@ fun ChapterListScreen(
                     ChaptersList(
                         lazyListState = lazyListState,
                         chapters = state.chapters,
-                        modifier = Modifier.fillMaxSize(),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                         contentPadding = scaffoldPadding,
                         onChapterClick = onChapterClick,
                     )

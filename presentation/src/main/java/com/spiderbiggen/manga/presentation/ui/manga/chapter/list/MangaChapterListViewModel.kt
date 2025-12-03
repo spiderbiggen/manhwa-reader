@@ -12,7 +12,9 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
-import com.spiderbiggen.manga.presentation.extensions.defaultScope
+import com.spiderbiggen.manga.presentation.extensions.defaultContext
+import com.spiderbiggen.manga.presentation.extensions.launchDefault
+import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterScreenState.Ready
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.MangaChapterListRoute
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
@@ -21,7 +23,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -50,12 +51,7 @@ class MangaChapterListViewModel @AssistedInject constructor(
     private val mangaId = navKey.id
 
     private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    val isRefreshing = _isRefreshing
-        .stateIn(
-            viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = false,
-        )
+    val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
     private val _snackbarFlow = MutableSharedFlow<SnackbarData>(1)
     val snackbarFlow: SharedFlow<SnackbarData>
@@ -66,53 +62,47 @@ class MangaChapterListViewModel @AssistedInject constructor(
         .onStart { loadData() }
         .stateIn(
             viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = MangaChapterScreenState.Loading,
+            started = SharingStarted.WhileSubscribed(500),
+            initialValue = mutableState.value,
         )
 
-    private suspend fun loadData() = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Main) {
-            updateChapters(skipCache = false)
-            val eitherManga = getManga(mangaId)
-            val eitherChapters = getOverviewChapters(mangaId)
-            when (val data = eitherManga.andLeft(eitherChapters)) {
-                is Either.Left -> {
-                    val (mangaFlow, chaptersFlow) = data.value
-                    val combinedFlows = combine(
-                        mangaFlow,
-                        chaptersFlow,
-                    ) { manga, chapters ->
-                        Triple(manga.manga, manga.isFavorite, chapters)
-                    }
-
-                    combinedFlows.collectLatest { (manga, isFavorite, chapters) ->
-                        mutableState.emit(
-                            Ready(
-                                title = manga.title,
-                                isFavorite = isFavorite,
-                                chapters = chapters
-                                    .map { mapChapterRowData(it) }
-                                    .toImmutableList(),
-                            ),
-                        )
-                    }
+    private suspend fun loadData() = launchDefault {
+        updateChapters(skipCache = false)
+        val eitherManga = getManga(mangaId)
+        val eitherChapters = getOverviewChapters(mangaId)
+        when (val data = eitherManga.andLeft(eitherChapters)) {
+            is Either.Left -> {
+                val (mangaFlow, chaptersFlow) = data.value
+                val combinedFlows = combine(
+                    mangaFlow,
+                    chaptersFlow,
+                ) { manga, chapters ->
+                    Triple(manga.manga, manga.isFavorite, chapters)
                 }
 
-                is Either.Right -> mutableState.emit(mapError(data.value))
+                combinedFlows.collectLatest { (manga, isFavorite, chapters) ->
+                    mutableState.emit(
+                        Ready(
+                            title = manga.title,
+                            isFavorite = isFavorite,
+                            chapters = chapters
+                                .map { mapChapterRowData(it) }
+                                .toImmutableList(),
+                        ),
+                    )
+                }
             }
+
+            is Either.Right -> mutableState.emit(mapError(data.value))
         }
     }
 
-    fun onRefresh() {
-        defaultScope.launch {
-            updateChapters(skipCache = true)
-        }
+    fun onRefresh() = suspended {
+        updateChapters(skipCache = true)
     }
 
-    fun onToggleFavorite() {
-        defaultScope.launch {
-            toggleFavorite(mangaId)
-        }
+    fun onToggleFavorite() = suspended {
+        toggleFavorite(mangaId)
     }
 
     private fun mapError(error: AppError): MangaChapterScreenState.Error {
@@ -121,7 +111,7 @@ class MangaChapterListViewModel @AssistedInject constructor(
     }
 
     private suspend fun updateChapters(skipCache: Boolean) = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Default) {
+        launch(defaultContext) {
             _isRefreshing.emit(true)
             updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
                 _snackbarFlow.emit(SnackbarData(formatAppError(it)))

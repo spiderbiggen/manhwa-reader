@@ -13,9 +13,10 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
-import com.spiderbiggen.manga.presentation.extensions.defaultScope
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenData
-import com.spiderbiggen.manga.presentation.ui.manga.model.MangaScreenState
+import com.spiderbiggen.manga.presentation.extensions.launchDefault
+import com.spiderbiggen.manga.presentation.extensions.suspended
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -75,22 +76,20 @@ class MangaListViewModel @Inject constructor(
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
-    private val mutableState = MutableStateFlow(MangaScreenData())
-    val state: StateFlow<MangaScreenData> = mutableState
-        .onStart { loadData() }
+    private val _state = MutableStateFlow(MangaScreenData())
+    val state: StateFlow<MangaScreenData> = _state
+        .onStart { onStart() }
         .stateIn(
             viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = mutableState.value,
+            started = SharingStarted.WhileSubscribed(500),
+            initialValue = _state.value,
         )
 
-    suspend fun loadData() = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Default) {
-            updateMangas(skipCache = false)
-            when (val result = getOverviewManga()) {
-                is Either.Left -> mapSuccess(result.value)
-                is Either.Right -> mapError(result)
-            }
+    suspend fun onStart() = launchDefault {
+        updateMangas(skipCache = false)
+        when (val result = getOverviewManga()) {
+            is Either.Left -> mapSuccess(result.value)
+            is Either.Right -> mapError(result)
         }
     }
 
@@ -109,13 +108,12 @@ class MangaListViewModel @Inject constructor(
                 .asSequence()
                 .filter { !filterUnread || !it.isRead }
                 .filter { !filterFavorites || it.isFavorite }
-                .toList()
             val sectionedManga = splitMangasIntoSections(filteredManga, timeZone)
             val viewData = sectionedManga.map { (key, values) ->
                 key to values.map { mapMangaListViewData(it, timeZone) }.toImmutableList()
             }
 
-            mutableState.emit(
+            _state.emit(
                 MangaScreenData(
                     filterFavorites = filterFavorites,
                     filterUnread = filterUnread,
@@ -131,7 +129,7 @@ class MangaListViewModel @Inject constructor(
             unreadSelectedFlow,
         ) { (favorites, unread) -> unread to favorites }
             .collectLatest { (favorites, unread) ->
-                mutableState.emit(
+                _state.emit(
                     MangaScreenData(
                         filterFavorites = favorites,
                         filterUnread = unread,
@@ -139,11 +137,6 @@ class MangaListViewModel @Inject constructor(
                     ),
                 )
             }
-    }
-
-    private fun mapError(error: AppError): MangaScreenState.Error {
-        Log.e("MangaViewModel", "failed to get manga $error")
-        return MangaScreenState.Error("An error occurred")
     }
 
     fun onToggleUnread() {
@@ -154,16 +147,17 @@ class MangaListViewModel @Inject constructor(
         favoriteSelected = !favoriteSelected
     }
 
-    fun onRefresh() {
-        defaultScope.launch {
-            updateMangas(skipCache = true)
-        }
+    fun onRefresh() = suspended {
+        updateMangas(skipCache = true)
     }
 
-    fun onFavoriteClick(mangaId: MangaId) {
-        defaultScope.launch {
-            toggleFavorite(mangaId)
-        }
+    fun onFavoriteClick(mangaId: MangaId) = suspended {
+        toggleFavorite(mangaId)
+    }
+
+    private fun mapError(error: AppError): MangaScreenState.Error {
+        Log.e("MangaViewModel", "failed to get manga $error")
+        return MangaScreenState.Error("An error occurred")
     }
 
     private suspend fun updateMangas(skipCache: Boolean) = coroutineScope {
