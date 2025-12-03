@@ -21,13 +21,6 @@ fun PullToRefreshBox(
     state: PullToRefreshState = rememberPullToRefreshState(),
     contentAlignment: Alignment = Alignment.TopStart,
     topOffSet: () -> Int = { 0 },
-    indicator: @Composable BoxScope.() -> Unit = {
-        PullToRefreshDefaults.LoadingIndicator(
-            modifier = Modifier.align(Alignment.TopCenter).offset { IntOffset(0, topOffSet())},
-            isRefreshing = isRefreshing,
-            state = state,
-        )
-    },
     content: @Composable BoxScope.() -> Unit,
 ) {
     MaterialPullToRefreshBox(
@@ -36,7 +29,15 @@ fun PullToRefreshBox(
         modifier = modifier,
         state = state,
         contentAlignment = contentAlignment,
-        indicator = indicator,
+        indicator = {
+            PullToRefreshDefaults.LoadingIndicator(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset { IntOffset(0, topOffSet()) },
+                isRefreshing = isRefreshing,
+                state = state,
+            )
+        },
         content = content,
     )
 }
