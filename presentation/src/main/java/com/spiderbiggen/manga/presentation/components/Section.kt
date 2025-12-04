@@ -70,21 +70,24 @@ fun SectionItem(
     val topShape = if (isFirst) largeShape else smallShape
     val bottomShape = if (isLast) largeShape else smallShape
 
-    val shape = with(LocalDensity.current) { fusedShape(topShape, bottomShape) }
-    content(shape)
+    content(fusedShape(topShape, bottomShape))
 }
 
 @Composable
-fun Density.fusedShape(topShape: CornerBasedShape, bottomShape: CornerBasedShape): Shape {
-    if (topShape == bottomShape) {
-        return topShape
-    }
-    if (topShape::class == bottomShape::class) {
-        return topShape.copy(bottomStart = bottomShape.bottomStart, bottomEnd = bottomShape.bottomEnd)
-    }
+fun fusedShape(
+    topShape: CornerBasedShape,
+    bottomShape: CornerBasedShape,
+    density: Density = LocalDensity.current,
+): Shape = remember(density, topShape, bottomShape) {
+    when {
+        topShape == bottomShape -> topShape
 
-    return remember(topShape, bottomShape, this) {
-        GenericShape { size: Size, layoutDirection: LayoutDirection ->
+        topShape::class == bottomShape::class -> topShape.copy(
+            bottomStart = bottomShape.bottomStart,
+            bottomEnd = bottomShape.bottomEnd,
+        )
+
+        else -> GenericShape { size: Size, layoutDirection: LayoutDirection ->
             val (cutCornerTopStart, cutCornerTopEnd) =
                 if (topShape is CutCornerShape) topShape.topStart to topShape.topEnd else NO_CORNERS
             val (cutCornerBottomStart, cutCornerBottomEnd) =
@@ -103,7 +106,7 @@ fun Density.fusedShape(topShape: CornerBasedShape, bottomShape: CornerBasedShape
             ).createOutline(
                 size,
                 layoutDirection,
-                density = this@fusedShape,
+                density = density,
             )
 
             val roundedCornerOutline = RoundedCornerShape(
@@ -114,7 +117,7 @@ fun Density.fusedShape(topShape: CornerBasedShape, bottomShape: CornerBasedShape
             ).createOutline(
                 size = size,
                 layoutDirection = layoutDirection,
-                density = this@fusedShape,
+                density = density,
             )
 
             val cutPath = Path().apply {
