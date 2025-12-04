@@ -1,18 +1,15 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOrElse
-import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
+import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.extensions.launchDefault
 import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
@@ -23,14 +20,12 @@ import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -76,67 +71,38 @@ class MangaListViewModel @Inject constructor(
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
-    private val _state = MutableStateFlow(MangaScreenData())
-    val state: StateFlow<MangaScreenData> = _state
+    val state: StateFlow<MangaScreenData> = screenStateFlow()
         .onStart { onStart() }
         .stateIn(
-            viewModelScope,
+            defaultScope,
             started = SharingStarted.WhileSubscribed(500),
-            initialValue = _state.value,
+            initialValue = MangaScreenData(),
         )
 
     suspend fun onStart() = launchDefault {
         updateMangas(skipCache = false)
-        when (val result = getOverviewManga()) {
-            is Either.Left -> mapSuccess(result.value)
-            is Either.Right -> mapError(result)
-        }
     }
 
-    private suspend fun mapSuccess(flow: Flow<List<MangaForOverview>>) {
-        val combinedFlows = combine(
-            flow,
-            unreadSelectedFlow,
-            favoriteSelectedFlow,
-        ) { manga, unreadSelected, favoriteSelected ->
-            Triple(manga, unreadSelected, favoriteSelected)
+    private fun screenStateFlow() = combine(
+        getOverviewManga(),
+        unreadSelectedFlow,
+        favoriteSelectedFlow,
+    ) { manga, unreadSelected, favoriteSelected ->
+        val timeZone = TimeZone.currentSystemDefault()
+        val filteredManga = manga
+            .asSequence()
+            .filter { !unreadSelected || !it.isRead }
+            .filter { !favoriteSelected || it.isFavorite }
+        val groupedManga = splitMangasIntoSections(filteredManga, timeZone)
+        val viewData = groupedManga.map { (key, values) ->
+            key to values.map { mapMangaListViewData(it, timeZone) }.toImmutableList()
         }
 
-        combinedFlows.collectLatest { (mangaList, filterUnread, filterFavorites) ->
-            val timeZone = TimeZone.currentSystemDefault()
-            val filteredManga = mangaList
-                .asSequence()
-                .filter { !filterUnread || !it.isRead }
-                .filter { !filterFavorites || it.isFavorite }
-            val sectionedManga = splitMangasIntoSections(filteredManga, timeZone)
-            val viewData = sectionedManga.map { (key, values) ->
-                key to values.map { mapMangaListViewData(it, timeZone) }.toImmutableList()
-            }
-
-            _state.emit(
-                MangaScreenData(
-                    filterFavorites = filterFavorites,
-                    filterUnread = filterUnread,
-                    state = MangaScreenState.Ready(manga = viewData.toImmutableList()),
-                ),
-            )
-        }
-    }
-
-    private suspend fun mapError(result: Either.Right<Flow<List<MangaForOverview>>, AppError>) {
-        combine(
-            favoriteSelectedFlow,
-            unreadSelectedFlow,
-        ) { (favorites, unread) -> unread to favorites }
-            .collectLatest { (favorites, unread) ->
-                _state.emit(
-                    MangaScreenData(
-                        filterFavorites = favorites,
-                        filterUnread = unread,
-                        state = mapError(result.value),
-                    ),
-                )
-            }
+        MangaScreenData(
+            filterFavorites = favoriteSelected,
+            filterUnread = unreadSelected,
+            state = MangaScreenState.Ready(manga = viewData.toImmutableList()),
+        )
     }
 
     fun onToggleUnread() {
@@ -153,11 +119,6 @@ class MangaListViewModel @Inject constructor(
 
     fun onFavoriteClick(mangaId: MangaId) = suspended {
         toggleFavorite(mangaId)
-    }
-
-    private fun mapError(error: AppError): MangaScreenState.Error {
-        Log.e("MangaViewModel", "failed to get manga $error")
-        return MangaScreenState.Error("An error occurred")
     }
 
     private suspend fun updateMangas(skipCache: Boolean) = coroutineScope {

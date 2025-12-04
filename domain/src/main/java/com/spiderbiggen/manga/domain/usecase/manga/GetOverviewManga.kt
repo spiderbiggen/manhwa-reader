@@ -6,5 +6,5 @@ import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import kotlinx.coroutines.flow.Flow
 
 fun interface GetOverviewManga {
-    operator fun invoke(): Either<Flow<List<MangaForOverview>>, AppError>
+    operator fun invoke(): Flow<List<MangaForOverview>>
 }

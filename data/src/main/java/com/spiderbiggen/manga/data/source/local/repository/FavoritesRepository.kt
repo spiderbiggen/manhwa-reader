@@ -8,9 +8,7 @@ import javax.inject.Provider
 import kotlinx.coroutines.flow.Flow
 
 class FavoritesRepository @Inject constructor(private val favoritesDaoProvider: Provider<MangaFavoriteStatusDao>) {
-    fun getFlow(id: MangaId): Result<Flow<Boolean?>> = runCatching {
-        favoritesDaoProvider.get().isFavoriteFlow(id)
-    }
+    fun getFlow(id: MangaId): Flow<Boolean?> = favoritesDaoProvider.get().isFavoriteFlow(id)
 
     suspend fun get(id: MangaId): Result<Boolean> = runCatching {
         favoritesDaoProvider.get().isFavorite(id) == true

@@ -6,5 +6,5 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import kotlinx.coroutines.flow.Flow
 
 fun interface IsReadFlow {
-    suspend operator fun invoke(id: ChapterId): Either<Flow<Boolean>, AppError>
+    suspend operator fun invoke(id: ChapterId): Flow<Boolean>
 }

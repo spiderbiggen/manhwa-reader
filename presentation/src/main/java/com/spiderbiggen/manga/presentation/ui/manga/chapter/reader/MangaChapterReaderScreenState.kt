@@ -11,7 +11,7 @@ sealed interface MangaChapterReaderScreenState {
 
     @Immutable
     data class Ready(
-        val title: String,
+        val title: String?,
         val isFavorite: Boolean,
         val isRead: Boolean,
         val surrounding: SurroundingChapters,

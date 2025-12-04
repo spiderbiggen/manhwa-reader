@@ -39,6 +39,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -49,7 +50,7 @@ fun RegistrationScreen(
     onBackClick: () -> Unit,
     onSuccess: () -> Unit,
 ) {
-    val registrationState by viewModel.state.collectAsState()
+    val registrationState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(registrationState) {
         if (registrationState is RegistrationState.Success) {

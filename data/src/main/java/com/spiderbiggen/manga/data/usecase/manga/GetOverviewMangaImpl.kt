@@ -10,6 +10,5 @@ import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
 class GetOverviewMangaImpl @Inject constructor(private val mangaRepository: MangaRepository) : GetOverviewManga {
-    override fun invoke(): Either<Flow<List<MangaForOverview>>, AppError> =
-        mangaRepository.getMangasForOverview().either()
+    override fun invoke(): Flow<List<MangaForOverview>> = mangaRepository.getMangasForOverview()
 }

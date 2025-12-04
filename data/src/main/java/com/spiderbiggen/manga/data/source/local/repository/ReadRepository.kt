@@ -9,9 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 class ReadRepository @Inject constructor(private val readDaoProvider: Provider<ChapterReadStatusDao>) {
 
-    fun getFlow(id: ChapterId): Result<Flow<Boolean?>> = runCatching {
-        readDaoProvider.get().isReadFlow(id)
-    }
+    fun getFlow(id: ChapterId): Flow<Boolean?> = readDaoProvider.get().isReadFlow(id)
 
     suspend fun get(id: ChapterId): Result<Boolean> = runCatching {
         readDaoProvider.get().isRead(id) == true

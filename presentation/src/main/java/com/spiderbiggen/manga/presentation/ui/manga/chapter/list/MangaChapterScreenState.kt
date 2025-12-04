@@ -10,7 +10,7 @@ sealed interface MangaChapterScreenState {
     data object Loading : MangaChapterScreenState
 
     @Immutable
-    data class Ready(val title: String, val isFavorite: Boolean, val chapters: ImmutableList<ChapterRowData>) :
+    data class Ready(val title: String?, val isFavorite: Boolean, val chapters: ImmutableList<ChapterRowData>) :
         MangaChapterScreenState
 
     @Immutable

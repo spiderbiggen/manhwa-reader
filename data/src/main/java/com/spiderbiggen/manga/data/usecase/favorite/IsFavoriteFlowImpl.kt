@@ -13,6 +13,5 @@ import kotlinx.coroutines.flow.map
 
 class IsFavoriteFlowImpl @Inject constructor(private val favoritesRepository: FavoritesRepository) : IsFavoriteFlow {
 
-    override fun invoke(id: MangaId): Either<Flow<Boolean>, AppError> =
-        favoritesRepository.getFlow(id).either().mapLeft { flow -> flow.map { it == true } }
+    override fun invoke(id: MangaId): Flow<Boolean> = favoritesRepository.getFlow(id).map { it == true }
 }

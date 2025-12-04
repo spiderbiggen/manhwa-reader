@@ -1,12 +1,10 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
-import android.util.Log
+import android.util.Log.e
 import androidx.lifecycle.ViewModel
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
-import com.spiderbiggen.manga.domain.model.andLeft
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
-import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
 import com.spiderbiggen.manga.domain.usecase.chapter.GetSurroundingChapters
@@ -22,13 +20,16 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
+import java.net.URL
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+
+private const val TAG = "MangaChapterReaderViewModel"
 
 @HiltViewModel(assistedFactory = MangaChapterReaderViewModel.Factory::class)
 class MangaChapterReaderViewModel @AssistedInject constructor(
@@ -45,61 +46,47 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
     private val mangaId = navKey.mangaId
     private val chapterId = navKey.chapterId
 
-    private var surrounding = SurroundingChapters()
+    private val surroundingChapters = MutableStateFlow(SurroundingChapters())
+    private val chapterImages = MutableStateFlow<List<URL>>(emptyList())
 
-    private val _state = MutableStateFlow<MangaChapterReaderScreenState>(MangaChapterReaderScreenState.Loading)
-    val state = _state.asStateFlow()
+    val state: StateFlow<MangaChapterReaderScreenState> = screenStateFlow()
         .onStart { loadData() }
         .stateIn(
             defaultScope,
             started = SharingStarted.WhileSubscribed(500),
-            initialValue = _state.value,
+            initialValue = MangaChapterReaderScreenState.Loading,
         )
 
-    suspend fun loadData() = launchDefault {
-        updateScreenState()
+    suspend fun loadData() {
+        launchDefault {
+            when (val images = getChapterImages(chapterId)) {
+                is Either.Left<List<URL>, *> -> chapterImages.emit(images.value)
+                is Either.Right<*, AppError> ->
+                    e(TAG, "failed to get images ${images.value}")
+            }
+        }
+        launchDefault {
+            when (val surrounding = getSurroundingChapters(chapterId)) {
+                is Either.Left<SurroundingChapters, *> -> surroundingChapters.emit(surrounding.value)
+                is Either.Right<*, AppError> ->
+                    e(TAG, "failed to get surrounding chapters ${surrounding.value}")
+            }
+        }
     }
 
-    private suspend fun updateScreenState() {
-        val deferredEitherImages = getChapterImages(chapterId)
-        val deferredSurrounding = getSurroundingChapters(chapterId)
-
-        val chapterFlow = getChapter(chapterId)
-        val isFavoriteFlow = isFavorite(mangaId)
-
-        val (images, surrounding) = deferredEitherImages
-            .andLeft(deferredSurrounding)
-            .leftOrElse {
-                _state.emit(mapError(it))
-                return
-            }
-
-        this@MangaChapterReaderViewModel.surrounding = surrounding
-        when (val data = chapterFlow.andLeft(isFavoriteFlow)) {
-            is Either.Left -> {
-                val (chapterFlow, isFavoriteFlow) = data.value
-                val combinedFlows = combine(
-                    chapterFlow,
-                    isFavoriteFlow,
-                ) { chapter, isFavorite ->
-                    Triple(chapter.chapter, chapter.isRead, isFavorite)
-                }
-
-                combinedFlows.collect { (chapter, isRead, isFavorite) ->
-                    _state.emit(
-                        MangaChapterReaderScreenState.Ready(
-                            title = chapter.displayTitle(),
-                            surrounding = surrounding,
-                            isFavorite = isFavorite,
-                            images = images.map { it.toExternalForm() }.toImmutableList(),
-                            isRead = isRead,
-                        ),
-                    )
-                }
-            }
-
-            is Either.Right -> _state.emit(mapError(data.value))
-        }
+    private fun screenStateFlow() = combine(
+        getChapter(chapterId),
+        isFavorite(mangaId),
+        surroundingChapters,
+        chapterImages,
+    ) { chapterState, isFavorite, surrounding, images ->
+        MangaChapterReaderScreenState.Ready(
+            title = chapterState?.chapter?.displayTitle(),
+            surrounding = surrounding,
+            isFavorite = isFavorite,
+            images = images.map { it.toExternalForm() }.toImmutableList(),
+            isRead = chapterState?.isRead == true,
+        )
     }
 
     fun toggleFavorite() = suspended {
@@ -112,11 +99,6 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
 
     fun setReadUpToHere() = suspended {
         setReadUpToChapter(chapterId)
-    }
-
-    fun mapError(error: AppError): MangaChapterReaderScreenState.Error {
-        Log.e("ImagesViewModel", "failed to get images $error")
-        return MangaChapterReaderScreenState.Error("An error occurred")
     }
 
     @AssistedFactory

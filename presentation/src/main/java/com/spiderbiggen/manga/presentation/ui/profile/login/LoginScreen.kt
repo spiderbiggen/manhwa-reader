@@ -42,6 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -53,7 +54,7 @@ fun LoginScreen(
     onRegisterClick: () -> Unit,
     onSuccess: () -> Unit,
 ) {
-    val loginState by viewModel.state.collectAsState()
+    val loginState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(loginState) {
         if (loginState is LoginState.Success) {

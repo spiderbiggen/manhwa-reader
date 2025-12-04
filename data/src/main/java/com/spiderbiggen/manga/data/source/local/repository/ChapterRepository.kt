@@ -19,7 +19,7 @@ class ChapterRepository @Inject constructor(
     private val chapterDao
         get() = chapterDaoProvider.get()
 
-    fun getChaptersAsFlow(mangaId: MangaId): Result<Flow<List<ChapterForOverview>>> = runCatching {
+    fun getChaptersAsFlow(mangaId: MangaId): Flow<List<ChapterForOverview>> =
         chapterDao.getFlowForMangaOverview(mangaId).map { entities ->
             entities.map {
                 ChapterForOverview(
@@ -28,16 +28,13 @@ class ChapterRepository @Inject constructor(
                 )
             }
         }
-    }
 
-    fun getChapterAsFlow(id: ChapterId): Result<Flow<ChapterForOverview?>> = runCatching {
-        chapterDao.getFlowForChapterOverview(id).map {
-            it?.let {
-                ChapterForOverview(
-                    chapter = toDomain.invoke(it.chapter),
-                    isRead = it.isRead,
-                )
-            }
+    fun getChapterAsFlow(id: ChapterId): Flow<ChapterForOverview?> = chapterDao.getFlowForChapterOverview(id).map {
+        it?.let {
+            ChapterForOverview(
+                chapter = toDomain.invoke(it.chapter),
+                isRead = it.isRead,
+            )
         }
     }
 

@@ -18,27 +18,23 @@ class MangaRepository @Inject constructor(
     private val mangaDao
         get() = mangaDaoProvider.get()
 
-    fun getMangasForOverview(): Result<Flow<List<MangaForOverview>>> = runCatching {
-        mangaDao.getAllNotDropped().map { entities ->
-            entities.map {
-                MangaForOverview(
-                    manga = toDomain(it.manga),
-                    isFavorite = it.isFavorite,
-                    isRead = it.isRead,
-                    lastChapterId = it.lastChapterId,
-                )
-            }
+    fun getMangasForOverview(): Flow<List<MangaForOverview>> = mangaDao.getAllNotDropped().map { entities ->
+        entities.map {
+            MangaForOverview(
+                manga = toDomain(it.manga),
+                isFavorite = it.isFavorite,
+                isRead = it.isRead,
+                lastChapterId = it.lastChapterId,
+            )
         }
     }
 
-    fun getMangaWithFavoriteStatus(id: MangaId): Result<Flow<MangaWithFavorite?>> = runCatching {
-        mangaDao.getWithFavorite(id).map {
-            it?.let {
-                MangaWithFavorite(
-                    manga = toDomain.invoke(it.manga),
-                    isFavorite = it.isFavorite,
-                )
-            }
+    fun getMangaWithFavoriteStatus(id: MangaId): Flow<MangaWithFavorite?> = mangaDao.getWithFavorite(id).map {
+        it?.let {
+            MangaWithFavorite(
+                manga = toDomain.invoke(it.manga),
+                isFavorite = it.isFavorite,
+            )
         }
     }
 

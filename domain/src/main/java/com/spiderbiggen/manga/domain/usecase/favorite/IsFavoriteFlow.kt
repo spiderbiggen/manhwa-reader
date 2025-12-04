@@ -6,5 +6,5 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlinx.coroutines.flow.Flow
 
 fun interface IsFavoriteFlow {
-    operator fun invoke(id: MangaId): Either<Flow<Boolean>, AppError>
+    operator fun invoke(id: MangaId): Flow<Boolean>
 }

@@ -13,7 +13,5 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 
 class GetMangaImpl @Inject constructor(private val mangaRepository: MangaRepository) : GetManga {
-    override suspend fun invoke(id: MangaId): Either<Flow<MangaWithFavorite>, AppError> =
-        mangaRepository.getMangaWithFavoriteStatus(id).either()
-            .mapLeft { it.filterNotNull() }
+    override fun invoke(id: MangaId): Flow<MangaWithFavorite?> = mangaRepository.getMangaWithFavoriteStatus(id)
 }

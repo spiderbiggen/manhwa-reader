@@ -12,6 +12,5 @@ import kotlinx.coroutines.flow.Flow
 
 class GetOverviewChaptersImpl @Inject constructor(private val chapterRepository: ChapterRepository) :
     GetOverviewChapters {
-    override suspend fun invoke(id: MangaId): Either<Flow<List<ChapterForOverview>>, AppError> =
-        chapterRepository.getChaptersAsFlow(id).either()
+    override fun invoke(id: MangaId): Flow<List<ChapterForOverview>> = chapterRepository.getChaptersAsFlow(id)
 }
