@@ -61,10 +61,11 @@ import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
-import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
@@ -120,7 +121,7 @@ fun ChapterListScreen(
     val readyState = state as? MangaChapterScreenState.Ready
     MangaScaffold(
         topBar = {
-            TopAppBar(
+            MangaTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(painterResource(R.drawable.arrow_back), "Back")

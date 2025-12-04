@@ -40,10 +40,11 @@ import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
-import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
@@ -139,7 +140,7 @@ private fun MangaOverviewContent(
 
     MangaScaffold(
         topBar = {
-            TopAppBar(
+            MangaTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onProfileClicked) {
                         when (profileState) {

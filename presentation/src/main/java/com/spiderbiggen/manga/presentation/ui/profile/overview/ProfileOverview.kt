@@ -47,7 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
-import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlin.time.Clock.System.now
@@ -95,7 +95,7 @@ fun ProfileOverviewContent(
     MangaScaffold(
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            MangaTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(painterResource(R.drawable.arrow_back), "Back")

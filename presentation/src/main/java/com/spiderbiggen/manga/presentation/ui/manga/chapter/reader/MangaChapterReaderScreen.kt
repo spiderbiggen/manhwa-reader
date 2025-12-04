@@ -76,7 +76,7 @@ import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.bottomappbar.scrollAgainstContentBehavior
-import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
+import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
@@ -128,7 +128,7 @@ fun MangaChapterReaderScreen(
             .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection)
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            MangaTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
                         Icon(painterResource(arrow_back), "Back")
