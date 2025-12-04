@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,15 +30,18 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -69,6 +73,7 @@ import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.PreloadImages
+import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.bottomappbar.scrollAgainstContentBehavior
 import com.spiderbiggen.manga.presentation.components.topappbar.TopAppBar
@@ -182,63 +187,104 @@ private fun ReadyImagesOverview(
     onListClicked: () -> Unit = {},
     setRead: () -> Unit = {},
 ) {
-    LazyColumn(
-        modifier
-            .clickable(
-                interactionSource = null,
-                indication = null,
-                onClick = onListClicked,
-            ),
-        contentPadding = padding,
-        state = lazyListState,
+    var loadedImageCount by remember { mutableIntStateOf(0) }
+    var finishedInitialLoading by remember { mutableStateOf(false) }
+    Box(
+        modifier.clickable(
+            interactionSource = null,
+            indication = null,
+            onClick = onListClicked,
+        ),
     ) {
-        items(state.images, key = { it }) {
-            ListImage(it, Modifier.fillParentMaxWidth())
-        }
-        item(key = "setReadEffect", contentType = "EndEffect") {
-            Column(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 64.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                Icon(
-                    painterResource(R.drawable.check_circle),
-                    contentDescription = "Success indicator",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(64.dp),
+        PreloadImages(lazyListState, state.images)
+        LazyColumn(
+            contentPadding = padding,
+            state = lazyListState,
+        ) {
+            items(state.images, key = { it }) {
+                ListImage(
+                    model = it,
+                    modifier = Modifier.fillParentMaxWidth(),
+                    animate = finishedInitialLoading,
+                    onSuccess = {
+                        loadedImageCount++
+                        if (loadedImageCount >= lazyListState.layoutInfo.visibleItemsInfo.size) {
+                            finishedInitialLoading = true
+                        }
+                    },
                 )
-                Text("Chapter Finished", style = MaterialTheme.typography.titleLargeEmphasized)
             }
-            LaunchedEffect(true) {
-                setRead()
+            item(key = "setReadEffect", contentType = "EndEffect") {
+                Column(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 64.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(
+                        painterResource(R.drawable.check_circle),
+                        contentDescription = "Success indicator",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(64.dp),
+                    )
+                    Text("Chapter Finished", style = MaterialTheme.typography.titleLargeEmphasized)
+                }
+                LaunchedEffect(true) {
+                    setRead()
+                }
+            }
+        }
+
+        ExpressiveAnimatedVisibility(!finishedInitialLoading, Modifier.fillMaxSize()) {
+            Surface {
+                Box(contentAlignment = Alignment.Center) {
+                    LoadingIndicator()
+                }
             }
         }
     }
-    PreloadImages(lazyListState, state.images)
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ListImage(model: String, modifier: Modifier = Modifier) {
+private fun ListImage(
+    model: String,
+    modifier: Modifier = Modifier,
+    animate: Boolean = true,
+    onSuccess: () -> Unit = {},
+) {
     val asyncPainter = rememberAsyncImagePainter(model)
-    val painterState = asyncPainter.state.collectAsState()
-    when (val state = painterState.value) {
+    val painterState by asyncPainter.state.collectAsStateWithLifecycle()
+    if (animate) {
+        AnimatedContent(painterState, modifier) { state ->
+            DisplayImageState(state)
+        }
+    } else {
+        DisplayImageState(painterState)
+    }
+    LaunchedEffect(painterState) {
+        if (painterState is AsyncImagePainter.State.Success) onSuccess()
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun DisplayImageState(state: AsyncImagePainter.State) {
+    when (state) {
         is AsyncImagePainter.State.Success -> Image(
             painter = state.painter,
             contentDescription = null,
-            modifier = modifier,
             contentScale = ContentScale.FillWidth,
         )
 
         is AsyncImagePainter.State.Error -> Box(
-            modifier
+            Modifier
                 .aspectRatio(1f)
                 .background(MaterialTheme.colorScheme.error),
         )
 
-        else -> Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
+        else -> Box(Modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
             LoadingIndicator()
         }
     }
