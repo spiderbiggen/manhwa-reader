@@ -1,5 +1,8 @@
 package com.spiderbiggen.manga.presentation.ui.main
 
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,13 +12,13 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -52,6 +55,8 @@ fun MainContent() {
 @Composable
 private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: State<ProfileState>) {
     val backStack = rememberNavBackStack(MangaListRoute)
+    val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
+    val floatAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
     NavDisplay(
         entryDecorators = listOf(
             // Add the default decorators for managing scenes and saving state
@@ -60,11 +65,21 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
             rememberViewModelStoreNavEntryDecorator(),
         ),
         backStack = backStack,
+        transitionSpec = {
+            slideInHorizontally(animationSpec) { it } togetherWith slideOutHorizontally(animationSpec) { -it / 2 }
+        },
+        popTransitionSpec = {
+            slideInHorizontally(animationSpec) { -it / 2 } togetherWith slideOutHorizontally(animationSpec) { it }
+        },
+        predictivePopTransitionSpec = {
+            slideInHorizontally(animationSpec) { -it / 2 } togetherWith slideOutHorizontally(animationSpec) { it }
+        },
         entryProvider = entryProvider {
             manga(
                 backStack = backStack,
                 profileState = profileState,
                 snackbarHostState = snackbarHostState,
+                floatAnimationSpec = floatAnimationSpec,
             )
 
             profile(

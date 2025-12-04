@@ -2,10 +2,10 @@ package com.spiderbiggen.manga.presentation.components.animation
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
-import androidx.compose.animation.expandHorizontally
+import androidx.compose.animation.expandIn
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkHorizontally
+import androidx.compose.animation.shrinkOut
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,8 +25,8 @@ fun ExpressiveAnimatedVisibility(
     AnimatedVisibility(
         visible = visible,
         modifier = modifier,
-        enter = fadeIn(floatAnimationSpec) + expandHorizontally(intSizeAnimationSpec),
-        exit = fadeOut(floatAnimationSpec) + shrinkHorizontally(intSizeAnimationSpec),
+        enter = fadeIn(floatAnimationSpec) + expandIn(intSizeAnimationSpec),
+        exit = shrinkOut(intSizeAnimationSpec) + fadeOut(floatAnimationSpec),
         label = label,
         content = content,
     )

@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.navigation
 
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.State
 import androidx.navigation3.runtime.EntryProviderScope
@@ -20,6 +21,7 @@ fun EntryProviderScope<NavKey>.manga(
     backStack: NavBackStack<NavKey>,
     profileState: State<ProfileState>,
     snackbarHostState: SnackbarHostState,
+    floatAnimationSpec: FiniteAnimationSpec<Float>,
 ) {
     mangaDestination(
         snackbarHostState = snackbarHostState,
@@ -34,6 +36,7 @@ fun EntryProviderScope<NavKey>.manga(
     )
     mangaChapterReaderDestination(
         snackbarHostState = snackbarHostState,
+        floatAnimationSpec = floatAnimationSpec,
         onBackClick = { backStack.popUpToInclusive<MangaChapterReaderRoute>() },
         onChapterClick = backStack::navigateToMangaReader,
     )

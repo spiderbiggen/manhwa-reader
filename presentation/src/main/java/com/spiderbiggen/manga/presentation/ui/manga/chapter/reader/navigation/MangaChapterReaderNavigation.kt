@@ -1,10 +1,17 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.material3.SnackbarHostState
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
+import androidx.navigation3.ui.NavDisplay
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.MangaChapterReaderScreen
@@ -20,10 +27,19 @@ fun NavBackStack<NavKey>.navigateToMangaReader(mangaId: MangaId, chapterId: Chap
 
 fun EntryProviderScope<NavKey>.mangaChapterReaderDestination(
     snackbarHostState: SnackbarHostState,
+    floatAnimationSpec: FiniteAnimationSpec<Float>,
     onBackClick: () -> Unit,
     onChapterClick: (MangaId, ChapterId) -> Unit,
 ) {
-    entry<MangaChapterReaderRoute> { key ->
+    entry<MangaChapterReaderRoute>(
+        metadata = NavDisplay.transitionSpec {
+            fadeIn(floatAnimationSpec) togetherWith ExitTransition.KeepUntilTransitionsFinished
+        } + NavDisplay.popTransitionSpec {
+            EnterTransition.None togetherWith fadeOut(floatAnimationSpec)
+        } + NavDisplay.predictivePopTransitionSpec {
+            EnterTransition.None togetherWith fadeOut(floatAnimationSpec)
+        },
+    ) { key ->
         MangaChapterReaderScreen(
             viewModel = hiltViewModel<MangaChapterReaderViewModel, MangaChapterReaderViewModel.Factory>(
                 creationCallback = { factory -> factory.create(key) },
