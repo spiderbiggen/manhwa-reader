@@ -194,7 +194,7 @@ private fun ChaptersList(
         section(
             header = null,
             items = chapters,
-            key = { item -> item.id.inner },
+            key = { item -> item.id.value },
         ) { item, shape ->
             ChapterRow(
                 item = item,

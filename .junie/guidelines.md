@@ -126,13 +126,13 @@ fun interface GetManga {
 ```kotlin
 @JvmInline
 @Serializable
-value class MangaId(val inner: String)
+value class MangaId(val value: String)
 ```
 
 #### Presentation Layer
 - **ViewModels**: Use `@HiltViewModel` with dependency injection
 - **State Management**: `StateFlow` for UI state, `SharedFlow` for events
-- **Lifecycle Awareness**: `SharingStarted.WhileSubscribed(5_000)` for proper lifecycle handling
+- **Lifecycle Awareness**: `SharingStarted.WhileSubscribed(500)` for proper lifecycle handling
 - **Immutable Collections**: Use `kotlinx-collections-immutable` for UI state
 - **Navigation**: Type-safe navigation with `savedStateHandle.toRoute<>()`
 

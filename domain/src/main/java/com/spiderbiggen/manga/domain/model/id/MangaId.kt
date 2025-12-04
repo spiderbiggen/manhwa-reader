@@ -4,4 +4,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable
-value class MangaId(val inner: String)
+value class MangaId(val value: String)

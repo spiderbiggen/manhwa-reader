@@ -242,7 +242,7 @@ private fun MangaList(
             section(
                 header = key,
                 items = values,
-                key = { it.id.inner },
+                key = { it.id.value },
             ) { item, shape ->
                 MangaRow(
                     manga = item,

@@ -4,4 +4,4 @@ import kotlinx.serialization.Serializable
 
 @JvmInline
 @Serializable
-value class ChapterId(val inner: String)
+value class ChapterId(val value: String)
