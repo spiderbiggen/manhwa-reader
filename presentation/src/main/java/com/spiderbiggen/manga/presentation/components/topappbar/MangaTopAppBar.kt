@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.systemBars
@@ -17,10 +18,11 @@ import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
+import com.spiderbiggen.manga.presentation.components.plus
 
 @ExperimentalMaterial3Api
 @Composable
-fun TopAppBar(
+fun MangaTopAppBar(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     navigationIcon: @Composable () -> Unit = {},
@@ -39,7 +41,7 @@ fun TopAppBar(
     val padding = insets.asPaddingValues() + contentPadding
     TopAppBar(
         title = title,
-        modifier = modifier,
+        modifier = Modifier.consumeWindowInsets(insets).then(modifier),
         navigationIcon = navigationIcon,
         actions = actions,
         expandedHeight = expandedHeight,
