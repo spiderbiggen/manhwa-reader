@@ -7,6 +7,7 @@ import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntit
 import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaForOverviewEntity
 import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaWithFavoriteStatus
 import com.spiderbiggen.manga.domain.model.id.MangaId
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -52,4 +53,7 @@ interface LocalMangaDao {
         """,
     )
     suspend fun getForUpdate(): List<MangaId>
+
+    @Query("SELECT updated_at FROM manga ORDER BY updated_at DESC LIMIT 1")
+    suspend fun getLastUpdatedAt(): Instant?
 }

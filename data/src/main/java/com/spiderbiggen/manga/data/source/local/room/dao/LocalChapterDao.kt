@@ -7,6 +7,7 @@ import com.spiderbiggen.manga.data.source.local.room.model.chapter.LocalChapterE
 import com.spiderbiggen.manga.data.source.local.room.model.chapter.LocalChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -18,7 +19,10 @@ interface LocalChapterDao {
     suspend fun get(id: ChapterId): LocalChapterEntity?
 
     @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
-    fun getFlowForMangaId(mangaId: MangaId): Flow<List<LocalChapterEntity>>
+    fun flowByMangaId(mangaId: MangaId): Flow<List<LocalChapterEntity>>
+
+    @Query("SELECT updated_at FROM chapter WHERE manga_id = :mangaId ORDER BY updated_at DESC LIMIT 1")
+    suspend fun getLastUpdatedAtByMangaId(mangaId: MangaId): Instant?
 
     @Query(
         """
