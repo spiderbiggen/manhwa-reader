@@ -7,7 +7,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import coil3.SingletonImageLoader
@@ -16,9 +15,6 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Composable
 fun <T : Any?> PreloadImages(lazyListState: LazyListState, items: ImmutableList<T>, count: Int = 5) {
-    val context = LocalContext.current
-    val imageLoader by rememberUpdatedState(SingletonImageLoader.get(context))
-
     // TODO simplify
     var loaded by remember { mutableIntStateOf(lazyListState.layoutInfo.visibleItemsInfo.size) }
     val firstVisibleIndex by remember { derivedStateOf { lazyListState.firstVisibleItemIndex } }
@@ -31,7 +27,9 @@ fun <T : Any?> PreloadImages(lazyListState: LazyListState, items: ImmutableList<
         }
     }
 
-    LaunchedEffect(context, imageLoader, limited) {
+    val context = LocalContext.current
+    LaunchedEffect(context, limited) {
+        val imageLoader = SingletonImageLoader.get(context)
         items.slice((loaded + 1)..limited.coerceAtMost(items.size - 1)).forEach {
             val request = ImageRequest.Builder(context).data(it).build()
             imageLoader.enqueue(request)
