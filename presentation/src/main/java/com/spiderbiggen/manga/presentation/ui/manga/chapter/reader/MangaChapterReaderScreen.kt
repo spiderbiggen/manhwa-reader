@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.content.res.Configuration
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -205,7 +204,6 @@ private fun ReadyImagesOverview(
                 ListImage(
                     model = it,
                     modifier = Modifier.fillParentMaxWidth(),
-                    animate = finishedInitialLoading,
                     onSuccess = {
                         loadedImageCount++
                         if (loadedImageCount >= lazyListState.layoutInfo.visibleItemsInfo.size) {
@@ -251,18 +249,11 @@ private fun ReadyImagesOverview(
 private fun ListImage(
     model: String,
     modifier: Modifier = Modifier,
-    animate: Boolean = true,
     onSuccess: () -> Unit = {},
 ) {
     val asyncPainter = rememberAsyncImagePainter(model)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
-    if (animate) {
-        AnimatedContent(painterState, modifier) { state ->
-            DisplayImageState(state)
-        }
-    } else {
-        DisplayImageState(painterState)
-    }
+    DisplayImageState(painterState, modifier)
     LaunchedEffect(painterState) {
         if (painterState is AsyncImagePainter.State.Success) onSuccess()
     }
@@ -270,21 +261,22 @@ private fun ListImage(
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun DisplayImageState(state: AsyncImagePainter.State) {
+private fun DisplayImageState(state: AsyncImagePainter.State, modifier: Modifier = Modifier) {
     when (state) {
         is AsyncImagePainter.State.Success -> Image(
             painter = state.painter,
             contentDescription = null,
             contentScale = ContentScale.FillWidth,
+            modifier = modifier,
         )
 
         is AsyncImagePainter.State.Error -> Box(
-            Modifier
+            modifier
                 .aspectRatio(1f)
                 .background(MaterialTheme.colorScheme.error),
         )
 
-        else -> Box(Modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
+        else -> Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
             LoadingIndicator()
         }
     }
