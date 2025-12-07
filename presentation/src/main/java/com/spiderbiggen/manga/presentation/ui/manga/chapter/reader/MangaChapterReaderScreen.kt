@@ -1,7 +1,9 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateTo
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,10 +42,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -79,6 +84,7 @@ import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.launch
 
 @Composable
 fun MangaChapterReaderScreen(
@@ -159,13 +165,34 @@ fun MangaChapterReaderScreen(
             }
 
             is MangaChapterReaderScreenState.Ready -> {
+                val coroutineScope = rememberCoroutineScope()
+                val floatAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
                 ReadyImagesOverview(
                     modifier = Modifier.fillMaxSize(),
                     state = state,
                     padding = contentPadding,
                     lazyListState = lazyListState,
-                    onListClicked = {
-                        // TODO animate both bars to be fully visible
+                    onListClicked = clicked@{
+                        val initialTopOffset = topAppBarScrollBehavior.state.heightOffset
+                        if (initialTopOffset == 0f) return@clicked
+                        coroutineScope.launch {
+                            var prevOffset = initialTopOffset
+                            AnimationState(initialTopOffset).animateTo(0f, floatAnimationSpec) {
+                                lazyListState.dispatchRawDelta(value - prevOffset)
+                                topAppBarScrollBehavior.nestedScrollConnection.onPostScroll(
+                                    consumed = Offset(0f, value - prevOffset),
+                                    available = Offset.Zero,
+                                    source = NestedScrollSource.SideEffect,
+                                )
+                                prevOffset = value
+                            }
+                        }
+                        coroutineScope.launch {
+                            val initialBottomOffset = bottomAppBarScrollBehavior.state.heightOffset
+                            AnimationState(initialBottomOffset).animateTo(0f, floatAnimationSpec) {
+                                bottomAppBarScrollBehavior.state.heightOffset = value
+                            }
+                        }
                     },
                     setRead = setRead,
                 )
