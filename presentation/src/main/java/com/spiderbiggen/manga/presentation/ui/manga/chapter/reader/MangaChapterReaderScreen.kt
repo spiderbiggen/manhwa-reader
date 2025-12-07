@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.content.res.Configuration
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -29,7 +30,6 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.minimumInteractiveComponentSize
@@ -43,6 +43,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -72,7 +73,6 @@ import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.PreloadImages
-import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.bottomappbar.scrollAgainstContentBehavior
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
@@ -186,8 +186,12 @@ private fun ReadyImagesOverview(
     onListClicked: () -> Unit = {},
     setRead: () -> Unit = {},
 ) {
-    var loadedImageCount by remember { mutableIntStateOf(0) }
-    var finishedInitialLoading by remember { mutableStateOf(false) }
+    val readyTracker = remember(lazyListState) { ReadyTracker(lazyListState) }
+    val backgroundColor = MaterialTheme.colorScheme.surface
+    val overlayAlpha = animateFloatAsState(
+        targetValue = if (readyTracker.finishedInitialLoading) 0f else 1f,
+        animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
+    )
     Box(
         modifier.clickable(
             interactionSource = null,
@@ -199,17 +203,18 @@ private fun ReadyImagesOverview(
         LazyColumn(
             contentPadding = padding,
             state = lazyListState,
+            modifier = Modifier.drawWithContent {
+                drawContent()
+                if (overlayAlpha.value > 0.01f) {
+                    drawRect(backgroundColor, alpha = overlayAlpha.value)
+                }
+            },
         ) {
             items(state.images, key = { it }) {
                 ListImage(
                     model = it,
                     modifier = Modifier.fillParentMaxWidth(),
-                    onSuccess = {
-                        loadedImageCount++
-                        if (loadedImageCount >= lazyListState.layoutInfo.visibleItemsInfo.size) {
-                            finishedInitialLoading = true
-                        }
-                    },
+                    onSuccess = readyTracker::onContentReady,
                 )
             }
             item(key = "setReadEffect", contentType = "EndEffect") {
@@ -229,15 +234,8 @@ private fun ReadyImagesOverview(
                     Text("Chapter Finished", style = MaterialTheme.typography.titleLargeEmphasized)
                 }
                 LaunchedEffect(true) {
+                    readyTracker.onContentReady()
                     setRead()
-                }
-            }
-        }
-
-        ExpressiveAnimatedVisibility(!finishedInitialLoading, Modifier.fillMaxSize()) {
-            Surface {
-                Box(contentAlignment = Alignment.Center) {
-                    LoadingIndicator()
                 }
             }
         }
@@ -246,11 +244,7 @@ private fun ReadyImagesOverview(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ListImage(
-    model: String,
-    modifier: Modifier = Modifier,
-    onSuccess: () -> Unit = {},
-) {
+private fun ListImage(model: String, modifier: Modifier = Modifier, onSuccess: () -> Unit = {}) {
     val asyncPainter = rememberAsyncImagePainter(model)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
     DisplayImageState(painterState, modifier)
@@ -332,6 +326,25 @@ private fun ReaderBottomBar(
             enabled = nextChapterId != null,
         ) {
             Icon(painterResource(R.drawable.arrow_forward), null)
+        }
+    }
+}
+
+private class ReadyTracker(private val lazyListState: LazyListState) {
+    private var readyCount by mutableIntStateOf(0)
+    var finishedInitialLoading by mutableStateOf(false)
+        private set
+
+    private val visibleItemsInfo
+        get() = lazyListState.layoutInfo.visibleItemsInfo
+
+    /**
+     * This does not have to be a success can also be a failure
+     */
+    fun onContentReady() {
+        readyCount++
+        if (readyCount >= visibleItemsInfo.size) {
+            finishedInitialLoading = true
         }
     }
 }
