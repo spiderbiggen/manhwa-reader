@@ -12,7 +12,7 @@ class MapMangaListViewData @Inject constructor() {
         source = state.manga.source,
         title = state.manga.title,
         status = state.manga.status,
-        coverImage = state.manga.coverImage.toExternalForm(),
+        coverImage = state.manga.coverImage,
         updatedAt = state.manga.updatedAt.toLocalDateTime(timeZone).date.toString(),
         isFavorite = state.isFavorite,
         isRead = state.isRead,
