@@ -6,9 +6,7 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -26,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 
 private val NO_CORNER = CornerSize(0.dp)
-private val NO_CORNERS = Pair(NO_CORNER, NO_CORNER)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 inline fun <T> LazyListScope.section(
@@ -46,10 +43,24 @@ inline fun <T> LazyListScope.section(
         }
     }
 
+    sectionItems(
+        items = items,
+        key = key,
+        contentType = contentType,
+        content = content,
+    )
+}
+
+inline fun <T> LazyListScope.sectionItems(
+    items: ImmutableList<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    crossinline contentType: (item: T) -> Any? = { null },
+    crossinline content: @Composable LazyItemScope.(T, Shape) -> Unit,
+) {
     val lastIndex = items.lastIndex
     itemsIndexed(
         items = items,
-        key = key?.let { key -> { _, it -> key(it) } },
+        key = if (key != null) { _, it -> key(it) } else null,
         contentType = { _, it -> contentType(it) },
         itemContent = { index, it ->
             SectionItem(isFirst = index == 0, isLast = index == lastIndex) { shape ->
@@ -87,51 +98,30 @@ fun fusedShape(
             bottomEnd = bottomShape.bottomEnd,
         )
 
-        else -> GenericShape { size: Size, layoutDirection: LayoutDirection ->
-            val (cutCornerTopStart, cutCornerTopEnd) =
-                if (topShape is CutCornerShape) topShape.topStart to topShape.topEnd else NO_CORNERS
-            val (cutCornerBottomStart, cutCornerBottomEnd) =
-                if (bottomShape is CutCornerShape) bottomShape.bottomStart to bottomShape.bottomEnd else NO_CORNERS
-
-            val (roundedCornerTopStart, roundedCornerTopEnd) =
-                if (topShape is RoundedCornerShape) topShape.topStart to topShape.topEnd else NO_CORNERS
-            val (roundedCornerBottomStart, roundedCornerBottomEnd) =
-                if (bottomShape is RoundedCornerShape) bottomShape.bottomStart to bottomShape.bottomEnd else NO_CORNERS
-
-            val cutoutOutline = CutCornerShape(
-                topStart = cutCornerTopStart,
-                topEnd = cutCornerTopEnd,
-                bottomStart = cutCornerBottomStart,
-                bottomEnd = cutCornerBottomEnd,
-            ).createOutline(
-                size,
-                layoutDirection,
-                density = density,
-            )
-
-            val roundedCornerOutline = RoundedCornerShape(
-                topStart = roundedCornerTopStart,
-                topEnd = roundedCornerTopEnd,
-                bottomStart = roundedCornerBottomStart,
-                bottomEnd = roundedCornerBottomEnd,
-            ).createOutline(
-                size = size,
-                layoutDirection = layoutDirection,
-                density = density,
-            )
-
-            val cutPath = Path().apply {
-                addOutline(cutoutOutline)
-            }
-
-            val roundedPath = Path().apply {
-                addOutline(roundedCornerOutline)
-            }
-
-            addPath(cutPath and roundedPath)
-        }
+        else -> combinedCornerShape(topShape, bottomShape, density)
     }
 }
+
+fun combinedCornerShape(topShape: CornerBasedShape, bottomShape: CornerBasedShape, density: Density): Shape =
+    GenericShape { size: Size, layoutDirection: LayoutDirection ->
+        val topPath = Path().apply {
+            addOutline(
+                topShape
+                    .copy(bottomStart = NO_CORNER, bottomEnd = NO_CORNER)
+                    .createOutline(size, layoutDirection, density),
+            )
+        }
+
+        val bottomPath = Path().apply {
+            addOutline(
+                bottomShape
+                    .copy(topStart = NO_CORNER, topEnd = NO_CORNER)
+                    .createOutline(size, layoutDirection, density),
+            )
+        }
+
+        addPath(topPath and bottomPath)
+    }
 
 object SectionDefaults {
     val largeShape: CornerBasedShape
