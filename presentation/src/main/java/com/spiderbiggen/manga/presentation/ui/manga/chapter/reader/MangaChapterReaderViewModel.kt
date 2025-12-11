@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapter
