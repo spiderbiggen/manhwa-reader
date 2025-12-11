@@ -1,7 +1,5 @@
 package com.spiderbiggen.manga.domain.usecase.manga
 
-import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import kotlinx.coroutines.flow.Flow
 

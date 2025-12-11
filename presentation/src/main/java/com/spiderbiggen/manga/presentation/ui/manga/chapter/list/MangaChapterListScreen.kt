@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -58,7 +59,6 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
-import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.plus
@@ -119,7 +119,7 @@ fun ChapterListScreen(
     )
 
     val readyState = state as? MangaChapterScreenState.Ready
-    MangaScaffold(
+    Scaffold(
         topBar = {
             MangaTopAppBar(
                 navigationIcon = {
@@ -136,7 +136,7 @@ fun ChapterListScreen(
                 scrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbar = {
+        snackbarHost = {
             SnackbarHost(snackbarHostState)
         },
     ) { scaffoldPadding ->

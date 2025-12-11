@@ -22,6 +22,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -46,7 +47,6 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
-import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -92,7 +92,7 @@ fun ProfileOverviewContent(
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior()
 
-    MangaScaffold(
+    Scaffold(
         modifier = Modifier.nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
             MangaTopAppBar(
@@ -105,7 +105,7 @@ fun ProfileOverviewContent(
                 scrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbar = {
+        snackbarHost = {
             SnackbarHost(snackbarHostState)
         },
     ) { scaffoldPadding ->

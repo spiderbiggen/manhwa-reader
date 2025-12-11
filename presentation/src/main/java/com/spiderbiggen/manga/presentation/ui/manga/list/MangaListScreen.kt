@@ -15,6 +15,7 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -38,7 +39,6 @@ import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
-import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
@@ -138,7 +138,7 @@ private fun MangaOverviewContent(
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
     )
 
-    MangaScaffold(
+    Scaffold(
         topBar = {
             MangaTopAppBar(
                 navigationIcon = {
@@ -175,7 +175,7 @@ private fun MangaOverviewContent(
                 scrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbar = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { contentPadding ->
         PullToRefreshBox(
             isRefreshing = isRefreshing,

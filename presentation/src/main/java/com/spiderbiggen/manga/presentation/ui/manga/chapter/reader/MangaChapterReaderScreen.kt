@@ -30,6 +30,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -76,7 +77,6 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
-import com.spiderbiggen.manga.presentation.components.MangaScaffold
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.bottomappbar.scrollAgainstContentBehavior
@@ -128,7 +128,7 @@ fun MangaChapterReaderScreen(
     )
 
     val ready = state.ifReady()
-    MangaScaffold(
+    Scaffold(
         modifier = Modifier
             .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection)
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
@@ -143,7 +143,7 @@ fun MangaChapterReaderScreen(
                 scrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbar = { SnackbarHost(snackbarHostState) },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             ReaderBottomBar(
                 screenState = ready,

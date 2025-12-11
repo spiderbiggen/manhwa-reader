@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.chapter.GetOverviewChapters
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
@@ -28,7 +27,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch

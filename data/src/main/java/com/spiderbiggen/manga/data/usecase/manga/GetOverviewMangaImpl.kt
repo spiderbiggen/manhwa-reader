@@ -1,9 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.manga
 
 import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
-import com.spiderbiggen.manga.data.usecase.either
-import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import javax.inject.Inject

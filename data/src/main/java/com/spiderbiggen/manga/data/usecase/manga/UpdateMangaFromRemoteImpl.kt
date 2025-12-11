@@ -1,14 +1,12 @@
 package com.spiderbiggen.manga.data.usecase.manga
 
 import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
-import com.spiderbiggen.manga.data.source.local.room.dao.LocalMangaDao
 import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteMangaUseCase
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.data.usecase.manga.mapper.ToLocalMangaUseCase
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andThenLeft
-import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import javax.inject.Inject
 import javax.inject.Provider
