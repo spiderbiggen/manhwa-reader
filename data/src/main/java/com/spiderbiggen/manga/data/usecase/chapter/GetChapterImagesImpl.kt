@@ -7,20 +7,21 @@ import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
-import java.net.URL
 import javax.inject.Inject
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toImmutableList
 
 class GetChapterImagesImpl @Inject constructor(
     @param:BaseUrl private val baseUrl: String,
     private val chapterRepository: ChapterRepository,
 ) : GetChapterImages {
-    override suspend fun invoke(id: ChapterId): Either<List<URL>, AppError> =
+    override suspend fun invoke(id: ChapterId): Either<ImmutableList<String>, AppError> =
         when (val either = chapterRepository.getChapterImages(id).either()) {
             is Either.Left -> {
                 val chunks = either.value
-                val images = (0 until chunks).map { index ->
-                    URL("$baseUrl/api/v1/chapters/${id.value}/images/$index")
-                }
+                val images = (0 until chunks)
+                    .map { index -> "$baseUrl/api/v1/chapters/${id.value}/images/$index" }
+                    .toImmutableList()
                 Either.Left(images)
             }
 

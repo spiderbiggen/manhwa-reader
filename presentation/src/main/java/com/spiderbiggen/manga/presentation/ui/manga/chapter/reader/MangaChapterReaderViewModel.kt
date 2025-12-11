@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
-import android.util.Log.e
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
@@ -20,8 +20,8 @@ import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.net.URL
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -47,7 +47,7 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
     private val chapterId = navKey.chapterId
 
     private val surroundingChapters = MutableStateFlow(SurroundingChapters())
-    private val chapterImages = MutableStateFlow<List<URL>>(emptyList())
+    private val chapterImages = MutableStateFlow<ImmutableList<String>>(persistentListOf())
 
     val state: StateFlow<MangaChapterReaderScreenState> = screenStateFlow()
         .onStart { loadData() }
@@ -60,16 +60,14 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
     suspend fun loadData() {
         launchDefault {
             when (val images = getChapterImages(chapterId)) {
-                is Either.Left<List<URL>, *> -> chapterImages.emit(images.value)
-                is Either.Right<*, AppError> ->
-                    e(TAG, "failed to get images ${images.value}")
+                is Either.Left -> chapterImages.emit(images.value)
+                is Either.Right -> Log.e(TAG, "failed to get images")
             }
         }
         launchDefault {
             when (val surrounding = getSurroundingChapters(chapterId)) {
-                is Either.Left<SurroundingChapters, *> -> surroundingChapters.emit(surrounding.value)
-                is Either.Right<*, AppError> ->
-                    e(TAG, "failed to get surrounding chapters ${surrounding.value}")
+                is Either.Left -> surroundingChapters.emit(surrounding.value)
+                is Either.Right -> Log.e(TAG, "failed to get surrounding chapters")
             }
         }
     }
@@ -84,7 +82,7 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
             title = chapterState?.chapter?.displayTitle(),
             surrounding = surrounding,
             isFavorite = isFavorite,
-            images = images.map { it.toExternalForm() }.toImmutableList(),
+            images = images,
             isRead = chapterState?.isRead == true,
         )
     }

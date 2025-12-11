@@ -31,4 +31,5 @@ dependencies {
     implementation(libs.kotlinX.datetime)
     implementation(libs.kotlinX.coroutines.core)
     implementation(libs.kotlinX.serialization)
+    implementation(libs.kotlinX.collections.immutable)
 }

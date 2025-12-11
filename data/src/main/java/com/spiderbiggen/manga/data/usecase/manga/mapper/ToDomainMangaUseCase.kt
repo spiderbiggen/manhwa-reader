@@ -3,7 +3,6 @@ package com.spiderbiggen.manga.data.usecase.manga.mapper
 import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntity
 import com.spiderbiggen.manga.data.source.remote.model.MangaEntity
 import com.spiderbiggen.manga.domain.model.manga.Manga
-import java.net.URL
 import javax.inject.Inject
 
 class ToDomainMangaUseCase @Inject constructor() {
@@ -11,7 +10,7 @@ class ToDomainMangaUseCase @Inject constructor() {
         source = entity.source,
         id = entity.id,
         title = entity.title,
-        coverImage = URL(entity.cover),
+        coverImage = entity.cover,
         dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,
@@ -22,7 +21,7 @@ class ToDomainMangaUseCase @Inject constructor() {
         source = entity.source,
         id = entity.id,
         title = entity.title,
-        coverImage = URL(entity.cover),
+        coverImage = entity.cover,
         dominantColor = entity.dominantColor,
         description = entity.description,
         status = entity.status,

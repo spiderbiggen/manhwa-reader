@@ -1,3 +1,4 @@
+import org.gradle.jvm.toolchain.internal.JavaToolchain
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -81,6 +82,7 @@ dependencies {
     implementation(libs.kotlinX.serialization)
     implementation(libs.kotlinX.datetime)
     implementation(libs.kotlinX.coroutines.android)
+    implementation(libs.kotlinX.collections.immutable)
 
     // Room
     implementation(libs.androidX.room.runtime)
