@@ -36,9 +36,11 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import coil3.compose.rememberConstraintsSizeResolver
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
@@ -232,6 +234,17 @@ private fun MangaList(
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 
+    val coverSizeResolver = rememberConstraintsSizeResolver()
+    val allImages = remember(mangas) {
+        mangas.flatMap { (_, mangas) -> mangas.map { it.coverImage } }.toImmutableList()
+    }
+    PreloadImages(
+        lazyListState = lazyListState,
+        items = allImages,
+        sizeResolver = coverSizeResolver,
+        preloadCount = 15,
+    )
+
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
@@ -254,6 +267,7 @@ private fun MangaList(
                         fadeOutSpec = floatAnimationSpec,
                     ),
                     shape = shape,
+                    coverSizeResolver = coverSizeResolver,
                 )
             }
         }

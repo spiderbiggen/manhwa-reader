@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlinx.collections.immutable.ImmutableList
 
+object SectionHeaderContentType
 private val NO_CORNER = CornerSize(0.dp)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -34,7 +35,7 @@ inline fun <T> LazyListScope.section(
     crossinline content: @Composable LazyItemScope.(T, Shape) -> Unit,
 ) {
     header?.let {
-        item {
+        item(contentType = SectionHeaderContentType) {
             Text(
                 it,
                 style = MaterialTheme.typography.titleMedium,
