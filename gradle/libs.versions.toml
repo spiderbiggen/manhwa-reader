@@ -31,7 +31,7 @@ android-material = { group = "com.google.android.material", name = "material", v
 androidX-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version = "1.2.0" }
 
 # Firebase
-firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "34.6.0" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version = "34.7.0" }
 firebase-analytics = { group = "com.google.firebase", name = "firebase-analytics" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics" }
 
