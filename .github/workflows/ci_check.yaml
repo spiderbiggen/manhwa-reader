@@ -46,9 +46,10 @@ jobs:
                     echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
                     echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
-
-            -   name: Create debug build
-                run: ./gradlew app:assembleDebug
+            -   name: Create debug build and analyze
+                env:
+                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+                run: ./gradlew app:assembleDebug sonar
 
             -   name: Upload build
                 uses: actions/upload-artifact@v6

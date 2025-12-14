@@ -18,6 +18,7 @@ nav3Core = "1.0.0"
 lifecycleViewmodelNav3 = "2.10.0"
 room = "2.8.4"
 spotless-plugin-gradle = "8.1.0"
+sonarqube = "7.2.0.6526"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -126,6 +127,8 @@ kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinX-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+
+sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 
 [bundles]
 

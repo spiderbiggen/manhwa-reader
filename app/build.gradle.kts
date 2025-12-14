@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.crashlytics)
+    alias(libs.plugins.sonarqube)
     id("manga.spotless")
 }
 
@@ -85,6 +86,13 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
+    }
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "spiderbiggen_manhwa-reader")
+        property("sonar.organization", "spiderbiggen")
     }
 }
 
