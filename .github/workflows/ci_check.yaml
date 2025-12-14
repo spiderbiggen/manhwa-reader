@@ -53,13 +53,16 @@ jobs:
       - name: Create Google Services JSON File
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
 
       - name: Update local.properties
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
         run: |
           echo "signing.keystore=keystore.jks" >> ./local.properties
-          echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
-          echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
+          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Create debug build
         run: ./gradlew app:assembleDebug
@@ -117,13 +120,16 @@ jobs:
       - name: Create Google Services JSON File
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
 
       - name: Update local.properties
+        env:
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
         run: |
           echo "signing.keystore=keystore.jks" >> ./local.properties
-          echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
-          echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
+          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Run lint and unit tests
         run: ./gradlew check
