@@ -8,23 +8,19 @@ import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import javax.inject.Inject
 import javax.inject.Provider
-import okhttp3.ResponseBody
-import retrofit2.HttpException
-import retrofit2.Response
 
 class RefreshAccessToken @Inject constructor(
     private val authService: Provider<AuthService>,
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    suspend operator fun invoke(): Either<String, AppError> = runCatching {
+    suspend operator fun invoke(): Either<String, AppError> {
         val refreshToken = authenticationRepository.getRefreshToken()
-            ?: throw HttpException(Response.error<Unit>(401, ResponseBody.EMPTY))
-        val response = authService.get().refresh(RefreshTokenBody(refreshToken.token))
-        if (!response.isSuccessful) {
-            throw HttpException(response)
-        }
-        val body = response.body()!!
-        authenticationRepository.saveTokens(body.accessToken, body.refreshToken)
-        body.accessToken.token
-    }.either()
+            ?: return Either.Right(AppError.Auth.Unauthorized)
+
+        return runCatching {
+            val response = authService.get().refresh(RefreshTokenBody(refreshToken.token))
+            authenticationRepository.saveTokens(response.accessToken, response.refreshToken)
+            response.accessToken.token
+        }.either()
+    }
 }

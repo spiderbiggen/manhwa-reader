@@ -8,18 +8,13 @@ import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import javax.inject.Inject
 import javax.inject.Provider
-import retrofit2.HttpException
 
 class FetchCurrentUser @Inject constructor(
     private val profileService: Provider<ProfileService>,
     private val authenticationRepository: Provider<AuthenticationRepository>,
 ) {
     suspend operator fun invoke(): Either<UserEntity, AppError> = runCatching {
-        val response = profileService.get().getSelf()
-        if (!response.isSuccessful) {
-            throw HttpException(response)
-        }
-        val userEntity = response.body()!!
+        val userEntity = profileService.get().getSelf()
         authenticationRepository.get().saveUser(userEntity)!!
     }.either()
 }
