@@ -3,89 +3,89 @@ name: Build Release
 
 # When it will be triggered
 on:
-    push:
-        # Publish semver tags as releases.
-        tags: [ 'v*.*.*' ]
+  push:
+    # Publish semver tags as releases.
+    tags: [ 'v*.*.*' ]
 
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 # Where it will run
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            -   uses: actions/checkout@v6
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v6
 
-            -   name: Setup JDK
-                uses: actions/setup-java@v5
-                with:
-                    distribution: 'temurin'
-                    java-version: '17'
-                    cache: gradle
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: gradle
 
-            -   name: Setup Android SDK
-                uses: android-actions/setup-android@v3
-                with:
-                    log-accepted-android-sdk-licenses: false
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
 
-            -   name: Make gradlew executable
-                run: chmod +x ./gradlew
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-            -   name: Create Google Services JSON File
-                env:
-                    GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-                run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+      - name: Create Google Services JSON File
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
 
-            -   name: Decode Keystore
-                id: decode_keystore
-                uses: timheuer/base64-to-file@v1
-                with:
-                    fileName: "keystore/keystore.jks"
-                    encodedString: ${{ secrets.SIGNING_KEY }}
+      - name: Decode Keystore
+        id: decode_keystore
+        uses: timheuer/base64-to-file@v1
+        with:
+          fileName: "keystore/keystore.jks"
+          encodedString: ${{ secrets.SIGNING_KEY }}
 
-            -   name: Update local.properties
-                run: |
-                    ls
-                    echo "signing.keystore=${{ steps.decode_keystore.outputs.filePath }}" >> ./local.properties
-                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
-                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+      - name: Update local.properties
+        run: |
+          ls
+          echo "signing.keystore=${{ steps.decode_keystore.outputs.filePath }}" >> ./local.properties
+          echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
+          echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
-            -   name: Create release build
-                run: ./gradlew app:bundleRelease app:assembleRelease
+      - name: Create release build
+        run: ./gradlew app:bundleRelease app:assembleRelease
 
-            -   name: Upload build
-                uses: actions/upload-artifact@v6
-                with:
-                    name: Builds
-                    path: |
-                        app/build/outputs/apk/release/**/*.apk
+      - name: Upload build
+        uses: actions/upload-artifact@v6
+        with:
+          name: Builds
+          path: |
+            app/build/outputs/apk/release/**/*.apk
 
-    changelog:
-        runs-on: ubuntu-latest
-        needs: build
-        permissions:
-            actions: write
-            contents: write
-        steps:
-            - uses: actions/checkout@v6
-            - uses: actions/download-artifact@v7
-            - name: Update CHANGELOG
-              id: changelog
-              uses: requarks/changelog-action@v1
-              with:
-                  token: ${{ github.token }}
-                  tag: ${{ github.ref_name }}
+  changelog:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      actions: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/download-artifact@v7
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ github.ref_name }}
 
-            - name: Create Release
-              uses: softprops/action-gh-release@v2
-              with:
-                  draft: false
-                  make_latest: true
-                  body: ${{ steps.changelog.outputs.changes }}
-                  token: ${{ github.token }}
-                  files: |
-                      **/*.apk
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: false
+          make_latest: true
+          body: ${{ steps.changelog.outputs.changes }}
+          token: ${{ github.token }}
+          files: |
+            **/*.apk

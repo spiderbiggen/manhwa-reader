@@ -22,3 +22,7 @@ insert_final_newline = false
 [*.json]
 insert_final_newline = false
 indent_size = 2
+
+[{*.yaml,*.yml}]
+insert_final_newline = false
+indent_size = 2

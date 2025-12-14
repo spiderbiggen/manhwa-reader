@@ -3,108 +3,144 @@ name: Check App
 
 # When it will be triggered
 on:
-    pull_request:
-        types: [ opened, reopened, synchronize ]
-        branches:
-            - master
+  pull_request:
+    types: [ opened, reopened, synchronize ]
+    branches:
+      - master
 
 concurrency:
-    group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
-    cancel-in-progress: true
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 # Where it will run
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        steps:
-            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            -   uses: actions/checkout@v6
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v6
 
-            -   name: Setup JDK
-                uses: actions/setup-java@v5
-                with:
-                    distribution: 'temurin'
-                    java-version: '17'
-                    cache: gradle
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-            -   name: Setup Android SDK
-                uses: android-actions/setup-android@v3
-                with:
-                    log-accepted-android-sdk-licenses: false
+      - name: Cache Gradle packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
 
-            -   name: Make gradlew executable
-                run: chmod +x ./gradlew
+      - name: Cache Build files
+        uses: actions/cache@v5
+        with:
+          path: ./**/build
+          key: ${{ runner.os }}-dbg-build-${{ hashFiles('**/*.kt') }}
+          restore-keys: ${{ runner.os }}-dbg-build
 
-            -   name: Create Google Services JSON File
-                env:
-                    GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-                run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
 
-            -   name: Update local.properties
-                run: |
-                    echo "signing.keystore=keystore.jks" >> ./local.properties
-                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
-                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-            -   name: Create debug build and analyze
-                env:
-                    SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-                run: ./gradlew app:assembleDebug sonar
+      - name: Create Google Services JSON File
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
 
-            -   name: Upload build
-                uses: actions/upload-artifact@v6
-                with:
-                    name: debug apk
-                    path: app/build/outputs/apk/debug/*
+      - name: Update local.properties
+        run: |
+          echo "signing.keystore=keystore.jks" >> ./local.properties
+          echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
+          echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
 
-    check:
-        runs-on: ubuntu-latest
-        steps:
-            # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-            -   uses: actions/checkout@v6
-                with:
-                    ref: "master"
+      - name: Create debug build
+        run: ./gradlew app:assembleDebug
 
-            -   uses: actions/checkout@v6
-                with:
-                    clean: false
+      - name: Upload build
+        uses: actions/upload-artifact@v6
+        with:
+          name: debug apk
+          path: app/build/outputs/apk/debug/*
 
+  check:
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v6
+        with:
+          ref: "master"
 
-            -   name: Setup JDK
-                uses: actions/setup-java@v5
-                with:
-                    distribution: 'temurin'
-                    java-version: '17'
-                    cache: gradle
+      - uses: actions/checkout@v6
+        with:
+          clean: false
 
-            -   name: Setup Android SDK
-                uses: android-actions/setup-android@v3
-                with:
-                    log-accepted-android-sdk-licenses: false
+      - name: Setup JDK
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '17'
 
-            -   name: Make gradlew executable
-                run: chmod +x ./gradlew
+      - name: Cache SonarQube packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
 
-            -   name: Create Google Services JSON File
-                env:
-                    GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-                run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+      - name: Cache Gradle packages
+        uses: actions/cache@v5
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
 
-            -   name: Update local.properties
-                run: |
-                    echo "signing.keystore=keystore.jks" >> ./local.properties
-                    echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
-                    echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+      - name: Cache Build files
+        uses: actions/cache@v5
+        with:
+          path: ./**/build
+          key: ${{ runner.os }}-dbg-build-${{ hashFiles('**/*.kt') }}
+          restore-keys: ${{ runner.os }}-dbg-build
 
-            -   name: Run lint and unit tests
-                run: ./gradlew check
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          log-accepted-android-sdk-licenses: false
 
-            -   name: Check if everything is formatted correctly
-                run: ./gradlew spotlessCheck
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
 
-            -   name: Upload Reports
-                uses: actions/upload-artifact@v6
-                with:
-                    name: Reports
-                    path: app/build/reports
-                if: always()
+      - name: Create Google Services JSON File
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+
+      - name: Update local.properties
+        run: |
+          echo "signing.keystore=keystore.jks" >> ./local.properties
+          echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
+          echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+
+      - name: Run lint and unit tests
+        run: ./gradlew check
+
+      - name: Check if everything is formatted correctly
+        run: ./gradlew spotlessCheck
+
+      - name: Perform SonarQube analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: ./gradlew sonar
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v6
+        with:
+          name: Reports
+          path: app/build/reports
+        if: always()

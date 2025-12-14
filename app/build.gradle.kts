@@ -94,6 +94,7 @@ sonar {
         property("sonar.projectKey", "spiderbiggen_manhwa-reader")
         property("sonar.organization", "spiderbiggen")
     }
+    setAndroidVariant("debug")
 }
 
 dependencies {
