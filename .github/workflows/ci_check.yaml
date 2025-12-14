@@ -1,5 +1,7 @@
 # Workflow name
 name: Check App
+permissions:
+  contents: read
 
 # When it will be triggered
 on:
