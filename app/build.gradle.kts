@@ -33,7 +33,11 @@ android {
     signingConfigs {
         create("release") {
             val properties = Properties().apply {
-                load(rootProject.rootDir.resolve("local.properties").reader())
+                try {
+                    load(rootProject.rootDir.resolve("local.properties").reader())
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }
             properties.getProperty("signing.keystore")?.let {
                 storeFile = rootProject.rootDir.resolve(it)
