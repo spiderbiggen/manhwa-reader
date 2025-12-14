@@ -13,7 +13,6 @@ import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.auth.Register
 import javax.inject.Inject
 import javax.inject.Provider
-import retrofit2.HttpException
 
 class RegisterImpl @Inject constructor(
     private val authService: Provider<AuthService>,
@@ -33,12 +32,7 @@ class RegisterImpl @Inject constructor(
                 email = email?.takeUnless { it.isEmpty() },
                 password = password,
             )
-            val response = authService.get().register(body)
-            if (response.isSuccessful) {
-                val session = response.body()!!
-                authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
-            } else {
-                throw HttpException(response)
-            }
+            val session = authService.get().register(body)
+            authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
         }.either()
 }

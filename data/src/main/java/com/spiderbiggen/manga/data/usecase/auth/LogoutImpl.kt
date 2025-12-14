@@ -10,7 +10,6 @@ import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
 import javax.inject.Inject
 import javax.inject.Provider
-import retrofit2.HttpException
 
 class LogoutImpl @Inject constructor(
     private val authService: Provider<AuthService>,
@@ -21,9 +20,10 @@ class LogoutImpl @Inject constructor(
 
         val body = RefreshTokenBody(token.token)
 
-        val response = authService.get().logout(body)
-        if (!response.isSuccessful) {
-            Log.w("LogoutImpl", "failed to logout", HttpException(response))
+        try {
+            authService.get().logout(body)
+        } catch (e: Exception) {
+            Log.w("LogoutImpl", "failed to logout", e)
         }
 
         authenticationRepository.get().clear()

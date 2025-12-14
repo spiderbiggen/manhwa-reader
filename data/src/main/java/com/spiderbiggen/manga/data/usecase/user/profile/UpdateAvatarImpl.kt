@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.data.usecase.user.profile
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import coil3.ImageLoader
 import coil3.memory.MemoryCache
 import coil3.request.ImageRequest
@@ -22,10 +23,6 @@ import java.net.URI
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlinx.coroutines.flow.firstOrNull
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.MultipartBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import retrofit2.HttpException
 
 class UpdateAvatarImpl @Inject constructor(
     @ApplicationContext private val context: Provider<Context>,
@@ -46,18 +43,13 @@ class UpdateAvatarImpl @Inject constructor(
         .mapLeft {}
 
     private fun processBitmap(avatar: URI) = runCatching {
-        val uri = Uri.parse(avatar.toString())
+        val uri = avatar.toString().toUri()
         val bitmap = resizeBitmap(uri).getOrThrow()
         encodeBitmap(bitmap).getOrThrow()
     }.either()
 
     private suspend fun uploadAvatar(avatar: ByteArray) = runCatching {
-        val requestBody = avatar.toRequestBody("image/webp".toMediaTypeOrNull())
-        val multipartBody = MultipartBody.Part.createFormData(name = "avatar", filename = null, body = requestBody)
-        val response = profileService.get().updateImage(avatar = multipartBody)
-        if (!response.isSuccessful) {
-            throw HttpException(response)
-        }
+        profileService.get().updateImage(avatar = avatar)
     }.either()
 
     private suspend fun invalidateAvatarCache() = runCatching {

@@ -13,6 +13,7 @@ espresso-core = "3.7.0"
 google-gms-google-services = "4.4.4"
 junit = "4.13.2"
 kotlin = "2.2.21"
+ktor = "3.3.3"
 lifecycle = "2.10.0"
 nav3Core = "1.0.0"
 lifecycleViewmodelNav3 = "2.10.0"
@@ -84,13 +85,15 @@ google-dagger = { group = "com.google.dagger", name = "dagger", version.ref = "d
 google-dagger-hiltAndroid = { group = "com.google.dagger", name = "hilt-android", version.ref = "dagger" }
 google-dagger-hiltAndroidCompiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "dagger" }
 
-# Retrofit
-okhttp-bom = { group = "com.squareup.okhttp3", name = "okhttp-bom", version = "5.3.2" }
-okhttp = { group = "com.squareup.okhttp3", name = "okhttp" }
-okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor" }
-retrofit-bom = { group = "com.squareup.retrofit2", name = "retrofit-bom", version = "3.0.0" }
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit" }
-retrofit-converter-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization" }
+# Ktor
+ktor-bom = { group = "io.ktor", name = "ktor-bom", version.ref = "ktor" }
+ktor-client-core = { group = "io.ktor", name = "ktor-client-core" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-okhttp" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging" }
+ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-content-negotiation" }
+ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json" }
+ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth" }
+ktor-client-encoding = { group = "io.ktor", name = "ktor-client-encoding" }
 
 # Kotlin std
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
@@ -131,4 +134,3 @@ kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 
 [bundles]
-

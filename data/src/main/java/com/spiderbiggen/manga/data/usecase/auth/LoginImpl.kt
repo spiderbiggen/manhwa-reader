@@ -13,7 +13,6 @@ import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.auth.Login
 import javax.inject.Inject
 import javax.inject.Provider
-import retrofit2.HttpException
 
 class LoginImpl @Inject constructor(
     private val authService: Provider<AuthService>,
@@ -27,12 +26,7 @@ class LoginImpl @Inject constructor(
 
     private suspend fun updateSession(usernameOrEmail: String, password: String): Either<Unit, AppError> = runCatching {
         val body = LoginBody(usernameOrEmail, password)
-        val response = authService.get().login(body)
-        if (response.isSuccessful) {
-            val session = response.body()!!
-            authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
-        } else {
-            throw HttpException(response)
-        }
+        val session = authService.get().login(body)
+        authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
     }.either()
 }
