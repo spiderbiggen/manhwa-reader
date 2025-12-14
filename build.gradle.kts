@@ -10,5 +10,18 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlinX.compose) apply false
     alias(libs.plugins.kotlinX.serialization) apply false
+    alias(libs.plugins.sonarqube)
     id("manga.spotless")
+}
+
+sonar {
+    properties {
+        property("sonar.projectKey", "spiderbiggen_manhwa-reader")
+        property("sonar.organization", "spiderbiggen")
+    }
+    setAndroidVariant("debug")
+}
+
+subprojects {
+    sonar { setAndroidVariant("debug") }
 }
