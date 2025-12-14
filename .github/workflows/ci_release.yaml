@@ -40,7 +40,7 @@ jobs:
       - name: Create Google Services JSON File
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo $GOOGLE_SERVICES_JSON | base64 -di > ./app/google-services.json
+        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
 
       - name: Decode Keystore
         id: decode_keystore
@@ -50,11 +50,14 @@ jobs:
           encodedString: ${{ secrets.SIGNING_KEY }}
 
       - name: Update local.properties
+        env:
+          KEYSTORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
         run: |
-          ls
-          echo "signing.keystore=${{ steps.decode_keystore.outputs.filePath }}" >> ./local.properties
-          echo "signing.password=${{ secrets.SIGNING_PASSWORD }}" >> ./local.properties
-          echo "signing.alias=${{ secrets.SIGNING_ALIAS }}" >> ./local.properties
+          echo "signing.keystore=$KEYSTORE_PATH" >> ./local.properties
+          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
+          echo "signing.alias=$secrets.SIGNING_ALIAS" >> ./local.properties
 
       - name: Create release build
         run: ./gradlew app:bundleRelease app:assembleRelease
