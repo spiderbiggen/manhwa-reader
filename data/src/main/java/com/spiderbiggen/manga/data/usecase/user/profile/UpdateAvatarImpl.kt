@@ -1,12 +1,11 @@
 package com.spiderbiggen.manga.data.usecase.user.profile
 
 import android.content.Context
-import android.net.Uri
 import androidx.core.net.toUri
 import coil3.ImageLoader
 import coil3.memory.MemoryCache
 import coil3.request.ImageRequest
-import com.spiderbiggen.manga.data.source.remote.ProfileService
+import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
 import com.spiderbiggen.manga.data.usecase.auth.RefreshAccessToken
 import com.spiderbiggen.manga.data.usecase.either
@@ -27,7 +26,7 @@ import kotlinx.coroutines.flow.firstOrNull
 class UpdateAvatarImpl @Inject constructor(
     @ApplicationContext private val context: Provider<Context>,
     private val imageLoader: Provider<ImageLoader>,
-    private val profileService: Provider<ProfileService>,
+    private val userService: Provider<UserService>,
     private val getUser: GetUser,
     private val refreshAccessToken: RefreshAccessToken,
     private val fetchCurrentUser: FetchCurrentUser,
@@ -49,7 +48,7 @@ class UpdateAvatarImpl @Inject constructor(
     }.either()
 
     private suspend fun uploadAvatar(avatar: ByteArray) = runCatching {
-        profileService.get().updateImage(avatar = avatar)
+        userService.get().updateImage(avatar = avatar)
     }.either()
 
     private suspend fun invalidateAvatarCache() = runCatching {

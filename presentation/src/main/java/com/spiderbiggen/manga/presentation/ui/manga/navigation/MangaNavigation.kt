@@ -13,7 +13,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.navi
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.MangaChapterReaderRoute
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.mangaChapterReaderDestination
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.navigateToMangaReader
-import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.mangaDestination
+import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.mangaListDestination
 import com.spiderbiggen.manga.presentation.ui.profile.navigation.navigateToProfile
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 
@@ -23,7 +23,7 @@ fun EntryProviderScope<NavKey>.manga(
     snackbarHostState: SnackbarHostState,
     floatAnimationSpec: FiniteAnimationSpec<Float>,
 ) {
-    mangaDestination(
+    mangaListDestination(
         snackbarHostState = snackbarHostState,
         profileState = profileState,
         onProfileClick = { backStack.navigateToProfile(profileState.value) },

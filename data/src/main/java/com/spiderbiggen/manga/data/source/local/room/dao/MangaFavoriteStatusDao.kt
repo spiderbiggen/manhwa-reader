@@ -5,6 +5,7 @@ import androidx.room.Query
 import androidx.room.Upsert
 import com.spiderbiggen.manga.data.source.local.room.model.manga.MangaFavoriteStatusEntity
 import com.spiderbiggen.manga.domain.model.id.MangaId
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -14,6 +15,9 @@ interface MangaFavoriteStatusDao {
 
     @Upsert
     suspend fun insert(manga: MangaFavoriteStatusEntity)
+
+    @Query("SELECT * FROM manga_favorite_status WHERE updated_at > :since")
+    suspend fun get(since: Instant): List<MangaFavoriteStatusEntity>
 
     @Query("SELECT is_favorite FROM manga_favorite_status WHERE id = :id")
     suspend fun isFavorite(id: MangaId): Boolean?

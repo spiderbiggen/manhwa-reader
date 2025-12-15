@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.data.source.remote.model
+package com.spiderbiggen.manga.data.source.remote.model.user
 
 import kotlin.time.Instant
 import kotlinx.serialization.SerialName

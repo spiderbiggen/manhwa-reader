@@ -17,7 +17,9 @@ import com.spiderbiggen.manga.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manga.data.usecase.read.ToggleReadImpl
+import com.spiderbiggen.manga.data.usecase.user.GetLastSynchronizationTimeImpl
 import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
+import com.spiderbiggen.manga.data.usecase.user.SynchronizeWithRemoteImpl
 import com.spiderbiggen.manga.data.usecase.user.profile.UpdateAvatarImpl
 import com.spiderbiggen.manga.domain.usecase.auth.Login
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
@@ -36,7 +38,9 @@ import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.domain.usecase.read.ToggleRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
+import com.spiderbiggen.manga.domain.usecase.user.GetLastSynchronizationTime
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
+import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
 import dagger.Binds
 import dagger.Module
@@ -57,7 +61,13 @@ abstract class DataBindingModule {
     abstract fun bindLogout(useCase: LogoutImpl): Logout
 
     @Binds
+    abstract fun bindGetLastSynchronizationTime(useCase: GetLastSynchronizationTimeImpl): GetLastSynchronizationTime
+
+    @Binds
     abstract fun bindGetUser(useCase: GetUserImpl): GetUser
+
+    @Binds
+    abstract fun bindSynchronizeWithRemote(useCase: SynchronizeWithRemoteImpl): SynchronizeWithRemote
 
     @Binds
     abstract fun bindUpdateAvatar(useCase: UpdateAvatarImpl): UpdateAvatar

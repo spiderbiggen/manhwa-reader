@@ -7,7 +7,6 @@ import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
-import com.spiderbiggen.manga.presentation.extensions.defaultContext
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.extensions.launchDefault
 import com.spiderbiggen.manga.presentation.extensions.suspended
@@ -19,7 +18,6 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,7 +27,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 
 @HiltViewModel(assistedFactory = MangaChapterListViewModel.Factory::class)
@@ -85,15 +82,13 @@ class MangaChapterListViewModel @AssistedInject constructor(
         toggleFavorite(mangaId)
     }
 
-    private suspend fun updateChapters(skipCache: Boolean) = coroutineScope {
-        launch(defaultContext) {
-            _isRefreshing.emit(true)
-            updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
-                _snackbarFlow.emit(SnackbarData(formatAppError(it)))
-            }
-            yield()
-            _isRefreshing.emit(false)
+    private suspend fun updateChapters(skipCache: Boolean) {
+        _isRefreshing.emit(true)
+        updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
+            _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
+        yield()
+        _isRefreshing.emit(false)
     }
 
     @AssistedFactory

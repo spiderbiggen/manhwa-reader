@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.data.usecase.user
 
 import com.spiderbiggen.manga.data.di.BaseUrl
-import com.spiderbiggen.manga.data.source.remote.model.UserEntity
+import com.spiderbiggen.manga.data.source.remote.model.user.UserEntity
 import com.spiderbiggen.manga.domain.model.auth.User
 import javax.inject.Inject
 
