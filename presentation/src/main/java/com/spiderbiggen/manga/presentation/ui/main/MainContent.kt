@@ -58,6 +58,7 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
     val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
     val floatAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
     NavDisplay(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
         entryDecorators = listOf(
             // Add the default decorators for managing scenes and saving state
             rememberSaveableStateHolderNavEntryDecorator(),
