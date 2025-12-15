@@ -4,6 +4,7 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.statusBars
@@ -11,6 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -36,10 +38,16 @@ import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainContent() {
+    val snackbarHostState = remember { SnackbarHostState() }
+
     val profileViewModel: ProfileViewModel = hiltViewModel()
     val profileState = profileViewModel.state.collectAsStateWithLifecycle()
 
-    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(profileViewModel, snackbarHostState) {
+        profileViewModel.snackbarFlow.collect {
+            snackbarHostState.showSnackbar(it)
+        }
+    }
 
     // TrackNavigationSideEffect(navController)
     MangaReaderTheme {

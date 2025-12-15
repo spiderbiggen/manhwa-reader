@@ -9,10 +9,10 @@ import com.spiderbiggen.manga.data.di.BaseUrl
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.MangaService
-import com.spiderbiggen.manga.data.source.remote.ProfileService
+import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.impl.AuthServiceImpl
 import com.spiderbiggen.manga.data.source.remote.impl.MangaServiceImpl
-import com.spiderbiggen.manga.data.source.remote.impl.ProfileServiceImpl
+import com.spiderbiggen.manga.data.source.remote.impl.UserServiceImpl
 import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody
 import com.spiderbiggen.manga.data.source.remote.model.auth.SessionResponse
 import dagger.Module
@@ -120,7 +120,7 @@ object RemoteProvider {
         install(Auth) {
             bearer {
                 loadTokens {
-                    authRepository.getAuthTokens()?.let {
+                    authRepository.getAuthenticatedState()?.let {
                         BearerTokens(it.accessToken.token, it.refreshToken.token)
                     }
                 }
@@ -158,5 +158,5 @@ object RemoteProvider {
     fun provideAuthService(client: HttpClient): AuthService = AuthServiceImpl(client)
 
     @Provides
-    fun provideProfileService(client: HttpClient): ProfileService = ProfileServiceImpl(client)
+    fun provideProfileService(client: HttpClient): UserService = UserServiceImpl(client)
 }

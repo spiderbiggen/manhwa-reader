@@ -4,11 +4,12 @@ import android.util.Log
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import com.spiderbiggen.manga.data.crypto.Crypto
-import com.spiderbiggen.manga.data.source.remote.model.UserEntity
 import com.spiderbiggen.manga.data.source.remote.model.auth.TokenEntity
+import com.spiderbiggen.manga.data.source.remote.model.user.UserEntity
 import java.io.InputStream
 import java.io.OutputStream
 import kotlin.io.encoding.Base64
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
@@ -24,6 +25,7 @@ sealed interface AuthenticationPreferences {
         val accessToken: TokenEntity,
         val refreshToken: TokenEntity,
         val user: UserEntity? = null,
+        val lastSynchronizationTime: Instant? = null,
     ) : AuthenticationPreferences
 }
 

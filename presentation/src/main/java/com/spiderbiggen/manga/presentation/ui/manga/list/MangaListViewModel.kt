@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
@@ -18,8 +17,6 @@ import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -29,7 +26,6 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import kotlinx.datetime.TimeZone
 
@@ -121,14 +117,12 @@ class MangaListViewModel @Inject constructor(
         toggleFavorite(mangaId)
     }
 
-    private suspend fun updateMangas(skipCache: Boolean) = coroutineScope {
-        launch(viewModelScope.coroutineContext + Dispatchers.Default) {
-            _isRefreshing.emit(true)
-            updateMangaFromRemote(skipCache).leftOrElse {
-                _snackbarFlow.emit(SnackbarData(formatAppError(it)))
-            }
-            yield()
-            _isRefreshing.emit(false)
+    private suspend fun updateMangas(skipCache: Boolean) {
+        _isRefreshing.emit(true)
+        updateMangaFromRemote(skipCache).leftOrElse {
+            _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
+        yield()
+        _isRefreshing.emit(false)
     }
 }

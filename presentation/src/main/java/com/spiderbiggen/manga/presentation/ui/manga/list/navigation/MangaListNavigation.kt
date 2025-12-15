@@ -13,7 +13,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data object MangaListRoute : NavKey
 
-fun EntryProviderScope<NavKey>.mangaDestination(
+fun EntryProviderScope<NavKey>.mangaListDestination(
     snackbarHostState: SnackbarHostState,
     profileState: State<ProfileState>,
     onProfileClick: () -> Unit,

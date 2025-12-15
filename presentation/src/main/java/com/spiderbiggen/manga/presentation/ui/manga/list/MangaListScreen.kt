@@ -1,7 +1,9 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -9,6 +11,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
@@ -20,10 +23,12 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -151,15 +156,23 @@ private fun MangaOverviewContent(
                                 contentDescription = "Profile",
                             )
 
-                            is ProfileState.Authenticated -> AsyncImage(
-                                model = profileState.avatarUrl,
-                                contentDescription = "Profile",
-                                contentScale = ContentScale.Crop,
-                                error = painterResource(R.drawable.account_circle),
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .size(24.dp),
-                            )
+                            is ProfileState.Authenticated -> Box(contentAlignment = Alignment.Center) {
+                                AsyncImage(
+                                    model = profileState.avatarUrl,
+                                    contentDescription = "Profile",
+                                    contentScale = ContentScale.Crop,
+                                    error = painterResource(R.drawable.account_circle),
+                                    modifier = Modifier
+                                        .clip(CircleShape)
+                                        .size(24.dp),
+                                )
+                                AnimatedVisibility(
+                                    profileState.refreshing,
+                                    Modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize),
+                                ) {
+                                    CircularWavyProgressIndicator()
+                                }
+                            }
                         }
                     }
                 },

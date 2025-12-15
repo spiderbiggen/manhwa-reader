@@ -5,11 +5,12 @@ import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.dataStore
 import com.spiderbiggen.manga.data.source.local.preferences.AuthenticationPreferences
 import com.spiderbiggen.manga.data.source.local.preferences.AuthenticationPreferencesSerializer
-import com.spiderbiggen.manga.data.source.remote.model.UserEntity
 import com.spiderbiggen.manga.data.source.remote.model.auth.TokenEntity
+import com.spiderbiggen.manga.data.source.remote.model.user.UserEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -31,17 +32,23 @@ class AuthenticationRepository @Inject constructor(@ApplicationContext context: 
         dataStore.updateData { AuthenticationPreferences.Unauthenticated }
     }
 
-    suspend fun getAuthTokens(): AuthenticationPreferences.Authenticated? =
+    suspend fun getAuthenticatedState(): AuthenticationPreferences.Authenticated? =
         dataStore.data.firstOrNull() as? AuthenticationPreferences.Authenticated
 
-    suspend fun getAccessToken(): TokenEntity? = getAuthTokens()?.accessToken
+    suspend fun getAccessToken(): TokenEntity? = getAuthenticatedState()?.accessToken
 
-    suspend fun getRefreshToken(): TokenEntity? = getAuthTokens()?.refreshToken
+    suspend fun getRefreshToken(): TokenEntity? = getAuthenticatedState()?.refreshToken
 
-    suspend fun getUser(): UserEntity? = getAuthTokens()?.user
+    suspend fun getUser(): UserEntity? = getAuthenticatedState()?.user
+
+    suspend fun getLastSynchronizationTime(): Instant? = getAuthenticatedState()?.lastSynchronizationTime
 
     fun getUserFlow(): Flow<UserEntity?> = dataStore.data.map {
         (it as? AuthenticationPreferences.Authenticated)?.user
+    }
+
+    fun getLastSynchronizationTimeFlow(): Flow<Instant?> = dataStore.data.map {
+        (it as? AuthenticationPreferences.Authenticated)?.lastSynchronizationTime
     }
 
     suspend fun saveTokens(accessToken: TokenEntity, refreshToken: TokenEntity) {
@@ -62,5 +69,13 @@ class AuthenticationRepository @Inject constructor(@ApplicationContext context: 
                 ?: data
         }
         return (result as? AuthenticationPreferences.Authenticated)?.user
+    }
+
+    suspend fun saveLastSynchronizationTime(time: Instant) {
+        dataStore.updateData { data ->
+            (data as? AuthenticationPreferences.Authenticated)
+                ?.copy(lastSynchronizationTime = time)
+                ?: data
+        }
     }
 }
