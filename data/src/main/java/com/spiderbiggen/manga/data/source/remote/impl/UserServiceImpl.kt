@@ -51,6 +51,7 @@ class UserServiceImpl @Inject constructor(private val client: HttpClient) : User
 
     override suspend fun updateFavorites(updates: Map<MangaId, FavoriteState>): Map<MangaId, FavoriteState> =
         client.post("api/v1/users/favorites") {
+            compress("gzip")
             setBody(updates)
         }.body()
 
@@ -61,6 +62,7 @@ class UserServiceImpl @Inject constructor(private val client: HttpClient) : User
 
     override suspend fun updateReadProgress(updates: Map<ChapterId, ReadState>): Map<ChapterId, ReadState> =
         client.post("api/v1/users/reads") {
+            compress("gzip")
             setBody(updates)
         }.body()
 }
