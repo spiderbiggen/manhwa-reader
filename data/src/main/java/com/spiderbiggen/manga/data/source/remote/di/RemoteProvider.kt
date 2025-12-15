@@ -114,6 +114,7 @@ object RemoteProvider {
                     }
                 }
                 level = LogLevel.ALL
+                sanitizeHeader { it == HttpHeaders.Authorization }
             }
         }
 
