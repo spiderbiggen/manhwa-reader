@@ -53,10 +53,10 @@ class SynchronizeWithRemoteImpl @Inject constructor(
         val favorites = favoritesRepository.get(lastSyncTime).getOrThrow()
         if (favorites.isNotEmpty()) {
             val favoriteUpdates = favorites.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) }
-            val receivedUpdates = updateFavorites(favoriteUpdates)
+            val receivedUpdates = updateFavorites(favoriteUpdates).sanitizeKeys()
             favoritesRepository.set(receivedUpdates).getOrThrow()
         }
-        val receivedFavoriteUpdates = getFavorites(lastSyncTime)
+        val receivedFavoriteUpdates = getFavorites(lastSyncTime).sanitizeKeys()
         favoritesRepository.set(receivedFavoriteUpdates).getOrThrow()
     }
 
@@ -64,10 +64,18 @@ class SynchronizeWithRemoteImpl @Inject constructor(
         val reads = readRepository.get(lastSyncTime).getOrThrow()
         if (reads.isNotEmpty()) {
             val favoriteUpdates = reads.associate { it.id to ReadState(it.isRead, it.updatedAt) }
-            val receivedUpdates = updateReadProgress(favoriteUpdates)
+            val receivedUpdates = updateReadProgress(favoriteUpdates).sanitizeKeys()
             readRepository.set(receivedUpdates).getOrThrow()
         }
-        val receivedReadUpdates = getReadProgress(lastSyncTime)
+        val receivedReadUpdates = getReadProgress(lastSyncTime).sanitizeKeys()
         readRepository.set(receivedReadUpdates).getOrThrow()
     }
+
+    @JvmName("sanitizeKeysManga")
+    private fun <T> Map<MangaId, T>.sanitizeKeys(): Map<MangaId, T> =
+        mapKeys { (key, _) -> MangaId(key.value.filter { it != '-' }) }
+
+    @JvmName("sanitizeKeysChapter")
+    private fun <T> Map<ChapterId, T>.sanitizeKeys(): Map<ChapterId, T> =
+        mapKeys { (key, _) -> ChapterId(key.value.filter { it != '-' }) }
 }
