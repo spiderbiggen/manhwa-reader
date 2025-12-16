@@ -18,5 +18,6 @@ sealed interface ProfileOverviewViewState {
         val avatarUrl: String,
         val email: String?,
         val updatedAt: Instant,
+        val lastSynchronizationTime: String?,
     ) : ProfileOverviewViewState
 }

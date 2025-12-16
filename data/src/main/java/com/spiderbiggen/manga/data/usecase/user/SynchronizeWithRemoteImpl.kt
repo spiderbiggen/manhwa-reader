@@ -9,12 +9,16 @@ import com.spiderbiggen.manga.data.source.remote.model.user.ReadState
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
+import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 private val MIN_SYNC_INTERVAL = 5.minutes
 private val SYNC_FALLBACK_TIME = Instant.fromEpochSeconds(0)
@@ -25,18 +29,24 @@ class SynchronizeWithRemoteImpl @Inject constructor(
     private val favoritesRepository: FavoritesRepository,
     private val readRepository: ReadRepository,
 ) : SynchronizeWithRemote {
-    override suspend operator fun invoke(): Either<Unit, AppError> = runCatching {
-        val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@runCatching
 
-        val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
-        val currentTime = now()
-        if (currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@runCatching
+    private val mutex = Mutex()
 
-        val userService = userService.get()
-        userService.syncFavorites(lastSyncTime)
-        userService.syncReads(lastSyncTime)
+    override suspend operator fun invoke(ignoreInterval: Boolean): Either<Unit, AppError> = runCatching {
+        if (mutex.isLocked) return@runCatching
+        mutex.withLock {
+            val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@runCatching
 
-        authenticationRepository.saveLastSynchronizationTime(currentTime)
+            val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
+            val currentTime = now()
+            if (!ignoreInterval && currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@runCatching
+
+            val userService = userService.get()
+            userService.syncFavorites(lastSyncTime)
+            userService.syncReads(lastSyncTime)
+
+            authenticationRepository.saveLastSynchronizationTime(currentTime)
+        }
     }.either()
 
     private suspend fun UserService.syncFavorites(lastSyncTime: Instant) {

@@ -4,5 +4,5 @@ import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 
 fun interface SynchronizeWithRemote {
-    suspend operator fun invoke(): Either<Unit, AppError>
+    suspend operator fun invoke(ignoreInterval: Boolean): Either<Unit, AppError>
 }

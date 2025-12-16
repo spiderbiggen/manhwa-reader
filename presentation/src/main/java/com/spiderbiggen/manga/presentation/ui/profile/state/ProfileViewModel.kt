@@ -63,7 +63,7 @@ class ProfileViewModel @Inject constructor(
 
     private suspend fun synchronize() {
         isRefreshing.emit(true)
-        synchronizeWithRemote().leftOrElse {
+        synchronizeWithRemote(ignoreInterval = false).leftOrElse {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         yield()

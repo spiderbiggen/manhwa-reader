@@ -9,6 +9,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -78,6 +80,7 @@ fun ProfileOverview(
         onBackClick = onBackClick,
         onChangeAvatarClick = viewModel::handleChangeAvatar,
         onLogoutClick = viewModel::handleLogout,
+        onSyncClick = viewModel::handleSync,
     )
 }
 
@@ -89,6 +92,7 @@ fun ProfileOverviewContent(
     onBackClick: () -> Unit = {},
     onChangeAvatarClick: (Uri) -> Unit = {},
     onLogoutClick: () -> Unit = {},
+    onSyncClick: () -> Unit = {},
 ) {
     val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior()
 
@@ -117,6 +121,7 @@ fun ProfileOverviewContent(
                     .padding(scaffoldPadding),
                 onChangeAvatarClick = onChangeAvatarClick,
                 onLogoutClick = onLogoutClick,
+                onSyncClick = onSyncClick,
             )
 
             else -> {
@@ -133,6 +138,7 @@ private fun AuthenticatedUserProfile(
     modifier: Modifier = Modifier,
     onChangeAvatarClick: (Uri) -> Unit = {},
     onLogoutClick: () -> Unit = {},
+    onSyncClick: () -> Unit = {},
 ) {
     val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
         // Callback is invoked after the user selects a media item or closes the
@@ -178,6 +184,22 @@ private fun AuthenticatedUserProfile(
                 Text(text = it, style = MaterialTheme.typography.bodyLarge)
             }
             HorizontalDivider()
+
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Column {
+                    Text(text = "Last Synchronization:")
+                    Text(
+                        text = state.lastSynchronizationTime ?: "Never",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                Spacer(modifier = Modifier.weight(1f))
+                FilledIconButton(onSyncClick) {
+                    Icon(painterResource(R.drawable.sync), contentDescription = "Sync")
+                }
+            }
+            HorizontalDivider()
+
             Button(onClick = onLogoutClick) {
                 Text("Logout")
             }
@@ -215,14 +237,15 @@ private fun ProfileOverviewPreview(
 
 private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<ProfileOverviewViewState> {
     override val values = sequenceOf(
-        ProfileOverviewViewState.Unknown,
-        ProfileOverviewViewState.Unauthenticated,
         ProfileOverviewViewState.Authenticated(
             id = "",
             name = "Spiderbiggen",
             email = "spiderbiggen@gmail.com",
             avatarUrl = "example.com",
             updatedAt = now(),
+            lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
         ),
+        ProfileOverviewViewState.Unknown,
+        ProfileOverviewViewState.Unauthenticated,
     )
 }
