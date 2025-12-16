@@ -57,7 +57,7 @@ jobs:
         run: |
           echo "signing.keystore=$KEYSTORE_PATH" >> ./local.properties
           echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
-          echo "signing.alias=$secrets.SIGNING_ALIAS" >> ./local.properties
+          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Create release build
         run: ./gradlew app:bundleRelease app:assembleRelease
