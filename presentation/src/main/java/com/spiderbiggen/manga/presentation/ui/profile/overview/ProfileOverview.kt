@@ -35,6 +35,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -59,6 +60,7 @@ import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimat
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
 import kotlin.time.Clock.System.now
 import kotlinx.coroutines.isActive
 
@@ -240,10 +242,11 @@ private fun AuthenticatedUserProfile(
                 }
             }
             HorizontalDivider()
-
             Button(onClick = onLogoutClick) {
                 Text("Logout")
             }
+            Spacer(modifier = Modifier.weight(1f))
+            Text(LocalAppVersion.current, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -269,11 +272,13 @@ private fun LoadingUserProfile(padding: PaddingValues) {
 private fun ProfileOverviewPreview(
     @PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState,
 ) = MangaReaderTheme {
-    val snackbarHostState = remember { SnackbarHostState() }
-    ProfileOverviewContent(
-        state = state,
-        snackbarHostState = snackbarHostState,
-    )
+    CompositionLocalProvider(LocalAppVersion provides "1.23.0 (66)") {
+        val snackbarHostState = remember { SnackbarHostState() }
+        ProfileOverviewContent(
+            state = state,
+            snackbarHostState = snackbarHostState,
+        )
+    }
 }
 
 private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<ProfileOverviewViewState> {

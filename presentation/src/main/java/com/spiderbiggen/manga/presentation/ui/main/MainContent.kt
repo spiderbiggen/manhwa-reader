@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -34,6 +35,8 @@ import com.spiderbiggen.manga.presentation.ui.manga.navigation.manga
 import com.spiderbiggen.manga.presentation.ui.profile.navigation.profile
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
+
+val LocalAppVersion = staticCompositionLocalOf { "" }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable

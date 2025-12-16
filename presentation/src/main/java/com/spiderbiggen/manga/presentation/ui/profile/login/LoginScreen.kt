@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.presentation.ui.profile.login
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -22,6 +23,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -45,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
 
 @Composable
 fun LoginScreen(
@@ -176,6 +179,8 @@ private fun LoginScreenContent(
                     )
                 }
             }
+            Spacer(Modifier.weight(1f))
+            Text(LocalAppVersion.current, style = MaterialTheme.typography.labelSmall)
         }
     }
 }
@@ -186,7 +191,9 @@ private fun LoginScreenContent(
 @Composable
 private fun LoginScreenPreview(@PreviewParameter(LoginStatePreviewProvider::class) state: LoginState) =
     MangaReaderTheme {
-        LoginScreenContent(loginState = state)
+        CompositionLocalProvider(LocalAppVersion provides "1.23.0 (66)") {
+            LoginScreenContent(loginState = state)
+        }
     }
 
 private class LoginStatePreviewProvider : PreviewParameterProvider<LoginState> {
