@@ -42,6 +42,11 @@ inline fun <L, R> Either<L, R>.leftOrElse(block: (R) -> L): L = when (this) {
     is Either.Right -> block(value)
 }
 
+inline fun <L, R> Either<L, R>.onLeft(block: (L) -> Unit): Either<L, R> {
+    if (this is Either.Left) block(value)
+    return this
+}
+
 inline fun <L, R> Either<L, R>.leftFlip(block: (L) -> R): R = when (this) {
     is Either.Left -> block(value)
     is Either.Right -> value
@@ -60,6 +65,11 @@ fun <L, R> Either<L, R>.rightOr(default: R): R = when (this) {
 inline fun <L, R> Either<L, R>.rightOrElse(block: () -> R): R = when (this) {
     is Either.Left -> block()
     is Either.Right -> value
+}
+
+inline fun <L, R> Either<L, R>.onRight(block: (R) -> Unit): Either<L, R> {
+    if (this is Either.Right) block(value)
+    return this
 }
 
 inline fun <L, R> Either<L, R>.rightFlip(block: (R) -> L): L = when (this) {

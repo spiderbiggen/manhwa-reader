@@ -1,9 +1,11 @@
 package com.spiderbiggen.manga.data.usecase.auth
 
+import android.util.Log
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.model.auth.RegisterBody
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
+import com.spiderbiggen.manga.data.source.remote.usecase.ResetBearerToken
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
 import com.spiderbiggen.manga.domain.model.AppError
@@ -19,6 +21,7 @@ class RegisterImpl @Inject constructor(
     private val authenticationRepository: Provider<AuthenticationRepository>,
     private val fetchCurrentUser: FetchCurrentUser,
     private val mapUserEntity: MapUserEntity,
+    private val resetBearerToken: ResetBearerToken,
 ) : Register {
     override suspend fun invoke(username: String, email: String?, password: String) =
         updateSession(username, email, password)
@@ -34,5 +37,6 @@ class RegisterImpl @Inject constructor(
             )
             val session = authService.get().register(body)
             authenticationRepository.get().saveTokens(session.accessToken, session.refreshToken)
+            resetBearerToken()
         }.either()
 }
