@@ -6,15 +6,21 @@ import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.onLeft
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
+import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import javax.inject.Inject
 
 class SetReadUpToChapterImpl @Inject constructor(
     private val chapterRepository: ChapterRepository,
     private val readRepository: ReadRepository,
+    private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : SetReadUpToChapter {
-    override suspend fun invoke(id: ChapterId): Either<Unit, AppError> = runCatching {
+    override suspend fun invoke(id: ChapterId): Either<Unit, AppError> = markChaptersAsRead(id).either()
+        .onLeft { synchronizeWithRemote(ignoreInterval = true) }
+
+    private suspend fun markChaptersAsRead(id: ChapterId) = runCatching {
         val ids = chapterRepository.getPreviousChapters(id).getOrThrow()
         readRepository.set(ids, true).getOrThrow()
-    }.either()
+    }
 }
