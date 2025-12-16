@@ -17,6 +17,7 @@ import javax.inject.Provider
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -55,24 +56,32 @@ class SynchronizeWithRemoteImpl @Inject constructor(
         }
     }.either()
 
-    private suspend fun UserService.syncFavorites(lastSyncTime: Instant) {
-        val favorites = favoritesRepository.get(lastSyncTime).getOrThrow()
-        if (favorites.isNotEmpty()) {
-            val favoriteUpdates = favorites.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) }
-            val receivedUpdates = updateFavorites(favoriteUpdates).sanitizeKeys()
-            favoritesRepository.set(receivedUpdates).getOrThrow()
-        }
+    private suspend fun UserService.syncFavorites(lastSyncTime: Instant) = coroutineScope {
+        favoritesRepository.get(lastSyncTime).getOrThrow()
+            .chunked(100) { chunk -> chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) } }
+            .map {
+                async(Dispatchers.IO) {
+                    val receivedUpdates = updateFavorites(it).sanitizeKeys()
+                    favoritesRepository.set(receivedUpdates).getOrThrow()
+                }
+            }
+            .awaitAll()
+
         val receivedFavoriteUpdates = getFavorites(lastSyncTime).sanitizeKeys()
         favoritesRepository.set(receivedFavoriteUpdates).getOrThrow()
     }
 
-    private suspend fun UserService.syncReads(lastSyncTime: Instant) {
-        val reads = readRepository.get(lastSyncTime).getOrThrow()
-        if (reads.isNotEmpty()) {
-            val favoriteUpdates = reads.associate { it.id to ReadState(it.isRead, it.updatedAt) }
-            val receivedUpdates = updateReadProgress(favoriteUpdates).sanitizeKeys()
-            readRepository.set(receivedUpdates).getOrThrow()
-        }
+    private suspend fun UserService.syncReads(lastSyncTime: Instant) = coroutineScope {
+        readRepository.get(lastSyncTime).getOrThrow()
+            .chunked(100) { chunk -> chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) } }
+            .map {
+                async(Dispatchers.IO) {
+                    val receivedUpdates = updateReadProgress(it).sanitizeKeys()
+                    readRepository.set(receivedUpdates).getOrThrow()
+                }
+            }
+            .awaitAll()
+
         val receivedReadUpdates = getReadProgress(lastSyncTime).sanitizeKeys()
         readRepository.set(receivedReadUpdates).getOrThrow()
     }
