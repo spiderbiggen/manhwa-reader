@@ -47,6 +47,7 @@ import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
+import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
@@ -166,7 +167,7 @@ private fun MangaOverviewContent(
                                         .clip(CircleShape)
                                         .size(24.dp),
                                 )
-                                AnimatedVisibility(
+                                ExpressiveAnimatedVisibility(
                                     profileState.refreshing,
                                     Modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize),
                                 ) {

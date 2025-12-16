@@ -5,6 +5,10 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts.PickVisualMedia
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseOutQuad
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
@@ -37,6 +42,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -49,10 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlin.time.Clock.System.now
+import kotlinx.coroutines.isActive
 
 @Composable
 fun ProfileOverview(
@@ -131,6 +139,8 @@ fun ProfileOverviewContent(
     }
 }
 
+private val avatarSizeModifier = Modifier.size(128.dp)
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AuthenticatedUserProfile(
@@ -160,21 +170,23 @@ private fun AuthenticatedUserProfile(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Box {
+            Box(contentAlignment = Alignment.Center) {
                 key(state.avatarUrl, state.updatedAt) {
                     AsyncImage(
                         model = state.avatarUrl,
                         error = painterResource(R.drawable.account_circle),
                         contentDescription = "User Avatar",
                         contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(128.dp)
-                            .clip(CircleShape),
+                        modifier = avatarSizeModifier.clip(CircleShape),
                     )
+                }
+                ExpressiveAnimatedVisibility(state.isUpdatingAvatar, avatarSizeModifier, "AvatarProgress") {
+                    CircularWavyProgressIndicator(avatarSizeModifier, waveSpeed = 40.dp)
                 }
                 FilledIconButton(
                     onClick = { pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
                     modifier = Modifier.align(Alignment.BottomEnd),
+                    enabled = !state.isUpdatingAvatar,
                 ) {
                     Icon(painterResource(R.drawable.edit), "Edit Avatar")
                 }
@@ -194,8 +206,37 @@ private fun AuthenticatedUserProfile(
                     )
                 }
                 Spacer(modifier = Modifier.weight(1f))
+
+                val rotation = remember { Animatable(0f) }
+                LaunchedEffect(state.isSynchronizing) {
+                    if (state.isSynchronizing) {
+                        while (isActive) {
+                            val remaining = 360f - rotation.value
+                            val duration = (remaining / 360f * 1000).toInt().coerceAtLeast(1)
+                            rotation.animateTo(
+                                targetValue = 360f,
+                                animationSpec = tween(duration, easing = LinearEasing),
+                            )
+                            // Reset to 0 to allow for another rotation without reversing direction
+                            rotation.snapTo(0f)
+                        }
+                    } else {
+                        val remaining = 360f - rotation.value
+                        val duration = (remaining / 360f * 1000).toInt().coerceAtLeast(1)
+                        rotation.animateTo(
+                            targetValue = 360f,
+                            animationSpec = tween(durationMillis = duration, easing = EaseOutQuad),
+                        )
+                        // Reset to 0 to allow for another rotation without reversing direction
+                        rotation.snapTo(0f)
+                    }
+                }
                 FilledIconButton(onSyncClick) {
-                    Icon(painterResource(R.drawable.sync), contentDescription = "Sync")
+                    Icon(
+                        painterResource(R.drawable.sync),
+                        contentDescription = "Sync",
+                        modifier = Modifier.graphicsLayer { rotationZ = rotation.value },
+                    )
                 }
             }
             HorizontalDivider()
@@ -241,8 +282,20 @@ private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<Pro
             id = "",
             name = "Spiderbiggen",
             email = "spiderbiggen@gmail.com",
+            isUpdatingAvatar = false,
             avatarUrl = "example.com",
             updatedAt = now(),
+            isSynchronizing = false,
+            lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
+        ),
+        ProfileOverviewViewState.Authenticated(
+            id = "",
+            name = "Spiderbiggen",
+            email = "spiderbiggen@gmail.com",
+            isUpdatingAvatar = true,
+            avatarUrl = "example.com",
+            updatedAt = now(),
+            isSynchronizing = true,
             lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
         ),
         ProfileOverviewViewState.Unknown,

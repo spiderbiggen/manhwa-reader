@@ -15,9 +15,11 @@ sealed interface ProfileOverviewViewState {
     data class Authenticated(
         val id: String,
         val name: String,
+        val isUpdatingAvatar: Boolean,
         val avatarUrl: String,
         val email: String?,
         val updatedAt: Instant,
+        val isSynchronizing: Boolean,
         val lastSynchronizationTime: String?,
     ) : ProfileOverviewViewState
 }

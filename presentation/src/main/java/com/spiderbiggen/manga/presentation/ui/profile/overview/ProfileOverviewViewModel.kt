@@ -16,6 +16,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import java.net.URI
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -53,6 +54,8 @@ class ProfileOverviewViewModel @Inject constructor(
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
+    private val isChangingAvatar: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val isSynchronizing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _snackbarFlow = MutableSharedFlow<SnackbarData>(1)
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
@@ -66,17 +69,21 @@ class ProfileOverviewViewModel @Inject constructor(
 
     fun screenStateFlow() = combine(
         getUser(),
+        isChangingAvatar,
+        isSynchronizing,
         getLastSynchronizationTime(),
-    ) { user, lastSynchronizationTime ->
+    ) { user, isChangingAvatar, isSynchronizing, lastSynchronizationTime ->
         if (user == null) {
             ProfileOverviewViewState.Unauthenticated
         } else {
             ProfileOverviewViewState.Authenticated(
                 id = user.id,
                 name = user.username,
+                isUpdatingAvatar = isChangingAvatar,
                 avatarUrl = user.avatarUrl,
                 email = user.email,
                 updatedAt = user.updatedAt,
+                isSynchronizing = isSynchronizing,
                 lastSynchronizationTime = lastSynchronizationTime
                     ?.toLocalDateTime(TimeZone.currentSystemDefault())
                     ?.format(localDateTimeFormat),
@@ -91,14 +98,18 @@ class ProfileOverviewViewModel @Inject constructor(
     }
 
     fun handleChangeAvatar(uri: Uri) = suspended {
+        isChangingAvatar.emit(true)
         updateAvatar(URI.create(uri.toString())).leftOrElse {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
+        isChangingAvatar.emit(false)
     }
 
     fun handleSync() = suspended {
-        synchronizeWithRemote(ignoreInterval = false).leftOrElse {
+        isSynchronizing.emit(true)
+        synchronizeWithRemote(ignoreInterval = true).leftOrElse {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
+        isSynchronizing.emit(false)
     }
 }

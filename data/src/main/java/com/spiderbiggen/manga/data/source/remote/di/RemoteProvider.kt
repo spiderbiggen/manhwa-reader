@@ -138,8 +138,8 @@ object RemoteProvider {
                             sessionResponse.refreshToken,
                         )
                         BearerTokens(
-                            sessionResponse.accessToken.token,
-                            sessionResponse.refreshToken.token,
+                            accessToken = sessionResponse.accessToken.token,
+                            refreshToken = sessionResponse.refreshToken.token,
                         )
                     } else {
                         null
