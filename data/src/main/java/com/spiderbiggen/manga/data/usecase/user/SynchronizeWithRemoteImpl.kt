@@ -17,6 +17,9 @@ import javax.inject.Provider
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -34,18 +37,21 @@ class SynchronizeWithRemoteImpl @Inject constructor(
 
     override suspend operator fun invoke(ignoreInterval: Boolean): Either<Unit, AppError> = runCatching {
         if (mutex.isLocked) return@runCatching
-        mutex.withLock {
-            val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@runCatching
+        coroutineScope {
+            mutex.withLock {
+                val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@coroutineScope
 
-            val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
-            val currentTime = now()
-            if (!ignoreInterval && currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@runCatching
+                val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
+                val currentTime = now()
+                if (!ignoreInterval && currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@coroutineScope
 
-            val userService = userService.get()
-            userService.syncFavorites(lastSyncTime)
-            userService.syncReads(lastSyncTime)
+                val userService = userService.get()
+                val deferredFavorites = async { userService.syncFavorites(lastSyncTime) }
+                val deferredReads = async { userService.syncReads(lastSyncTime) }
 
-            authenticationRepository.saveLastSynchronizationTime(currentTime)
+                awaitAll(deferredFavorites, deferredReads)
+                authenticationRepository.saveLastSynchronizationTime(currentTime)
+            }
         }
     }.either()
 
