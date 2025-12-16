@@ -6,6 +6,7 @@ import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
+import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
 import javax.inject.Inject
 import kotlinx.collections.immutable.ImmutableList
@@ -16,15 +17,11 @@ class GetChapterImagesImpl @Inject constructor(
     private val chapterRepository: ChapterRepository,
 ) : GetChapterImages {
     override suspend fun invoke(id: ChapterId): Either<ImmutableList<String>, AppError> =
-        when (val either = chapterRepository.getChapterImages(id).either()) {
-            is Either.Left -> {
-                val chunks = either.value
-                val images = (0 until chunks)
+        chapterRepository.getChapterImages(id)
+            .either()
+            .mapLeft {
+                (0 until it)
                     .map { index -> "$baseUrl/api/v1/chapters/${id.value}/images/$index" }
                     .toImmutableList()
-                Either.Left(images)
             }
-
-            is Either.Right -> Either.Right(either.value)
-        }
 }

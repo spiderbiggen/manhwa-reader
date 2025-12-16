@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.chapter
 
+import android.util.Log
 import com.spiderbiggen.manga.data.source.local.repository.ChapterRepository
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
@@ -22,5 +23,7 @@ class GetSurroundingChaptersImpl @Inject constructor(private val chapterReposito
                 next = deferredNext.await().getOrThrow(),
             )
         }
-    }.either()
+    }
+        .onFailure { Log.e("GetSurroundingChaptersImpl", "Failed to get surrounding chapters", it) }
+        .either()
 }
