@@ -108,6 +108,7 @@ dependencies {
     implementation(libs.firebase.crashlytics)
 
     // Dagger
+    ksp(libs.kotlin.metadata.jvm)
     ksp(libs.google.dagger.hiltAndroidCompiler)
     implementation(libs.google.dagger.hiltAndroid)
 
