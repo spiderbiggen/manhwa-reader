@@ -54,7 +54,7 @@ androidX-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidX-compose-uiGraphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidX-compose-uiTooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidX-compose-uiToolingPreview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0-alpha10" }
+androidX-compose-material3 = { group = "androidx.compose.material3", name = "material3", version = "1.5.0-alpha11" }
 androidX-hilt-navigationCompose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "androidx-hilt" }
 androidX-compose-uiTestManifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
 androidX-compose-uiTestJunit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
