@@ -21,10 +21,12 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 
@@ -53,7 +55,7 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
         .stateIn(
             defaultScope,
             started = SharingStarted.WhileSubscribed(500),
-            initialValue = MangaChapterReaderScreenState.Loading,
+            initialValue = MangaChapterReaderScreenState.Loading(null),
         )
 
     suspend fun loadData() {
@@ -71,19 +73,28 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
         }
     }
 
+    private fun getChapterState(): Flow<Pair<String, Boolean>?> = getChapter(chapterId)
+        .map { chapterState ->
+            chapterState?.let { chapterState.chapter.displayTitle() to chapterState.isRead }
+        }
+
     private fun screenStateFlow() = combine(
-        getChapter(chapterId),
+        getChapterState(),
         isFavorite(mangaId),
         surroundingChapters,
         chapterImages,
     ) { chapterState, isFavorite, surrounding, images ->
-        MangaChapterReaderScreenState.Ready(
-            title = chapterState?.chapter?.displayTitle(),
-            surrounding = surrounding,
-            isFavorite = isFavorite,
-            images = images,
-            isRead = chapterState?.isRead == true,
-        )
+        val (title, isRead) = chapterState ?: return@combine MangaChapterReaderScreenState.Loading(null)
+        return@combine when {
+            images.isEmpty() -> MangaChapterReaderScreenState.Loading(title)
+            else -> MangaChapterReaderScreenState.Ready(
+                title = title,
+                surrounding = surrounding,
+                isFavorite = isFavorite,
+                images = images,
+                isRead = isRead,
+            )
+        }
     }
 
     fun toggleFavorite() = suspended {
