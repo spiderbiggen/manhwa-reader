@@ -13,6 +13,7 @@ espresso-core = "3.7.0"
 google-gms-google-services = "4.4.4"
 junit = "4.13.2"
 kotlin = "2.3.0"
+kotlinMetadataJvm = "2.3.0"
 ktor = "3.3.3"
 lifecycle = "2.10.0"
 nav3Core = "1.0.0"
@@ -98,6 +99,7 @@ ktor-client-encoding = { group = "io.ktor", name = "ktor-client-encoding" }
 # Kotlin std
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect", version.ref = "kotlin" }
+kotlin-metadata-jvm = { group = "org.jetbrains.kotlin", name = "kotlin-metadata-jvm", version.ref = "kotlin" }
 
 # KotlinX
 kotlinX-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version = "1.9.0" }
