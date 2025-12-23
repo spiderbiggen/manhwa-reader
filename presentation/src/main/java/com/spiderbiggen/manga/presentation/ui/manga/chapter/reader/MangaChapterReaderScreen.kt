@@ -127,7 +127,6 @@ fun MangaChapterReaderScreen(
         lastItemIsVisible = { lastItemIsVisible(lazyListState) },
     )
 
-    val ready = state.ifReady()
     Scaffold(
         modifier = Modifier
             .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection)
@@ -139,19 +138,21 @@ fun MangaChapterReaderScreen(
                         Icon(painterResource(arrow_back), "Back")
                     }
                 },
-                title = { Text(text = ready?.title.orEmpty()) },
+                title = { Text(text = state.title.orEmpty()) },
                 scrollBehavior = topAppBarScrollBehavior,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
-            ReaderBottomBar(
-                screenState = ready,
-                toChapterClicked = onChapterClick,
-                toggleFavorite = toggleFavorite,
-                setReadUpToHere = setReadUpToHere,
-                scrollBehavior = bottomAppBarScrollBehavior,
-            )
+            if (state is MangaChapterReaderScreenState.Ready) {
+                ReaderBottomBar(
+                    screenState = state,
+                    toChapterClicked = onChapterClick,
+                    toggleFavorite = toggleFavorite,
+                    setReadUpToHere = setReadUpToHere,
+                    scrollBehavior = bottomAppBarScrollBehavior,
+                )
+            }
         },
     ) { contentPadding ->
         when (state) {
