@@ -29,7 +29,7 @@ class MainActivity : ComponentActivity() {
         // Obtain the FirebaseAnalytics instance.
         analytics = Firebase.analytics
 
-        val appVersionName = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE}"
+        val appVersionName = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
         setContent {
             CompositionLocalProvider(LocalAppVersion provides appVersionName) {
                 MainContent()
