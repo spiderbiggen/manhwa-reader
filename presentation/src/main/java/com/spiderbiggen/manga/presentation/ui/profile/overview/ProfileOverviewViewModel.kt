@@ -34,11 +34,13 @@ import kotlinx.datetime.toLocalDateTime
 
 private val localDateTimeFormat = LocalDateTime.Format {
     dayOfWeek(DayOfWeekNames.ENGLISH_ABBREVIATED)
+    chars(", ")
+    monthName(MonthNames.ENGLISH_FULL)
     char(' ')
-    monthName(MonthNames.ENGLISH_ABBREVIATED)
-    char(' ')
+    day(Padding.NONE)
+    chars(", ")
     year(Padding.NONE)
-    char('\t')
+    char(' ')
     hour()
     char(':')
     minute()
