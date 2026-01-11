@@ -6,7 +6,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
-import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
+import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.extensions.launchDefault
@@ -39,7 +39,7 @@ class MangaListViewModel @Inject constructor(
     private val mapMangaListViewData: MapMangaListViewData,
     private val splitMangasIntoSections: SplitMangasIntoSections,
     private val toggleFavorite: ToggleFavorite,
-    private val updateMangaFromRemote: UpdateMangaFromRemote,
+    private val updateStateFromRemote: UpdateStateFromRemote,
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
 
@@ -119,7 +119,7 @@ class MangaListViewModel @Inject constructor(
 
     private suspend fun updateMangas(skipCache: Boolean) {
         _isRefreshing.emit(true)
-        updateMangaFromRemote(skipCache).leftOrElse {
+        updateStateFromRemote(skipCache).leftOrElse {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         yield()

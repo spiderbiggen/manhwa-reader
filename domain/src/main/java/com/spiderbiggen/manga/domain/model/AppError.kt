@@ -3,6 +3,9 @@ package com.spiderbiggen.manga.domain.model
 import java.io.IOException
 
 sealed interface AppError {
+
+    data class Multi(val errors: Collection<AppError>) : AppError
+
     sealed interface Remote : AppError {
 
         data object BadRequest : Remote

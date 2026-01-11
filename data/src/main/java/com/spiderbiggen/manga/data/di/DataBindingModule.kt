@@ -17,6 +17,7 @@ import com.spiderbiggen.manga.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manga.data.usecase.read.ToggleReadImpl
+import com.spiderbiggen.manga.data.usecase.remote.UpdateStateFromRemoteImpl
 import com.spiderbiggen.manga.data.usecase.user.GetLastSynchronizationTimeImpl
 import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
 import com.spiderbiggen.manga.data.usecase.user.SynchronizeWithRemoteImpl
@@ -38,6 +39,7 @@ import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.domain.usecase.read.ToggleRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
+import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
 import com.spiderbiggen.manga.domain.usecase.user.GetLastSynchronizationTime
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
@@ -107,6 +109,9 @@ abstract class DataBindingModule {
 
     @Binds
     abstract fun bindSetReadUptoToChapter(useCase: SetReadUpToChapterImpl): SetReadUpToChapter
+
+    @Binds
+    abstract fun bindUpdateStateFromRemote(useCase: UpdateStateFromRemoteImpl): UpdateStateFromRemote
 
     @Binds
     abstract fun bindUpdateMangaFromRemote(useCase: UpdateMangaFromRemoteImpl): UpdateMangaFromRemote

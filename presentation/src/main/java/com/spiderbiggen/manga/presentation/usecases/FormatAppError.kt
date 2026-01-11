@@ -14,6 +14,10 @@ class FormatAppError @Inject constructor() {
         is AppError.Auth.Unauthorized -> "Not authorized"
         is AppError.Auth.Forbidden -> "Access forbidden"
         is AppError.Auth.Invalid -> "Invalid data"
+        is AppError.Multi -> {
+            val firstError = error.errors.firstOrNull()?.let { invoke(it) }
+            "${error.errors.size} error(s), first is ${firstError ?: "unknown"}"
+        }
         is AppError.Unknown -> "Internal error: ${error.exception.message}"
     }
 }
