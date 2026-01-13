@@ -114,7 +114,7 @@ coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg" }
 coil-test = { group = "io.coil-kt.coil3", name = "coil-test" }
 
 # Material kolor
-material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "5.0.0-alpha04" }
+material-kolor = { group = "com.materialkolor", name = "material-kolor", version = "5.0.0-alpha05" }
 
 # Spotless for BuildSrc convention script
 spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless-plugin-gradle" }
