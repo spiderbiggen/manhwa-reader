@@ -36,7 +36,7 @@ android {
                 try {
                     load(rootProject.rootDir.resolve("local.properties").reader())
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    System.err.println("Failed to load local.properties: ${e.message}")
                 }
             }
             properties.getProperty("signing.keystore")?.let {
