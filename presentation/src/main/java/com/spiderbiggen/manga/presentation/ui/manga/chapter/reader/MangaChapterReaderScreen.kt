@@ -400,6 +400,7 @@ fun PreviewReadChapterScreen(
                 }
 
                 "2" -> AsyncImagePainter.State.Loading(null)
+
                 "3" -> AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
 
                 else -> AsyncImagePainter.State.Empty

@@ -14,16 +14,17 @@ import okhttp3.internal.http2.ConnectionShutdownException
 
 fun Throwable.toAppError(): AppError = when (this) {
     is CancellationException -> throw this
+    // HTTP Responses
     is RedirectResponseException -> handleResponseException(this.response.status, this.message)
     is ClientRequestException -> handleResponseException(this.response.status, this.message)
     is ServerResponseException -> handleResponseException(this.response.status, this.message)
-
+    // Connections
     is SocketTimeoutException -> AppError.Remote.NoConnection
     is UnknownHostException -> AppError.Remote.NoConnection
     is ConnectionShutdownException -> AppError.Remote.NoConnection
     is IOException -> AppError.Remote.Io(this)
     is Exception -> AppError.Unknown(this)
-
+    // Anything else
     else -> throw this
 }
 

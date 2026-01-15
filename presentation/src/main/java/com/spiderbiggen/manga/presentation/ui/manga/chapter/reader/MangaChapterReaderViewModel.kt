@@ -87,6 +87,7 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
         val (title, isRead) = chapterState ?: return@combine MangaChapterReaderScreenState.Loading(null)
         return@combine when {
             images.isEmpty() -> MangaChapterReaderScreenState.Loading(title)
+
             else -> MangaChapterReaderScreenState.Ready(
                 title = title,
                 surrounding = surrounding,

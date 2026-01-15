@@ -254,6 +254,7 @@ fun AppTheme(
         }
 
         darkTheme -> darkScheme
+
         else -> lightScheme
     }
 
