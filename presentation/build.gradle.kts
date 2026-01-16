@@ -110,9 +110,6 @@ dependencies {
     implementation(libs.coil.svg)
     implementation(libs.coil.test)
 
-    // Material Kolor
-    implementation(libs.material.kolor)
-
     // Testing
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidX.test.ext.junit)
