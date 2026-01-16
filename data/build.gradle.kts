@@ -88,7 +88,6 @@ dependencies {
     implementation(libs.androidX.room.runtime)
     implementation(libs.androidX.room.ktx)
     ksp(libs.androidX.room.compiler)
-    testImplementation(libs.androidX.room.test)
 
     // Datastore
     implementation(libs.androidX.datastore.preferences)
@@ -109,6 +108,7 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.androidX.room.test)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
 }
