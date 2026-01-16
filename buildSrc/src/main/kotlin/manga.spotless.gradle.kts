@@ -15,7 +15,7 @@ if (project == rootProject) {
 } else {
     spotless {
         // optional: limit format enforcement to just the files changed by this feature branch
-        // ratchetFrom("origin/master")
+        ratchetFrom("origin/master")
 
         format("misc") {
             // define the files to apply `misc` to
