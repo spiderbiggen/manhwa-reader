@@ -1,9 +1,7 @@
-import org.gradle.jvm.toolchain.internal.JavaToolchain
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
