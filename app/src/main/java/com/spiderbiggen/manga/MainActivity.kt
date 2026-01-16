@@ -10,7 +10,6 @@ import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
-import com.spiderbiggen.manga.BuildConfig
 import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
 import com.spiderbiggen.manga.presentation.ui.main.MainContent
 import dagger.hilt.android.AndroidEntryPoint
