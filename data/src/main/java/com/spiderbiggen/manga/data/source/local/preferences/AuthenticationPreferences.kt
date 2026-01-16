@@ -33,9 +33,7 @@ object AuthenticationPreferencesSerializer : Serializer<AuthenticationPreference
     override val defaultValue: AuthenticationPreferences = AuthenticationPreferences.Unauthenticated
 
     override suspend fun readFrom(input: InputStream): AuthenticationPreferences = try {
-        val encryptedBytes = withContext(Dispatchers.IO) {
-            input.use { it.readBytes() }
-        }
+        val encryptedBytes = input.use { it.readBytes() }
         val encryptedBytesDecoded = Base64.decode(encryptedBytes)
         val decryptedBytes = Crypto.decrypt(encryptedBytesDecoded)
         val decodedJsonString = decryptedBytes.decodeToString()

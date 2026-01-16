@@ -24,9 +24,7 @@ class MangaRepository @Inject constructor(
         get() = mangaDaoProvider.get()
 
     suspend fun insert(mangas: List<LocalMangaEntity>) = runCatching {
-        withContext(Dispatchers.IO) {
-            mangaDao.insert(mangas)
-        }
+        mangaDao.insert(mangas)
     }
 
     fun getMangasForOverview(): Flow<List<MangaForOverview>> = mangaDao.getAllNotDropped()
@@ -54,14 +52,10 @@ class MangaRepository @Inject constructor(
         }
 
     suspend fun getMangaForUpdate(): Result<Set<MangaId>> = runCatching {
-        withContext(Dispatchers.IO) {
-            mangaDao.getForUpdate().toSet()
-        }
+        mangaDao.getForUpdate().toSet()
     }
 
     suspend fun getLastUpdatedAt(): Result<Instant?> = runCatching {
-        withContext(Dispatchers.IO) {
-            mangaDao.getLastUpdatedAt()
-        }
+        mangaDao.getLastUpdatedAt()
     }
 }

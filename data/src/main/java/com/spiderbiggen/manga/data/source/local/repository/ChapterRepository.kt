@@ -23,15 +23,11 @@ class ChapterRepository @Inject constructor(
         get() = chapterDaoProvider.get()
 
     suspend fun insert(chapters: List<LocalChapterEntity>) = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.insert(chapters)
-        }
+        chapterDao.insert(chapters)
     }
 
     suspend fun getLastUpdatedAtByMangaId(mangaId: MangaId): Result<Instant?> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.getLastUpdatedAtByMangaId(mangaId)
-        }
+        chapterDao.getLastUpdatedAtByMangaId(mangaId)
     }
 
     fun getChaptersAsFlow(mangaId: MangaId): Flow<List<ChapterForOverview>> =
@@ -58,26 +54,18 @@ class ChapterRepository @Inject constructor(
         }
 
     suspend fun getChapterImages(id: ChapterId): Result<Int> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.get(id)!!.imageChunks
-        }
+        chapterDao.get(id)!!.imageChunks
     }
 
     suspend fun getPreviousChapters(id: ChapterId): Result<Set<ChapterId>> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.getPreviousChapterIds(id).toSet()
-        }
+        chapterDao.getPreviousChapterIds(id).toSet()
     }
 
     suspend fun getPreviousChapterId(id: ChapterId): Result<ChapterId?> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.getPrevChapterId(id)
-        }
+        chapterDao.getPrevChapterId(id)
     }
 
     suspend fun getNextChapterId(id: ChapterId): Result<ChapterId?> = runCatching {
-        withContext(Dispatchers.IO) {
-            chapterDao.getNextChapterId(id)
-        }
+        chapterDao.getNextChapterId(id)
     }
 }
