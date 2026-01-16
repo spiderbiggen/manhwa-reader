@@ -10,8 +10,6 @@ import java.io.InputStream
 import java.io.OutputStream
 import kotlin.io.encoding.Base64
 import kotlin.time.Instant
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -49,11 +47,7 @@ object AuthenticationPreferencesSerializer : Serializer<AuthenticationPreference
             val bytes = json.toByteArray()
             val encryptedBytes = Crypto.encrypt(bytes)
             val encryptedBytesBase64 = Base64.encodeToByteArray(encryptedBytes)
-            withContext(Dispatchers.IO) {
-                output.use {
-                    it.write(encryptedBytesBase64)
-                }
-            }
+            output.use { it.write(encryptedBytesBase64) }
         } catch (e: Exception) {
             Log.e("AuthenticationPreferencesSerializer", "Failed to write AuthenticationPreferences", e)
             throw e
