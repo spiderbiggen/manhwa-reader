@@ -9,9 +9,7 @@ import com.spiderbiggen.manga.domain.model.manga.MangaWithFavorite
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.time.Instant
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class MangaRepository @Inject constructor(
@@ -27,7 +25,6 @@ class MangaRepository @Inject constructor(
     }
 
     fun getMangasForOverview(): Flow<List<MangaForOverview>> = mangaDao.getAllNotDropped()
-        .flowOn(Dispatchers.IO)
         .map { entities ->
             entities.map {
                 MangaForOverview(
@@ -40,7 +37,6 @@ class MangaRepository @Inject constructor(
         }
 
     fun getMangaWithFavoriteStatus(id: MangaId): Flow<MangaWithFavorite?> = mangaDao.getWithFavorite(id)
-        .flowOn(Dispatchers.IO)
         .map { entity ->
             entity?.let {
                 MangaWithFavorite(

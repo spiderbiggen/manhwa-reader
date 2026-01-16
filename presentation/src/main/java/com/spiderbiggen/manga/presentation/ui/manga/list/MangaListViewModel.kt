@@ -44,18 +44,18 @@ class MangaListViewModel @Inject constructor(
 ) : ViewModel() {
 
     // TODO clean up search and/or filters
-    private var unreadSelected: Boolean = savedStateHandle.get<Boolean>("unreadSelected") == true
+    private var unreadSelected: Boolean = savedStateHandle[UNREAD_SELECTED_KEY] as Boolean? == true
         set(value) {
             field = value
-            savedStateHandle.set(UNREAD_SELECTED_KEY, value)
+            savedStateHandle[UNREAD_SELECTED_KEY] = value
         }
     private val unreadSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(UNREAD_SELECTED_KEY, unreadSelected)
 
-    private var favoriteSelected: Boolean = savedStateHandle.get<Boolean>("favoriteSelected") == true
+    private var favoriteSelected: Boolean = savedStateHandle[FAVORITE_SELECTED_KEY] as Boolean? == true
         set(value) {
             field = value
-            savedStateHandle.set(FAVORITE_SELECTED_KEY, value)
+            savedStateHandle[FAVORITE_SELECTED_KEY] = value
         }
     private val favoriteSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(FAVORITE_SELECTED_KEY, favoriteSelected)
@@ -75,7 +75,7 @@ class MangaListViewModel @Inject constructor(
             initialValue = MangaScreenData(),
         )
 
-    suspend fun onStart() = launchDefault {
+    private suspend fun onStart() = launchDefault {
         updateMangas(skipCache = false)
     }
 

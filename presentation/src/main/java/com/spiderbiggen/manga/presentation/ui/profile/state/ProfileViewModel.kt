@@ -42,7 +42,7 @@ class ProfileViewModel @Inject constructor(
             initialValue = ProfileState.Unauthenticated,
         )
 
-    suspend fun onStart() = launchDefault {
+    private suspend fun onStart() = launchDefault {
         synchronize()
     }
 

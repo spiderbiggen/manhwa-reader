@@ -51,14 +51,14 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
     private val chapterImages = MutableStateFlow<ImmutableList<String>>(persistentListOf())
 
     val state: StateFlow<MangaChapterReaderScreenState> = screenStateFlow()
-        .onStart { loadData() }
+        .onStart { onStart() }
         .stateIn(
             defaultScope,
             started = SharingStarted.WhileSubscribed(500),
             initialValue = MangaChapterReaderScreenState.Loading(null),
         )
 
-    suspend fun loadData() {
+    private suspend fun onStart() {
         launchDefault {
             when (val images = getChapterImages(chapterId)) {
                 is Either.Left -> chapterImages.emit(images.value)

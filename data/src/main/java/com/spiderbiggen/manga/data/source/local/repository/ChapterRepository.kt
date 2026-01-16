@@ -9,9 +9,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import javax.inject.Inject
 import javax.inject.Provider
 import kotlin.time.Instant
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class ChapterRepository @Inject constructor(
@@ -31,7 +29,6 @@ class ChapterRepository @Inject constructor(
 
     fun getChaptersAsFlow(mangaId: MangaId): Flow<List<ChapterForOverview>> =
         chapterDao.getFlowForMangaOverview(mangaId)
-            .flowOn(Dispatchers.IO)
             .map { entities ->
                 entities.map {
                     ChapterForOverview(
@@ -42,7 +39,6 @@ class ChapterRepository @Inject constructor(
             }
 
     fun getChapterAsFlow(id: ChapterId): Flow<ChapterForOverview?> = chapterDao.getFlowForChapterOverview(id)
-        .flowOn(Dispatchers.IO)
         .map { entity ->
             entity?.let {
                 ChapterForOverview(

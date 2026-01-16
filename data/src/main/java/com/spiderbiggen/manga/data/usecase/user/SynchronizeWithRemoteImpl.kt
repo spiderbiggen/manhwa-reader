@@ -17,7 +17,6 @@ import javax.inject.Provider
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -60,7 +59,7 @@ class SynchronizeWithRemoteImpl @Inject constructor(
         favoritesRepository.get(lastSyncTime).getOrThrow()
             .chunked(100) { chunk -> chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) } }
             .map {
-                async(Dispatchers.IO) {
+                async {
                     val receivedUpdates = updateFavorites(it).sanitizeKeys()
                     favoritesRepository.set(receivedUpdates).getOrThrow()
                 }
@@ -75,7 +74,7 @@ class SynchronizeWithRemoteImpl @Inject constructor(
         readRepository.get(lastSyncTime).getOrThrow()
             .chunked(100) { chunk -> chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) } }
             .map {
-                async(Dispatchers.IO) {
+                async {
                     val receivedUpdates = updateReadProgress(it).sanitizeKeys()
                     readRepository.set(receivedUpdates).getOrThrow()
                 }
