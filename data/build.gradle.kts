@@ -1,3 +1,4 @@
+import com.android.build.api.dsl.LibraryExtension
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,7 +8,7 @@ plugins {
     id("manga.spotless")
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "com.spiderbiggen.manga.data"
     compileSdk = 36
 

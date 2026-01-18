@@ -1,4 +1,4 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import com.android.build.api.dsl.LibraryExtension
 
 plugins {
     alias(libs.plugins.android.library)
@@ -8,7 +8,7 @@ plugins {
     id("manga.spotless")
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "com.spiderbiggen.manga.presentation"
     compileSdk = 36
 
@@ -42,7 +42,6 @@ android {
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 }
