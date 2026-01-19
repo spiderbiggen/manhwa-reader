@@ -11,8 +11,7 @@ import com.spiderbiggen.manga.domain.usecase.chapter.GetSurroundingChapters
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
-class GetSurroundingChaptersImpl(private val chapterRepository: ChapterRepository) :
-    GetSurroundingChapters {
+class GetSurroundingChaptersImpl(private val chapterRepository: ChapterRepository) : GetSurroundingChapters {
     override suspend fun invoke(id: ChapterId): Either<SurroundingChapters, AppError> = runCatching {
         coroutineScope {
             val deferredPrev = async { chapterRepository.getPreviousChapterId(id) }

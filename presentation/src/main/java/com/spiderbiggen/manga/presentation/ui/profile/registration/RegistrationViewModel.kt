@@ -10,10 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RegistrationViewModel(
-    private val register: Register,
-    private val formatAppError: FormatAppError,
-) : ViewModel() {
+class RegistrationViewModel(private val register: Register, private val formatAppError: FormatAppError) : ViewModel() {
     private val _state = MutableStateFlow<RegistrationState>(RegistrationState.Idle)
     val state = _state.asStateFlow()
 

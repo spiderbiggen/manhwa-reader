@@ -6,7 +6,6 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.chapter.GetOverviewChapters
 import kotlinx.coroutines.flow.Flow
 
-class GetOverviewChaptersImpl(private val chapterRepository: ChapterRepository) :
-    GetOverviewChapters {
+class GetOverviewChaptersImpl(private val chapterRepository: ChapterRepository) : GetOverviewChapters {
     override fun invoke(id: MangaId): Flow<List<ChapterForOverview>> = chapterRepository.getChaptersAsFlow(id)
 }

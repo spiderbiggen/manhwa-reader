@@ -37,7 +37,7 @@ class HttpClientFactory(
     private val context: Context,
     private val json: Json,
     private val authRepository: AuthenticationRepository,
-    private val logger: Logger = Logger.DEFAULT
+    private val logger: Logger = Logger.DEFAULT,
 ) {
     fun create(baseUrl: String): HttpClient {
         val host = Url(baseUrl).host

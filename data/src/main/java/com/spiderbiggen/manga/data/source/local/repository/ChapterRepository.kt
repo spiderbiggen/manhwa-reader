@@ -10,10 +10,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ChapterRepository(
-    private val chapterDao: LocalChapterDao,
-    private val toDomain: ToDomainChapterUseCase,
-) {
+class ChapterRepository(private val chapterDao: LocalChapterDao, private val toDomain: ToDomainChapterUseCase) {
     suspend fun insert(chapters: List<LocalChapterEntity>) = runCatching {
         chapterDao.insert(chapters)
     }

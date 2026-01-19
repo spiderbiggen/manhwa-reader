@@ -10,10 +10,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class MangaRepository(
-    private val mangaDao: LocalMangaDao,
-    private val toDomain: ToDomainMangaUseCase,
-) {
+class MangaRepository(private val mangaDao: LocalMangaDao, private val toDomain: ToDomainMangaUseCase) {
 
     suspend fun insert(mangas: List<LocalMangaEntity>) = runCatching {
         mangaDao.insert(mangas)
