@@ -13,10 +13,6 @@ import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterScreenState.Ready
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.MangaChapterListRoute
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,9 +25,8 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.yield
 
-@HiltViewModel(assistedFactory = MangaChapterListViewModel.Factory::class)
-class MangaChapterListViewModel @AssistedInject constructor(
-    @Assisted navKey: MangaChapterListRoute,
+class MangaChapterListViewModel(
+    navKey: MangaChapterListRoute,
     private val getOverviewChapters: GetOverviewChapters,
     private val getManga: GetManga,
     private val toggleFavorite: ToggleFavorite,
@@ -89,10 +84,5 @@ class MangaChapterListViewModel @AssistedInject constructor(
         }
         yield()
         _isRefreshing.emit(false)
-    }
-
-    @AssistedFactory
-    fun interface Factory {
-        fun create(navKey: MangaChapterListRoute): MangaChapterListViewModel
     }
 }

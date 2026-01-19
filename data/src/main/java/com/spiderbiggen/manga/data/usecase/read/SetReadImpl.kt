@@ -8,9 +8,8 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.onLeft
 import com.spiderbiggen.manga.domain.usecase.read.SetRead
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
-import javax.inject.Inject
 
-class SetReadImpl @Inject constructor(
+class SetReadImpl(
     private val readRepository: ReadRepository,
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : SetRead {

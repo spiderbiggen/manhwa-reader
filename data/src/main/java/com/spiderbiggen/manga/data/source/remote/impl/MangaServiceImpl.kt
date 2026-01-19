@@ -10,10 +10,9 @@ import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.parameter
-import javax.inject.Inject
 import kotlin.time.Instant
 
-class MangaServiceImpl @Inject constructor(private val client: HttpClient) : MangaService {
+class MangaServiceImpl(private val client: HttpClient) : MangaService {
 
     override suspend fun getAllMangas(since: Instant?, skipCache: Boolean): List<MangaEntity> =
         client.get("api/v1/mangas") {

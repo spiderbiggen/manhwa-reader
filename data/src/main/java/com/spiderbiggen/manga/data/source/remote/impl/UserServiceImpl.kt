@@ -17,10 +17,9 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.Headers
 import io.ktor.http.HttpHeaders
-import javax.inject.Inject
 import kotlin.time.Instant
 
-class UserServiceImpl @Inject constructor(private val client: HttpClient) : UserService {
+class UserServiceImpl(private val client: HttpClient) : UserService {
 
     override suspend fun getSelf(): UserEntity = client.get("api/v1/users/me").body()
 

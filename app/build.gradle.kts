@@ -5,15 +5,10 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.compose)
-    alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.crashlytics)
     id("manga.spotless")
-}
-
-hilt {
-    enableAggregatingTask = true
 }
 
 android {
@@ -107,13 +102,11 @@ dependencies {
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.crashlytics)
 
-    // Dagger
-    ksp(libs.kotlin.metadata.jvm)
-    ksp(libs.google.dagger.hiltAndroidCompiler)
-    implementation(libs.google.dagger.hiltAndroid)
-
-    // Hilt
-    ksp(libs.androidX.hilt.compiler)
+    // Koin
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.navigation3)
 
     // Viewmodel
     implementation(libs.androidX.lifecycle.viewmodel.compose)

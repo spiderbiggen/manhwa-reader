@@ -3,9 +3,8 @@ package com.spiderbiggen.manga.data.usecase.manga.mapper
 import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntity
 import com.spiderbiggen.manga.data.source.remote.model.MangaEntity
 import com.spiderbiggen.manga.domain.model.manga.Manga
-import javax.inject.Inject
 
-class ToDomainMangaUseCase @Inject constructor() {
+class ToDomainMangaUseCase {
     operator fun invoke(entity: MangaEntity): Manga = Manga(
         source = entity.source,
         id = entity.id,

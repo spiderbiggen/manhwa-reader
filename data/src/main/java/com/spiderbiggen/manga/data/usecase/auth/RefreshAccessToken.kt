@@ -6,11 +6,9 @@ import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
-import javax.inject.Inject
-import javax.inject.Provider
 
-class RefreshAccessToken @Inject constructor(
-    private val authService: Provider<AuthService>,
+class RefreshAccessToken(
+    private val authService: AuthService,
     private val authenticationRepository: AuthenticationRepository,
 ) {
     suspend operator fun invoke(): Either<String, AppError> {
@@ -18,7 +16,7 @@ class RefreshAccessToken @Inject constructor(
             ?: return Either.Right(AppError.Auth.Unauthorized)
 
         return runCatching {
-            val response = authService.get().refresh(RefreshTokenBody(refreshToken.token))
+            val response = authService.refresh(RefreshTokenBody(refreshToken.token))
             authenticationRepository.saveTokens(response.accessToken, response.refreshToken)
             response.accessToken.token
         }.either()

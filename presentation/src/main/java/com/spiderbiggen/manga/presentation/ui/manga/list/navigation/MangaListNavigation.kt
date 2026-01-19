@@ -2,13 +2,13 @@ package com.spiderbiggen.manga.presentation.ui.manga.list.navigation
 
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.State
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 @Serializable
 data object MangaListRoute : NavKey
@@ -21,7 +21,7 @@ fun EntryProviderScope<NavKey>.mangaListDestination(
 ) {
     entry<MangaListRoute> {
         MangaListScreen(
-            viewModel = hiltViewModel(),
+            viewModel = koinViewModel(),
             snackbarHostState = snackbarHostState,
             profileState = profileState.value,
             onProfileClick = onProfileClick,

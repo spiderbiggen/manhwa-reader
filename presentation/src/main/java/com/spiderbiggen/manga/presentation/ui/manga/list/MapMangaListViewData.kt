@@ -2,11 +2,10 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
-import javax.inject.Inject
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-class MapMangaListViewData @Inject constructor() {
+class MapMangaListViewData {
     operator fun invoke(state: MangaForOverview, timeZone: TimeZone) = MangaViewData(
         id = state.manga.id,
         source = state.manga.source,

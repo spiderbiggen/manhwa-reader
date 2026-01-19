@@ -14,8 +14,6 @@ import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -32,8 +30,7 @@ import kotlinx.datetime.TimeZone
 private const val UNREAD_SELECTED_KEY = "unreadSelected"
 private const val FAVORITE_SELECTED_KEY = "favoriteSelected"
 
-@HiltViewModel
-class MangaListViewModel @Inject constructor(
+class MangaListViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val getOverviewManga: GetOverviewManga,
     private val mapMangaListViewData: MapMangaListViewData,

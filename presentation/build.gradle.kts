@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.compose)
     alias(libs.plugins.kotlinX.serialization)
-    alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
     id("manga.spotless")
 }
@@ -48,10 +47,6 @@ android {
     }
 }
 
-hilt {
-    enableAggregatingTask = true
-}
-
 dependencies {
     implementation(project(":domain"))
     implementation(libs.androidX.core.ktx)
@@ -60,12 +55,11 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
 
-    // Dagger
-    implementation(libs.google.dagger.hiltAndroid)
-    ksp(libs.google.dagger.hiltAndroidCompiler)
-
-    // Hilt
-    ksp(libs.androidX.hilt.compiler)
+    // Koin
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
+    implementation(libs.koin.androidx.compose)
+    implementation(libs.koin.navigation3)
 
     // Kotlin
     implementation(libs.kotlin.stdlib)
@@ -97,7 +91,6 @@ dependencies {
     implementation(libs.androidX.compose.uiToolingPreview)
 
     // Navigation
-    implementation(libs.androidX.hilt.navigationCompose)
     implementation(libs.androidX.navigation3.runtime)
     implementation(libs.androidX.navigation3.ui)
     implementation(libs.androidX.lifecycle.viewmodel.navigation3)

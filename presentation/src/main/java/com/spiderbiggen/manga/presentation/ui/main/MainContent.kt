@@ -22,7 +22,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -35,6 +34,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.navigation.manga
 import com.spiderbiggen.manga.presentation.ui.profile.navigation.profile
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
+import org.koin.androidx.compose.koinViewModel
 
 val LocalAppVersion = staticCompositionLocalOf { "" }
 
@@ -43,7 +43,7 @@ val LocalAppVersion = staticCompositionLocalOf { "" }
 fun MainContent() {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val profileViewModel: ProfileViewModel = hiltViewModel()
+    val profileViewModel: ProfileViewModel = koinViewModel()
     val profileState = profileViewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(profileViewModel, snackbarHostState) {

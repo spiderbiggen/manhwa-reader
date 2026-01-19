@@ -8,8 +8,6 @@ import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.launchDefault
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,8 +19,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.yield
 
-@HiltViewModel
-class ProfileViewModel @Inject constructor(
+class ProfileViewModel(
     private val formatAppError: FormatAppError,
     private val getUser: GetUser,
     private val synchronizeWithRemote: SynchronizeWithRemote,

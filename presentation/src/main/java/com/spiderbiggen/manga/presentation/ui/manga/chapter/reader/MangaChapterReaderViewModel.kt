@@ -15,10 +15,6 @@ import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.extensions.launchDefault
 import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.navigation.MangaChapterReaderRoute
-import dagger.assisted.Assisted
-import dagger.assisted.AssistedFactory
-import dagger.assisted.AssistedInject
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.Flow
@@ -32,9 +28,8 @@ import kotlinx.coroutines.flow.stateIn
 
 private const val TAG = "MangaChapterReaderViewModel"
 
-@HiltViewModel(assistedFactory = MangaChapterReaderViewModel.Factory::class)
-class MangaChapterReaderViewModel @AssistedInject constructor(
-    @Assisted navKey: MangaChapterReaderRoute,
+class MangaChapterReaderViewModel(
+    navKey: MangaChapterReaderRoute,
     private val getChapter: GetChapter,
     private val getSurroundingChapters: GetSurroundingChapters,
     private val getChapterImages: GetChapterImages,
@@ -108,10 +103,5 @@ class MangaChapterReaderViewModel @AssistedInject constructor(
 
     fun setReadUpToHere() = suspended {
         setReadUpToChapter(chapterId)
-    }
-
-    @AssistedFactory
-    fun interface Factory {
-        fun create(navKey: MangaChapterReaderRoute): MangaChapterReaderViewModel
     }
 }

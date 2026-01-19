@@ -6,14 +6,11 @@ import com.spiderbiggen.manga.domain.model.fold
 import com.spiderbiggen.manga.domain.usecase.auth.Register
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
-import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-@HiltViewModel
-class RegistrationViewModel @Inject constructor(
+class RegistrationViewModel(
     private val register: Register,
     private val formatAppError: FormatAppError,
 ) : ViewModel() {

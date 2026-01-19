@@ -8,11 +8,10 @@ import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.usecase.chapter.GetSurroundingChapters
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 
-class GetSurroundingChaptersImpl @Inject constructor(private val chapterRepository: ChapterRepository) :
+class GetSurroundingChaptersImpl(private val chapterRepository: ChapterRepository) :
     GetSurroundingChapters {
     override suspend fun invoke(id: ChapterId): Either<SurroundingChapters, AppError> = runCatching {
         coroutineScope {

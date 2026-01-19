@@ -6,15 +6,12 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.math.roundToInt
 
-class DecodeAvatarBitmap @Inject constructor(@ApplicationContext private val context: Provider<Context>) {
+class DecodeAvatarBitmap(private val context: Context) {
     operator fun invoke(uri: Uri): Result<Bitmap> = runCatching {
-        context.get().contentResolver.decodeSimpleImage(uri)
+        context.contentResolver.decodeSimpleImage(uri)
     }
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {

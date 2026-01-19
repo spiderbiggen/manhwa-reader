@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
@@ -75,10 +74,11 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ChapterListScreen(
-    viewModel: MangaChapterListViewModel = hiltViewModel(),
+    viewModel: MangaChapterListViewModel = koinViewModel(),
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onChapterClick: (ChapterId) -> Unit,

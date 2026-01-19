@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
-import javax.inject.Inject
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeFormat
@@ -10,7 +9,7 @@ import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 
-class MapChapterRowData @Inject constructor() {
+class MapChapterRowData {
     operator fun invoke(value: ChapterForOverview): ChapterRowData = with(value) {
         ChapterRowData(
             id = chapter.id,

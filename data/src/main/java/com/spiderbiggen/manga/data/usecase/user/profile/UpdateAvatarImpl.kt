@@ -17,16 +17,13 @@ import com.spiderbiggen.manga.domain.model.andThenLeft
 import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.net.URI
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlinx.coroutines.flow.firstOrNull
 
-class UpdateAvatarImpl @Inject constructor(
-    @ApplicationContext private val context: Provider<Context>,
-    private val imageLoader: Provider<ImageLoader>,
-    private val userService: Provider<UserService>,
+class UpdateAvatarImpl(
+    private val context: Context,
+    private val imageLoader: ImageLoader,
+    private val userService: UserService,
     private val getUser: GetUser,
     private val refreshAccessToken: RefreshAccessToken,
     private val fetchCurrentUser: FetchCurrentUser,
@@ -48,16 +45,16 @@ class UpdateAvatarImpl @Inject constructor(
     }.either()
 
     private suspend fun uploadAvatar(avatar: ByteArray) = runCatching {
-        userService.get().updateImage(avatar = avatar)
+        userService.updateImage(avatar = avatar)
     }.either()
 
     private suspend fun invalidateAvatarCache() = runCatching {
         // This should never be null here
         getUser().firstOrNull()?.avatarUrl?.let { avatarUrl ->
-            with(imageLoader.get()) {
+            with(imageLoader) {
                 diskCache?.remove(avatarUrl)
                 memoryCache?.remove(MemoryCache.Key(avatarUrl))
-                enqueue(ImageRequest.Builder(context.get()).data(avatarUrl).build())
+                enqueue(ImageRequest.Builder(context).data(avatarUrl).build())
             }
         }
         Unit

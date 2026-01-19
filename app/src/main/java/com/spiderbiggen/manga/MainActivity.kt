@@ -12,9 +12,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
 import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
 import com.spiderbiggen.manga.presentation.ui.main.MainContent
-import dagger.hilt.android.AndroidEntryPoint
 
-@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
     private lateinit var analytics: FirebaseAnalytics

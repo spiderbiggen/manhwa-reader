@@ -1,9 +1,8 @@
 package com.spiderbiggen.manga.presentation.usecases
 
 import com.spiderbiggen.manga.domain.model.AppError
-import javax.inject.Inject
 
-class FormatAppError @Inject constructor() {
+class FormatAppError {
     operator fun invoke(error: AppError): String = when (error) {
         is AppError.Remote.Http -> "HTTP ${error.code}: ${error.message}"
 

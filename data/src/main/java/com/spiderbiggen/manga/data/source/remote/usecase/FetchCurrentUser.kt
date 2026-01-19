@@ -2,19 +2,21 @@ package com.spiderbiggen.manga.data.source.remote.usecase
 
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.UserService
-import com.spiderbiggen.manga.data.source.remote.model.user.UserEntity
 import com.spiderbiggen.manga.data.usecase.either
+import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
-import javax.inject.Inject
-import javax.inject.Provider
+import com.spiderbiggen.manga.domain.model.auth.User
 
-class FetchCurrentUser @Inject constructor(
-    private val userService: Provider<UserService>,
-    private val authenticationRepository: Provider<AuthenticationRepository>,
+class FetchCurrentUser(
+    private val userService: UserService,
+    private val authenticationRepository: AuthenticationRepository,
+    private val mapUserEntity: MapUserEntity,
 ) {
-    suspend operator fun invoke(): Either<UserEntity, AppError> = runCatching {
-        val userEntity = userService.get().getSelf()
-        authenticationRepository.get().saveUser(userEntity)!!
+    suspend operator fun invoke(): Either<User, AppError> = runCatching {
+        val userEntity = userService.getSelf()
+        val user = mapUserEntity(userEntity)
+        authenticationRepository.saveUser(userEntity)
+        user
     }.either()
 }
