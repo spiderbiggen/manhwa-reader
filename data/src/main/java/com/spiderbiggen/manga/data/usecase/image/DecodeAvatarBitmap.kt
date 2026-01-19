@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.image
 
 import android.content.ContentResolver
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -9,9 +8,9 @@ import android.os.Build
 import java.io.ByteArrayOutputStream
 import kotlin.math.roundToInt
 
-class DecodeAvatarBitmap(private val context: Context) {
+class DecodeAvatarBitmap(private val contentResolver: ContentResolver) {
     operator fun invoke(uri: Uri): Result<Bitmap> = runCatching {
-        context.contentResolver.decodeSimpleImage(uri)
+        contentResolver.decodeSimpleImage(uri)
     }
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {
