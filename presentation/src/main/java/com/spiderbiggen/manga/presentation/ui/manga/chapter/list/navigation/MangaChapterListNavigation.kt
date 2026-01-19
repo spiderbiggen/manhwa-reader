@@ -7,7 +7,6 @@ import androidx.navigation3.runtime.NavKey
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterListScreen
-import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterListViewModel
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf

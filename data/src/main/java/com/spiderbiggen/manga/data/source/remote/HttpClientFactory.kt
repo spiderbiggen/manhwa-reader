@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.data.source.remote
 
 import android.content.Context
-import android.util.Log
 import com.spiderbiggen.manga.data.BuildConfig
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody

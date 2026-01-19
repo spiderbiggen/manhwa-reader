@@ -6,11 +6,9 @@ import com.spiderbiggen.manga.data.source.remote.model.auth.LoginBody
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
 import com.spiderbiggen.manga.data.source.remote.usecase.ResetBearerToken
 import com.spiderbiggen.manga.data.usecase.either
-import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andThenLeft
-import com.spiderbiggen.manga.domain.model.mapLeft
 import com.spiderbiggen.manga.domain.model.onLeft
 import com.spiderbiggen.manga.domain.usecase.auth.Login
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote

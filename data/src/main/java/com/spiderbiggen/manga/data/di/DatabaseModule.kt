@@ -5,7 +5,6 @@ import androidx.room.Room
 import com.spiderbiggen.manga.data.source.local.room.MangaDatabase
 import com.spiderbiggen.manga.data.source.local.room.MangaDatabaseDecorator
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
 
 val databaseModule = module {
