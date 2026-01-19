@@ -1,18 +1,29 @@
 package com.spiderbiggen.manga.data.di
 
+import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
+import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteChaptersUseCase
+import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteMangaUseCase
+import com.spiderbiggen.manga.data.source.remote.usecase.ResetBearerToken
 import com.spiderbiggen.manga.data.usecase.auth.LoginImpl
 import com.spiderbiggen.manga.data.usecase.auth.LogoutImpl
+import com.spiderbiggen.manga.data.usecase.auth.RefreshAccessToken
 import com.spiderbiggen.manga.data.usecase.auth.RegisterImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetChapterImagesImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetChapterImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetOverviewChaptersImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetSurroundingChaptersImpl
 import com.spiderbiggen.manga.data.usecase.chapter.UpdateChaptersFromRemoteImpl
+import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
+import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToLocalChapterUseCase
 import com.spiderbiggen.manga.data.usecase.favorite.IsFavoriteFlowImpl
 import com.spiderbiggen.manga.data.usecase.favorite.ToggleFavoriteImpl
+import com.spiderbiggen.manga.data.usecase.image.DecodeAvatarBitmap
+import com.spiderbiggen.manga.data.usecase.image.EncodeBitmap
 import com.spiderbiggen.manga.data.usecase.manga.GetMangaImpl
 import com.spiderbiggen.manga.data.usecase.manga.GetOverviewMangaImpl
 import com.spiderbiggen.manga.data.usecase.manga.UpdateMangaFromRemoteImpl
+import com.spiderbiggen.manga.data.usecase.manga.mapper.ToDomainMangaUseCase
+import com.spiderbiggen.manga.data.usecase.manga.mapper.ToLocalMangaUseCase
 import com.spiderbiggen.manga.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
@@ -20,6 +31,7 @@ import com.spiderbiggen.manga.data.usecase.read.ToggleReadImpl
 import com.spiderbiggen.manga.data.usecase.remote.UpdateStateFromRemoteImpl
 import com.spiderbiggen.manga.data.usecase.user.GetLastSynchronizationTimeImpl
 import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
+import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
 import com.spiderbiggen.manga.data.usecase.user.SynchronizeWithRemoteImpl
 import com.spiderbiggen.manga.data.usecase.user.profile.UpdateAvatarImpl
 import com.spiderbiggen.manga.domain.usecase.auth.Login
@@ -44,78 +56,48 @@ import com.spiderbiggen.manga.domain.usecase.user.GetLastSynchronizationTime
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
-import dagger.Binds
-import dagger.Module
-import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
+import org.koin.dsl.bind
+import org.koin.dsl.module
 
-@Module
-@InstallIn(SingletonComponent::class)
-abstract class DataBindingModule {
+val useCaseModule = module {
+    // UseCases
+    singleOf(::LoginImpl) { bind<Login>() }
+    singleOf(::RegisterImpl) { bind<Register>() }
+    singleOf(::LogoutImpl) { bind<Logout>() }
+    singleOf(::GetLastSynchronizationTimeImpl) { bind<GetLastSynchronizationTime>() }
+    singleOf(::GetUserImpl) { bind<GetUser>() }
+    singleOf(::SynchronizeWithRemoteImpl) { bind<SynchronizeWithRemote>() }
+    singleOf(::UpdateAvatarImpl) { bind<UpdateAvatar>() }
+    singleOf(::GetOverviewMangaImpl) { bind<GetOverviewManga>() }
+    singleOf(::GetMangaImpl) { bind<GetManga>() }
+    singleOf(::GetChapterImpl) { bind<GetChapter>() }
+    singleOf(::GetSurroundingChaptersImpl) { bind<GetSurroundingChapters>() }
+    singleOf(::GetOverviewChaptersImpl) { bind<GetOverviewChapters>() }
+    singleOf(::IsFavoriteFlowImpl) { bind<IsFavoriteFlow>() }
+    single { GetChapterImagesImpl(get(named<BaseUrl>()), get()) } bind GetChapterImages::class
+    singleOf(::ToggleFavoriteImpl) { bind<ToggleFavorite>() }
+    singleOf(::IsReadImpl) { bind<IsReadFlow>() }
+    singleOf(::SetReadImpl) { bind<SetRead>() }
+    singleOf(::ToggleReadImpl) { bind<ToggleRead>() }
+    singleOf(::SetReadUpToChapterImpl) { bind<SetReadUpToChapter>() }
+    singleOf(::UpdateStateFromRemoteImpl) { bind<UpdateStateFromRemote>() }
+    singleOf(::UpdateMangaFromRemoteImpl) { bind<UpdateMangaFromRemote>() }
+    singleOf(::UpdateChaptersFromRemoteImpl) { bind<UpdateChaptersFromRemote>() }
 
-    @Binds
-    abstract fun bindLogin(useCase: LoginImpl): Login
-
-    @Binds
-    abstract fun bindRegister(useCase: RegisterImpl): Register
-
-    @Binds
-    abstract fun bindLogout(useCase: LogoutImpl): Logout
-
-    @Binds
-    abstract fun bindGetLastSynchronizationTime(useCase: GetLastSynchronizationTimeImpl): GetLastSynchronizationTime
-
-    @Binds
-    abstract fun bindGetUser(useCase: GetUserImpl): GetUser
-
-    @Binds
-    abstract fun bindSynchronizeWithRemote(useCase: SynchronizeWithRemoteImpl): SynchronizeWithRemote
-
-    @Binds
-    abstract fun bindUpdateAvatar(useCase: UpdateAvatarImpl): UpdateAvatar
-
-    @Binds
-    abstract fun bindGetOverviewManga(useCase: GetOverviewMangaImpl): GetOverviewManga
-
-    @Binds
-    abstract fun bindGetManga(useCase: GetMangaImpl): GetManga
-
-    @Binds
-    abstract fun bindGetChapter(useCase: GetChapterImpl): GetChapter
-
-    @Binds
-    abstract fun bindGetSurroundingChapters(useCase: GetSurroundingChaptersImpl): GetSurroundingChapters
-
-    @Binds
-    abstract fun bindGetChapters(useCase: GetOverviewChaptersImpl): GetOverviewChapters
-
-    @Binds
-    abstract fun bindIsFavoriteFlow(useCase: IsFavoriteFlowImpl): IsFavoriteFlow
-
-    @Binds
-    abstract fun bindGetChapterImages(useCase: GetChapterImagesImpl): GetChapterImages
-
-    @Binds
-    abstract fun bindToggleFavorite(useCase: ToggleFavoriteImpl): ToggleFavorite
-
-    @Binds
-    abstract fun bindIsReadFlow(useCase: IsReadImpl): IsReadFlow
-
-    @Binds
-    abstract fun bindSetRead(useCase: SetReadImpl): SetRead
-
-    @Binds
-    abstract fun bindToggleRead(useCase: ToggleReadImpl): ToggleRead
-
-    @Binds
-    abstract fun bindSetReadUptoToChapter(useCase: SetReadUpToChapterImpl): SetReadUpToChapter
-
-    @Binds
-    abstract fun bindUpdateStateFromRemote(useCase: UpdateStateFromRemoteImpl): UpdateStateFromRemote
-
-    @Binds
-    abstract fun bindUpdateMangaFromRemote(useCase: UpdateMangaFromRemoteImpl): UpdateMangaFromRemote
-
-    @Binds
-    abstract fun bindUpdateChaptersFromRemote(useCase: UpdateChaptersFromRemoteImpl): UpdateChaptersFromRemote
+    factoryOf(::FetchCurrentUser)
+    factoryOf(::ResetBearerToken)
+    factory { MapUserEntity(get(named<BaseUrl>())) }
+    factoryOf(::RefreshAccessToken)
+    factoryOf(::GetRemoteChaptersUseCase)
+    factoryOf(::GetRemoteMangaUseCase)
+    factoryOf(::ToLocalChapterUseCase)
+    factoryOf(::ToDomainChapterUseCase)
+    factoryOf(::ToLocalMangaUseCase)
+    factoryOf(::ToDomainMangaUseCase)
+    factoryOf(::DecodeAvatarBitmap)
+    factoryOf(::EncodeBitmap)
 }

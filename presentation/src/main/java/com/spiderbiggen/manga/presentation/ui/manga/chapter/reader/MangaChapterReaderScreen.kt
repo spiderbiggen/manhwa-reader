@@ -59,7 +59,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
 import coil3.annotation.ExperimentalCoilApi
@@ -85,10 +84,11 @@ import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithConten
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MangaChapterReaderScreen(
-    viewModel: MangaChapterReaderViewModel = hiltViewModel(),
+    viewModel: MangaChapterReaderViewModel = koinViewModel(),
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onBackClick: () -> Unit,
     onChapterClick: (ChapterId) -> Unit,

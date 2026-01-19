@@ -3,9 +3,8 @@ package com.spiderbiggen.manga.data.usecase.image
 import android.graphics.Bitmap
 import android.os.Build
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
 
-class EncodeBitmap @Inject constructor() {
+class EncodeBitmap {
     operator fun invoke(bitmap: Bitmap): Result<ByteArray> = runCatching {
         ByteArrayOutputStream().use { stream ->
             @Suppress("DEPRECATION")

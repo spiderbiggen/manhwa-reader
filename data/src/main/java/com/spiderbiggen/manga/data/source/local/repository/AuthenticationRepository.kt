@@ -7,9 +7,6 @@ import com.spiderbiggen.manga.data.source.local.preferences.AuthenticationPrefer
 import com.spiderbiggen.manga.data.source.local.preferences.AuthenticationPreferencesSerializer
 import com.spiderbiggen.manga.data.source.remote.model.auth.TokenEntity
 import com.spiderbiggen.manga.data.source.remote.model.user.UserEntity
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
@@ -23,8 +20,7 @@ private val Context.authdataStore by dataStore(
     ),
 )
 
-@Singleton
-class AuthenticationRepository @Inject constructor(@ApplicationContext context: Context) {
+class AuthenticationRepository(context: Context) {
 
     private val dataStore = context.authdataStore
 

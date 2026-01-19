@@ -9,9 +9,8 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.onLeft
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
-import javax.inject.Inject
 
-class SetReadUpToChapterImpl @Inject constructor(
+class SetReadUpToChapterImpl(
     private val chapterRepository: ChapterRepository,
     private val readRepository: ReadRepository,
     private val synchronizeWithRemote: SynchronizeWithRemote,

@@ -1,11 +1,9 @@
 package com.spiderbiggen.manga.data.usecase.user
 
-import com.spiderbiggen.manga.data.di.BaseUrl
 import com.spiderbiggen.manga.data.source.remote.model.user.UserEntity
 import com.spiderbiggen.manga.domain.model.auth.User
-import javax.inject.Inject
 
-class MapUserEntity @Inject constructor(@BaseUrl private val baseUrl: String) {
+class MapUserEntity(private val baseUrl: String) {
     operator fun invoke(entity: UserEntity): User {
         val simplifiedId = entity.id.filter { it.isLetterOrDigit() }
         return User(

@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
-import javax.inject.Inject
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Instant
@@ -9,7 +8,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
-class SplitMangasIntoSections @Inject constructor() {
+class SplitMangasIntoSections {
     /**
      * Assumes the list is sorted
      */

@@ -12,9 +12,7 @@ import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
-import dagger.hilt.android.lifecycle.HiltViewModel
 import java.net.URI
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -46,8 +44,7 @@ private val localDateTimeFormat = LocalDateTime.Format {
     minute()
 }
 
-@HiltViewModel
-class ProfileOverviewViewModel @Inject constructor(
+class ProfileOverviewViewModel(
     private val getUser: GetUser,
     private val getLastSynchronizationTime: GetLastSynchronizationTime,
     private val logout: Logout,

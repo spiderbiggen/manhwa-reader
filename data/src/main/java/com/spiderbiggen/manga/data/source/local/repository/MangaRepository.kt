@@ -6,19 +6,11 @@ import com.spiderbiggen.manga.data.usecase.manga.mapper.ToDomainMangaUseCase
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import com.spiderbiggen.manga.domain.model.manga.MangaWithFavorite
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class MangaRepository @Inject constructor(
-    private val mangaDaoProvider: Provider<LocalMangaDao>,
-    private val toDomain: ToDomainMangaUseCase,
-) {
-
-    private val mangaDao
-        get() = mangaDaoProvider.get()
+class MangaRepository(private val mangaDao: LocalMangaDao, private val toDomain: ToDomainMangaUseCase) {
 
     suspend fun insert(mangas: List<LocalMangaEntity>) = runCatching {
         mangaDao.insert(mangas)

@@ -8,24 +8,22 @@ import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
-import javax.inject.Inject
-import javax.inject.Provider
 
-class LogoutImpl @Inject constructor(
-    private val authService: Provider<AuthService>,
-    private val authenticationRepository: Provider<AuthenticationRepository>,
+class LogoutImpl(
+    private val authService: AuthService,
+    private val authenticationRepository: AuthenticationRepository,
 ) : Logout {
     override suspend fun invoke(): Either<Unit, AppError> = runCatching {
-        val token = authenticationRepository.get().getRefreshToken() ?: return@runCatching
+        val token = authenticationRepository.getRefreshToken() ?: return@runCatching
 
         val body = RefreshTokenBody(token.token)
 
         try {
-            authService.get().logout(body)
+            authService.logout(body)
         } catch (e: Exception) {
             Log.w("LogoutImpl", "failed to logout", e)
         }
 
-        authenticationRepository.get().clear()
+        authenticationRepository.clear()
     }.either()
 }

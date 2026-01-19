@@ -1,12 +1,10 @@
 package com.spiderbiggen.manga.data.source.remote.usecase
 
 import com.spiderbiggen.manga.data.source.remote.MangaService
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.time.Instant
 
-class GetRemoteMangaUseCase @Inject constructor(private val getService: Provider<MangaService>) {
+class GetRemoteMangaUseCase(private val mangaService: MangaService) {
     suspend operator fun invoke(since: Instant? = null, skipCache: Boolean = false) = runCatching {
-        getService.get().getAllMangas(since, skipCache = false)
+        mangaService.getAllMangas(since, skipCache = false)
     }
 }

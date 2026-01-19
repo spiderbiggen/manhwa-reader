@@ -22,10 +22,6 @@ kotlin {
 }
 
 dependencies {
-    // Dagger
-    implementation(libs.google.dagger)
-    ksp(libs.google.dagger.hiltAndroidCompiler)
-
     // Kotlin
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinX.datetime)

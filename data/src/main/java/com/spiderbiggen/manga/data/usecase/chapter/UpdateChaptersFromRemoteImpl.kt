@@ -9,16 +9,13 @@ import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.andThenLeft
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
-import javax.inject.Inject
-import javax.inject.Provider
 
-class UpdateChaptersFromRemoteImpl @Inject constructor(
+class UpdateChaptersFromRemoteImpl(
     private val getRemoteChapters: GetRemoteChaptersUseCase,
-    private val chapterRepository: Provider<ChapterRepository>,
+    private val chapterRepository: ChapterRepository,
     private val toLocal: ToLocalChapterUseCase,
 ) : UpdateChaptersFromRemote {
     override suspend operator fun invoke(mangaId: MangaId, skipCache: Boolean): Either<Unit, AppError> {
-        val chapterRepository = chapterRepository.get()
         val since = chapterRepository.getLastUpdatedAtByMangaId(mangaId).getOrNull()
         return getRemoteChapters(mangaId, since, skipCache)
             .either()

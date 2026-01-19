@@ -12,8 +12,6 @@ import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
@@ -26,8 +24,8 @@ import kotlinx.coroutines.sync.withLock
 private val MIN_SYNC_INTERVAL = 5.minutes
 private val SYNC_FALLBACK_TIME = Instant.fromEpochSeconds(0)
 
-class SynchronizeWithRemoteImpl @Inject constructor(
-    private val userService: Provider<UserService>,
+class SynchronizeWithRemoteImpl(
+    private val userService: UserService,
     private val authenticationRepository: AuthenticationRepository,
     private val favoritesRepository: FavoritesRepository,
     private val readRepository: ReadRepository,
@@ -45,7 +43,6 @@ class SynchronizeWithRemoteImpl @Inject constructor(
                 val currentTime = now()
                 if (!ignoreInterval && currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@coroutineScope
 
-                val userService = userService.get()
                 val deferredFavorites = async { userService.syncFavorites(lastSyncTime) }
                 val deferredReads = async { userService.syncReads(lastSyncTime) }
 

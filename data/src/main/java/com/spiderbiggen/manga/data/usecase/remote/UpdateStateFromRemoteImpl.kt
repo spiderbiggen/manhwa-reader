@@ -11,12 +11,11 @@ import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
-import javax.inject.Inject
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 
-class UpdateStateFromRemoteImpl @Inject constructor(
+class UpdateStateFromRemoteImpl(
     // Repositories
     private val favoritesRepository: FavoritesRepository,
     private val mangaRepository: MangaRepository,

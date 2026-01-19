@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.serialization)
-    alias(libs.plugins.google.daggerHilt)
     alias(libs.plugins.google.ksp)
     id("manga.spotless")
 }
@@ -56,10 +55,6 @@ kotlin {
     }
 }
 
-hilt {
-    enableAggregatingTask = true
-}
-
 dependencies {
     implementation(project(":domain"))
     implementation(libs.androidX.core.ktx)
@@ -69,13 +64,9 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
 
-    // Dagger
-    implementation(libs.google.dagger.hiltAndroid)
-    ksp(libs.google.dagger.hiltAndroidCompiler)
-
-    // Hilt
-    implementation(libs.androidX.hilt.common)
-    ksp(libs.androidX.hilt.compiler)
+    // Koin
+    implementation(platform(libs.koin.bom))
+    implementation(libs.koin.android)
 
     // Kotlin
     implementation(libs.kotlin.stdlib)

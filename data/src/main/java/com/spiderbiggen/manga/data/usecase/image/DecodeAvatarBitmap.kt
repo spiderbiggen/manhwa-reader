@@ -1,20 +1,16 @@
 package com.spiderbiggen.manga.data.usecase.image
 
 import android.content.ContentResolver
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
-import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.ByteArrayOutputStream
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.math.roundToInt
 
-class DecodeAvatarBitmap @Inject constructor(@ApplicationContext private val context: Provider<Context>) {
+class DecodeAvatarBitmap(private val contentResolver: ContentResolver) {
     operator fun invoke(uri: Uri): Result<Bitmap> = runCatching {
-        context.get().contentResolver.decodeSimpleImage(uri)
+        contentResolver.decodeSimpleImage(uri)
     }
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {

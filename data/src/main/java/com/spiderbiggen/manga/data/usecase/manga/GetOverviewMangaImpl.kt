@@ -3,9 +3,8 @@ package com.spiderbiggen.manga.data.usecase.manga
 import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
-class GetOverviewMangaImpl @Inject constructor(private val mangaRepository: MangaRepository) : GetOverviewManga {
+class GetOverviewMangaImpl(private val mangaRepository: MangaRepository) : GetOverviewManga {
     override fun invoke(): Flow<List<MangaForOverview>> = mangaRepository.getMangasForOverview()
 }

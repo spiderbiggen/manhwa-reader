@@ -4,10 +4,8 @@ import com.spiderbiggen.manga.data.source.local.repository.ChapterRepository
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.chapter.GetOverviewChapters
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 
-class GetOverviewChaptersImpl @Inject constructor(private val chapterRepository: ChapterRepository) :
-    GetOverviewChapters {
+class GetOverviewChaptersImpl(private val chapterRepository: ChapterRepository) : GetOverviewChapters {
     override fun invoke(id: MangaId): Flow<List<ChapterForOverview>> = chapterRepository.getChaptersAsFlow(id)
 }

@@ -6,19 +6,11 @@ import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import javax.inject.Inject
-import javax.inject.Provider
 import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ChapterRepository @Inject constructor(
-    private val chapterDaoProvider: Provider<LocalChapterDao>,
-    private val toDomain: ToDomainChapterUseCase,
-) {
-    private val chapterDao
-        get() = chapterDaoProvider.get()
-
+class ChapterRepository(private val chapterDao: LocalChapterDao, private val toDomain: ToDomainChapterUseCase) {
     suspend fun insert(chapters: List<LocalChapterEntity>) = runCatching {
         chapterDao.insert(chapters)
     }

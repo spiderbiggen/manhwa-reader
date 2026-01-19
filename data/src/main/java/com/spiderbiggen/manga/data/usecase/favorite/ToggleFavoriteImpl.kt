@@ -8,9 +8,8 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.onLeft
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
-import javax.inject.Inject
 
-class ToggleFavoriteImpl @Inject constructor(
+class ToggleFavoriteImpl(
     private val favoritesRepository: FavoritesRepository,
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : ToggleFavorite {
