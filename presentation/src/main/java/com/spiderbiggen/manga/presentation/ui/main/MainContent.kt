@@ -112,7 +112,6 @@ private fun StatusBarProtection(
         val gradient = Brush.verticalGradient(
             colors = listOf(
                 color.copy(alpha = 1f),
-                color.copy(alpha = .8f),
                 Color.Transparent,
             ),
             startY = 0f,
@@ -129,5 +128,5 @@ private fun StatusBarProtection(
 fun calculateGradientHeight(): () -> Float {
     val statusBars = WindowInsets.statusBars
     val density = LocalDensity.current
-    return { statusBars.getTop(density).times(1.2f) }
+    return { statusBars.getTop(density).toFloat() }
 }
