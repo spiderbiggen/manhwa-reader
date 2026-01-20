@@ -5,15 +5,17 @@ import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 
 class RefreshAccessToken(
     private val authService: AuthService,
     private val authenticationRepository: AuthenticationRepository,
 ) {
-    suspend operator fun invoke(): Either<String, AppError> {
+    suspend operator fun invoke(): Either<AppError, String> {
         val refreshToken = authenticationRepository.getRefreshToken()
-            ?: return Either.Right(AppError.Auth.Unauthorized)
+            ?: return AppError.Auth.Unauthorized.left()
 
         return runCatching {
             val response = authService.refresh(RefreshTokenBody(refreshToken.token))

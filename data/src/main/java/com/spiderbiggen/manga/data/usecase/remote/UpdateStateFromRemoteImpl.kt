@@ -4,9 +4,10 @@ import com.spiderbiggen.manga.data.source.local.repository.FavoritesRepository
 import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
-import com.spiderbiggen.manga.domain.model.leftOrElse
-import com.spiderbiggen.manga.domain.model.onRight
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
+import arrow.core.getOrElse
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
@@ -25,29 +26,29 @@ class UpdateStateFromRemoteImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : UpdateStateFromRemote {
 
-    override suspend fun invoke(skipCache: Boolean): Either<Unit, AppError> = coroutineScope {
+    override suspend fun invoke(skipCache: Boolean): Either<AppError, Unit> = coroutineScope {
         val deferredUserSync = async { synchronizeWithRemote(ignoreInterval = false) }
         val deferredMangaUpdate = async { updateMangaFromRemote(skipCache) }
         deferredUserSync.await()
-        deferredMangaUpdate.await().onRight {
-            return@coroutineScope Either.Right(it)
+        deferredMangaUpdate.await().onLeft {
+            return@coroutineScope it.left()
         }
 
-        val outOfDataMangas = mangaRepository.getMangaForUpdate().either().leftOrElse {
-            return@coroutineScope Either.Right(it)
+        val outOfDataMangas = mangaRepository.getMangaForUpdate().either().getOrElse {
+            return@coroutineScope it.left()
         }
 
         val favoriteMangas = outOfDataMangas.filter { favoritesRepository.get(it).getOrDefault(false) }
         val appErrors = favoriteMangas
             .map { mangaId -> async { updateChaptersFromRemote(mangaId, skipCache) } }
             .awaitAll()
-            .filterIsInstance<Either.Right<Unit, AppError>>()
+            .filterIsInstance<Either.Left<AppError>>()
             .map { it.value }
 
         when {
-            appErrors.isEmpty() -> Either.Left(Unit)
-            appErrors.size == 1 -> Either.Right(appErrors.first())
-            else -> Either.Right(AppError.Multi(appErrors))
+            appErrors.isEmpty() -> Unit.right()
+            appErrors.size == 1 -> appErrors.first().left()
+            else -> AppError.Multi(appErrors).left()
         }
     }
 }

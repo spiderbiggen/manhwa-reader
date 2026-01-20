@@ -8,7 +8,7 @@ import com.spiderbiggen.manga.data.source.remote.model.user.FavoriteState
 import com.spiderbiggen.manga.data.source.remote.model.user.ReadState
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
+import arrow.core.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
@@ -33,7 +33,7 @@ class SynchronizeWithRemoteImpl(
 
     private val mutex = Mutex()
 
-    override suspend operator fun invoke(ignoreInterval: Boolean): Either<Unit, AppError> = runCatching {
+    override suspend operator fun invoke(ignoreInterval: Boolean): Either<AppError, Unit> = runCatching {
         if (mutex.isLocked) return@runCatching
         coroutineScope {
             mutex.withLock {

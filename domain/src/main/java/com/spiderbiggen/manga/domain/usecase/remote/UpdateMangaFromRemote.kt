@@ -1,8 +1,8 @@
 package com.spiderbiggen.manga.domain.usecase.remote
 
+import arrow.core.Either
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
 
 fun interface UpdateMangaFromRemote {
-    suspend operator fun invoke(skipCache: Boolean): Either<Unit, AppError>
+    suspend operator fun invoke(skipCache: Boolean): Either<AppError, Unit>
 }

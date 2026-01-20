@@ -3,7 +3,6 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import com.spiderbiggen.manga.domain.model.id.MangaId
-import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
@@ -116,7 +115,7 @@ class MangaListViewModel(
 
     private suspend fun updateMangas(skipCache: Boolean) {
         _isRefreshing.emit(true)
-        updateStateFromRemote(skipCache).leftOrElse {
+        updateStateFromRemote(skipCache).onLeft {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         yield()

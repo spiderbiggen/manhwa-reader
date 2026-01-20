@@ -5,7 +5,7 @@ import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
+import arrow.core.Either
 import com.spiderbiggen.manga.domain.model.auth.User
 
 class FetchCurrentUser(
@@ -13,7 +13,7 @@ class FetchCurrentUser(
     private val authenticationRepository: AuthenticationRepository,
     private val mapUserEntity: MapUserEntity,
 ) {
-    suspend operator fun invoke(): Either<User, AppError> = runCatching {
+    suspend operator fun invoke(): Either<AppError, User> = runCatching {
         val userEntity = userService.getSelf()
         val user = mapUserEntity(userEntity)
         authenticationRepository.saveUser(userEntity)

@@ -1,7 +1,9 @@
 package com.spiderbiggen.manga.data.usecase
 
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
+import arrow.core.Either
+import arrow.core.left
+import arrow.core.right
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.RedirectResponseException
 import io.ktor.client.plugins.ServerResponseException
@@ -46,7 +48,7 @@ private fun handleResponseException(status: HttpStatusCode, message: String): Ap
     else -> AppError.Remote.Http(status.value, message)
 }
 
-fun <L> Result<L>.either(): Either<L, AppError> = fold(
-    { Either.Left(it) },
-    { Either.Right(it.toAppError()) },
+fun <R> Result<R>.either(): Either<AppError, R> = fold(
+    { it.right() },
+    { it.toAppError().left() },
 )

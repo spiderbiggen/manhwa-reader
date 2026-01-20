@@ -50,6 +50,11 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
+    // Arrow
+    implementation(platform(libs.arrow.bom))
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
+
     implementation(libs.androidX.core.ktx)
 
     // Firebase
@@ -103,6 +108,11 @@ dependencies {
     implementation(libs.coil.network)
     implementation(libs.coil.svg)
     implementation(libs.coil.test)
+
+    // Arrow
+    implementation(platform(libs.arrow.bom))
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
 
     // Testing
     testImplementation(libs.junit)

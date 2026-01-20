@@ -2,7 +2,7 @@ package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.spiderbiggen.manga.domain.model.Either
+import arrow.core.Either
 import com.spiderbiggen.manga.domain.model.chapter.SurroundingChapters
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapter
 import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
@@ -56,14 +56,14 @@ class MangaChapterReaderViewModel(
     private suspend fun onStart() {
         launchDefault {
             when (val images = getChapterImages(chapterId)) {
-                is Either.Left -> chapterImages.emit(images.value)
-                is Either.Right -> Log.e(TAG, "failed to get images")
+                is Either.Right -> chapterImages.emit(images.value)
+                is Either.Left -> Log.e(TAG, "failed to get images")
             }
         }
         launchDefault {
             when (val surrounding = getSurroundingChapters(chapterId)) {
-                is Either.Left -> surroundingChapters.emit(surrounding.value)
-                is Either.Right -> Log.e(TAG, "failed to get surrounding chapters")
+                is Either.Right -> surroundingChapters.emit(surrounding.value)
+                is Either.Left -> Log.e(TAG, "failed to get surrounding chapters")
             }
         }
     }

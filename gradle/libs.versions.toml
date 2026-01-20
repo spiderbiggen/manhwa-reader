@@ -4,6 +4,7 @@ android-gradle-plugin = "8.13.2"
 android-material = "1.13.0"
 androidx-test-ext-junit = "1.3.0"
 appcompat = "1.7.1"
+arrow = "2.2.1.1"
 coil-bom = "3.3.0"
 compose-bom = "2026.01.00"
 compose-material3 = "1.5.0-alpha12"
@@ -118,6 +119,11 @@ coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose" }
 coil-network = { group = "io.coil-kt.coil3", name = "coil-network-okhttp" }
 coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg" }
 coil-test = { group = "io.coil-kt.coil3", name = "coil-test" }
+
+# Arrow
+arrow-bom = { group = "io.arrow-kt", name = "arrow-stack", version.ref = "arrow" }
+arrow-core = { group = "io.arrow-kt", name = "arrow-core" }
+arrow-fx-coroutines = { group = "io.arrow-kt", name = "arrow-fx-coroutines" }
 
 # Spotless for BuildSrc convention script
 spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless-plugin-gradle" }
