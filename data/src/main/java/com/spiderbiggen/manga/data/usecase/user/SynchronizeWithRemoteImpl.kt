@@ -1,14 +1,15 @@
 package com.spiderbiggen.manga.data.usecase.user
 
+import arrow.core.Either
+import arrow.core.raise.either
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.local.repository.FavoritesRepository
 import com.spiderbiggen.manga.data.source.local.repository.ReadRepository
 import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.model.user.FavoriteState
 import com.spiderbiggen.manga.data.source.remote.model.user.ReadState
-import com.spiderbiggen.manga.data.usecase.either
+import com.spiderbiggen.manga.data.usecase.appError
 import com.spiderbiggen.manga.domain.model.AppError
-import arrow.core.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
@@ -33,24 +34,26 @@ class SynchronizeWithRemoteImpl(
 
     private val mutex = Mutex()
 
-    override suspend operator fun invoke(ignoreInterval: Boolean): Either<AppError, Unit> = runCatching {
-        if (mutex.isLocked) return@runCatching
-        coroutineScope {
-            mutex.withLock {
-                val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@coroutineScope
+    override suspend operator fun invoke(ignoreInterval: Boolean): Either<AppError, Unit> = either {
+        if (mutex.isLocked) return@either
+        appError {
+            coroutineScope {
+                mutex.withLock {
+                    val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@coroutineScope
 
-                val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
-                val currentTime = now()
-                if (!ignoreInterval && currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@coroutineScope
+                    val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
+                    val currentTime = now()
+                    if (!ignoreInterval && currentTime - lastSyncTime < 15.minutes) return@withLock
 
-                val deferredFavorites = async { userService.syncFavorites(lastSyncTime) }
-                val deferredReads = async { userService.syncReads(lastSyncTime) }
+                    val deferredFavorites = async { userService.syncFavorites(lastSyncTime) }
+                    val deferredReads = async { userService.syncReads(lastSyncTime) }
 
-                awaitAll(deferredFavorites, deferredReads)
-                authenticationRepository.saveLastSynchronizationTime(currentTime)
+                    awaitAll(deferredFavorites, deferredReads)
+                    authenticationRepository.saveLastSynchronizationTime(currentTime)
+                }
             }
         }
-    }.either()
+    }
 
     private suspend fun UserService.syncFavorites(lastSyncTime: Instant) = coroutineScope {
         favoritesRepository.get(lastSyncTime).getOrThrow()

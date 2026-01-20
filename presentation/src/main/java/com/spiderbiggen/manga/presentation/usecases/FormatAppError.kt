@@ -4,9 +4,9 @@ import com.spiderbiggen.manga.domain.model.AppError
 
 class FormatAppError {
     operator fun invoke(error: AppError): String = when (error) {
-        is AppError.Remote.Http -> "HTTP ${error.code}: ${error.message}"
+        is AppError.Remote.Http -> "HTTP ${error.code}: ${error.httpMessage ?: "Unknown error"}"
 
-        is AppError.Remote.Io -> "IO: ${error.exception.message}"
+        is AppError.Remote.Io -> "IO: ${error.cause.message ?: "Unknown error"}"
 
         is AppError.Remote.NoConnection -> "Couldn't connect to server"
 
@@ -27,6 +27,6 @@ class FormatAppError {
             "${error.errors.size} error(s), first is ${firstError ?: "unknown"}"
         }
 
-        is AppError.Unknown -> "Internal error: ${error.exception.message}"
+        is AppError.Unknown -> "Internal error: ${error.cause.message ?: "Unknown error"}"
     }
 }

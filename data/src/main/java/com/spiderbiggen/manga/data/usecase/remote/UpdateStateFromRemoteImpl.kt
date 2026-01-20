@@ -1,13 +1,13 @@
 package com.spiderbiggen.manga.data.usecase.remote
 
-import com.spiderbiggen.manga.data.source.local.repository.FavoritesRepository
-import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
-import com.spiderbiggen.manga.data.usecase.either
-import com.spiderbiggen.manga.domain.model.AppError
 import arrow.core.Either
 import arrow.core.left
+import arrow.core.raise.either
 import arrow.core.right
-import arrow.core.getOrElse
+import com.spiderbiggen.manga.data.source.local.repository.FavoritesRepository
+import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
+import com.spiderbiggen.manga.data.usecase.appError
+import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
@@ -26,29 +26,27 @@ class UpdateStateFromRemoteImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : UpdateStateFromRemote {
 
-    override suspend fun invoke(skipCache: Boolean): Either<AppError, Unit> = coroutineScope {
-        val deferredUserSync = async { synchronizeWithRemote(ignoreInterval = false) }
-        val deferredMangaUpdate = async { updateMangaFromRemote(skipCache) }
-        deferredUserSync.await()
-        deferredMangaUpdate.await().onLeft {
-            return@coroutineScope it.left()
-        }
+    override suspend fun invoke(skipCache: Boolean): Either<AppError, Unit> = either {
+        coroutineScope {
+            val deferredUserSync = async { synchronizeWithRemote(ignoreInterval = false) }
+            val deferredMangaUpdate = async { updateMangaFromRemote(skipCache) }
+            deferredUserSync.await()
+            deferredMangaUpdate.await().bind()
 
-        val outOfDataMangas = mangaRepository.getMangaForUpdate().either().getOrElse {
-            return@coroutineScope it.left()
-        }
+            val outOfDataMangas = appError {
+                mangaRepository.getMangaForUpdate().getOrThrow()
+            }
 
-        val favoriteMangas = outOfDataMangas.filter { favoritesRepository.get(it).getOrDefault(false) }
-        val appErrors = favoriteMangas
-            .map { mangaId -> async { updateChaptersFromRemote(mangaId, skipCache) } }
-            .awaitAll()
-            .filterIsInstance<Either.Left<AppError>>()
-            .map { it.value }
+            val favoriteMangas = outOfDataMangas.filter { favoritesRepository.get(it).getOrDefault(false) }
+            val appErrors = favoriteMangas
+                .map { mangaId -> async { updateChaptersFromRemote(mangaId, skipCache) } }
+                .awaitAll()
+                .filterIsInstance<Either.Left<AppError>>()
+                .map { it.value }
 
-        when {
-            appErrors.isEmpty() -> Unit.right()
-            appErrors.size == 1 -> appErrors.first().left()
-            else -> AppError.Multi(appErrors).left()
+            if (appErrors.isNotEmpty()) {
+                raise(if (appErrors.size == 1) appErrors.first() else AppError.Multi(appErrors))
+            }
         }
     }
 }

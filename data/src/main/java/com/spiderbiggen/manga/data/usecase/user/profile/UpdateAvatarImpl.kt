@@ -2,18 +2,18 @@ package com.spiderbiggen.manga.data.usecase.user.profile
 
 import android.content.Context
 import androidx.core.net.toUri
+import arrow.core.Either
+import arrow.core.raise.either
 import coil3.ImageLoader
 import coil3.memory.MemoryCache
 import coil3.request.ImageRequest
 import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
+import com.spiderbiggen.manga.data.usecase.appError
 import com.spiderbiggen.manga.data.usecase.auth.RefreshAccessToken
-import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.data.usecase.image.DecodeAvatarBitmap
 import com.spiderbiggen.manga.data.usecase.image.EncodeBitmap
 import com.spiderbiggen.manga.domain.model.AppError
-import arrow.core.Either
-import arrow.core.flatMap
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
 import java.net.URI
@@ -30,32 +30,40 @@ class UpdateAvatarImpl(
     private val resizeBitmap: DecodeAvatarBitmap,
     private val encodeBitmap: EncodeBitmap,
 ) : UpdateAvatar {
-    override suspend fun invoke(avatar: URI): Either<AppError, Unit> = refreshAccessToken()
-        .flatMap { processBitmap(avatar) }
-        .flatMap { uploadAvatar(it) }
-        .flatMap { invalidateAvatarCache() }
-        .flatMap { fetchCurrentUser() }
-        .map {}
-
-    private fun processBitmap(avatar: URI): Either<AppError, ByteArray> = runCatching {
-        val uri = avatar.toString().toUri()
-        val bitmap = resizeBitmap(uri).getOrThrow()
-        encodeBitmap(bitmap).getOrThrow()
-    }.either()
-
-    private suspend fun uploadAvatar(avatar: ByteArray): Either<AppError, Unit> = runCatching {
-        userService.updateImage(avatar = avatar)
-    }.either()
-
-    private suspend fun invalidateAvatarCache(): Either<AppError, Unit> = runCatching {
-        // This should never be null here
-        getUser().firstOrNull()?.avatarUrl?.let { avatarUrl ->
-            with(imageLoader) {
-                diskCache?.remove(avatarUrl)
-                memoryCache?.remove(MemoryCache.Key(avatarUrl))
-                enqueue(ImageRequest.Builder(context).data(avatarUrl).build())
-            }
-        }
+    override suspend fun invoke(avatar: URI): Either<AppError, Unit> = either {
+        refreshAccessToken().bind()
+        val processedAvatar = processBitmap(avatar).bind()
+        uploadAvatar(processedAvatar).bind()
+        invalidateAvatarCache().bind()
+        fetchCurrentUser().bind()
         Unit
-    }.either()
+    }
+
+    private fun processBitmap(avatar: URI): Either<AppError, ByteArray> = either {
+        appError {
+            val uri = avatar.toString().toUri()
+            val bitmap = resizeBitmap(uri).getOrThrow()
+            encodeBitmap(bitmap).getOrThrow()
+        }
+    }
+
+    private suspend fun uploadAvatar(avatar: ByteArray): Either<AppError, Unit> = either {
+        appError {
+            userService.updateImage(avatar = avatar)
+        }
+    }
+
+    private suspend fun invalidateAvatarCache(): Either<AppError, Unit> = either {
+        appError {
+            // This should never be null here
+            getUser().firstOrNull()?.avatarUrl?.let { avatarUrl ->
+                with(imageLoader) {
+                    diskCache?.remove(avatarUrl)
+                    memoryCache?.remove(MemoryCache.Key(avatarUrl))
+                    enqueue(ImageRequest.Builder(context).data(avatarUrl).build())
+                }
+            }
+            Unit
+        }
+    }
 }
