@@ -14,13 +14,10 @@ class ToggleFavoriteImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : ToggleFavorite {
     override suspend fun invoke(id: MangaId): Either<AppError, Boolean> = either {
-        val toggled = appError {
-            val status = favoritesRepository.get(id).getOrThrow()
-            val toggled = !status
-            favoritesRepository.set(id, toggled).getOrThrow()
-            toggled
-        }
-        synchronizeWithRemote(ignoreInterval = true)
+        val status = favoritesRepository.get(id).bind()
+        val toggled = !status
+        favoritesRepository.set(id, toggled).bind()
+        synchronizeWithRemote(ignoreInterval = true).bind()
         toggled
     }
 }

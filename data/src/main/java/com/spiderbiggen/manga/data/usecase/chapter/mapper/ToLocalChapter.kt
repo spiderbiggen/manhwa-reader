@@ -4,7 +4,7 @@ import com.spiderbiggen.manga.data.source.local.room.model.chapter.LocalChapterE
 import com.spiderbiggen.manga.data.source.remote.model.ChapterEntity
 import com.spiderbiggen.manga.domain.model.id.MangaId
 
-class ToLocalChapterUseCase {
+class ToLocalChapter {
     operator fun invoke(id: MangaId, entity: ChapterEntity) = LocalChapterEntity(
         id = entity.id,
         mangaId = id,

@@ -1,15 +1,13 @@
 package com.spiderbiggen.manga.data.usecase.remote
 
 import arrow.core.Either
-import arrow.core.NonEmptyList
+import arrow.core.getOrElse
 import arrow.core.raise.either
 import arrow.fx.coroutines.parMapOrAccumulate
 import arrow.fx.coroutines.parZip
 import com.spiderbiggen.manga.data.source.local.repository.FavoritesRepository
 import com.spiderbiggen.manga.data.source.local.repository.MangaRepository
-import com.spiderbiggen.manga.data.usecase.appError
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
@@ -31,17 +29,14 @@ class UpdateStateFromRemoteImpl(
             { updateMangaFromRemote(skipCache).bind() },
         ) { _, _ -> }
 
-        val outOfDataMangas = appError {
-            mangaRepository.getMangaForUpdate().getOrThrow()
-        }
+        val outOfDataMangas = mangaRepository.getMangaForUpdate().bind()
 
-        val favoriteMangas = outOfDataMangas.filter { favoritesRepository.get(it).getOrDefault(false) }
+        val favoriteMangas = outOfDataMangas.filter { favoritesRepository.get(it).getOrElse { false } }
 
         favoriteMangas.parMapOrAccumulate { mangaId ->
             updateChaptersFromRemote(mangaId, skipCache).bind()
         }.onLeft { errors ->
             raise(if (errors.size == 1) errors.first() else AppError.Multi(errors))
         }
-        Unit
     }
 }

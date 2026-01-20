@@ -15,18 +15,16 @@ class LogoutImpl(
     private val authenticationRepository: AuthenticationRepository,
 ) : Logout {
     override suspend fun invoke(): Either<AppError, Unit> = either {
-        appError {
-            val token = authenticationRepository.getRefreshToken() ?: return@appError
+        val token = authenticationRepository.getRefreshToken().bind() ?: return@either
 
-            val body = RefreshTokenBody(token.token)
+        val body = RefreshTokenBody(token.token)
 
-            try {
-                authService.logout(body)
-            } catch (e: Exception) {
-                Log.w("LogoutImpl", "failed to logout", e)
-            }
-
-            authenticationRepository.clear()
+        try {
+            authService.logout(body)
+        } catch (e: Exception) {
+            Log.w("LogoutImpl", "failed to logout", e)
         }
+
+        authenticationRepository.clear().bind()
     }
 }

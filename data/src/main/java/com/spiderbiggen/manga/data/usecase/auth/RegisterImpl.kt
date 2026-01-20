@@ -25,15 +25,15 @@ class RegisterImpl(
 
     private suspend fun updateSession(username: String, email: String?, password: String): Either<AppError, Unit> =
         either {
-            appError {
+            val session = appError {
                 val body = RegisterBody(
                     username = username,
                     email = email?.takeUnless { it.isEmpty() },
                     password = password,
                 )
-                val session = authService.register(body)
-                authenticationRepository.saveTokens(session.accessToken, session.refreshToken)
-                resetBearerToken()
+                authService.register(body)
             }
+            authenticationRepository.saveTokens(session.accessToken, session.refreshToken).bind()
+            resetBearerToken()
         }
 }

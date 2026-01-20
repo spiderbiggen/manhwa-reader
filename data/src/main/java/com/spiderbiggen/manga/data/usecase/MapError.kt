@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.data.usecase
 
+import android.database.sqlite.SQLiteException
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.raise.Raise
@@ -25,6 +26,9 @@ fun Throwable.toAppError(): AppError = when (this) {
     is ClientRequestException -> handleResponseException(this.response.status, this)
 
     is ServerResponseException -> handleResponseException(this.response.status, this)
+
+    // Database
+    is SQLiteException -> AppError.Database.Io(this)
 
     // Connections
     is SocketTimeoutException -> AppError.Remote.NoConnection(this)

@@ -13,9 +13,7 @@ import kotlinx.collections.immutable.toImmutableList
 class GetChapterImagesImpl(private val baseUrl: String, private val chapterRepository: ChapterRepository) :
     GetChapterImages {
     override suspend fun invoke(id: ChapterId): Either<AppError, ImmutableList<String>> = either {
-        val count = appError {
-            chapterRepository.getChapterImages(id).getOrThrow()
-        }
+        val count = chapterRepository.getChapterImages(id).bind()
         (0 until count)
             .map { index -> "$baseUrl/api/v1/chapters/${id.value}/images/$index" }
             .toImmutableList()

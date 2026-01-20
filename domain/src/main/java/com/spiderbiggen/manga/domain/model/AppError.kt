@@ -30,6 +30,10 @@ sealed class AppError(override val message: String? = null, override val cause: 
         data class Io(override val cause: Throwable) : Remote(cause.message, cause)
     }
 
+    sealed class Database(message: String? = null, cause: Throwable? = null) : AppError(message, cause) {
+        data class Io(override val cause: Throwable) : Database(cause.message, cause)
+    }
+
     sealed class Auth(message: String? = null, cause: Throwable? = null) : Remote(message, cause) {
         data class Unauthorized(override val cause: Throwable? = null) : Auth("Unauthorized", cause)
         data class Forbidden(override val cause: Throwable? = null) : Auth("Forbidden", cause)

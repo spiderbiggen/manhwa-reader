@@ -23,16 +23,16 @@ class LoginImpl(
     override suspend fun invoke(usernameOrEmail: String, password: String): Either<AppError, User> = either {
         updateSession(usernameOrEmail, password).bind()
         val user = fetchCurrentUser().bind()
-        synchronizeWithRemote(true)
+        synchronizeWithRemote(true).bind()
         user
     }
 
     private suspend fun updateSession(usernameOrEmail: String, password: String): Either<AppError, Unit> = either {
-        appError {
+        val session = appError {
             val body = LoginBody(usernameOrEmail, password)
-            val session = authService.login(body)
-            authenticationRepository.saveTokens(session.accessToken, session.refreshToken)
-            resetBearerToken()
+            authService.login(body)
         }
+        authenticationRepository.saveTokens(session.accessToken, session.refreshToken).bind()
+        resetBearerToken()
     }
 }

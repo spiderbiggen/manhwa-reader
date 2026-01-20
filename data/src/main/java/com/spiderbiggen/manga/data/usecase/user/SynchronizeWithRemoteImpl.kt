@@ -12,7 +12,6 @@ import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.model.user.FavoriteState
 import com.spiderbiggen.manga.data.source.remote.model.user.ReadState
 import com.spiderbiggen.manga.data.usecase.appError
-import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
@@ -38,9 +37,8 @@ class SynchronizeWithRemoteImpl(
     override suspend operator fun invoke(ignoreInterval: Boolean): Either<AppError, Unit> = either {
         if (mutex.isLocked) return@either
         mutex.withLock {
-            val authenticationState = appError {
-                authenticationRepository.getAuthenticatedState()
-            } ?: return@withLock
+            val authenticationState = authenticationRepository.getAuthenticatedState().bind()
+                ?: return@withLock
 
             val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
             val currentTime = now()
@@ -50,38 +48,38 @@ class SynchronizeWithRemoteImpl(
                 { syncFavorites(lastSyncTime) },
                 { syncReads(lastSyncTime) },
             ) { _, _ -> }
-            appError { authenticationRepository.saveLastSynchronizationTime(currentTime) }
+            authenticationRepository.saveLastSynchronizationTime(currentTime).bind()
         }
     }
 
     private suspend fun Raise<AppError>.syncFavorites(lastSyncTime: Instant) {
-        val favorites = favoritesRepository.get(lastSyncTime).either().bind()
+        val favorites = favoritesRepository.get(lastSyncTime).bind()
         if (favorites.isNotEmpty()) {
             favorites
                 .chunked(100) { chunk -> chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) } }
                 .parMapOrAccumulate { chunk ->
                     val receivedUpdates = appError { userService.updateFavorites(chunk) }.sanitizeKeys()
-                    favoritesRepository.set(receivedUpdates).either().bind()
+                    favoritesRepository.set(receivedUpdates).bind()
                 }.onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
         }
 
         val receivedFavoriteUpdates = appError { userService.getFavorites(lastSyncTime) }.sanitizeKeys()
-        favoritesRepository.set(receivedFavoriteUpdates).either().bind()
+        favoritesRepository.set(receivedFavoriteUpdates).bind()
     }
 
     private suspend fun Raise<AppError>.syncReads(lastSyncTime: Instant) {
-        val reads = readRepository.get(lastSyncTime).either().bind()
+        val reads = readRepository.get(lastSyncTime).bind()
         if (reads.isNotEmpty()) {
             reads
                 .chunked(100) { chunk -> chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) } }
                 .parMapOrAccumulate { chunk ->
                     val receivedUpdates = appError { userService.updateReadProgress(chunk) }.sanitizeKeys()
-                    readRepository.set(receivedUpdates).either().bind()
+                    readRepository.set(receivedUpdates).bind()
                 }.onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
         }
 
         val receivedReadUpdates = appError { userService.getReadProgress(lastSyncTime) }.sanitizeKeys()
-        readRepository.set(receivedReadUpdates).either().bind()
+        readRepository.set(receivedReadUpdates).bind()
     }
 
     @JvmName("sanitizeKeysManga")

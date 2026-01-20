@@ -14,9 +14,7 @@ class SetReadImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : SetRead {
     override suspend fun invoke(id: ChapterId, isRead: Boolean): Either<AppError, Unit> = either {
-        appError {
-            readRepository.set(id, isRead).getOrThrow()
-        }
-        synchronizeWithRemote(ignoreInterval = true)
+        readRepository.set(id, isRead).bind()
+        synchronizeWithRemote(ignoreInterval = true).bind()
     }
 }

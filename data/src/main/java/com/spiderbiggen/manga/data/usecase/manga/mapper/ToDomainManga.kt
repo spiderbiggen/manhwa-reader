@@ -4,7 +4,7 @@ import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntit
 import com.spiderbiggen.manga.data.source.remote.model.MangaEntity
 import com.spiderbiggen.manga.domain.model.manga.Manga
 
-class ToDomainMangaUseCase {
+class ToDomainManga {
     operator fun invoke(entity: MangaEntity): Manga = Manga(
         source = entity.source,
         id = entity.id,

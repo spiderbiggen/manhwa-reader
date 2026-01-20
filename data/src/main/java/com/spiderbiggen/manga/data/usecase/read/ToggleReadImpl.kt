@@ -14,13 +14,10 @@ class ToggleReadImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : ToggleRead {
     override suspend fun invoke(id: ChapterId): Either<AppError, Boolean> = either {
-        val toggled = appError {
-            val status = readRepository.get(id).getOrThrow()
-            val toggled = !status
-            readRepository.set(id, toggled).getOrThrow()
-            toggled
-        }
-        synchronizeWithRemote(ignoreInterval = true)
+        val status = readRepository.get(id).bind()
+        val toggled = !status
+        readRepository.set(id, toggled).bind()
+        synchronizeWithRemote(ignoreInterval = true).bind()
         toggled
     }
 }

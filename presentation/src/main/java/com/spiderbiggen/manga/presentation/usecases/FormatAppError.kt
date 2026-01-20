@@ -16,6 +16,8 @@ class FormatAppError {
 
         is AppError.Remote.Conflict -> "Conflict"
 
+        is AppError.Database.Io -> "Database error: ${error.cause.message ?: "Unknown error"}"
+
         is AppError.Auth.Unauthorized -> "Not authorized"
 
         is AppError.Auth.Forbidden -> "Access forbidden"
@@ -23,8 +25,8 @@ class FormatAppError {
         is AppError.Auth.Invalid -> "Invalid data"
 
         is AppError.Multi -> {
-            val firstError = error.errors.firstOrNull()?.let { invoke(it) }
-            "${error.errors.size} error(s), first is ${firstError ?: "unknown"}"
+            val firstError = error.errors.firstOrNull().let { invoke(it) }
+            "${error.errors.size} error(s), first is $firstError"
         }
 
         is AppError.Unknown -> "Internal error: ${error.cause.message ?: "Unknown error"}"

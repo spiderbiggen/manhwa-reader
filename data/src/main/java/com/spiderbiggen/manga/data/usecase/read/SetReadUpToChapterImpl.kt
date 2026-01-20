@@ -16,10 +16,8 @@ class SetReadUpToChapterImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : SetReadUpToChapter {
     override suspend fun invoke(id: ChapterId): Either<AppError, Unit> = either {
-        appError {
-            val ids = chapterRepository.getPreviousChapters(id).getOrThrow()
-            readRepository.set(ids, true).getOrThrow()
-        }
-        synchronizeWithRemote(ignoreInterval = true)
+        val ids = chapterRepository.getPreviousChapters(id).bind()
+        readRepository.set(ids, true).bind()
+        synchronizeWithRemote(ignoreInterval = true).bind()
     }
 }

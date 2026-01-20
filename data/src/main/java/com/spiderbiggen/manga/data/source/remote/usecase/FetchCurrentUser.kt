@@ -15,11 +15,9 @@ class FetchCurrentUser(
     private val mapUserEntity: MapUserEntity,
 ) {
     suspend operator fun invoke(): Either<AppError, User> = either {
-        appError {
-            val userEntity = userService.getSelf()
-            val user = mapUserEntity(userEntity)
-            authenticationRepository.saveUser(userEntity)
-            user
-        }
+        val userEntity = appError { userService.getSelf() }
+        val user = mapUserEntity(userEntity)
+        val _ = authenticationRepository.saveUser(userEntity).bind()
+        user
     }
 }

@@ -39,12 +39,10 @@ class UpdateAvatarImpl(
         Unit
     }
 
-    private fun processBitmap(avatar: URI): Either<AppError, ByteArray> = either {
-        appError {
-            val uri = avatar.toString().toUri()
-            val bitmap = resizeBitmap(uri).getOrThrow()
-            encodeBitmap(bitmap).getOrThrow()
-        }
+    private suspend fun processBitmap(avatar: URI): Either<AppError, ByteArray> = either {
+        val uri = avatar.toString().toUri()
+        val bitmap = resizeBitmap(uri).bind()
+        encodeBitmap(bitmap).bind()
     }
 
     private suspend fun uploadAvatar(avatar: ByteArray): Either<AppError, Unit> = either {
