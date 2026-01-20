@@ -85,6 +85,7 @@ android {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 }
 

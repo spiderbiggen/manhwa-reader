@@ -17,7 +17,7 @@ java {
 kotlin {
     compilerOptions {
         jvmTarget = JvmTarget.JVM_17
-        optIn.add("kotlin.time.ExperimentalTime")
+        freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 }
 

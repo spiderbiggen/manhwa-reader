@@ -58,6 +58,7 @@ class AuthenticationRepository(context: Context) {
         }
     }
 
+    @IgnorableReturnValue
     suspend fun saveUser(user: UserEntity): UserEntity? {
         val result = dataStore.updateData { data ->
             (data as? AuthenticationPreferences.Authenticated)
