@@ -1,11 +1,11 @@
 package com.spiderbiggen.manga.domain.model
 
-import java.io.IOException
+import arrow.core.NonEmptyList
 
 sealed class AppError(override val message: String? = null, override val cause: Throwable? = null) :
     Throwable(message, cause) {
 
-    data class Multi(val errors: Collection<AppError>) :
+    data class Multi(val errors: NonEmptyList<AppError>) :
         AppError(
             message = errors.joinToString("\n") { it.message ?: it.toString() },
         )

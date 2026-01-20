@@ -1,7 +1,10 @@
 package com.spiderbiggen.manga.data.usecase.user
 
 import arrow.core.Either
+import arrow.core.raise.Raise
 import arrow.core.raise.either
+import arrow.fx.coroutines.parMapOrAccumulate
+import arrow.fx.coroutines.parZip
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.local.repository.FavoritesRepository
 import com.spiderbiggen.manga.data.source.local.repository.ReadRepository
@@ -9,6 +12,7 @@ import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.model.user.FavoriteState
 import com.spiderbiggen.manga.data.source.remote.model.user.ReadState
 import com.spiderbiggen.manga.data.usecase.appError
+import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
@@ -16,9 +20,6 @@ import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import kotlin.time.Clock.System.now
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -36,53 +37,51 @@ class SynchronizeWithRemoteImpl(
 
     override suspend operator fun invoke(ignoreInterval: Boolean): Either<AppError, Unit> = either {
         if (mutex.isLocked) return@either
-        appError {
-            coroutineScope {
-                mutex.withLock {
-                    val authenticationState = authenticationRepository.getAuthenticatedState() ?: return@coroutineScope
+        mutex.withLock {
+            val authenticationState = appError {
+                authenticationRepository.getAuthenticatedState()
+            } ?: return@withLock
 
-                    val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
-                    val currentTime = now()
-                    if (!ignoreInterval && currentTime - lastSyncTime < 15.minutes) return@withLock
+            val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
+            val currentTime = now()
+            if (!ignoreInterval && currentTime - lastSyncTime < MIN_SYNC_INTERVAL) return@withLock
 
-                    val deferredFavorites = async { userService.syncFavorites(lastSyncTime) }
-                    val deferredReads = async { userService.syncReads(lastSyncTime) }
-
-                    awaitAll(deferredFavorites, deferredReads)
-                    authenticationRepository.saveLastSynchronizationTime(currentTime)
-                }
-            }
+            parZip(
+                { syncFavorites(lastSyncTime) },
+                { syncReads(lastSyncTime) },
+            ) { _, _ -> }
+            appError { authenticationRepository.saveLastSynchronizationTime(currentTime) }
         }
     }
 
-    private suspend fun UserService.syncFavorites(lastSyncTime: Instant) = coroutineScope {
-        favoritesRepository.get(lastSyncTime).getOrThrow()
-            .chunked(100) { chunk -> chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) } }
-            .map {
-                async {
-                    val receivedUpdates = updateFavorites(it).sanitizeKeys()
-                    favoritesRepository.set(receivedUpdates).getOrThrow()
-                }
-            }
-            .awaitAll()
+    private suspend fun Raise<AppError>.syncFavorites(lastSyncTime: Instant) {
+        val favorites = favoritesRepository.get(lastSyncTime).either().bind()
+        if (favorites.isNotEmpty()) {
+            favorites
+                .chunked(100) { chunk -> chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) } }
+                .parMapOrAccumulate { chunk ->
+                    val receivedUpdates = appError { userService.updateFavorites(chunk) }.sanitizeKeys()
+                    favoritesRepository.set(receivedUpdates).either().bind()
+                }.onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
+        }
 
-        val receivedFavoriteUpdates = getFavorites(lastSyncTime).sanitizeKeys()
-        favoritesRepository.set(receivedFavoriteUpdates).getOrThrow()
+        val receivedFavoriteUpdates = appError { userService.getFavorites(lastSyncTime) }.sanitizeKeys()
+        favoritesRepository.set(receivedFavoriteUpdates).either().bind()
     }
 
-    private suspend fun UserService.syncReads(lastSyncTime: Instant) = coroutineScope {
-        readRepository.get(lastSyncTime).getOrThrow()
-            .chunked(100) { chunk -> chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) } }
-            .map {
-                async {
-                    val receivedUpdates = updateReadProgress(it).sanitizeKeys()
-                    readRepository.set(receivedUpdates).getOrThrow()
-                }
-            }
-            .awaitAll()
+    private suspend fun Raise<AppError>.syncReads(lastSyncTime: Instant) {
+        val reads = readRepository.get(lastSyncTime).either().bind()
+        if (reads.isNotEmpty()) {
+            reads
+                .chunked(100) { chunk -> chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) } }
+                .parMapOrAccumulate { chunk ->
+                    val receivedUpdates = appError { userService.updateReadProgress(chunk) }.sanitizeKeys()
+                    readRepository.set(receivedUpdates).either().bind()
+                }.onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
+        }
 
-        val receivedReadUpdates = getReadProgress(lastSyncTime).sanitizeKeys()
-        readRepository.set(receivedReadUpdates).getOrThrow()
+        val receivedReadUpdates = appError { userService.getReadProgress(lastSyncTime) }.sanitizeKeys()
+        readRepository.set(receivedReadUpdates).either().bind()
     }
 
     @JvmName("sanitizeKeysManga")
