@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
 import androidx.lifecycle.ViewModel
-import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.chapter.GetOverviewChapters
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetManga
@@ -79,7 +78,7 @@ class MangaChapterListViewModel(
 
     private suspend fun updateChapters(skipCache: Boolean) {
         _isRefreshing.emit(true)
-        updateChaptersFromRemote(mangaId, skipCache = skipCache).leftOrElse {
+        updateChaptersFromRemote(mangaId, skipCache = skipCache).onLeft {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         yield()

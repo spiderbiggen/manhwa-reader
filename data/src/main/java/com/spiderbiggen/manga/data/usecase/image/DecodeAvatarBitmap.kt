@@ -5,12 +5,18 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Build
+import arrow.core.Either
+import arrow.core.raise.either
+import com.spiderbiggen.manga.data.usecase.appError
+import com.spiderbiggen.manga.domain.model.AppError
 import java.io.ByteArrayOutputStream
 import kotlin.math.roundToInt
 
 class DecodeAvatarBitmap(private val contentResolver: ContentResolver) {
-    operator fun invoke(uri: Uri): Result<Bitmap> = runCatching {
-        contentResolver.decodeSimpleImage(uri)
+    operator fun invoke(uri: Uri): Either<AppError, Bitmap> = either {
+        appError {
+            contentResolver.decodeSimpleImage(uri)
+        }
     }
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {

@@ -1,4 +1,3 @@
-import org.gradle.jvm.toolchain.internal.JavaToolchain
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -54,6 +53,11 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
+    // Arrow
+    implementation(platform(libs.arrow.bom))
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
+
     implementation(libs.androidX.core.ktx)
     implementation(libs.androidX.appcompat)
 
@@ -93,6 +97,11 @@ dependencies {
     // Coil
     implementation(platform(libs.coil.bom))
     implementation(libs.coil)
+
+    // Arrow
+    implementation(platform(libs.arrow.bom))
+    implementation(libs.arrow.core)
+    implementation(libs.arrow.fx.coroutines)
 
     // Testing
     testImplementation(libs.junit)

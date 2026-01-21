@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.data.source.remote
 
 import android.content.Context
+import arrow.core.getOrElse
 import com.spiderbiggen.manga.data.BuildConfig
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody
@@ -78,7 +79,7 @@ class HttpClientFactory(
             install(Auth) {
                 bearer {
                     loadTokens {
-                        authRepository.getAuthenticatedState()?.let {
+                        authRepository.getAuthenticatedState().getOrElse { null }?.let {
                             BearerTokens(it.accessToken.token, it.refreshToken.token)
                         }
                     }
@@ -93,7 +94,7 @@ class HttpClientFactory(
                             authRepository.saveTokens(
                                 sessionResponse.accessToken,
                                 sessionResponse.refreshToken,
-                            )
+                            ).getOrElse { null }
                             BearerTokens(
                                 accessToken = sessionResponse.accessToken.token,
                                 refreshToken = sessionResponse.refreshToken.token,

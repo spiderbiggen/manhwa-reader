@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.ui.profile.state
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
@@ -60,7 +59,7 @@ class ProfileViewModel(
 
     private suspend fun synchronize() {
         isRefreshing.emit(true)
-        synchronizeWithRemote(ignoreInterval = false).leftOrElse {
+        synchronizeWithRemote(ignoreInterval = false).onLeft {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         yield()

@@ -3,7 +3,7 @@ package com.spiderbiggen.manga.data.usecase.manga.mapper
 import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntity
 import com.spiderbiggen.manga.data.source.remote.model.MangaEntity
 
-class ToLocalMangaUseCase {
+class ToLocalManga {
     operator fun invoke(entity: MangaEntity) = LocalMangaEntity(
         id = entity.id,
         source = entity.source,

@@ -1,12 +1,11 @@
 package com.spiderbiggen.manga.data.usecase.read
 
+import arrow.core.Either
+import arrow.core.raise.either
 import com.spiderbiggen.manga.data.source.local.repository.ChapterRepository
 import com.spiderbiggen.manga.data.source.local.repository.ReadRepository
-import com.spiderbiggen.manga.data.usecase.either
 import com.spiderbiggen.manga.domain.model.AppError
-import com.spiderbiggen.manga.domain.model.Either
 import com.spiderbiggen.manga.domain.model.id.ChapterId
-import com.spiderbiggen.manga.domain.model.onLeft
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 
@@ -15,11 +14,9 @@ class SetReadUpToChapterImpl(
     private val readRepository: ReadRepository,
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : SetReadUpToChapter {
-    override suspend fun invoke(id: ChapterId): Either<Unit, AppError> = markChaptersAsRead(id).either()
-        .onLeft { synchronizeWithRemote(ignoreInterval = true) }
-
-    private suspend fun markChaptersAsRead(id: ChapterId) = runCatching {
-        val ids = chapterRepository.getPreviousChapters(id).getOrThrow()
-        readRepository.set(ids, true).getOrThrow()
+    override suspend fun invoke(id: ChapterId): Either<AppError, Unit> = either {
+        val ids = chapterRepository.getPreviousChapters(id).bind()
+        readRepository.set(ids, true).bind()
+        synchronizeWithRemote(ignoreInterval = true).bind()
     }
 }

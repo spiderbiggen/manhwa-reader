@@ -1,8 +1,8 @@
 package com.spiderbiggen.manga.data.di
 
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
-import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteChaptersUseCase
-import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteMangaUseCase
+import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteChapters
+import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteManga
 import com.spiderbiggen.manga.data.source.remote.usecase.ResetBearerToken
 import com.spiderbiggen.manga.data.usecase.auth.LoginImpl
 import com.spiderbiggen.manga.data.usecase.auth.LogoutImpl
@@ -13,8 +13,8 @@ import com.spiderbiggen.manga.data.usecase.chapter.GetChapterImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetOverviewChaptersImpl
 import com.spiderbiggen.manga.data.usecase.chapter.GetSurroundingChaptersImpl
 import com.spiderbiggen.manga.data.usecase.chapter.UpdateChaptersFromRemoteImpl
-import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapterUseCase
-import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToLocalChapterUseCase
+import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToDomainChapter
+import com.spiderbiggen.manga.data.usecase.chapter.mapper.ToLocalChapter
 import com.spiderbiggen.manga.data.usecase.favorite.IsFavoriteFlowImpl
 import com.spiderbiggen.manga.data.usecase.favorite.ToggleFavoriteImpl
 import com.spiderbiggen.manga.data.usecase.image.DecodeAvatarBitmap
@@ -22,8 +22,8 @@ import com.spiderbiggen.manga.data.usecase.image.EncodeBitmap
 import com.spiderbiggen.manga.data.usecase.manga.GetMangaImpl
 import com.spiderbiggen.manga.data.usecase.manga.GetOverviewMangaImpl
 import com.spiderbiggen.manga.data.usecase.manga.UpdateMangaFromRemoteImpl
-import com.spiderbiggen.manga.data.usecase.manga.mapper.ToDomainMangaUseCase
-import com.spiderbiggen.manga.data.usecase.manga.mapper.ToLocalMangaUseCase
+import com.spiderbiggen.manga.data.usecase.manga.mapper.ToDomainManga
+import com.spiderbiggen.manga.data.usecase.manga.mapper.ToLocalManga
 import com.spiderbiggen.manga.data.usecase.read.IsReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
@@ -92,12 +92,12 @@ val useCaseModule = module {
     factoryOf(::ResetBearerToken)
     factory { MapUserEntity(get(named<BaseUrl>())) }
     factoryOf(::RefreshAccessToken)
-    factoryOf(::GetRemoteChaptersUseCase)
-    factoryOf(::GetRemoteMangaUseCase)
-    factoryOf(::ToLocalChapterUseCase)
-    factoryOf(::ToDomainChapterUseCase)
-    factoryOf(::ToLocalMangaUseCase)
-    factoryOf(::ToDomainMangaUseCase)
+    factoryOf(::GetRemoteChapters)
+    factoryOf(::GetRemoteManga)
+    factoryOf(::ToLocalChapter)
+    factoryOf(::ToDomainChapter)
+    factoryOf(::ToLocalManga)
+    factoryOf(::ToDomainManga)
     factoryOf(::DecodeAvatarBitmap)
     factoryOf(::EncodeBitmap)
 }

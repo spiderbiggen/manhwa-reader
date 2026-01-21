@@ -3,7 +3,6 @@ package com.spiderbiggen.manga.presentation.ui.profile.overview
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.spiderbiggen.manga.domain.model.leftOrElse
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
 import com.spiderbiggen.manga.domain.usecase.user.GetLastSynchronizationTime
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
@@ -91,14 +90,14 @@ class ProfileOverviewViewModel(
     }
 
     fun handleLogout() = suspended {
-        logout().leftOrElse {
+        logout().onLeft {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
     }
 
     fun handleChangeAvatar(uri: Uri) = suspended {
         isChangingAvatar.emit(true)
-        updateAvatar(URI.create(uri.toString())).leftOrElse {
+        updateAvatar(URI.create(uri.toString())).onLeft {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         isChangingAvatar.emit(false)
@@ -106,7 +105,7 @@ class ProfileOverviewViewModel(
 
     fun handleSync() = suspended {
         isSynchronizing.emit(true)
-        synchronizeWithRemote(ignoreInterval = true).leftOrElse {
+        synchronizeWithRemote(ignoreInterval = true).onLeft {
             _snackbarFlow.emit(SnackbarData(formatAppError(it)))
         }
         isSynchronizing.emit(false)
