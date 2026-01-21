@@ -30,6 +30,7 @@ fun EntryProviderScope<NavKey>.mangaChapterReaderDestination(
     floatAnimationSpec: FiniteAnimationSpec<Float>,
     onBackClick: () -> Unit,
     onChapterClick: (MangaId, ChapterId) -> Unit,
+    metadata: Map<String, Any> = emptyMap(),
 ) {
     entry<MangaChapterReaderRoute>(
         metadata = NavDisplay.transitionSpec {
@@ -38,7 +39,7 @@ fun EntryProviderScope<NavKey>.mangaChapterReaderDestination(
             EnterTransition.None togetherWith fadeOut(floatAnimationSpec)
         } + NavDisplay.predictivePopTransitionSpec {
             EnterTransition.None togetherWith fadeOut(floatAnimationSpec)
-        },
+        } + metadata,
     ) { key ->
         MangaChapterReaderScreen(
             viewModel = koinViewModel(parameters = { parametersOf(key) }),

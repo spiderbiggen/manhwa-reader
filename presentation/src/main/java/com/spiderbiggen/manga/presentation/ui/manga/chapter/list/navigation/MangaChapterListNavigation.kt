@@ -22,8 +22,9 @@ fun EntryProviderScope<NavKey>.mangaChapterListDestination(
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onChapterClick: (MangaId, ChapterId) -> Unit,
+    metadata: Map<String, Any> = emptyMap(),
 ) {
-    entry<MangaChapterListRoute> { key ->
+    entry<MangaChapterListRoute>(metadata = metadata) { key ->
         ChapterListScreen(
             viewModel = koinViewModel(parameters = { parametersOf(key) }),
             snackbarHostState = snackbarHostState,
