@@ -18,8 +18,9 @@ fun EntryProviderScope<NavKey>.mangaListDestination(
     profileState: State<ProfileState>,
     onProfileClick: () -> Unit,
     onMangaClick: (MangaId) -> Unit,
+    metadata: Map<String, Any> = emptyMap(),
 ) {
-    entry<MangaListRoute> {
+    entry<MangaListRoute>(metadata = metadata) {
         MangaListScreen(
             viewModel = koinViewModel(),
             snackbarHostState = snackbarHostState,
