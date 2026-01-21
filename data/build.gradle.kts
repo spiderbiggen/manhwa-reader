@@ -1,4 +1,3 @@
-import org.gradle.jvm.toolchain.internal.JavaToolchain
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
