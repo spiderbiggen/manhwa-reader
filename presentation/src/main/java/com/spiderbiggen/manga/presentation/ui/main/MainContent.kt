@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
@@ -24,6 +25,7 @@ import com.spiderbiggen.manga.presentation.components.StatusBarProtection
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.MangaListRoute
 import com.spiderbiggen.manga.presentation.ui.manga.navigation.manga
+import com.spiderbiggen.manga.presentation.ui.manga.navigation.rememberMangaSceneStrategy
 import com.spiderbiggen.manga.presentation.ui.profile.navigation.profile
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileViewModel
@@ -54,10 +56,11 @@ fun MainContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: State<ProfileState>) {
     val backStack = rememberNavBackStack(MangaListRoute)
+    val mangaSceneStrategy = rememberMangaSceneStrategy()
     val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
     val floatAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
     NavDisplay(
@@ -69,6 +72,7 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
             rememberViewModelStoreNavEntryDecorator(),
         ),
         backStack = backStack,
+        sceneStrategy = mangaSceneStrategy,
         transitionSpec = {
             slideInHorizontally(animationSpec) { it } togetherWith slideOutHorizontally(animationSpec) { -it / 2 }
         },

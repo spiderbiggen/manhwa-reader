@@ -25,6 +25,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -59,6 +62,7 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
+import com.spiderbiggen.manga.presentation.components.LocalBackButtonVisibility
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.plus
@@ -122,10 +126,13 @@ fun ChapterListScreen(
     val readyState = state as? MangaChapterScreenState.Ready
     Scaffold(
         topBar = {
+            val showBackButton = LocalBackButtonVisibility.current
             MangaTopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                    if (showBackButton) {
+                        IconButton(onClick = onBackClick) {
+                            Icon(painterResource(R.drawable.arrow_back), "Back")
+                        }
                     }
                 },
                 title = { Text(readyState?.title ?: "Manga") },
@@ -175,7 +182,7 @@ fun ChapterListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
@@ -184,12 +191,17 @@ private fun ChaptersList(
     contentPadding: PaddingValues = PaddingValues(0.dp),
     lazyListState: LazyListState = rememberLazyListState(),
 ) {
+    val adaptiveInfo = currentWindowAdaptiveInfo(true)
+    val isSinglePane = calculatePaneScaffoldDirective(adaptiveInfo).maxHorizontalPartitions == 1
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp),
+        contentPadding = contentPadding + PaddingValues(
+            start = 8.dp,
+            end = if (isSinglePane) 8.dp else 0.dp,
+        ),
         verticalArrangement = Arrangement.spacedBy(1.dp),
     ) {
         section(

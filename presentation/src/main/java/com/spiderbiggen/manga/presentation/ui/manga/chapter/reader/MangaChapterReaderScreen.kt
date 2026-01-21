@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,6 +25,7 @@ import androidx.compose.material3.BottomAppBarScrollBehavior
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
+import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
@@ -34,6 +36,9 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -77,6 +82,7 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
+import com.spiderbiggen.manga.presentation.components.LocalBackButtonVisibility
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.bottomappbar.scrollAgainstContentBehavior
@@ -87,6 +93,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
+@OptIn(ExperimentalMaterial3AdaptiveApi::class)
 @Composable
 fun MangaChapterReaderScreen(
     viewModel: MangaChapterReaderViewModel = koinViewModel(),
@@ -95,16 +102,20 @@ fun MangaChapterReaderScreen(
     onChapterClick: (ChapterId) -> Unit,
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val adaptiveInfo = currentWindowAdaptiveInfo()
+    val isSinglePane = calculatePaneScaffoldDirective(adaptiveInfo).maxHorizontalPartitions == 1
 
-    MangaChapterReaderScreen(
-        snackbarHostState = snackbarHostState,
-        state = state,
-        onBackClick = onBackClick,
-        onChapterClick = onChapterClick,
-        toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
-        setRead = dropUnlessStarted { viewModel.updateReadState() },
-        setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
-    )
+    CompositionLocalProvider(LocalBackButtonVisibility provides isSinglePane) {
+        MangaChapterReaderScreen(
+            snackbarHostState = snackbarHostState,
+            state = state,
+            onBackClick = onBackClick,
+            onChapterClick = onChapterClick,
+            toggleFavorite = dropUnlessStarted { viewModel.toggleFavorite() },
+            setRead = dropUnlessStarted { viewModel.updateReadState() },
+            setReadUpToHere = dropUnlessStarted { viewModel.setReadUpToHere() },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
@@ -133,10 +144,13 @@ fun MangaChapterReaderScreen(
             .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection)
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
         topBar = {
+            val showBackButton = LocalBackButtonVisibility.current
             MangaTopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
-                        Icon(painterResource(arrow_back), "Back")
+                    if (showBackButton) {
+                        IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
+                            Icon(painterResource(arrow_back), "Back")
+                        }
                     }
                 },
                 title = { Text(text = state.title.orEmpty()) },
@@ -314,48 +328,76 @@ private fun ReaderBottomBar(
     setReadUpToHere: () -> Unit = {},
     scrollBehavior: BottomAppBarScrollBehavior? = null,
 ) {
-    FlexibleBottomAppBar(
-        scrollBehavior = scrollBehavior,
-    ) {
-        IconButton(onClick = toggleFavorite) {
-            FavoriteToggle(
-                isFavorite = screenState?.isFavorite == true,
-                favoriteContentColor = LocalContentColor.current,
-            )
+    val showBackButton = LocalBackButtonVisibility.current
+    if (showBackButton) {
+        FlexibleBottomAppBar(
+            scrollBehavior = scrollBehavior,
+        ) {
+            BottomBarContent(screenState, toggleFavorite, setReadUpToHere, toChapterClicked)
         }
-        when (screenState?.isRead) {
-            true ->
-                Box(
-                    modifier = Modifier.minimumInteractiveComponentSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Icon(painterResource(R.drawable.book_read), contentDescription = "Read")
-                }
-
-            else -> {
-                IconButton(onClick = setReadUpToHere) {
-                    Icon(
-                        painter = painterResource(R.drawable.book_unread),
-                        contentDescription = "Mark as read",
-                    )
-                }
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            HorizontalFloatingToolbar(
+                expanded = true,
+                scrollBehavior = scrollBehavior,
+            ) {
+                BottomBarContent(screenState, toggleFavorite, setReadUpToHere, toChapterClicked)
             }
         }
+    }
+}
 
-        val previousChapterId = screenState?.surrounding?.previous
-        IconButton(
-            onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
-            enabled = previousChapterId != null,
-        ) {
-            Icon(painterResource(arrow_back), null)
+@Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun RowScope.BottomBarContent(
+    screenState: MangaChapterReaderScreenState.Ready?,
+    toggleFavorite: () -> Unit,
+    setReadUpToHere: () -> Unit,
+    toChapterClicked: (ChapterId) -> Unit,
+) {
+    IconButton(onClick = toggleFavorite) {
+        FavoriteToggle(
+            isFavorite = screenState?.isFavorite == true,
+            favoriteContentColor = LocalContentColor.current,
+        )
+    }
+    when (screenState?.isRead) {
+        true ->
+            Box(
+                modifier = Modifier.minimumInteractiveComponentSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(painterResource(R.drawable.book_read), contentDescription = "Read")
+            }
+
+        else -> {
+            IconButton(onClick = setReadUpToHere) {
+                Icon(
+                    painter = painterResource(R.drawable.book_unread),
+                    contentDescription = "Mark as read",
+                )
+            }
         }
-        val nextChapterId = screenState?.surrounding?.next
-        IconButton(
-            onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
-            enabled = nextChapterId != null,
-        ) {
-            Icon(painterResource(R.drawable.arrow_forward), null)
-        }
+    }
+
+    val previousChapterId = screenState?.surrounding?.previous
+    IconButton(
+        onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
+        enabled = previousChapterId != null,
+    ) {
+        Icon(painterResource(arrow_back), null)
+    }
+    val nextChapterId = screenState?.surrounding?.next
+    IconButton(
+        onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
+        enabled = nextChapterId != null,
+    ) {
+        Icon(painterResource(R.drawable.arrow_forward), null)
     }
 }
 
@@ -378,7 +420,7 @@ private class ReadyTracker(private val lazyListState: LazyListState) {
     }
 }
 
-@OptIn(ExperimentalCoilApi::class)
+@OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3AdaptiveApi::class)
 @PreviewLightDark
 @PreviewDynamicColors
 @PreviewFontScale
@@ -411,7 +453,11 @@ fun PreviewReadChapterScreen(
 
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
-            MangaChapterReaderScreen(state = data)
+            val adaptiveInfo = currentWindowAdaptiveInfo()
+            val isSinglePane = calculatePaneScaffoldDirective(adaptiveInfo).maxHorizontalPartitions == 1
+            CompositionLocalProvider(LocalBackButtonVisibility provides isSinglePane) {
+                MangaChapterReaderScreen(state = data)
+            }
         }
     }
 }
