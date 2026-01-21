@@ -6,7 +6,6 @@ import arrow.core.raise.either
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.AuthService
 import com.spiderbiggen.manga.data.source.remote.model.auth.RefreshTokenBody
-import com.spiderbiggen.manga.data.usecase.appError
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.usecase.auth.Logout
 

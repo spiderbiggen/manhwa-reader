@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.data.usecase.auth
 
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.raise.either
 import com.spiderbiggen.manga.data.source.local.repository.AuthenticationRepository
 import com.spiderbiggen.manga.data.source.remote.AuthService

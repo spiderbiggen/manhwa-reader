@@ -4,7 +4,6 @@ import arrow.core.Either
 import arrow.core.raise.either
 import com.spiderbiggen.manga.data.source.local.repository.ChapterRepository
 import com.spiderbiggen.manga.data.source.local.repository.ReadRepository
-import com.spiderbiggen.manga.data.usecase.appError
 import com.spiderbiggen.manga.domain.model.AppError
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.usecase.read.SetReadUpToChapter
