@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-
 plugins {
     id("java-library")
     alias(libs.plugins.kotlin.jvm)
@@ -9,14 +7,9 @@ plugins {
     id("com.android.lint")
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
-}
-
 kotlin {
+    jvmToolchain(17)
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_17
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
 }
