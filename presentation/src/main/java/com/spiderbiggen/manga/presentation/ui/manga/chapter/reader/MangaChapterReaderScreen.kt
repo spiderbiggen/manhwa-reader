@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
-import android.content.res.Configuration
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateTo
@@ -17,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -58,10 +58,11 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.Wallpapers
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -245,24 +246,27 @@ private fun ReadyImagesOverview(
         LazyColumn(
             contentPadding = padding,
             state = lazyListState,
-            modifier = Modifier.drawWithContent {
-                drawContent()
-                if (overlayAlpha.value > 0.01f) {
-                    drawRect(backgroundColor, alpha = overlayAlpha.value)
-                }
-            },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .drawWithContent {
+                    drawContent()
+                    if (overlayAlpha.value > 0.01f) {
+                        drawRect(backgroundColor, alpha = overlayAlpha.value)
+                    }
+                },
         ) {
             items(state.images, key = { it }) {
                 ListImage(
                     model = it,
-                    modifier = Modifier.fillParentMaxWidth(),
+                    modifier = Modifier.widthIn(max = 560.dp),
                     onSuccess = readyTracker::onContentReady,
                 )
             }
             item(key = "setReadEffect", contentType = "EndEffect") {
                 Column(
                     Modifier
-                        .fillMaxWidth()
+                        .widthIn(max = 560.dp)
                         .padding(horizontal = 16.dp, vertical = 64.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -343,7 +347,6 @@ private fun ReaderBottomBar(
         ) {
             HorizontalFloatingToolbar(
                 expanded = true,
-                scrollBehavior = scrollBehavior,
             ) {
                 BottomBarContent(screenState, toggleFavorite, setReadUpToHere, toChapterClicked)
             }
@@ -420,10 +423,13 @@ private class ReadyTracker(private val lazyListState: LazyListState) {
 }
 
 @OptIn(ExperimentalCoilApi::class, ExperimentalMaterial3AdaptiveApi::class)
-@Preview("Light")
-@Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+// @Preview("Light")
+// @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+// @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+// @Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@PreviewDynamicColors
+@PreviewLightDark
+@PreviewScreenSizes
 @Composable
 fun PreviewReadChapterScreen(
     @PreviewParameter(ReadChapterScreenProvider::class) data: MangaChapterReaderScreenState.Ready,
