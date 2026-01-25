@@ -198,10 +198,7 @@ private fun ChaptersList(
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(
-            start = 8.dp,
-            end = if (isSinglePane) 8.dp else 0.dp,
-        ),
+        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(1.dp),
     ) {
         section(

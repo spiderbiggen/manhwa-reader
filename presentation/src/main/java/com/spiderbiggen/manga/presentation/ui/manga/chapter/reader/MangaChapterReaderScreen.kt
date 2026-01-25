@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -246,24 +247,27 @@ private fun ReadyImagesOverview(
         LazyColumn(
             contentPadding = padding,
             state = lazyListState,
-            modifier = Modifier.drawWithContent {
-                drawContent()
-                if (overlayAlpha.value > 0.01f) {
-                    drawRect(backgroundColor, alpha = overlayAlpha.value)
-                }
-            },
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .drawWithContent {
+                    drawContent()
+                    if (overlayAlpha.value > 0.01f) {
+                        drawRect(backgroundColor, alpha = overlayAlpha.value)
+                    }
+                },
         ) {
             items(state.images, key = { it }) {
                 ListImage(
                     model = it,
-                    modifier = Modifier.fillParentMaxWidth(),
+                    modifier = Modifier.widthIn(max = 560.dp),
                     onSuccess = readyTracker::onContentReady,
                 )
             }
             item(key = "setReadEffect", contentType = "EndEffect") {
                 Column(
                     Modifier
-                        .fillMaxWidth()
+                        .widthIn(max = 560.dp)
                         .padding(horizontal = 16.dp, vertical = 64.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -344,7 +348,6 @@ private fun ReaderBottomBar(
         ) {
             HorizontalFloatingToolbar(
                 expanded = true,
-                scrollBehavior = scrollBehavior,
             ) {
                 BottomBarContent(screenState, toggleFavorite, setReadUpToHere, toChapterClicked)
             }
