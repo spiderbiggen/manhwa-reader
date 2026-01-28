@@ -11,9 +11,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -25,9 +26,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.adaptive.ExperimentalMaterial3AdaptiveApi
-import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
-import androidx.compose.material3.adaptive.layout.calculatePaneScaffoldDirective
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -117,10 +115,10 @@ fun ChapterListScreen(
     onToggleFavorite: () -> Unit = {},
     onChapterClick: (ChapterId) -> Unit = {},
 ) {
-    val lazyListState = rememberLazyListState()
-    val isManuallyScrolled = rememberManualScrollState(lazyListState)
+    val lazyGridState = rememberLazyGridState()
+    val isManuallyScrolled = rememberManualScrollState(lazyGridState)
     val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
-        canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+        canScroll = { lazyGridState.canScrollForward || lazyGridState.canScrollBackward },
     )
 
     val readyState = state as? MangaChapterScreenState.Ready
@@ -164,11 +162,11 @@ fun ChapterListScreen(
                 ) {
                     StickyTopEffect(
                         items = state.chapters,
-                        listState = lazyListState,
+                        gridState = lazyGridState,
                         isManuallyScrolled = isManuallyScrolled,
                     )
                     ChaptersList(
-                        lazyListState = lazyListState,
+                        lazyGridState = lazyGridState,
                         chapters = state.chapters,
                         modifier = Modifier
                             .fillMaxSize()
@@ -182,24 +180,25 @@ fun ChapterListScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3AdaptiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
     onChapterClick: (ChapterId) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(0.dp),
-    lazyListState: LazyListState = rememberLazyListState(),
+    lazyGridState: LazyGridState = rememberLazyGridState(),
 ) {
-    val adaptiveInfo = currentWindowAdaptiveInfo(true)
-    val isSinglePane = calculatePaneScaffoldDirective(adaptiveInfo).maxHorizontalPartitions == 1
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
-    LazyColumn(
+
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 360.dp),
         modifier = modifier,
-        state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(1.dp),
+        state = lazyGridState,
+        contentPadding = contentPadding + PaddingValues(all = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         section(
             header = null,

@@ -2,13 +2,15 @@ package com.spiderbiggen.manga.presentation.ui.manga.list.components
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.TextAutoSize
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -21,11 +23,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.Wallpapers
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.dropUnlessStarted
@@ -45,15 +47,14 @@ import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 
-private val COVER_SIZE = DpSize(width = 60.dp, height = 80.dp)
-
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun MangaRow(
+fun MangaGridItem(
     manga: MangaViewData,
     onMangaClick: (MangaId) -> Unit,
     onMangaFavoriteToggleClick: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
-    shape: Shape = CardDefaults.elevatedShape,
+    shape: Shape = MaterialTheme.shapes.medium,
     coverSizeResolver: ConstraintsSizeResolver = rememberConstraintsSizeResolver(),
 ) {
     ReadStateCard(
@@ -62,72 +63,59 @@ fun MangaRow(
         shape = shape,
         modifier = modifier,
     ) {
-        Row(
-            Modifier.padding(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            CoverImage(manga.coverImage, sizeResolver = coverSizeResolver)
-            MangaInfoColumn(manga, Modifier.weight(1f))
-            IconRow(manga, onMangaFavoriteToggleClick)
-        }
-    }
-}
-
-@Composable
-private fun CoverImage(
-    url: String,
-    modifier: Modifier = Modifier,
-    sizeResolver: ConstraintsSizeResolver = rememberConstraintsSizeResolver(),
-) {
-    val asyncPainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalPlatformContext.current)
-            .data(url)
-            .size(sizeResolver)
-            .build(),
-    )
-    Image(
-        painter = asyncPainter,
-        contentDescription = null,
-        contentScale = ContentScale.Crop,
-        modifier = modifier
-            .size(COVER_SIZE)
-            .clip(MaterialTheme.shapes.small)
-            .then(sizeResolver),
-    )
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
-    Row {
-        IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
-            FavoriteToggle(manga.isFavorite)
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
-    Column(
-        modifier,
-        verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
-    ) {
-        val titleStyle = when {
-            manga.isRead -> MaterialTheme.typography.titleLarge
-            else -> MaterialTheme.typography.titleLargeEmphasized
-        }
-        Text(
-            text = manga.title,
-            style = titleStyle,
-            autoSize = TextAutoSize.StepBased(maxFontSize = titleStyle.fontSize),
-        )
-        manga.updatedAt?.let {
-            Text(
-                text = it,
-                style = MaterialTheme.typography.bodyMedium,
-            )
+        Column {
+            Box {
+                val asyncPainter = rememberAsyncImagePainter(
+                    model = ImageRequest.Builder(LocalPlatformContext.current)
+                        .data(manga.coverImage)
+                        .size(coverSizeResolver)
+                        .build(),
+                )
+                Image(
+                    painter = asyncPainter,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(3f / 4f)
+                        .clip(shape)
+                        .then(coverSizeResolver),
+                )
+                IconButton(
+                    onClick = dropUnlessStarted { onMangaFavoriteToggleClick(manga.id) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .background(MaterialTheme.colorScheme.surfaceBright, shape = RoundedCornerShape(percent = 50)),
+                ) {
+                    FavoriteToggle(isFavorite = manga.isFavorite)
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                val titleStyle = when {
+                    manga.isRead -> MaterialTheme.typography.titleMedium
+                    else -> MaterialTheme.typography.titleMediumEmphasized
+                }
+                Text(
+                    text = manga.title,
+                    style = titleStyle,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    autoSize = TextAutoSize.StepBased(maxFontSize = titleStyle.fontSize),
+                )
+                manga.updatedAt?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
     }
 }
@@ -146,13 +134,16 @@ fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaVie
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
             Surface {
-                MangaRow(
-                    manga = state,
-                    onMangaClick = {},
-                    onMangaFavoriteToggleClick = {},
-                    modifier = Modifier.padding(16.dp),
-                    shape = CardDefaults.elevatedShape,
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                    MangaGridItem(
+                        manga = state,
+                        onMangaClick = {},
+                        onMangaFavoriteToggleClick = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                    )
+                }
             }
         }
     }

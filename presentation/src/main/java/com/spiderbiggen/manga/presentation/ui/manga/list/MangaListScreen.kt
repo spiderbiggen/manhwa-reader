@@ -3,11 +3,13 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -63,7 +65,7 @@ import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
+import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaGridItem
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
@@ -148,10 +150,10 @@ private fun MangaOverviewContent(
     onMangaClick: (MangaId) -> Unit = {},
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
-    val lazyListState = rememberLazyListState()
-    val manuallyScrolled = rememberManualScrollState(lazyListState)
+    val lazyGridState = rememberLazyGridState()
+    val manuallyScrolled = rememberManualScrollState(lazyGridState)
     val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
-        canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+        canScroll = { lazyGridState.canScrollForward || lazyGridState.canScrollBackward },
     )
 
     Scaffold(
@@ -210,7 +212,7 @@ private fun MangaOverviewContent(
         ) {
             StickyTopEffect(
                 items = manga,
-                listState = lazyListState,
+                gridState = lazyGridState,
                 isManuallyScrolled = manuallyScrolled,
             )
             MangaList(
@@ -219,7 +221,7 @@ private fun MangaOverviewContent(
                     .fillMaxSize()
                     .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                 contentPadding = contentPadding,
-                lazyListState = lazyListState,
+                lazyGridState = lazyGridState,
                 onMangaClick = onMangaClick,
                 onFavoriteClick = onFavoriteClick,
             )
@@ -249,11 +251,11 @@ private fun MangaList(
     mangas: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    lazyListState: LazyListState = rememberLazyListState(),
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     onMangaClick: (MangaId) -> Unit = {},
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
-    val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 
     val coverSizeResolver = rememberConstraintsSizeResolver()
@@ -261,17 +263,19 @@ private fun MangaList(
         mangas.flatMap { (_, mangas) -> mangas.map { it.coverImage } }.toImmutableList()
     }
     PreloadImages(
-        lazyListState = lazyListState,
+        lazyGridState = lazyGridState,
         items = allImages,
         sizeResolver = { coverSizeResolver },
         preloadCount = 15,
     )
 
-    LazyColumn(
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 160.dp),
         modifier = modifier,
-        state = lazyListState,
+        state = lazyGridState,
         contentPadding = contentPadding + PaddingValues(all = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         mangas.forEach { (key, values) ->
             section(
@@ -279,15 +283,17 @@ private fun MangaList(
                 items = values,
                 key = { it.id.value },
             ) { item, shape ->
-                MangaRow(
+                MangaGridItem(
                     manga = item,
                     onMangaClick = onMangaClick,
                     onMangaFavoriteToggleClick = onFavoriteClick,
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = floatAnimationSpec,
-                        placementSpec = intOffsetAnimateSpec,
-                        fadeOutSpec = floatAnimationSpec,
-                    ),
+                    modifier = Modifier
+                        .animateItem(
+                            fadeInSpec = floatAnimationSpec,
+                            placementSpec = intOffsetAnimateSpec,
+                            fadeOutSpec = floatAnimationSpec,
+                        )
+                        .fillMaxHeight(),
                     shape = shape,
                     coverSizeResolver = coverSizeResolver,
                 )
@@ -302,6 +308,7 @@ private fun MangaList(
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
+@OptIn(ExperimentalCoilApi::class)
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
@@ -322,27 +329,10 @@ fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state
 class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData> {
     override val values
         get() = sequenceOf(
-            MangaScreenData(),
             MangaScreenData(
                 state = MangaScreenState.Ready(
                     manga = persistentListOf(
                         "header" to MangaProvider.values.toImmutableList(),
-                    ),
-                ),
-            ),
-            MangaScreenData(
-                filterUnread = true,
-                state = MangaScreenState.Ready(
-                    manga = persistentListOf(
-                        "header" to MangaProvider.values.filter { !it.isRead }.toImmutableList(),
-                    ),
-                ),
-            ),
-            MangaScreenData(
-                filterFavorites = true,
-                state = MangaScreenState.Ready(
-                    manga = persistentListOf(
-                        "header" to MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
                     ),
                 ),
             ),
