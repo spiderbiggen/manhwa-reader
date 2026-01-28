@@ -3,6 +3,10 @@ package com.spiderbiggen.manga.presentation.components
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
+import androidx.compose.foundation.lazy.grid.LazyGridScope
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
@@ -69,6 +73,33 @@ inline fun <T> LazyListScope.sectionItems(
             }
         },
     )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+inline fun <T> LazyGridScope.section(
+    header: String?,
+    items: ImmutableList<T>,
+    noinline key: ((item: T) -> Any)? = null,
+    noinline contentType: (item: T) -> Any? = { null },
+    crossinline content: @Composable LazyGridItemScope.(T, Shape) -> Unit,
+) {
+    header?.let {
+        item(contentType = SectionHeaderContentType, span = { GridItemSpan(maxLineSpan) }) {
+            Text(
+                it,
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(vertical = 4.dp),
+            )
+        }
+    }
+
+    items(
+        items = items,
+        key = key,
+        contentType = contentType,
+    ) { item ->
+        content(item, MaterialTheme.shapes.medium)
+    }
 }
 
 @Composable
