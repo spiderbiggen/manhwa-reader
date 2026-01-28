@@ -52,12 +52,6 @@ android {
                 "proguard-rules.pro",
             )
         }
-        create("staging") {
-            initWith(getByName("release"))
-            applicationIdSuffix = ".staging"
-            versionNameSuffix = "-staging"
-            matchingFallbacks += listOf("release", "debug")
-        }
         debug {
             isDebuggable = true
             isMinifyEnabled = false
