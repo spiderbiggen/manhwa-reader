@@ -12,6 +12,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
+        targetSdk = 36
         minSdk = 26
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -85,7 +86,6 @@ dependencies {
     implementation(libs.androidX.compose.material3)
     implementation(libs.androidX.compose.material3.adaptive)
     implementation(libs.androidX.compose.material3.adaptive.layout)
-    implementation(libs.androidX.compose.material3.adaptive.navigation)
     implementation(libs.androidX.compose.material3.adaptive.navigation3)
     implementation(libs.androidX.compose.animation)
     implementation(libs.androidX.compose.foundation)
