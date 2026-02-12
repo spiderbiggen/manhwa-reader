@@ -91,10 +91,10 @@ class HttpClientFactory(
                         }
                         if (response.status == HttpStatusCode.OK) {
                             val sessionResponse: SessionResponse = response.body()
-                            authRepository.saveTokens(
+                            val _ = authRepository.saveTokens(
                                 sessionResponse.accessToken,
                                 sessionResponse.refreshToken,
-                            ).getOrElse { null }
+                            )
                             BearerTokens(
                                 accessToken = sessionResponse.accessToken.token,
                                 refreshToken = sessionResponse.refreshToken.token,

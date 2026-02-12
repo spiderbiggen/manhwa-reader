@@ -31,12 +31,11 @@ class UpdateAvatarImpl(
     private val encodeBitmap: EncodeBitmap,
 ) : UpdateAvatar {
     override suspend fun invoke(avatar: URI): Either<AppError, Unit> = either {
-        refreshAccessToken().bind()
+        val _ = refreshAccessToken().bind()
         val processedAvatar = processBitmap(avatar).bind()
         uploadAvatar(processedAvatar).bind()
         invalidateAvatarCache().bind()
-        fetchCurrentUser().bind()
-        Unit
+        val _ = fetchCurrentUser().bind()
     }
 
     private suspend fun processBitmap(avatar: URI): Either<AppError, ByteArray> = either {
