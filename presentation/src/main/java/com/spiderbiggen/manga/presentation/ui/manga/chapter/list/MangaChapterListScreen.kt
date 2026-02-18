@@ -46,6 +46,7 @@ import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -306,6 +307,7 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
 @PreviewLightDark
 @PreviewDynamicColors
 @PreviewFontScale
+@PreviewScreenSizes
 @Composable
 fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: MangaChapterScreenState) {
     val isRefreshing = remember { mutableStateOf(false) }

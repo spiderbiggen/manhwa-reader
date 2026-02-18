@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
-import android.content.res.Configuration
 import androidx.compose.animation.core.AnimationState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateTo
@@ -53,10 +52,12 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import androidx.compose.ui.tooling.preview.Wallpapers
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -378,10 +379,10 @@ private class ReadyTracker(private val lazyListState: LazyListState) {
 }
 
 @OptIn(ExperimentalCoilApi::class)
-@Preview("Light")
-@Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@PreviewLightDark
+@PreviewDynamicColors
+@PreviewFontScale
+@PreviewScreenSizes
 @Composable
 fun PreviewReadChapterScreen(
     @PreviewParameter(ReadChapterScreenProvider::class) data: MangaChapterReaderScreenState.Ready,

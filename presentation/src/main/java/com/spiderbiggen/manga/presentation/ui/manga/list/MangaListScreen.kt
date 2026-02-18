@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
-import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,13 +33,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewFontScale
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.annotation.ExperimentalCoilApi
+import coil3.asImage
 import coil3.compose.AsyncImage
+import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.LocalAsyncImagePreviewHandler
+import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberConstraintsSizeResolver
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
@@ -287,17 +296,26 @@ private fun MangaList(
     }
 }
 
-@Preview("Light")
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
+@OptIn(ExperimentalCoilApi::class)
+@PreviewLightDark
+@PreviewDynamicColors
+@PreviewFontScale
+@PreviewScreenSizes
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
+    val context = LocalPlatformContext.current
+    val previewHandler = AsyncImagePreviewHandler {
+        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
+    }
     val snackbarHostState = remember { SnackbarHostState() }
-    MangaReaderTheme {
-        MangaListScreen(
-            state = state,
-            snackbarHostState = snackbarHostState,
-            profileState = ProfileState.Unauthenticated,
-        )
+    CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
+        MangaReaderTheme {
+            MangaListScreen(
+                state = state,
+                snackbarHostState = snackbarHostState,
+                profileState = ProfileState.Unauthenticated,
+            )
+        }
     }
 }
 
