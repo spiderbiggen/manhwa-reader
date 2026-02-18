@@ -1,12 +1,13 @@
 package com.spiderbiggen.manga
 
+import android.graphics.Color.TRANSPARENT
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.core.view.WindowCompat
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
@@ -20,8 +21,9 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            navigationBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT),
+        )
 
         // Obtain the FirebaseAnalytics instance.
         analytics = Firebase.analytics
