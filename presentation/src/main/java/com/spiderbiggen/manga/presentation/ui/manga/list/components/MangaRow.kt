@@ -40,6 +40,7 @@ import coil3.compose.rememberConstraintsSizeResolver
 import coil3.request.ImageRequest
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
@@ -101,7 +102,7 @@ private fun CoverImage(
 private fun IconRow(manga: MangaViewData, onClickFavorite: (MangaId) -> Unit) {
     Row {
         IconButton(onClick = dropUnlessStarted { onClickFavorite(manga.id) }) {
-            _root_ide_package_.com.spiderbiggen.manga.presentation.components.FavoriteToggle(manga.isFavorite)
+            FavoriteToggle(manga.isFavorite)
         }
     }
 }
