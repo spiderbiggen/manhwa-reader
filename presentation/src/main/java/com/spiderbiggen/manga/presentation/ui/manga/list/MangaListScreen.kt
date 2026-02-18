@@ -263,7 +263,7 @@ private fun MangaList(
     PreloadImages(
         lazyListState = lazyListState,
         items = allImages,
-        sizeResolver = coverSizeResolver,
+        sizeResolver = { coverSizeResolver },
         preloadCount = 15,
     )
 

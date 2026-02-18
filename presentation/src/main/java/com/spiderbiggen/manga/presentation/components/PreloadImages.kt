@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.components
 
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -29,7 +30,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 @Composable
 fun PreloadImages(lazyListState: LazyListState, items: ImmutableList<String>, preloadCount: Int = 5) {
     val width = LocalWindowInfo.current.containerSize.width
-    val sizeResolver = remember(width) {
+    val sizeResolver by rememberUpdatedState {
         SizeResolver(
             Size(
                 width = width,
@@ -44,7 +45,40 @@ fun PreloadImages(lazyListState: LazyListState, items: ImmutableList<String>, pr
 fun PreloadImages(
     lazyListState: LazyListState,
     items: ImmutableList<String>,
-    sizeResolver: SizeResolver,
+    sizeResolver: () -> SizeResolver,
+    preloadCount: Int = 5,
+) {
+    PreloadImagesInternal(
+        firstVisibleItemIndex = { lazyListState.firstVisibleItemIndex },
+        visibleItemsCount = { lazyListState.layoutInfo.visibleItemsInfo.size },
+        items = items,
+        sizeResolver = sizeResolver,
+        preloadCount = preloadCount,
+    )
+}
+
+@Composable
+fun PreloadImages(
+    lazyGridState: LazyGridState,
+    items: ImmutableList<String>,
+    sizeResolver: () -> SizeResolver,
+    preloadCount: Int = 5,
+) {
+    PreloadImagesInternal(
+        firstVisibleItemIndex = { lazyGridState.firstVisibleItemIndex },
+        visibleItemsCount = { lazyGridState.layoutInfo.visibleItemsInfo.size },
+        items = items,
+        sizeResolver = sizeResolver,
+        preloadCount = preloadCount,
+    )
+}
+
+@Composable
+private fun PreloadImagesInternal(
+    firstVisibleItemIndex: () -> Int,
+    visibleItemsCount: () -> Int,
+    items: ImmutableList<String>,
+    sizeResolver: () -> SizeResolver,
     preloadCount: Int = 5,
 ) {
     if (items.isEmpty() || preloadCount <= 0) return
@@ -56,10 +90,11 @@ fun PreloadImages(
         onDispose { state.disposeActive() }
     }
 
-    val range by remember(lazyListState, items, preloadCount) {
+    val range by remember(items, preloadCount) {
         derivedStateOf {
             computeWindow(
-                lazyListState = lazyListState,
+                firstVisibleItemIndex = firstVisibleItemIndex(),
+                visibleItemsCount = visibleItemsCount(),
                 lastIndex = items.lastIndex,
                 preloadCount = preloadCount,
             )
@@ -67,14 +102,13 @@ fun PreloadImages(
     }
 
     val context = LocalContext.current
-    val latestSizeResolver = rememberUpdatedState(sizeResolver)
     LaunchedEffect(context, items, range) {
         val imageLoader = SingletonImageLoader.get(context)
         state.preload(
             context = context,
             desiredIndices = range,
             imageLoader = imageLoader,
-            sizeResolver = latestSizeResolver.value,
+            sizeResolver = sizeResolver(),
         )
 
         state.disposeUndesired(range)
@@ -181,12 +215,14 @@ private class PreloadImagesState(
     }
 }
 
-private fun computeWindow(lazyListState: LazyListState, lastIndex: Int, preloadCount: Int): IntRange {
-    val firstVisible = lazyListState.firstVisibleItemIndex
-    val visibleCount = lazyListState.layoutInfo.visibleItemsInfo.size
-
-    val startIndex = (firstVisible - preloadCount).coerceIn(0, lastIndex)
-    val endIndex = (firstVisible + visibleCount + preloadCount - 1).coerceIn(startIndex, lastIndex)
+private fun computeWindow(
+    firstVisibleItemIndex: Int,
+    visibleItemsCount: Int,
+    lastIndex: Int,
+    preloadCount: Int,
+): IntRange {
+    val startIndex = (firstVisibleItemIndex - preloadCount).coerceIn(0, lastIndex)
+    val endIndex = (firstVisibleItemIndex + visibleItemsCount + preloadCount - 1).coerceIn(startIndex, lastIndex)
 
     return startIndex..endIndex
 }
