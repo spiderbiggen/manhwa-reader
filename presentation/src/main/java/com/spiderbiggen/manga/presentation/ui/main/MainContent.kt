@@ -3,11 +3,7 @@ package com.spiderbiggen.manga.presentation.ui.main
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -17,10 +13,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -28,6 +20,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import com.spiderbiggen.manga.presentation.components.StatusBarProtection
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.MangaListRoute
 import com.spiderbiggen.manga.presentation.ui.manga.navigation.manga
@@ -52,7 +45,6 @@ fun MainContent() {
         }
     }
 
-    // TrackNavigationSideEffect(navController)
     MangaReaderTheme {
         MangaNavHost(
             snackbarHostState = snackbarHostState,
@@ -100,33 +92,4 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
             )
         },
     )
-}
-
-@Composable
-private fun StatusBarProtection(
-    color: Color = MaterialTheme.colorScheme.background,
-    heightProvider: () -> Float = calculateGradientHeight(),
-) {
-    Canvas(Modifier.fillMaxSize()) {
-        val calculatedHeight = heightProvider()
-        val gradient = Brush.verticalGradient(
-            colors = listOf(
-                color.copy(alpha = 1f),
-                Color.Transparent,
-            ),
-            startY = 0f,
-            endY = calculatedHeight,
-        )
-        drawRect(
-            brush = gradient,
-            size = Size(size.width, calculatedHeight),
-        )
-    }
-}
-
-@Composable
-fun calculateGradientHeight(): () -> Float {
-    val statusBars = WindowInsets.statusBars
-    val density = LocalDensity.current
-    return { statusBars.getTop(density).toFloat() }
 }
