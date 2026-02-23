@@ -1,12 +1,13 @@
+import com.android.build.api.dsl.LibraryExtension
+
 plugins {
     alias(libs.plugins.android.library)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.ksp)
     id("manga.spotless")
 }
 
-android {
+configure<LibraryExtension> {
     namespace = "com.spiderbiggen.manga.data"
     compileSdk = 36
 

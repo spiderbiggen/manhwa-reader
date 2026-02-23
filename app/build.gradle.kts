@@ -1,8 +1,8 @@
+import com.android.build.api.dsl.ApplicationExtension
 import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlinX.compose)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.google.gms.google.services)
@@ -10,9 +10,14 @@ plugins {
     id("manga.spotless")
 }
 
-android {
+extensions.configure<ApplicationExtension> {
     namespace = "com.spiderbiggen.manga"
     compileSdk = 36
+
+    buildFeatures {
+        compose = true
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "com.spiderbiggen.manga"
@@ -20,8 +25,6 @@ android {
         targetSdk = 36
         versionCode = 71
         versionName = "1.25.0"
-
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     signingConfigs {
@@ -42,17 +45,16 @@ android {
         }
     }
 
-    buildTypes {
-        release {
+    buildTypes.apply {
+        getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            signingConfig = signingConfigs.getByName("release")
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
         }
-        debug {
+        getByName("debug") {
             isDebuggable = true
             isMinifyEnabled = false
             isShrinkResources = false
@@ -60,10 +62,7 @@ android {
             versionNameSuffix = "-debug"
         }
     }
-    buildFeatures {
-        compose = true
-        buildConfig = true
-    }
+
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
