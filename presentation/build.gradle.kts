@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlinX.compose)
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.ksp)
+    alias(libs.plugins.stability.analyzer)
     id("manga.spotless")
 }
 

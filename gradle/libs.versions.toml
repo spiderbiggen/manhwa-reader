@@ -25,10 +25,11 @@ kotlinx-serialization = "1.10.0"
 ksp = "2.3.6"
 ktor = "3.4.0"
 lifecycle = "2.10.0"
-nav3Core = "1.1.0-alpha04"
 lifecycleViewmodelNav3 = "2.10.0"
+nav3Core = "1.1.0-alpha04"
 room = "2.8.4"
 spotless-plugin-gradle = "8.2.1"
+stability-analyser = "0.7.0"
 sonarqube = "7.2.2.6593"
 
 [libraries]
@@ -139,6 +140,8 @@ kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinX-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
+stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyser" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+
 
 [bundles]
