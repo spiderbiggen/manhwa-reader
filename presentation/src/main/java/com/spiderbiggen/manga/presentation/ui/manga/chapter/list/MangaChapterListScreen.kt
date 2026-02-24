@@ -158,7 +158,7 @@ fun ChapterListScreen(
                     StickyTopEffect(
                         items = state.chapters,
                         listState = lazyListState,
-                        isManuallyScrolled = isManuallyScrolled,
+                        isManuallyScrolled = { isManuallyScrolled.value },
                     )
                     ChaptersList(
                         lazyListState = lazyListState,

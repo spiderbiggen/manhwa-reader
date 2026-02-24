@@ -33,7 +33,7 @@ fun <T : Any> UpdatedListButton(
     listState: LazyListState,
     modifier: Modifier = Modifier,
     scope: CoroutineScope = rememberCoroutineScope(),
-    manuallyScrolled: Boolean = rememberManualScrollState(listState),
+    manuallyScrolled: Boolean,
 ) {
     val previousFirstId = rememberSaveable { mutableStateOf<String?>(null) }
     var isUpdated: Boolean by rememberSaveable { mutableStateOf(false) }
