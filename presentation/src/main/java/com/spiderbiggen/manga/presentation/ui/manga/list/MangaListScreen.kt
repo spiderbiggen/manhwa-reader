@@ -54,11 +54,9 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.PreloadImages
-import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
-import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
@@ -149,7 +147,6 @@ private fun MangaOverviewContent(
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val manuallyScrolled = rememberManualScrollState(lazyListState)
     val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
     )
@@ -208,11 +205,6 @@ private fun MangaOverviewContent(
                 (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit).toInt()
             },
         ) {
-            StickyTopEffect(
-                items = manga,
-                listState = lazyListState,
-                isManuallyScrolled = { manuallyScrolled.value },
-            )
             MangaList(
                 mangas = manga,
                 modifier = Modifier

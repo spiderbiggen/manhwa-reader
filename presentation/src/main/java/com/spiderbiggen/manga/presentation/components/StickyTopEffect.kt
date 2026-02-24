@@ -20,7 +20,7 @@ fun rememberManualScrollState(listState: LazyListState): State<Boolean> = rememb
 )
 
 @Composable
-private fun rememberManualScrollState(
+fun rememberManualScrollState(
     interactionSource: InteractionSource,
     hasItems: () -> Boolean,
     canScrollBackwards: () -> Boolean,
@@ -40,7 +40,7 @@ private fun rememberManualScrollState(
 fun <T> StickyTopEffect(items: ImmutableCollection<T>, listState: LazyListState, isManuallyScrolled: () -> Boolean) {
     LaunchedEffect(items) {
         if (!isManuallyScrolled()) {
-            // scroll to top to ensure latest added element gets visible
+            // scroll to top to ensure latest added element becomes visible
             listState.animateScrollToItem(0)
         }
     }
