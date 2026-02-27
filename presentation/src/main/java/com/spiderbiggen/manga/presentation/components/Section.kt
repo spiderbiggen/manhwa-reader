@@ -38,7 +38,7 @@ inline fun <T> LazyListScope.section(
         item(contentType = SectionHeaderContentType) {
             Text(
                 it,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleLargeEmphasized,
                 modifier = Modifier.padding(vertical = 4.dp),
             )
         }
