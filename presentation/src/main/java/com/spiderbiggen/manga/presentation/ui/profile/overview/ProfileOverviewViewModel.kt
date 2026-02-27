@@ -54,7 +54,7 @@ class ProfileOverviewViewModel(
 
     private val isChangingAvatar: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val isSynchronizing: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _snackbarFlow = MutableSharedFlow<SnackbarData>(1)
+    private val _snackbarFlow = MutableSharedFlow<SnackbarData>()
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 

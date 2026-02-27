@@ -39,7 +39,7 @@ class MangaChapterListViewModel(
     private val _isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing
 
-    private val _snackbarFlow = MutableSharedFlow<SnackbarData>(1)
+    private val _snackbarFlow = MutableSharedFlow<SnackbarData>()
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
