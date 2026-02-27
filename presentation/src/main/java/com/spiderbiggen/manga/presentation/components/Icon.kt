@@ -7,7 +7,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.MaterialTheme.LocalMotionScheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -79,7 +78,7 @@ fun FavoriteToggle(
     val scale by animateFloatAsState(
         targetValue = if (isFavorite) 1f else 0f,
         label = "scale",
-        animationSpec = LocalMotionScheme.current.fastSpatialSpec(),
+        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
     )
     val painter = rememberVectorPainter(
         defaultWidth = 24.dp,
