@@ -33,7 +33,6 @@ class MangaListViewModel(
     private val savedStateHandle: SavedStateHandle,
     private val getOverviewManga: GetOverviewManga,
     private val mapMangaListViewData: MapMangaListViewData,
-    private val splitMangasIntoSections: SplitMangasIntoSections,
     private val toggleFavorite: ToggleFavorite,
     private val updateStateFromRemote: UpdateStateFromRemote,
     private val formatAppError: FormatAppError,
@@ -81,19 +80,17 @@ class MangaListViewModel(
         favoriteSelectedFlow,
     ) { manga, unreadSelected, favoriteSelected ->
         val timeZone = TimeZone.currentSystemDefault()
-        val filteredManga = manga
+        val viewData = manga
             .asSequence()
             .filter { !unreadSelected || !it.isRead }
             .filter { !favoriteSelected || it.isFavorite }
-        val groupedManga = splitMangasIntoSections(filteredManga, timeZone)
-        val viewData = groupedManga.map { (key, values) ->
-            key to values.map { mapMangaListViewData(it, timeZone) }.toImmutableList()
-        }
+            .map { mapMangaListViewData(it, timeZone) }
+            .toImmutableList()
 
         MangaScreenData(
             filterFavorites = favoriteSelected,
             filterUnread = unreadSelected,
-            state = MangaScreenState.Ready(manga = viewData.toImmutableList()),
+            state = MangaScreenState.Ready(viewData),
         )
     }
 

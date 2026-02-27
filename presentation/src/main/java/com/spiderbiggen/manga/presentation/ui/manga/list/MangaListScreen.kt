@@ -135,7 +135,7 @@ fun MangaListScreen(
 private fun MangaOverviewContent(
     snackbarHostState: SnackbarHostState,
     profileState: ProfileState,
-    manga: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
+    manga: ImmutableList<MangaViewData>,
     isUnreadSelected: Boolean,
     isFavoritesSelected: Boolean,
     isRefreshing: Boolean,
@@ -182,7 +182,9 @@ private fun MangaOverviewContent(
                         }
                     }
                 },
-                title = { Text("Manga") },
+                title = {
+                    // TODO search top app bar
+                },
                 actions = {
                     if (BuildConfig.DEBUG) {
                         IconButton(onClick = { throw Throwable() }) {
@@ -238,7 +240,7 @@ private fun CheckedFilterChip(selected: Boolean, label: @Composable () -> Unit, 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaList(
-    mangas: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>,
+    mangas: ImmutableList<MangaViewData>,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
@@ -250,7 +252,7 @@ private fun MangaList(
 
     val coverSizeResolver = rememberConstraintsSizeResolver()
     val allImages = remember(mangas) {
-        mangas.flatMap { (_, mangas) -> mangas.map { it.coverImage } }.toImmutableList()
+        mangas.map { it.coverImage }.toImmutableList()
     }
     PreloadImages(
         lazyListState = lazyListState,
@@ -265,25 +267,23 @@ private fun MangaList(
         contentPadding = contentPadding + PaddingValues(all = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
-        mangas.forEach { (key, values) ->
-            section(
-                header = key,
-                items = values,
-                key = { it.id.value },
-            ) { item, shape ->
-                MangaRow(
-                    manga = item,
-                    onMangaClick = onMangaClick,
-                    onMangaFavoriteToggleClick = onFavoriteClick,
-                    modifier = Modifier.animateItem(
-                        fadeInSpec = floatAnimationSpec,
-                        placementSpec = intOffsetAnimateSpec,
-                        fadeOutSpec = floatAnimationSpec,
-                    ),
-                    shape = shape,
-                    coverSizeResolver = coverSizeResolver,
-                )
-            }
+        section(
+            header = "Manga",
+            items = mangas,
+            key = { it.id.value },
+        ) { item, shape ->
+            MangaRow(
+                manga = item,
+                onMangaClick = onMangaClick,
+                onMangaFavoriteToggleClick = onFavoriteClick,
+                modifier = Modifier.animateItem(
+                    fadeInSpec = floatAnimationSpec,
+                    placementSpec = intOffsetAnimateSpec,
+                    fadeOutSpec = floatAnimationSpec,
+                ),
+                shape = shape,
+                coverSizeResolver = coverSizeResolver,
+            )
         }
     }
 }
@@ -317,25 +317,19 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
             MangaScreenData(),
             MangaScreenData(
                 state = MangaScreenState.Ready(
-                    manga = persistentListOf(
-                        "header" to MangaProvider.values.toImmutableList(),
-                    ),
+                    manga = MangaProvider.values.toImmutableList(),
                 ),
             ),
             MangaScreenData(
                 filterUnread = true,
                 state = MangaScreenState.Ready(
-                    manga = persistentListOf(
-                        "header" to MangaProvider.values.filter { !it.isRead }.toImmutableList(),
-                    ),
+                    manga = MangaProvider.values.filter { !it.isRead }.toImmutableList(),
                 ),
             ),
             MangaScreenData(
                 filterFavorites = true,
                 state = MangaScreenState.Ready(
-                    manga = persistentListOf(
-                        "header" to MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
-                    ),
+                    manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
                 ),
             ),
         )
