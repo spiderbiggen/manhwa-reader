@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.LibraryExtension
+import com.skydoves.compose.stability.gradle.StabilityCheckTask
 
 plugins {
     alias(libs.plugins.android.library)
@@ -41,6 +42,10 @@ kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
+}
+
+tasks.withType<StabilityCheckTask>().configureEach {
+    dependsOn("compileDebugUnitTestKotlin")
 }
 
 dependencies {
