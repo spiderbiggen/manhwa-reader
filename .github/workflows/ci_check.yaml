@@ -72,7 +72,7 @@ jobs:
         run: ./gradlew app:assembleDebug
 
       - name: Upload build
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: debug apk
           path: app/build/outputs/apk/debug/*
@@ -148,7 +148,7 @@ jobs:
         run: ./gradlew sonar
 
       - name: Upload Reports
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Reports
           path: app/build/reports
