@@ -16,7 +16,7 @@ sealed interface MangaScreenState {
     data object Loading : MangaScreenState
 
     @Immutable
-    data class Ready(val manga: ImmutableList<Pair<String, ImmutableList<MangaViewData>>>) : MangaScreenState
+    data class Ready(val manga: ImmutableList<MangaViewData>) : MangaScreenState
 
     @Immutable
     data class Error(val message: String) : MangaScreenState
