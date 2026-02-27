@@ -24,7 +24,7 @@ class ProfileViewModel(
     private val synchronizeWithRemote: SynchronizeWithRemote,
 ) : ViewModel() {
 
-    private val _snackbarFlow = MutableSharedFlow<SnackbarData>(1)
+    private val _snackbarFlow = MutableSharedFlow<SnackbarData>()
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
