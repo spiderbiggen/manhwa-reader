@@ -69,10 +69,9 @@ private class ExitAlwaysScrollBehavior(
     }
 }
 
-internal fun lastItemIsVisible(lazyListState: LazyListState): Boolean {
+fun lastItemIsVisible(lazyListState: LazyListState): Boolean {
     val info = lazyListState.layoutInfo
     val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return false
 
-    val count = info.totalItemsCount
-    return lastVisibleItem.index + 1 >= count
+    return lastVisibleItem.index + 1 >= info.totalItemsCount
 }
