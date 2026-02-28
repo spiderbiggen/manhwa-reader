@@ -58,7 +58,6 @@ import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
-import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
@@ -146,10 +145,10 @@ private fun MangaOverviewContent(
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+        lazyListState,
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
     )
-
     Scaffold(
         topBar = {
             MangaTopAppBar(

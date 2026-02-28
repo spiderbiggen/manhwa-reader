@@ -61,13 +61,10 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
-import com.spiderbiggen.manga.presentation.components.StickyTopEffect
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
-import com.spiderbiggen.manga.presentation.components.rememberManualScrollState
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
-import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlin.time.Clock.System.now
@@ -115,11 +112,10 @@ fun ChapterListScreen(
     onChapterClick: (ChapterId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val isManuallyScrolled = rememberManualScrollState(lazyListState)
-    val topAppBarScrollBehavior = TopAppBarDefaults.scrollWithContentBehavior(
+    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
+        lazyListState,
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
     )
-
     val readyState = state as? MangaChapterScreenState.Ready
     Scaffold(
         topBar = {
@@ -129,7 +125,7 @@ fun ChapterListScreen(
                         Icon(painterResource(R.drawable.arrow_back), "Back")
                     }
                 },
-                title = { Text(readyState?.title ?: "Manga") },
+                title = { readyState?.title?.let { Text(it) } },
                 actions = {
                     IconButton(onClick = onToggleFavorite) {
                         FavoriteToggle(
@@ -159,11 +155,6 @@ fun ChapterListScreen(
                             .toInt()
                     },
                 ) {
-                    StickyTopEffect(
-                        items = state.chapters,
-                        listState = lazyListState,
-                        isManuallyScrolled = { isManuallyScrolled.value },
-                    )
                     ChaptersList(
                         lazyListState = lazyListState,
                         chapters = state.chapters,
@@ -197,7 +188,7 @@ private fun ChaptersList(
         verticalArrangement = Arrangement.spacedBy(1.dp),
     ) {
         section(
-            header = null,
+            header = "Chapters",
             items = chapters,
             key = { item -> item.id.value },
         ) { item, shape ->

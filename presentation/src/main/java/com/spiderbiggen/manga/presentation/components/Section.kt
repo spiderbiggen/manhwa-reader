@@ -39,7 +39,7 @@ inline fun <T> LazyListScope.section(
             Text(
                 it,
                 style = MaterialTheme.typography.titleLargeEmphasized,
-                modifier = Modifier.padding(vertical = 4.dp),
+                modifier = Modifier.padding(bottom = 4.dp),
             )
         }
     }
