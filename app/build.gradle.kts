@@ -26,8 +26,8 @@ extensions.configure<ApplicationExtension> {
         applicationId = "com.spiderbiggen.manga"
         minSdk = 26
         targetSdk = 36
-        versionCode = 73
-        versionName = "1.25.2"
+        versionCode = 74
+        versionName = "1.26.0"
     }
 
     signingConfigs {
