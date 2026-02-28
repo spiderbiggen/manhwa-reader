@@ -1,11 +1,10 @@
 package com.spiderbiggen.manga.presentation.components
 
-import android.content.res.Configuration
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -21,8 +20,8 @@ import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.graphics.vector.Path
 import androidx.compose.ui.graphics.vector.PathData
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.tooling.preview.Wallpapers
+import androidx.compose.ui.tooling.preview.PreviewDynamicColors
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
@@ -72,7 +71,7 @@ object FavoriteIconPaths {
 fun FavoriteToggle(
     isFavorite: Boolean,
     modifier: Modifier = Modifier,
-    contentColor: Color = LocalContentColor.current,
+    contentColor: Color = MaterialTheme.colorScheme.outline,
     favoriteContentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
     val scale by animateFloatAsState(
@@ -126,17 +125,20 @@ fun FavoriteToggle(
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Preview
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview(wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@PreviewDynamicColors
+@PreviewLightDark
 @Composable
 fun FavoriteTogglePreview() {
     MangaReaderTheme {
         Surface {
             val isFavoriteState = remember { mutableStateOf(true) }
-            IconButton(onClick = { isFavoriteState.value = !isFavoriteState.value }) {
-                FavoriteToggle(isFavorite = isFavoriteState.value)
+            Column {
+                IconButton(onClick = { isFavoriteState.value = !isFavoriteState.value }) {
+                    FavoriteToggle(isFavorite = isFavoriteState.value)
+                }
+                IconButton(onClick = { isFavoriteState.value = !isFavoriteState.value }) {
+                    FavoriteToggle(isFavorite = !isFavoriteState.value)
+                }
             }
         }
     }
