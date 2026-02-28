@@ -262,7 +262,7 @@ private fun MangaList(
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(all = 8.dp),
+        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp),
         verticalArrangement = Arrangement.spacedBy(2.dp),
     ) {
         section(
