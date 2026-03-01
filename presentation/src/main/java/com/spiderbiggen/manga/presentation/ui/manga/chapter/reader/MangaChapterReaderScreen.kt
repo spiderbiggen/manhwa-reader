@@ -1,8 +1,8 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
-import androidx.compose.animation.core.AnimationState
+import androidx.compose.animation.core.animate
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateTo
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,14 +10,21 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.union
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.BottomAppBarDefaults
 import androidx.compose.material3.BottomAppBarScrollBehavior
@@ -47,8 +54,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -106,7 +111,7 @@ fun MangaChapterReaderScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun MangaChapterReaderScreen(
     state: MangaChapterReaderScreenState,
@@ -117,7 +122,9 @@ fun MangaChapterReaderScreen(
     setRead: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
-    val lazyListState = rememberLazyListState()
+    val lazyListState = rememberLazyListState(
+        cacheWindow = LazyLayoutCacheWindow(0.33f, 0.33f),
+    )
 
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
@@ -131,6 +138,9 @@ fun MangaChapterReaderScreen(
         modifier = Modifier
             .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection)
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+        contentWindowInsets = WindowInsets.systemBars
+            .union(WindowInsets.displayCutout)
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
         topBar = {
             MangaTopAppBar(
                 navigationIcon = {
@@ -174,23 +184,36 @@ fun MangaChapterReaderScreen(
                     padding = contentPadding,
                     lazyListState = lazyListState,
                     onListClicked = clicked@{
+                        val limit = topAppBarScrollBehavior.state.heightOffsetLimit
                         val initialTopOffset = topAppBarScrollBehavior.state.heightOffset
-                        if (initialTopOffset == 0f) return@clicked
+                        val isExpanding = initialTopOffset == 0f
+
+                        val targetTopOffset = if (isExpanding) limit else 0f
+                        val topAnimationSpec = topAppBarScrollBehavior.snapAnimationSpec ?: floatAnimationSpec
                         coroutineScope.launch {
-                            var prevOffset = initialTopOffset
-                            AnimationState(initialTopOffset).animateTo(0f, floatAnimationSpec) {
-                                lazyListState.dispatchRawDelta(value - prevOffset)
-                                topAppBarScrollBehavior.nestedScrollConnection.onPostScroll(
-                                    consumed = Offset(0f, value - prevOffset),
-                                    available = Offset.Zero,
-                                    source = NestedScrollSource.SideEffect,
-                                )
-                                prevOffset = value
+                            // TODO fix scroll jank, likely due to changing content padding in default scaffold
+                            var previousValue = initialTopOffset
+                            animate(
+                                initialValue = initialTopOffset,
+                                targetValue = targetTopOffset,
+                                animationSpec = topAnimationSpec,
+                            ) { value, _ ->
+                                val delta = value - previousValue
+                                lazyListState.dispatchRawDelta(delta)
+                                topAppBarScrollBehavior.state.heightOffset = value
+                                topAppBarScrollBehavior.state.contentOffset -= delta
+                                previousValue = value
                             }
                         }
                         coroutineScope.launch {
                             val initialBottomOffset = bottomAppBarScrollBehavior.state.heightOffset
-                            AnimationState(initialBottomOffset).animateTo(0f, floatAnimationSpec) {
+                            val targetBottomOffset = if (isExpanding) limit else 0f
+                            val animationSpec = bottomAppBarScrollBehavior.snapAnimationSpec ?: floatAnimationSpec
+                            animate(
+                                initialValue = initialBottomOffset,
+                                targetValue = targetBottomOffset,
+                                animationSpec = animationSpec,
+                            ) { value, _ ->
                                 bottomAppBarScrollBehavior.state.heightOffset = value
                             }
                         }

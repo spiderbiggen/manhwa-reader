@@ -37,7 +37,7 @@ fun MangaTopAppBar(
 ) {
     val insets = WindowInsets.systemBars
         .union(WindowInsets.displayCutout)
-        .only(WindowInsetsSides.Top)
+        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
     val padding = insets.asPaddingValues() + contentPadding
     TopAppBar(
         title = title,
