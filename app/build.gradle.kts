@@ -9,7 +9,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.crashlytics)
-    alias(libs.plugins.stability.analyzer)
+    // alias(libs.plugins.stability.analyzer)
     id("manga.spotless")
 }
 
