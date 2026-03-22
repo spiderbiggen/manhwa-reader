@@ -11,12 +11,17 @@ import kotlinx.datetime.format.char
 
 class MapChapterRowData {
     operator fun invoke(value: ChapterForOverview): ChapterRowData = with(value) {
+        // TODO: Update domain model with optional release date
+        val formattedDate = when {
+            chapter.date.year < 2010 -> "Unknown"
+            else -> chapter.date.format(dateFormat)
+        }
         ChapterRowData(
             id = chapter.id,
             index = chapter.index,
             subIndex = chapter.subIndex,
             title = chapter.title,
-            date = chapter.date.format(dateFormat),
+            date = formattedDate,
             isRead = isRead,
         )
     }
