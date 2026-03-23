@@ -31,7 +31,7 @@ data class LocalChapterEntity(
     @ColumnInfo("sub_index")
     val subIndex: Int? = null,
     val title: String? = null,
-    val date: LocalDate,
+    val date: LocalDate? = null,
     @ColumnInfo("updated_at")
     val updatedAt: Instant,
     @ColumnInfo("image_chunks", defaultValue = "0")

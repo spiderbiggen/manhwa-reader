@@ -14,7 +14,7 @@ data class ChapterEntity(
     @SerialName("sub_index")
     val subIndex: UInt?,
     val title: String?,
-    val date: LocalDate,
+    val date: LocalDate?,
     @Contextual
     @SerialName("updated_at")
     val updatedAt: Instant,

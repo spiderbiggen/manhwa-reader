@@ -9,7 +9,7 @@ data class Chapter(
     val index: UInt,
     val subIndex: UInt? = null,
     val title: String?,
-    val date: LocalDate,
+    val date: LocalDate? = null,
     val updatedAt: Instant,
 ) {
     fun displayTitle(): String = buildString {

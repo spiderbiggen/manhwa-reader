@@ -3,19 +3,19 @@ package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DateTimeFormat
 import kotlinx.datetime.format.MonthNames
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
+import kotlinx.datetime.toLocalDateTime
 
 class MapChapterRowData {
     operator fun invoke(value: ChapterForOverview): ChapterRowData = with(value) {
         // TODO: Update domain model with optional release date
-        val formattedDate = when {
-            chapter.date.year < 2010 -> "Unknown"
-            else -> chapter.date.format(dateFormat)
-        }
+        val formattedDate = chapter.date?.format(dateFormat)
+            ?: chapter.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault()).date.format(dateFormat)
         ChapterRowData(
             id = chapter.id,
             index = chapter.index,
