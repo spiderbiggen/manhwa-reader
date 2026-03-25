@@ -30,7 +30,7 @@ jobs:
           cache: gradle
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@c4c8fe5bcde35fd88354d5a39d4739cbaf13cc30
+        uses: android-actions/setup-android@651bceb6f9ca583f16b8d75b62c36ded2ae6fc9c
         with:
           cmdline-tools-version: 14742923
           log-accepted-android-sdk-licenses: false
