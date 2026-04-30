@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -14,9 +15,12 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -66,6 +70,7 @@ import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefres
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.ui.main.LocalIsExpanded
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlin.time.Clock.System.now
 import kotlinx.collections.immutable.ImmutableList
@@ -110,6 +115,167 @@ fun ChapterListScreen(
     onRefresh: () -> Unit = {},
     onToggleFavorite: () -> Unit = {},
     onChapterClick: (ChapterId) -> Unit = {},
+) {
+    val isExpanded = LocalIsExpanded.current
+    if (isExpanded) {
+        ChapterListTabletLayout(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            isRefreshing = isRefreshing,
+            onBackClick = onBackClick,
+            onRefresh = onRefresh,
+            onToggleFavorite = onToggleFavorite,
+            onChapterClick = onChapterClick,
+        )
+    } else {
+        ChapterListPhoneLayout(
+            state = state,
+            snackbarHostState = snackbarHostState,
+            isRefreshing = isRefreshing,
+            onBackClick = onBackClick,
+            onRefresh = onRefresh,
+            onToggleFavorite = onToggleFavorite,
+            onChapterClick = onChapterClick,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun ChapterListTabletLayout(
+    state: MangaChapterScreenState,
+    snackbarHostState: SnackbarHostState,
+    isRefreshing: Boolean,
+    onBackClick: () -> Unit,
+    onRefresh: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onChapterClick: (ChapterId) -> Unit,
+) {
+    val readyState = state as? MangaChapterScreenState.Ready
+    Scaffold(
+        topBar = {
+            MangaTopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                    }
+                },
+                title = {},
+            )
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+    ) { scaffoldPadding ->
+        Row(
+            Modifier
+                .fillMaxSize()
+                .padding(top = scaffoldPadding.calculateTopPadding()),
+        ) {
+            // Left pane: manga info
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .weight(0.4f)
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                readyState?.title?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.headlineMedium,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+
+                if (readyState != null) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        StatCard(
+                            label = "Chapters",
+                            value = readyState.chapters.size.toString(),
+                            modifier = Modifier.weight(1f),
+                        )
+                        val unreadCount = readyState.chapters.count { !it.isRead }
+                        StatCard(
+                            label = "Unread",
+                            value = unreadCount.toString(),
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    IconButton(onClick = onToggleFavorite) {
+                        FavoriteToggle(
+                            isFavorite = readyState?.isFavorite == true,
+                            favoriteContentColor = LocalContentColor.current,
+                        )
+                    }
+                    Text(
+                        if (readyState?.isFavorite == true) "Favorited" else "Add to favorites",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+
+                val continueChapter = readyState?.chapters?.firstOrNull { !it.isRead }
+                    ?: readyState?.chapters?.firstOrNull()
+                if (continueChapter != null) {
+                    Button(
+                        onClick = { onChapterClick(continueChapter.id) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Text("Continue Reading")
+                    }
+                }
+
+                Spacer(Modifier.weight(1f))
+            }
+
+            HorizontalDivider(
+                Modifier
+                    .fillMaxHeight()
+                    .padding(vertical = 8.dp),
+                thickness = 1.dp,
+            )
+
+            // Right pane: chapter list
+            when (state) {
+                is MangaChapterScreenState.Loading,
+                is MangaChapterScreenState.Error,
+                -> LoadingSpinner()
+
+                is MangaChapterScreenState.Ready -> {
+                    PullToRefreshBox(
+                        isRefreshing = isRefreshing,
+                        onRefresh = onRefresh,
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .weight(0.6f),
+                    ) {
+                        ChaptersList(
+                            chapters = state.chapters,
+                            modifier = Modifier.fillMaxSize(),
+                            onChapterClick = onChapterClick,
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+private fun ChapterListPhoneLayout(
+    state: MangaChapterScreenState,
+    snackbarHostState: SnackbarHostState,
+    isRefreshing: Boolean,
+    onBackClick: () -> Unit,
+    onRefresh: () -> Unit,
+    onToggleFavorite: () -> Unit,
+    onChapterClick: (ChapterId) -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
     val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
@@ -170,9 +336,22 @@ fun ChapterListScreen(
     }
 }
 
+@Composable
+private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
+    ElevatedCard(modifier = modifier) {
+        Column(
+            Modifier.padding(12.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Text(label, style = MaterialTheme.typography.labelSmall)
+            Text(value, style = MaterialTheme.typography.titleLarge)
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ChaptersList(
+internal fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
     onChapterClick: (ChapterId) -> Unit,
     modifier: Modifier = Modifier,
