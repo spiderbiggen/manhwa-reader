@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -40,6 +42,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WavyProgressIndicatorDefaults
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -51,7 +54,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
@@ -67,6 +73,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessStarted
+import androidx.window.core.layout.WindowWidthSizeClass
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImage
@@ -78,6 +86,7 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.plus
@@ -203,153 +212,152 @@ private fun MangaTabletLayout(
     var selectedMangaId by rememberSaveable { mutableStateOf<String?>(null) }
     val selectedId = selectedMangaId?.let { MangaId(it) }
 
-    Scaffold(contentWindowInsets = WindowInsets(0, 0, 0, 0)) {
-        Row(Modifier.fillMaxSize()) {
-            NavigationRail(windowInsets = WindowInsets.systemBars) {
-                NavigationRailItem(
-                    selected = true,
-                    onClick = {},
-                    icon = { Icon(painterResource(R.drawable.book_read), contentDescription = "Library") },
-                    label = { Text("Library") },
-                )
-                NavigationRailItem(
-                    selected = false,
-                    onClick = onProfileClicked,
-                    icon = {
-                        when (profileState) {
-                            is ProfileState.Authenticated -> AsyncImage(
-                                model = profileState.avatarUrl,
-                                contentDescription = "Profile",
-                                contentScale = ContentScale.Crop,
-                                error = painterResource(R.drawable.account_circle),
-                                modifier = Modifier
-                                    .clip(CircleShape)
-                                    .size(24.dp),
-                            )
-
-                            is ProfileState.Unauthenticated -> Icon(
-                                painterResource(R.drawable.account_circle),
-                                contentDescription = "Profile",
-                            )
-                        }
-                    },
-                    label = { Text("Profile") },
-                )
-            }
-
-            // Left pane: filter chips + manga grid
-            val density = LocalDensity.current
-            val statusBarsTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
-            // status bar + 4 dp chip padding top + 32 dp chip height + 4 dp chip padding bottom
-            val chipBarExpandedHeight = statusBarsTopPadding + 4.dp + 32.dp + 4.dp
-            val chipScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
-            // enterAlwaysScrollBehavior relies on heightOffsetLimit being set by TopAppBar during
-            // measurement. Since we use a plain Surface instead, set it explicitly.
-            val heightOffsetLimitPx = with(density) { -chipBarExpandedHeight.toPx() }
-            SideEffect {
-                if (chipScrollBehavior.state.heightOffsetLimit != heightOffsetLimitPx) {
-                    chipScrollBehavior.state.heightOffsetLimit = heightOffsetLimitPx
-                }
-            }
-            val chipBarHeight = maxOf(
-                0.dp,
-                chipBarExpandedHeight + with(density) { chipScrollBehavior.state.heightOffset.toDp() },
+    Row(Modifier.fillMaxSize()) {
+        NavigationRail(windowInsets = WindowInsets.systemBars) {
+            NavigationRailItem(
+                selected = true,
+                onClick = {},
+                icon = { Icon(painterResource(R.drawable.book_read), contentDescription = "Library") },
+                label = { Text("Library") },
             )
-            Scaffold(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .weight(0.5f),
-                contentWindowInsets = WindowInsets(0),
-                topBar = {
-                    // Plain Surface instead of TopAppBar so padding/height is fully under our control.
-                    // Surface with default RectangleShape clips its content, so chips slide off cleanly.
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(chipBarHeight),
-                        color = MaterialTheme.colorScheme.background,
-                    ) {
-                        Box(Modifier.fillMaxSize()) {
-                            Row(
-                                modifier = Modifier
-                                    .align(Alignment.BottomStart)
-                                    .padding(start = 8.dp, end = 16.dp, bottom = 4.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                CheckedFilterChip(
-                                    selected = isUnreadSelected,
-                                    label = { Text("Unread") },
-                                    onClick = onToggleUnreadRequested,
-                                )
-                                CheckedFilterChip(
-                                    selected = isFavoritesSelected,
-                                    label = { Text("Favorites") },
-                                    onClick = onToggleFavoritesRequested,
-                                )
-                            }
-                        }
+            NavigationRailItem(
+                selected = false,
+                onClick = onProfileClicked,
+                icon = {
+                    when (profileState) {
+                        is ProfileState.Authenticated -> AsyncImage(
+                            model = profileState.avatarUrl,
+                            contentDescription = "Profile",
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(R.drawable.account_circle),
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(24.dp),
+                        )
+
+                        is ProfileState.Unauthenticated -> Icon(
+                            painterResource(R.drawable.account_circle),
+                            contentDescription = "Profile",
+                        )
                     }
                 },
-            ) { scaffoldPadding ->
-                PullToRefreshBox(
-                    isRefreshing = isRefreshing,
-                    onRefresh = onRefresh,
-                    modifier = Modifier.fillMaxSize(),
-                    topOffSet = {
-                        (chipScrollBehavior.state.heightOffset - chipScrollBehavior.state.heightOffsetLimit).toInt()
-                    },
+                label = { Text("Profile") },
+            )
+        }
+
+        // Left pane: filter chips + manga grid
+        val density = LocalDensity.current
+        val statusBarsTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+        // status bar + 4 dp chip padding top + 32 dp chip height + 4 dp chip padding bottom
+        val chipBarExpandedHeight = statusBarsTopPadding + 4.dp + 32.dp + 4.dp
+        val chipScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+        // enterAlwaysScrollBehavior relies on heightOffsetLimit being set by TopAppBar during
+        // measurement. Since we use a plain Surface instead, set it explicitly.
+        val heightOffsetLimitPx = with(density) { -chipBarExpandedHeight.toPx() }
+        SideEffect {
+            if (chipScrollBehavior.state.heightOffsetLimit != heightOffsetLimitPx) {
+                chipScrollBehavior.state.heightOffsetLimit = heightOffsetLimitPx
+            }
+        }
+        val chipBarHeight = maxOf(
+            0.dp,
+            chipBarExpandedHeight + with(density) { chipScrollBehavior.state.heightOffset.toDp() },
+        )
+        Scaffold(
+            modifier = Modifier
+                .fillMaxHeight()
+                .weight(0.5f),
+            contentWindowInsets = WindowInsets(0),
+            topBar = {
+                // Plain Surface instead of TopAppBar so padding/height is fully under our control.
+                // Surface with default RectangleShape clips its content, so chips slide off cleanly.
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(chipBarHeight),
+                    color = MaterialTheme.colorScheme.background,
                 ) {
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(chipScrollBehavior.nestedScrollConnection),
-                        contentPadding = scaffoldPadding + PaddingValues(8.dp) +
-                            WindowInsets.navigationBars.asPaddingValues(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        items(manga, key = { it.id.value }) { item ->
-                            MangaGridCard(
-                                manga = item,
-                                isSelected = item.id == selectedId,
-                                onClick = { selectedMangaId = item.id.value },
+                    Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
+                        Row(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .padding(start = 8.dp, end = 16.dp, bottom = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            CheckedFilterChip(
+                                selected = isUnreadSelected,
+                                label = { Text("Unread") },
+                                onClick = onToggleUnreadRequested,
+                            )
+                            CheckedFilterChip(
+                                selected = isFavoritesSelected,
+                                label = { Text("Favorites") },
+                                onClick = onToggleFavoritesRequested,
                             )
                         }
                     }
                 }
-            }
-
-            // Right pane: manga detail / chapter list
-            Box(
-                Modifier
-                    .fillMaxHeight()
-                    .weight(0.5f),
+            },
+        ) { scaffoldPadding ->
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize(),
+                topOffSet = {
+                    (chipScrollBehavior.state.heightOffset - chipScrollBehavior.state.heightOffsetLimit).toInt()
+                },
             ) {
-                val mangaId = selectedId
-                if (mangaId != null) {
-                    val chapterViewModel =
-                        koinViewModel<MangaChapterListViewModel>(
-                            key = mangaId.value,
-                            parameters = { parametersOf(MangaChapterListRoute(mangaId)) },
-                        )
-                    CompositionLocalProvider(LocalIsExpanded provides false) {
-                        ChapterListScreen(
-                            viewModel = chapterViewModel,
-                            snackbarHostState = snackbarHostState,
-                            onBackClick = { selectedMangaId = null },
-                            onChapterClick = { chapterId -> onChapterClick(mangaId, chapterId) },
-                        )
-                    }
-                } else {
-                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text(
-                            "Select a manga to view chapters",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .nestedScroll(chipScrollBehavior.nestedScrollConnection),
+                    contentPadding = scaffoldPadding + PaddingValues(8.dp) +
+                        WindowInsets.navigationBars.asPaddingValues(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(manga, key = { it.id.value }) { item ->
+                        MangaGridCard(
+                            manga = item,
+                            isSelected = item.id == selectedId,
+                            onClick = { selectedMangaId = item.id.value },
+                            onFavoriteClick = { onFavoriteClick(item.id) },
                         )
                     }
+                }
+            }
+        }
+
+        // Right pane: manga detail / chapter list
+        Box(
+            Modifier
+                .fillMaxHeight()
+                .weight(0.5f),
+        ) {
+            val mangaId = selectedId
+            if (mangaId != null) {
+                val chapterViewModel =
+                    koinViewModel<MangaChapterListViewModel>(
+                        key = mangaId.value,
+                        parameters = { parametersOf(MangaChapterListRoute(mangaId)) },
+                    )
+                CompositionLocalProvider(LocalIsExpanded provides false) {
+                    ChapterListScreen(
+                        viewModel = chapterViewModel,
+                        snackbarHostState = snackbarHostState,
+                        onBackClick = { selectedMangaId = null },
+                        onChapterClick = { chapterId -> onChapterClick(mangaId, chapterId) },
+                    )
+                }
+            } else {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        "Select a manga to view chapters",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
         }
@@ -361,11 +369,12 @@ private fun MangaGridCard(
     manga: MangaViewData,
     isSelected: Boolean,
     onClick: () -> Unit,
+    onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Card(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.alpha(if (manga.isRead) 0.6f else 1f),
         border = if (isSelected) {
             androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
         } else {
@@ -385,18 +394,34 @@ private fun MangaGridCard(
                 Modifier
                     .align(Alignment.BottomCenter)
                     .fillMaxWidth()
-                    .padding(4.dp),
+                    .height(80.dp)
+                    .background(
+                        Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.92f)),
+                        ),
+                    )
+                    .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+                contentAlignment = Alignment.BottomStart,
             ) {
                 Text(
                     manga.title,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.surface,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(2.dp),
+                    style = MaterialTheme.typography.titleSmall,
+                    color = Color.White,
+                    modifier = Modifier.fillMaxWidth(),
                 )
+            }
+            Box(
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(4.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f)),
+            ) {
+                IconButton(onClick = dropUnlessStarted { onFavoriteClick() }) {
+                    FavoriteToggle(manga.isFavorite)
+                }
             }
         }
     }
@@ -572,13 +597,19 @@ fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state
         ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
     }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val isExpanded = windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
+
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
-        MangaReaderTheme {
-            MangaListScreen(
-                state = state,
-                snackbarHostState = snackbarHostState,
-                profileState = ProfileState.Unauthenticated,
-            )
+        CompositionLocalProvider(LocalIsExpanded provides isExpanded) {
+            MangaReaderTheme {
+                MangaListScreen(
+                    state = state,
+                    snackbarHostState = snackbarHostState,
+                    profileState = ProfileState.Unauthenticated,
+                )
+            }
         }
     }
 }
