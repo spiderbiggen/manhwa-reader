@@ -31,8 +31,11 @@ fun ReadStateCard(
     val colors = CardDefaults.cardColors(
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
     ).let {
-        if (isRead) it.copy(contentColor = it.contentColor.copy(alpha = it.contentColor.alpha * READ_ALPHA))
-        else it
+        if (isRead) {
+            it.copy(contentColor = it.contentColor.copy(alpha = it.contentColor.alpha * READ_ALPHA))
+        } else {
+            it
+        }
     }
     CompositionLocalProvider(LocalReadStateAlpha provides readAlpha) {
         MaterialCard(

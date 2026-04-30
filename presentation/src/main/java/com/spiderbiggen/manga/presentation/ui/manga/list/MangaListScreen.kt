@@ -278,9 +278,11 @@ private fun MangaTabletLayout(
                         .height(chipBarHeight),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    Box(Modifier
-                        .fillMaxSize()
-                        .windowInsetsPadding(WindowInsets.statusBars)) {
+                    Box(
+                        Modifier
+                            .fillMaxSize()
+                            .windowInsetsPadding(WindowInsets.statusBars),
+                    ) {
                         Row(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
