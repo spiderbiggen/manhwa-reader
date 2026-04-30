@@ -62,8 +62,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.PreviewDynamicColors
-import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
@@ -601,8 +599,6 @@ private fun MangaList(
 
 @OptIn(ExperimentalCoilApi::class)
 @PreviewLightDark
-@PreviewDynamicColors
-@PreviewFontScale
 @PreviewScreenSizes
 @Composable
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
@@ -635,18 +631,6 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
             MangaScreenData(
                 state = MangaScreenState.Ready(
                     manga = MangaProvider.values.toImmutableList(),
-                ),
-            ),
-            MangaScreenData(
-                filterUnread = true,
-                state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.filter { !it.isRead }.toImmutableList(),
-                ),
-            ),
-            MangaScreenData(
-                filterFavorites = true,
-                state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
                 ),
             ),
         )
