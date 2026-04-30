@@ -83,8 +83,8 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
-import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.bottomappbar.exitUntilEndScrollBehavior
+import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
