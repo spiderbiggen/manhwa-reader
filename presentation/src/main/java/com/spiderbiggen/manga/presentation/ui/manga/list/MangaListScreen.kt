@@ -2,15 +2,20 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -31,12 +36,14 @@ import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
@@ -79,6 +87,7 @@ import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.main.LocalIsExpanded
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterListScreen
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterListViewModel
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.MangaChapterListRoute
 import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
@@ -194,111 +203,153 @@ private fun MangaTabletLayout(
     var selectedMangaId by rememberSaveable { mutableStateOf<String?>(null) }
     val selectedId = selectedMangaId?.let { MangaId(it) }
 
-    Row(Modifier.fillMaxSize()) {
-        NavigationRail {
-            NavigationRailItem(
-                selected = true,
-                onClick = {},
-                icon = { Icon(painterResource(R.drawable.book_read), contentDescription = "Library") },
-                label = { Text("Library") },
-            )
-            NavigationRailItem(
-                selected = false,
-                onClick = onProfileClicked,
-                icon = {
-                    when (profileState) {
-                        is ProfileState.Authenticated -> AsyncImage(
-                            model = profileState.avatarUrl,
-                            contentDescription = "Profile",
-                            contentScale = ContentScale.Crop,
-                            error = painterResource(R.drawable.account_circle),
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .size(24.dp),
-                        )
+    Scaffold(contentWindowInsets = WindowInsets(0, 0, 0, 0)) {
+        Row(Modifier.fillMaxSize()) {
+            NavigationRail(windowInsets = WindowInsets.systemBars) {
+                NavigationRailItem(
+                    selected = true,
+                    onClick = {},
+                    icon = { Icon(painterResource(R.drawable.book_read), contentDescription = "Library") },
+                    label = { Text("Library") },
+                )
+                NavigationRailItem(
+                    selected = false,
+                    onClick = onProfileClicked,
+                    icon = {
+                        when (profileState) {
+                            is ProfileState.Authenticated -> AsyncImage(
+                                model = profileState.avatarUrl,
+                                contentDescription = "Profile",
+                                contentScale = ContentScale.Crop,
+                                error = painterResource(R.drawable.account_circle),
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .size(24.dp),
+                            )
 
-                        is ProfileState.Unauthenticated -> Icon(
-                            painterResource(R.drawable.account_circle),
-                            contentDescription = "Profile",
-                        )
+                            is ProfileState.Unauthenticated -> Icon(
+                                painterResource(R.drawable.account_circle),
+                                contentDescription = "Profile",
+                            )
+                        }
+                    },
+                    label = { Text("Profile") },
+                )
+            }
+
+            // Left pane: filter chips + manga grid
+            val density = LocalDensity.current
+            val statusBarsTopPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+            // status bar + 4 dp chip padding top + 32 dp chip height + 4 dp chip padding bottom
+            val chipBarExpandedHeight = statusBarsTopPadding + 4.dp + 32.dp + 4.dp
+            val chipScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior()
+            // enterAlwaysScrollBehavior relies on heightOffsetLimit being set by TopAppBar during
+            // measurement. Since we use a plain Surface instead, set it explicitly.
+            val heightOffsetLimitPx = with(density) { -chipBarExpandedHeight.toPx() }
+            SideEffect {
+                if (chipScrollBehavior.state.heightOffsetLimit != heightOffsetLimitPx) {
+                    chipScrollBehavior.state.heightOffsetLimit = heightOffsetLimitPx
+                }
+            }
+            val chipBarHeight = maxOf(
+                0.dp,
+                chipBarExpandedHeight + with(density) { chipScrollBehavior.state.heightOffset.toDp() },
+            )
+            Scaffold(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .weight(0.5f),
+                contentWindowInsets = WindowInsets(0),
+                topBar = {
+                    // Plain Surface instead of TopAppBar so padding/height is fully under our control.
+                    // Surface with default RectangleShape clips its content, so chips slide off cleanly.
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(chipBarHeight),
+                        color = MaterialTheme.colorScheme.background,
+                    ) {
+                        Box(Modifier.fillMaxSize()) {
+                            Row(
+                                modifier = Modifier
+                                    .align(Alignment.BottomStart)
+                                    .padding(start = 8.dp, end = 16.dp, bottom = 4.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                CheckedFilterChip(
+                                    selected = isUnreadSelected,
+                                    label = { Text("Unread") },
+                                    onClick = onToggleUnreadRequested,
+                                )
+                                CheckedFilterChip(
+                                    selected = isFavoritesSelected,
+                                    label = { Text("Favorites") },
+                                    onClick = onToggleFavoritesRequested,
+                                )
+                            }
+                        }
                     }
                 },
-                label = { Text("Profile") },
-            )
-        }
-
-        // Left pane: filter chips + manga grid
-        Column(
-            Modifier
-                .fillMaxHeight()
-                .weight(0.4f),
-        ) {
-            Row(
-                Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                CheckedFilterChip(
-                    selected = isUnreadSelected,
-                    label = { Text("Unread") },
-                    onClick = onToggleUnreadRequested,
-                )
-                CheckedFilterChip(
-                    selected = isFavoritesSelected,
-                    label = { Text("Favorites") },
-                    onClick = onToggleFavoritesRequested,
-                )
-            }
-            PullToRefreshBox(
-                isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
-                modifier = Modifier.fillMaxSize(),
-            ) {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(3),
+            ) { scaffoldPadding ->
+                PullToRefreshBox(
+                    isRefreshing = isRefreshing,
+                    onRefresh = onRefresh,
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    topOffSet = {
+                        (chipScrollBehavior.state.heightOffset - chipScrollBehavior.state.heightOffsetLimit).toInt()
+                    },
                 ) {
-                    items(manga, key = { it.id.value }) { item ->
-                        MangaGridCard(
-                            manga = item,
-                            isSelected = item.id == selectedId,
-                            onClick = { selectedMangaId = item.id.value },
-                        )
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(3),
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .nestedScroll(chipScrollBehavior.nestedScrollConnection),
+                        contentPadding = scaffoldPadding + PaddingValues(8.dp) +
+                            WindowInsets.navigationBars.asPaddingValues(),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        items(manga, key = { it.id.value }) { item ->
+                            MangaGridCard(
+                                manga = item,
+                                isSelected = item.id == selectedId,
+                                onClick = { selectedMangaId = item.id.value },
+                            )
+                        }
                     }
                 }
             }
-        }
 
-        // Right pane: manga detail / chapter list
-        Box(
-            Modifier
-                .fillMaxHeight()
-                .weight(0.6f),
-        ) {
-            val mangaId = selectedId
-            if (mangaId != null) {
-                val chapterViewModel =
-                    koinViewModel<com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterListViewModel>(
-                        key = mangaId.value,
-                        parameters = { parametersOf(MangaChapterListRoute(mangaId)) },
-                    )
-                CompositionLocalProvider(LocalIsExpanded provides false) {
-                    ChapterListScreen(
-                        viewModel = chapterViewModel,
-                        snackbarHostState = snackbarHostState,
-                        onBackClick = { selectedMangaId = null },
-                        onChapterClick = { chapterId -> onChapterClick(mangaId, chapterId) },
-                    )
-                }
-            } else {
-                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text(
-                        "Select a manga to view chapters",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+            // Right pane: manga detail / chapter list
+            Box(
+                Modifier
+                    .fillMaxHeight()
+                    .weight(0.5f),
+            ) {
+                val mangaId = selectedId
+                if (mangaId != null) {
+                    val chapterViewModel =
+                        koinViewModel<MangaChapterListViewModel>(
+                            key = mangaId.value,
+                            parameters = { parametersOf(MangaChapterListRoute(mangaId)) },
+                        )
+                    CompositionLocalProvider(LocalIsExpanded provides false) {
+                        ChapterListScreen(
+                            viewModel = chapterViewModel,
+                            snackbarHostState = snackbarHostState,
+                            onBackClick = { selectedMangaId = null },
+                            onChapterClick = { chapterId -> onChapterClick(mangaId, chapterId) },
+                        )
+                    }
+                } else {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Select a manga to view chapters",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         }
