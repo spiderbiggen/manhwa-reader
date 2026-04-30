@@ -84,7 +84,7 @@ import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
-import com.spiderbiggen.manga.presentation.components.bottomappbar.scrollAgainstContentBehavior
+import com.spiderbiggen.manga.presentation.components.bottomappbar.exitUntilEndScrollBehavior
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
@@ -129,7 +129,7 @@ fun MangaChapterReaderScreen(
     val topAppBarScrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
     )
-    val bottomAppBarScrollBehavior = BottomAppBarDefaults.scrollAgainstContentBehavior(
+    val bottomAppBarScrollBehavior = BottomAppBarDefaults.exitUntilEndScrollBehavior(
         canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
         lastItemIsVisible = { lastItemIsVisible(lazyListState) },
     )
