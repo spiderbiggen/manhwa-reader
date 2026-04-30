@@ -14,6 +14,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -40,6 +41,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -51,7 +53,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
@@ -83,7 +87,6 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
-import com.spiderbiggen.manga.presentation.components.bottomappbar.lastItemIsVisible
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
@@ -125,26 +128,37 @@ fun MangaChapterReaderScreen(
         cacheWindow = LazyLayoutCacheWindow(0.33f, 0.33f),
     )
 
-    LaunchedEffect(lazyListState) {
-        snapshotFlow {
+    val atExtreme by remember {
+        derivedStateOf {
             val atStart = lazyListState.firstVisibleItemIndex == 0 &&
                 lazyListState.firstVisibleItemScrollOffset == 0
-            val atEnd = lastItemIsVisible(lazyListState)
-            Triple(atStart, atEnd, lazyListState.isScrollInProgress)
-        }.collect { (atStart, atEnd, scrolling) ->
-            when {
-                atStart || atEnd -> barsVisible = true
-                scrolling -> barsVisible = false
-            }
+            atStart || lastItemIsVisible(lazyListState)
         }
     }
 
+    LaunchedEffect(lazyListState) {
+        snapshotFlow { atExtreme to lazyListState.isScrollInProgress }
+            .collect { (extreme, scrolling) ->
+                when {
+                    extreme -> barsVisible = true
+                    scrolling -> barsVisible = false
+                }
+            }
+    }
+
+    val density = LocalDensity.current
+    var topBarHeightPx by remember { mutableIntStateOf(0) }
+    var bottomBarHeightPx by remember { mutableIntStateOf(0) }
+    val topContentPadding = with(density) { topBarHeightPx.toDp() }
+    val bottomContentPadding = with(density) { bottomBarHeightPx.toDp() }
+
     val view = LocalView.current
     val context = LocalContext.current
-    DisposableEffect(Unit) {
-        val window = (context as? Activity)?.window
+    // Use context + view as keys so the effect re-runs after Activity recreation (e.g. rotation),
+    // avoiding stale window references in onDispose.
+    DisposableEffect(context, view) {
         onDispose {
-            window?.let { WindowCompat.getInsetsController(it, view) }
+            (context as? Activity)?.window?.let { WindowCompat.getInsetsController(it, view) }
                 ?.show(WindowInsetsCompat.Type.systemBars())
         }
     }
@@ -171,8 +185,9 @@ fun MangaChapterReaderScreen(
             is MangaChapterReaderScreenState.Ready -> ReadyImagesOverview(
                 modifier = Modifier.fillMaxSize(),
                 state = state,
+                contentPadding = PaddingValues(top = topContentPadding, bottom = bottomContentPadding),
                 lazyListState = lazyListState,
-                onListClicked = { barsVisible = !barsVisible },
+                onListClicked = { if (!atExtreme) barsVisible = !barsVisible },
                 setRead = setRead,
             )
 
@@ -184,8 +199,18 @@ fun MangaChapterReaderScreen(
             exit = fadeOut() + slideOutVertically { -it },
         ) {
             MangaTopAppBar(
+                modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
                 navigationIcon = {
-                    IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
+                    IconButton(
+                        onClick = dropUnlessStarted {
+                            // Restore bars eagerly so they are visible during the exit transition.
+                            (context as? Activity)?.window?.let {
+                                WindowCompat.getInsetsController(it, view)
+                                    .show(WindowInsetsCompat.Type.systemBars())
+                            }
+                            onBackClick()
+                        },
+                    ) {
                         Icon(painterResource(arrow_back), "Back")
                     }
                 },
@@ -200,6 +225,7 @@ fun MangaChapterReaderScreen(
                 modifier = Modifier.align(Alignment.BottomCenter),
             ) {
                 ReaderBottomBar(
+                    modifier = Modifier.onSizeChanged { bottomBarHeightPx = it.height },
                     screenState = state,
                     toChapterClicked = onChapterClick,
                     toggleFavorite = toggleFavorite,
@@ -207,9 +233,12 @@ fun MangaChapterReaderScreen(
                 )
             }
         }
+        // Padding keeps the snackbar above the bottom bar (same fixed offset as contentPadding).
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter),
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = bottomContentPadding),
         )
     }
 }
@@ -219,6 +248,7 @@ fun MangaChapterReaderScreen(
 private fun ReadyImagesOverview(
     state: MangaChapterReaderScreenState.Ready,
     modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
     onListClicked: () -> Unit = {},
     setRead: () -> Unit = {},
@@ -238,6 +268,7 @@ private fun ReadyImagesOverview(
     ) {
         PreloadImages(lazyListState, state.images)
         LazyColumn(
+            contentPadding = contentPadding,
             state = lazyListState,
             modifier = Modifier.drawWithContent {
                 drawContent()
@@ -267,7 +298,11 @@ private fun ReadyImagesOverview(
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(64.dp),
                     )
-                    Text("Chapter Finished", style = MaterialTheme.typography.titleLargeEmphasized)
+                    Text(
+                        "Chapter Finished",
+                        style = MaterialTheme.typography.titleLargeEmphasized,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
                 LaunchedEffect(true) {
                     readyTracker.onContentReady()
@@ -362,6 +397,12 @@ private fun ReaderBottomBar(
             Icon(painterResource(R.drawable.arrow_forward), null)
         }
     }
+}
+
+private fun lastItemIsVisible(lazyListState: LazyListState): Boolean {
+    val info = lazyListState.layoutInfo
+    val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return false
+    return lastVisibleItem.index + 1 >= info.totalItemsCount
 }
 
 private class ReadyTracker(private val lazyListState: LazyListState) {
