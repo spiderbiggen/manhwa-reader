@@ -1,16 +1,10 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.reader
 
 import android.app.Activity
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,23 +33,17 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
@@ -68,7 +56,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
-import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
 import coil3.annotation.ExperimentalCoilApi
@@ -87,6 +74,7 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
+import com.spiderbiggen.manga.presentation.components.ReaderScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
@@ -123,83 +111,16 @@ fun MangaChapterReaderScreen(
     setRead: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
-    var barsVisible by rememberSaveable { mutableStateOf(true) }
     val lazyListState = rememberLazyListState(
         cacheWindow = LazyLayoutCacheWindow(0.33f, 0.33f),
     )
 
-    val atExtreme by remember {
-        derivedStateOf {
-            val atStart = lazyListState.firstVisibleItemIndex == 0 &&
-                lazyListState.firstVisibleItemScrollOffset == 0
-            atStart || lastItemIsVisible(lazyListState)
-        }
-    }
-
-    LaunchedEffect(lazyListState) {
-        snapshotFlow { atExtreme to lazyListState.isScrollInProgress }
-            .collect { (extreme, scrolling) ->
-                when {
-                    extreme -> barsVisible = true
-                    scrolling -> barsVisible = false
-                }
-            }
-    }
-
-    val density = LocalDensity.current
-    var topBarHeightPx by remember { mutableIntStateOf(0) }
-    var bottomBarHeightPx by remember { mutableIntStateOf(0) }
-    val topContentPadding = with(density) { topBarHeightPx.toDp() }
-    val bottomContentPadding = with(density) { bottomBarHeightPx.toDp() }
-
-    val view = LocalView.current
-    val context = LocalContext.current
-    // Use context + view as keys so the effect re-runs after Activity recreation (e.g. rotation),
-    // avoiding stale window references in onDispose.
-    DisposableEffect(context, view) {
-        onDispose {
-            (context as? Activity)?.window?.let { WindowCompat.getInsetsController(it, view) }
-                ?.show(WindowInsetsCompat.Type.systemBars())
-        }
-    }
-    LaunchedEffect(barsVisible) {
-        val window = (context as? Activity)?.window ?: return@LaunchedEffect
-        val controller = WindowCompat.getInsetsController(window, view)
-        if (barsVisible) {
-            controller.show(WindowInsetsCompat.Type.systemBars())
-        } else {
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller.hide(WindowInsetsCompat.Type.systemBars())
-        }
-    }
-
-    Box(Modifier.fillMaxSize()) {
-        when (state) {
-            is MangaChapterReaderScreenState.Loading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                LoadingIndicator()
-            }
-
-            is MangaChapterReaderScreenState.Ready -> ReadyImagesOverview(
-                modifier = Modifier.fillMaxSize(),
-                state = state,
-                contentPadding = PaddingValues(top = topContentPadding, bottom = bottomContentPadding),
-                lazyListState = lazyListState,
-                onListClicked = { if (!atExtreme) barsVisible = !barsVisible },
-                setRead = setRead,
-            )
-
-            is MangaChapterReaderScreenState.Error -> Text(state.errorMessage)
-        }
-        AnimatedVisibility(
-            visible = barsVisible,
-            enter = fadeIn() + slideInVertically { -it },
-            exit = fadeOut() + slideOutVertically { -it },
-        ) {
+    ReaderScaffold(
+        lazyListState = lazyListState,
+        topBar = {
+            val view = LocalView.current
+            val context = LocalContext.current
             MangaTopAppBar(
-                modifier = Modifier.onSizeChanged { topBarHeightPx = it.height },
                 navigationIcon = {
                     IconButton(
                         onClick = dropUnlessStarted {
@@ -216,30 +137,37 @@ fun MangaChapterReaderScreen(
                 },
                 title = { Text(text = state.title.orEmpty()) },
             )
-        }
-        if (state is MangaChapterReaderScreenState.Ready) {
-            AnimatedVisibility(
-                visible = barsVisible,
-                enter = fadeIn() + slideInVertically { it },
-                exit = fadeOut() + slideOutVertically { it },
-                modifier = Modifier.align(Alignment.BottomCenter),
-            ) {
+        },
+        bottomBar = {
+            if (state is MangaChapterReaderScreenState.Ready) {
                 ReaderBottomBar(
-                    modifier = Modifier.onSizeChanged { bottomBarHeightPx = it.height },
                     screenState = state,
                     toChapterClicked = onChapterClick,
                     toggleFavorite = toggleFavorite,
                     setReadUpToHere = setReadUpToHere,
                 )
             }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
+    ) { contentPadding ->
+        when (state) {
+            is MangaChapterReaderScreenState.Loading -> Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center,
+            ) {
+                LoadingIndicator()
+            }
+
+            is MangaChapterReaderScreenState.Ready -> ReadyImagesOverview(
+                modifier = Modifier.fillMaxSize(),
+                state = state,
+                contentPadding = contentPadding,
+                lazyListState = lazyListState,
+                setRead = setRead,
+            )
+
+            is MangaChapterReaderScreenState.Error -> Text(state.errorMessage)
         }
-        // Padding keeps the snackbar above the bottom bar (same fixed offset as contentPadding).
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = bottomContentPadding),
-        )
     }
 }
 
@@ -250,7 +178,6 @@ private fun ReadyImagesOverview(
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyListState: LazyListState = rememberLazyListState(),
-    onListClicked: () -> Unit = {},
     setRead: () -> Unit = {},
 ) {
     val readyTracker = remember(lazyListState) { ReadyTracker(lazyListState) }
@@ -259,13 +186,7 @@ private fun ReadyImagesOverview(
         targetValue = if (readyTracker.finishedInitialLoading) 0f else 1f,
         animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
     )
-    Box(
-        modifier.clickable(
-            interactionSource = null,
-            indication = null,
-            onClick = onListClicked,
-        ),
-    ) {
+    Box(modifier) {
         PreloadImages(lazyListState, state.images)
         LazyColumn(
             contentPadding = contentPadding,
@@ -397,12 +318,6 @@ private fun ReaderBottomBar(
             Icon(painterResource(R.drawable.arrow_forward), null)
         }
     }
-}
-
-private fun lastItemIsVisible(lazyListState: LazyListState): Boolean {
-    val info = lazyListState.layoutInfo
-    val lastVisibleItem = info.visibleItemsInfo.lastOrNull() ?: return false
-    return lastVisibleItem.index + 1 >= info.totalItemsCount
 }
 
 private class ReadyTracker(private val lazyListState: LazyListState) {
