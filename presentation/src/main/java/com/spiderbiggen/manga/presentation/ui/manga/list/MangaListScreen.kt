@@ -2,13 +2,23 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -16,22 +26,29 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationRail
+import androidx.compose.material3.NavigationRailItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -49,6 +66,7 @@ import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberConstraintsSizeResolver
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
@@ -59,6 +77,9 @@ import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefres
 import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.ui.main.LocalIsExpanded
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterListScreen
+import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.navigation.MangaChapterListRoute
 import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
@@ -67,6 +88,8 @@ import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 @Composable
 fun MangaListScreen(
@@ -75,6 +98,7 @@ fun MangaListScreen(
     profileState: ProfileState,
     onProfileClick: () -> Unit,
     onMangaClick: (MangaId) -> Unit,
+    onChapterClick: (MangaId, ChapterId) -> Unit = { _, _ -> },
 ) {
     LaunchedEffect(viewModel, snackbarHostState) {
         viewModel.snackbarFlow.collect {
@@ -95,6 +119,7 @@ fun MangaListScreen(
         onToggleFavorites = viewModel::onToggleFavorites,
         onMangaClick = onMangaClick,
         onFavoriteClick = viewModel::onFavoriteClick,
+        onChapterClick = onChapterClick,
     )
 }
 
@@ -110,22 +135,220 @@ fun MangaListScreen(
     onToggleFavorites: () -> Unit = {},
     onMangaClick: (MangaId) -> Unit = {},
     onFavoriteClick: (MangaId) -> Unit = {},
+    onChapterClick: (MangaId, ChapterId) -> Unit = { _, _ -> },
 ) {
     val manga = (state.state as? MangaScreenState.Ready)?.manga ?: persistentListOf()
-    MangaOverviewContent(
-        snackbarHostState = snackbarHostState,
-        profileState = profileState,
-        manga = manga,
-        isUnreadSelected = state.filterUnread,
-        isFavoritesSelected = state.filterFavorites,
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
-        onProfileClicked = onProfileClicked,
-        onToggleUnreadRequested = onToggleUnread,
-        onToggleFavoritesRequested = onToggleFavorites,
-        onMangaClick = onMangaClick,
-        onFavoriteClick = onFavoriteClick,
-    )
+    val isExpanded = LocalIsExpanded.current
+
+    if (isExpanded) {
+        MangaTabletLayout(
+            manga = manga,
+            isUnreadSelected = state.filterUnread,
+            isFavoritesSelected = state.filterFavorites,
+            isRefreshing = isRefreshing,
+            snackbarHostState = snackbarHostState,
+            profileState = profileState,
+            onRefresh = onRefresh,
+            onProfileClicked = onProfileClicked,
+            onToggleUnreadRequested = onToggleUnread,
+            onToggleFavoritesRequested = onToggleFavorites,
+            onMangaClick = onMangaClick,
+            onChapterClick = onChapterClick,
+            onFavoriteClick = onFavoriteClick,
+        )
+    } else {
+        MangaOverviewContent(
+            snackbarHostState = snackbarHostState,
+            profileState = profileState,
+            manga = manga,
+            isUnreadSelected = state.filterUnread,
+            isFavoritesSelected = state.filterFavorites,
+            isRefreshing = isRefreshing,
+            onRefresh = onRefresh,
+            onProfileClicked = onProfileClicked,
+            onToggleUnreadRequested = onToggleUnread,
+            onToggleFavoritesRequested = onToggleFavorites,
+            onMangaClick = onMangaClick,
+            onFavoriteClick = onFavoriteClick,
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun MangaTabletLayout(
+    manga: ImmutableList<MangaViewData>,
+    isUnreadSelected: Boolean,
+    isFavoritesSelected: Boolean,
+    isRefreshing: Boolean,
+    snackbarHostState: SnackbarHostState,
+    profileState: ProfileState,
+    onRefresh: () -> Unit,
+    onProfileClicked: () -> Unit,
+    onToggleUnreadRequested: () -> Unit,
+    onToggleFavoritesRequested: () -> Unit,
+    onMangaClick: (MangaId) -> Unit,
+    onChapterClick: (MangaId, ChapterId) -> Unit,
+    onFavoriteClick: (MangaId) -> Unit,
+) {
+    var selectedMangaId by rememberSaveable { mutableStateOf<String?>(null) }
+    val selectedId = selectedMangaId?.let { MangaId(it) }
+
+    Row(Modifier.fillMaxSize()) {
+        NavigationRail {
+            NavigationRailItem(
+                selected = true,
+                onClick = {},
+                icon = { Icon(painterResource(R.drawable.book_read), contentDescription = "Library") },
+                label = { Text("Library") },
+            )
+            NavigationRailItem(
+                selected = false,
+                onClick = onProfileClicked,
+                icon = {
+                    when (profileState) {
+                        is ProfileState.Authenticated -> AsyncImage(
+                            model = profileState.avatarUrl,
+                            contentDescription = "Profile",
+                            contentScale = ContentScale.Crop,
+                            error = painterResource(R.drawable.account_circle),
+                            modifier = Modifier
+                                .clip(CircleShape)
+                                .size(24.dp),
+                        )
+
+                        is ProfileState.Unauthenticated -> Icon(
+                            painterResource(R.drawable.account_circle),
+                            contentDescription = "Profile",
+                        )
+                    }
+                },
+                label = { Text("Profile") },
+            )
+        }
+
+        // Left pane: filter chips + manga grid
+        Column(
+            Modifier
+                .fillMaxHeight()
+                .weight(0.4f),
+        ) {
+            Row(
+                Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                CheckedFilterChip(
+                    selected = isUnreadSelected,
+                    label = { Text("Unread") },
+                    onClick = onToggleUnreadRequested,
+                )
+                CheckedFilterChip(
+                    selected = isFavoritesSelected,
+                    label = { Text("Favorites") },
+                    onClick = onToggleFavoritesRequested,
+                )
+            }
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                modifier = Modifier.fillMaxSize(),
+            ) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    items(manga, key = { it.id.value }) { item ->
+                        MangaGridCard(
+                            manga = item,
+                            isSelected = item.id == selectedId,
+                            onClick = { selectedMangaId = item.id.value },
+                        )
+                    }
+                }
+            }
+        }
+
+        // Right pane: manga detail / chapter list
+        Box(
+            Modifier
+                .fillMaxHeight()
+                .weight(0.6f),
+        ) {
+            val mangaId = selectedId
+            if (mangaId != null) {
+                val chapterViewModel =
+                    koinViewModel<com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterListViewModel>(
+                        key = mangaId.value,
+                        parameters = { parametersOf(MangaChapterListRoute(mangaId)) },
+                    )
+                CompositionLocalProvider(LocalIsExpanded provides false) {
+                    ChapterListScreen(
+                        viewModel = chapterViewModel,
+                        snackbarHostState = snackbarHostState,
+                        onBackClick = { selectedMangaId = null },
+                        onChapterClick = { chapterId -> onChapterClick(mangaId, chapterId) },
+                    )
+                }
+            } else {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text(
+                        "Select a manga to view chapters",
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MangaGridCard(
+    manga: MangaViewData,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier,
+        border = if (isSelected) {
+            androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
+        } else {
+            null
+        },
+    ) {
+        Box {
+            AsyncImage(
+                model = manga.coverImage,
+                contentDescription = manga.title,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .aspectRatio(0.75f),
+            )
+            Box(
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(4.dp),
+            ) {
+                Text(
+                    manga.title,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.surface,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(2.dp),
+                )
+            }
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

@@ -4,6 +4,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.State
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
+import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
@@ -18,6 +19,7 @@ fun EntryProviderScope<NavKey>.mangaListDestination(
     profileState: State<ProfileState>,
     onProfileClick: () -> Unit,
     onMangaClick: (MangaId) -> Unit,
+    onChapterClick: (MangaId, ChapterId) -> Unit,
 ) {
     entry<MangaListRoute> {
         MangaListScreen(
@@ -26,6 +28,7 @@ fun EntryProviderScope<NavKey>.mangaListDestination(
             profileState = profileState.value,
             onProfileClick = onProfileClick,
             onMangaClick = onMangaClick,
+            onChapterClick = onChapterClick,
         )
     }
 }

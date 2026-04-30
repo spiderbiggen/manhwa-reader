@@ -28,6 +28,7 @@ fun EntryProviderScope<NavKey>.manga(
         profileState = profileState,
         onProfileClick = { backStack.navigateToProfile(profileState.value) },
         onMangaClick = backStack::navigateToMangaList,
+        onChapterClick = backStack::navigateToMangaReader,
     )
     mangaChapterListDestination(
         snackbarHostState = snackbarHostState,
