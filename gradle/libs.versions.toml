@@ -30,7 +30,7 @@ nav3Core = "1.1.1"
 room = "2.8.4"
 spotless-plugin-gradle = "8.4.0"
 stability-analyser = "0.7.4"
-sonarqube = "7.2.3.7755"
+sonarqube = "7.3.0.8198"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
