@@ -84,6 +84,9 @@ dependencies {
     implementation(libs.androidX.lifecycle.viewmodel.compose)
     implementation(libs.androidX.lifecycle.viewmodel.savedstate)
 
+    // Adaptive layout
+    implementation(libs.androidx.material3.adaptive)
+
     // Compose
     implementation(platform(libs.androidX.compose.bom))
     implementation(libs.androidX.compose.activity)

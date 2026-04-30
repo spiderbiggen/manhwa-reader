@@ -7,7 +7,9 @@ import androidx.compose.foundation.background
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
@@ -20,6 +22,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import androidx.window.core.layout.WindowWidthSizeClass
 import com.spiderbiggen.manga.presentation.components.StatusBarProtection
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.MangaListRoute
@@ -45,12 +48,17 @@ fun MainContent() {
         }
     }
 
-    MangaReaderTheme {
-        MangaNavHost(
-            snackbarHostState = snackbarHostState,
-            profileState = profileState,
-        )
-        StatusBarProtection()
+    val windowSizeClass = currentWindowAdaptiveInfo().windowSizeClass
+    val isExpanded = windowSizeClass.windowWidthSizeClass == WindowWidthSizeClass.EXPANDED
+
+    CompositionLocalProvider(LocalIsExpanded provides isExpanded) {
+        MangaReaderTheme {
+            MangaNavHost(
+                snackbarHostState = snackbarHostState,
+                profileState = profileState,
+            )
+            StatusBarProtection()
+        }
     }
 }
 
