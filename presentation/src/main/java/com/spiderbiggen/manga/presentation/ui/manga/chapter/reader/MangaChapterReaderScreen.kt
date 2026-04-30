@@ -11,12 +11,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.displayCutout
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
@@ -36,7 +34,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -56,6 +53,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -134,37 +133,43 @@ fun MangaChapterReaderScreen(
         lastItemIsVisible = { lastItemIsVisible(lazyListState) },
     )
 
-    Scaffold(
-        modifier = Modifier
+    val density = LocalDensity.current
+    val layoutDirection = LocalLayoutDirection.current
+    val safeInsets = WindowInsets.systemBars.union(WindowInsets.displayCutout)
+
+    // Reading heightOffset directly in composition means padding updates in the same frame as
+    // the bars' visual positions — no Scaffold SubcomposeLayout measurement race, no bounce.
+    val topBarPx = with(topAppBarScrollBehavior.state) {
+        if (heightOffsetLimit == -Float.MAX_VALUE) {
+            0f
+        } else {
+            (-heightOffsetLimit + heightOffset).coerceAtLeast(0f)
+        }
+    }
+    val bottomBarPx = with(bottomAppBarScrollBehavior.state) {
+        if (heightOffsetLimit == -Float.MAX_VALUE) {
+            0f
+        } else {
+            (-heightOffsetLimit + heightOffset).coerceAtLeast(0f)
+        }
+    }
+    val systemBottomPx = safeInsets.getBottom(density).toFloat()
+
+    val contentPadding = with(density) {
+        PaddingValues(
+            top = topBarPx.toDp(),
+            bottom = maxOf(systemBottomPx, bottomBarPx).toDp(),
+            start = safeInsets.getLeft(density, layoutDirection).toDp(),
+            end = safeInsets.getRight(density, layoutDirection).toDp(),
+        )
+    }
+
+    Box(
+        Modifier
+            .fillMaxSize()
             .nestedScroll(bottomAppBarScrollBehavior.nestedScrollConnection)
             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-        contentWindowInsets = WindowInsets.systemBars
-            .union(WindowInsets.displayCutout)
-            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
-        topBar = {
-            MangaTopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
-                        Icon(painterResource(arrow_back), "Back")
-                    }
-                },
-                title = { Text(text = state.title.orEmpty()) },
-                scrollBehavior = topAppBarScrollBehavior,
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        bottomBar = {
-            if (state is MangaChapterReaderScreenState.Ready) {
-                ReaderBottomBar(
-                    screenState = state,
-                    toChapterClicked = onChapterClick,
-                    toggleFavorite = toggleFavorite,
-                    setReadUpToHere = setReadUpToHere,
-                    scrollBehavior = bottomAppBarScrollBehavior,
-                )
-            }
-        },
-    ) { contentPadding ->
+    ) {
         when (state) {
             is MangaChapterReaderScreenState.Loading -> Box(
                 modifier = Modifier
@@ -191,23 +196,19 @@ fun MangaChapterReaderScreen(
                         val targetTopOffset = if (isExpanding) limit else 0f
                         val topAnimationSpec = topAppBarScrollBehavior.snapAnimationSpec ?: floatAnimationSpec
                         coroutineScope.launch {
-                            // TODO fix scroll jank, likely due to changing content padding in default scaffold
-                            var previousValue = initialTopOffset
                             animate(
                                 initialValue = initialTopOffset,
                                 targetValue = targetTopOffset,
                                 animationSpec = topAnimationSpec,
                             ) { value, _ ->
-                                val delta = value - previousValue
-                                lazyListState.dispatchRawDelta(delta)
                                 topAppBarScrollBehavior.state.heightOffset = value
-                                topAppBarScrollBehavior.state.contentOffset -= delta
-                                previousValue = value
                             }
+                            topAppBarScrollBehavior.state.contentOffset = if (isExpanding) limit else 0f
                         }
                         coroutineScope.launch {
+                            val bottomLimit = bottomAppBarScrollBehavior.state.heightOffsetLimit
                             val initialBottomOffset = bottomAppBarScrollBehavior.state.heightOffset
-                            val targetBottomOffset = if (isExpanding) limit else 0f
+                            val targetBottomOffset = if (isExpanding) bottomLimit else 0f
                             val animationSpec = bottomAppBarScrollBehavior.snapAnimationSpec ?: floatAnimationSpec
                             animate(
                                 initialValue = initialBottomOffset,
@@ -216,6 +217,7 @@ fun MangaChapterReaderScreen(
                             ) { value, _ ->
                                 bottomAppBarScrollBehavior.state.heightOffset = value
                             }
+                            bottomAppBarScrollBehavior.state.contentOffset = if (isExpanding) bottomLimit else 0f
                         }
                     },
                     setRead = setRead,
@@ -224,6 +226,31 @@ fun MangaChapterReaderScreen(
 
             is MangaChapterReaderScreenState.Error -> Text(state.errorMessage)
         }
+        MangaTopAppBar(
+            navigationIcon = {
+                IconButton(onClick = dropUnlessStarted(block = onBackClick)) {
+                    Icon(painterResource(arrow_back), "Back")
+                }
+            },
+            title = { Text(text = state.title.orEmpty()) },
+            scrollBehavior = topAppBarScrollBehavior,
+        )
+        if (state is MangaChapterReaderScreenState.Ready) {
+            ReaderBottomBar(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                screenState = state,
+                toChapterClicked = onChapterClick,
+                toggleFavorite = toggleFavorite,
+                setReadUpToHere = setReadUpToHere,
+                scrollBehavior = bottomAppBarScrollBehavior,
+            )
+        }
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .padding(bottom = with(density) { maxOf(systemBottomPx, bottomBarPx).toDp() }),
+        )
     }
 }
 
@@ -331,12 +358,14 @@ private fun DisplayImageState(state: AsyncImagePainter.State, modifier: Modifier
 @Composable
 private fun ReaderBottomBar(
     screenState: MangaChapterReaderScreenState.Ready?,
+    modifier: Modifier = Modifier,
     toChapterClicked: (ChapterId) -> Unit = {},
     toggleFavorite: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
     scrollBehavior: BottomAppBarScrollBehavior? = null,
 ) {
     FlexibleBottomAppBar(
+        modifier = modifier,
         scrollBehavior = scrollBehavior,
     ) {
         IconButton(onClick = toggleFavorite) {
