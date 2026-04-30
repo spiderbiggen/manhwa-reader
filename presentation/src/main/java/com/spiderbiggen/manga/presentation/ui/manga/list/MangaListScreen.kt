@@ -25,7 +25,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -54,7 +54,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -87,7 +86,9 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
+import com.spiderbiggen.manga.presentation.components.LocalReadStateAlpha
 import com.spiderbiggen.manga.presentation.components.PreloadImages
+import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
@@ -277,7 +278,9 @@ private fun MangaTabletLayout(
                         .height(chipBarHeight),
                     color = MaterialTheme.colorScheme.background,
                 ) {
-                    Box(Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
+                    Box(Modifier
+                        .fillMaxSize()
+                        .windowInsetsPadding(WindowInsets.statusBars)) {
                         Row(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
@@ -372,9 +375,11 @@ private fun MangaGridCard(
     onFavoriteClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Card(
+    ReadStateCard(
+        isRead = manga.isRead,
         onClick = onClick,
-        modifier = modifier.alpha(if (manga.isRead) 0.6f else 1f),
+        modifier = modifier,
+        shape = CardDefaults.shape,
         border = if (isSelected) {
             androidx.compose.foundation.BorderStroke(2.dp, MaterialTheme.colorScheme.primary)
         } else {
@@ -399,17 +404,24 @@ private fun MangaGridCard(
                         Brush.verticalGradient(
                             colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.92f)),
                         ),
-                    )
-                    .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
+                    ),
                 contentAlignment = Alignment.BottomStart,
             ) {
+                val titleStyle = if (manga.isRead) {
+                    MaterialTheme.typography.titleSmall
+                } else {
+                    MaterialTheme.typography.titleSmallEmphasized
+                }
+                val titleColor = Color.White.copy(alpha = LocalReadStateAlpha.current)
                 Text(
                     manga.title,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.titleSmall,
-                    color = Color.White,
-                    modifier = Modifier.fillMaxWidth(),
+                    style = titleStyle,
+                    color = titleColor,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = 6.dp, end = 6.dp, bottom = 6.dp),
                 )
             }
             Box(
