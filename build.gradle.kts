@@ -13,6 +13,13 @@ plugins {
     id("manga.spotless")
 }
 
+buildscript {
+    dependencies {
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${libs.versions.kotlin}")
+        classpath("com.google.devtools.ksp:symbol-processing-gradle-plugin:${libs.versions.ksp}")
+    }
+}
+
 sonar {
     properties {
         property("sonar.projectKey", "spiderbiggen_manhwa-reader")
@@ -22,5 +29,9 @@ sonar {
 }
 
 subprojects {
-    sonar { setAndroidVariant("debug") }
+    sonar {
+        setAndroidVariant("debug")
+    }
 }
+
+

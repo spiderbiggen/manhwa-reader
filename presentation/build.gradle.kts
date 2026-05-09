@@ -10,9 +10,9 @@ plugins {
     id("manga.spotless")
 }
 
-configure<LibraryExtension> {
+android {
     namespace = "com.spiderbiggen.manga.presentation"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
@@ -50,10 +50,6 @@ tasks.withType<StabilityCheckTask>().configureEach {
 
 dependencies {
     implementation(project(":domain"))
-    // Arrow
-    implementation(platform(libs.arrow.bom))
-    implementation(libs.arrow.core)
-    implementation(libs.arrow.fx.coroutines)
 
     implementation(libs.androidX.core.ktx)
 

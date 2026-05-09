@@ -7,9 +7,9 @@ plugins {
     id("manga.spotless")
 }
 
-configure<LibraryExtension> {
+android {
     namespace = "com.spiderbiggen.manga.data"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 26
@@ -46,10 +46,6 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
-    // Arrow
-    implementation(platform(libs.arrow.bom))
-    implementation(libs.arrow.core)
-    implementation(libs.arrow.fx.coroutines)
 
     implementation(libs.androidX.core.ktx)
     implementation(libs.androidX.appcompat)

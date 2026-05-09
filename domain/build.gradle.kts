@@ -16,7 +16,6 @@ kotlin {
 
 dependencies {
     // Kotlin
-    implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinX.datetime)
     implementation(libs.kotlinX.coroutines.core)
     implementation(libs.kotlinX.serialization)

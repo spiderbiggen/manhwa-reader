@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.ApplicationExtension
 import com.skydoves.compose.stability.gradle.StabilityCheckTask
 import java.util.Properties
 import org.gradle.kotlin.dsl.withType
@@ -13,9 +12,9 @@ plugins {
     id("manga.spotless")
 }
 
-extensions.configure<ApplicationExtension> {
+android {
     namespace = "com.spiderbiggen.manga"
-    compileSdk = 36
+    compileSdk = 37
 
     buildFeatures {
         compose = true
@@ -25,7 +24,7 @@ extensions.configure<ApplicationExtension> {
     defaultConfig {
         applicationId = "com.spiderbiggen.manga"
         minSdk = 26
-        targetSdk = 36
+        targetSdk = 37
         versionCode = 79
         versionName = "1.26.5"
     }
