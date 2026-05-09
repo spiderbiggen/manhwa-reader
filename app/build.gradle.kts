@@ -25,8 +25,8 @@ android {
         applicationId = "com.spiderbiggen.manga"
         minSdk = 26
         targetSdk = 37
-        versionCode = 79
-        versionName = "1.26.5"
+        versionCode = 80
+        versionName = "1.27.0"
     }
 
     signingConfigs {
