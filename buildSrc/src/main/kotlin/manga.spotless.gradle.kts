@@ -1,5 +1,3 @@
-import com.diffplug.gradle.spotless.SpotlessExtensionPredeclare
-
 plugins {
     id("com.diffplug.spotless")
 }
@@ -7,8 +5,7 @@ plugins {
 private val ktlintVersion = "1.8.0"
 
 if (project == rootProject) {
-    spotless { predeclareDeps() }
-    configure<SpotlessExtensionPredeclare> {
+   spotlessPredeclare {
         kotlin { ktlint(ktlintVersion) }
         kotlinGradle { ktlint(ktlintVersion) }
     }

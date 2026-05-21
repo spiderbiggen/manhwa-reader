@@ -1,5 +1,3 @@
-import com.android.build.api.dsl.LibraryExtension
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinX.serialization)

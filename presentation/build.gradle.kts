@@ -1,4 +1,3 @@
-import com.android.build.api.dsl.LibraryExtension
 import com.skydoves.compose.stability.gradle.StabilityCheckTask
 
 plugins {
