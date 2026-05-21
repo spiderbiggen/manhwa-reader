@@ -13,4 +13,5 @@ data class MangaViewData(
     val updatedAt: String?,
     val isFavorite: Boolean,
     val isRead: Boolean,
+    val dominantColor: Int?,
 )

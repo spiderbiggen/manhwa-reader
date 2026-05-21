@@ -177,6 +177,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                     updatedAt = DATE_STRING,
                     isFavorite = false,
                     isRead = false,
+                    dominantColor = null,
                 ),
                 MangaViewData(
                     source = "Asura",
@@ -187,6 +188,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
                     updatedAt = DATE_STRING,
                     isFavorite = true,
                     isRead = true,
+                    dominantColor = null,
                 ),
             )
         }

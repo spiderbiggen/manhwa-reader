@@ -3,11 +3,17 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyGridState
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +25,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
@@ -31,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -48,7 +56,9 @@ import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.compose.LocalPlatformContext
-import coil3.compose.rememberConstraintsSizeResolver
+import coil3.size.Dimension
+import coil3.size.Size
+import coil3.size.SizeResolver
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
@@ -56,10 +66,9 @@ import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
-import com.spiderbiggen.manga.presentation.components.section
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
+import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCoverCard
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
@@ -144,11 +153,11 @@ private fun MangaOverviewContent(
     onMangaClick: (MangaId) -> Unit = {},
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
-    val lazyListState = rememberLazyListState()
+    val lazyGridState = rememberLazyGridState()
     val topAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(
-            lazyListState,
-            canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+            lazyGridState,
+            canScroll = { lazyGridState.canScrollForward || lazyGridState.canScrollBackward },
         )
     Scaffold(
         topBar = {
@@ -210,13 +219,17 @@ private fun MangaOverviewContent(
                     .toInt()
             },
         ) {
-            MangaList(
+            MangaGrid(
                 mangas = manga,
+                isUnreadSelected = isUnreadSelected,
+                isFavoritesSelected = isFavoritesSelected,
+                onToggleUnreadRequested = onToggleUnreadRequested,
+                onToggleFavoritesRequested = onToggleFavoritesRequested,
                 modifier =
                     Modifier.fillMaxSize()
                         .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                 contentPadding = contentPadding,
-                lazyListState = lazyListState,
+                lazyGridState = lazyGridState,
                 onMangaClick = onMangaClick,
                 onFavoriteClick = onFavoriteClick,
             )
@@ -247,41 +260,68 @@ private fun CheckedFilterChip(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun MangaList(
+private fun MangaGrid(
     mangas: ImmutableList<MangaViewData>,
+    isUnreadSelected: Boolean,
+    isFavoritesSelected: Boolean,
+    onToggleUnreadRequested: () -> Unit,
+    onToggleFavoritesRequested: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
-    lazyListState: LazyListState = rememberLazyListState(),
+    lazyGridState: LazyGridState = rememberLazyGridState(),
     onMangaClick: (MangaId) -> Unit = {},
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultEffectsSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 
-    val coverSizeResolver = rememberConstraintsSizeResolver()
     val allImages =
         remember(mangas) {
             mangas.map { it.coverImage }.toImmutableList()
         }
+    val windowWidth = LocalWindowInfo.current.containerSize.width
     PreloadImages(
-        lazyListState = lazyListState,
+        lazyGridState = lazyGridState,
         items = allImages,
-        sizeResolver = { coverSizeResolver },
+        sizeResolver = {
+            SizeResolver(Size(width = Dimension.Pixels(windowWidth / 3), height = Dimension.Undefined))
+        },
         preloadCount = 15,
     )
 
-    LazyColumn(
+    LazyVerticalGrid(
+        columns = GridCells.Fixed(3),
         modifier = modifier,
-        state = lazyListState,
-        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(2.dp),
+        state = lazyGridState,
+        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        section(
-            header = "Manga",
+        item(span = { GridItemSpan(maxLineSpan) }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                CheckedFilterChip(
+                    selected = isUnreadSelected,
+                    label = { Text("Unread") },
+                    onClick = onToggleUnreadRequested,
+                )
+                CheckedFilterChip(
+                    selected = isFavoritesSelected,
+                    label = { Text("Favorites") },
+                    onClick = onToggleFavoritesRequested,
+                )
+            }
+        }
+
+        items(
             items = mangas,
             key = { it.id.value },
-        ) { item, shape ->
-            MangaRow(
+        ) { item ->
+            MangaCoverCard(
                 manga = item,
                 onMangaClick = onMangaClick,
                 onMangaFavoriteToggleClick = onFavoriteClick,
@@ -291,8 +331,6 @@ private fun MangaList(
                         placementSpec = intOffsetAnimateSpec,
                         fadeOutSpec = floatAnimationSpec,
                     ),
-                shape = shape,
-                coverSizeResolver = coverSizeResolver,
             )
         }
     }
@@ -348,17 +386,17 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
 }
 
 object MangaProvider {
-    private val baseViewData =
-        MangaViewData(
-            source = "Asura",
-            id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
-            title = "Heavenly Martial God",
-            coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-            status = "Ongoing",
-            updatedAt = "2023-04-23",
-            isFavorite = false,
-            isRead = false,
-        )
+    private val baseViewData = MangaViewData(
+        source = "Asura",
+        id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
+        title = "Heavenly Martial God",
+        coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+        status = "Ongoing",
+        updatedAt = "2023-04-23",
+        isFavorite = false,
+        isRead = false,
+        dominantColor = null,
+    )
 
     val values
         get() =
