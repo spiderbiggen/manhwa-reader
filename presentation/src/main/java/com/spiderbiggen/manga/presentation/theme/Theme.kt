@@ -85,10 +85,7 @@ private val darkScheme = darkColorScheme(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AppTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) {
+fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     MaterialExpressiveTheme(
         colorScheme = if (darkTheme) darkScheme else lightScheme,
         typography = AppTypography,
@@ -97,7 +94,5 @@ fun AppTheme(
 }
 
 @Composable
-fun MangaReaderTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit,
-) = AppTheme(darkTheme = darkTheme, content = content)
+fun MangaReaderTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) =
+    AppTheme(darkTheme = darkTheme, content = content)
