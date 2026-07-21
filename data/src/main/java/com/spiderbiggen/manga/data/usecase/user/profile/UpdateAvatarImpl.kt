@@ -60,7 +60,6 @@ class UpdateAvatarImpl(
                     enqueue(ImageRequest.Builder(context).data(avatarUrl).build())
                 }
             }
-            Unit
         }
     }
 }
