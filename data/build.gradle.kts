@@ -7,21 +7,16 @@ plugins {
 
 android {
     namespace = "com.spiderbiggen.manga.data"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     defaultConfig {
         minSdk = 26
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        consumerProguardFiles("consumer-rules.pro")
-    }
-    buildTypes {
-        debug {
-            buildConfigField("boolean", "DEBUG", "true")
-        }
-        release {
-            buildConfigField("boolean", "DEBUG", "false")
-        }
     }
     buildFeatures {
         buildConfig = true
