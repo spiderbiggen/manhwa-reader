@@ -127,9 +127,7 @@ fun MangaCoverCard(
 @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
 @Composable
-private fun PreviewMangaCoverCard(
-    @PreviewParameter(MangaViewDataProvider::class) state: MangaViewData,
-) {
+private fun PreviewMangaCoverCard(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
         ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
