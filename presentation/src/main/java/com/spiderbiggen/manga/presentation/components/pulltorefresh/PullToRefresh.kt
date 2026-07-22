@@ -31,9 +31,7 @@ fun PullToRefreshBox(
         contentAlignment = contentAlignment,
         indicator = {
             PullToRefreshDefaults.LoadingIndicator(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .offset { IntOffset(0, topOffSet()) },
+                modifier = Modifier.align(Alignment.TopCenter).offset { IntOffset(0, topOffSet()) },
                 isRefreshing = isRefreshing,
                 state = state,
             )

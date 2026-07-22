@@ -112,10 +112,11 @@ fun ChapterListScreen(
     onChapterClick: (ChapterId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-        lazyListState,
-        canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
-    )
+    val topAppBarScrollBehavior =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(
+            lazyListState,
+            canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+        )
     val readyState = state as? MangaChapterScreenState.Ready
     Scaffold(
         topBar = {
@@ -143,24 +144,24 @@ fun ChapterListScreen(
     ) { scaffoldPadding ->
         when (state) {
             is MangaChapterScreenState.Loading,
-            is MangaChapterScreenState.Error,
-            -> LoadingSpinner(scaffoldPadding)
+            is MangaChapterScreenState.Error -> LoadingSpinner(scaffoldPadding)
 
             is MangaChapterScreenState.Ready -> {
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = onRefresh,
                     topOffSet = {
-                        (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit)
+                        (topAppBarScrollBehavior.state.heightOffset -
+                                topAppBarScrollBehavior.state.heightOffsetLimit)
                             .toInt()
                     },
                 ) {
                     ChaptersList(
                         lazyListState = lazyListState,
                         chapters = state.chapters,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                        modifier =
+                            Modifier.fillMaxSize()
+                                .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                         contentPadding = scaffoldPadding,
                         onChapterClick = onChapterClick,
                     )
@@ -195,13 +196,13 @@ private fun ChaptersList(
             ChapterRow(
                 item = item,
                 navigateToChapter = onChapterClick,
-                modifier = Modifier
-                    .animateItem(
-                        fadeInSpec = floatAnimationSpec,
-                        placementSpec = intOffsetAnimateSpec,
-                        fadeOutSpec = floatAnimationSpec,
-                    )
-                    .defaultMinSize(minHeight = 48.dp),
+                modifier =
+                    Modifier.animateItem(
+                            fadeInSpec = floatAnimationSpec,
+                            placementSpec = intOffsetAnimateSpec,
+                            fadeOutSpec = floatAnimationSpec,
+                        )
+                        .defaultMinSize(minHeight = 48.dp),
                 shape = shape,
             )
         }
@@ -223,9 +224,9 @@ private fun ChapterRow(
         modifier = modifier.fillMaxWidth(),
     ) {
         Row(
-            modifier = Modifier
-                .heightIn(min = 48.dp)
-                .padding(start = 8.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
+            modifier =
+                Modifier.heightIn(min = 48.dp)
+                    .padding(start = 8.dp, top = 8.dp, end = 16.dp, bottom = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
@@ -233,18 +234,20 @@ private fun ChapterRow(
             Column(verticalArrangement = Arrangement.Center) {
                 Text(
                     text = item.date,
-                    style = when {
-                        item.isRead -> MaterialTheme.typography.titleMedium
-                        else -> MaterialTheme.typography.titleMediumEmphasized
-                    },
+                    style =
+                        when {
+                            item.isRead -> MaterialTheme.typography.titleMedium
+                            else -> MaterialTheme.typography.titleMediumEmphasized
+                        },
                 )
                 item.title?.let {
                     Text(
                         text = it,
-                        style = when {
-                            item.isRead -> MaterialTheme.typography.bodyMedium
-                            else -> MaterialTheme.typography.bodyMediumEmphasized
-                        },
+                        style =
+                            when {
+                                item.isRead -> MaterialTheme.typography.bodyMedium
+                                else -> MaterialTheme.typography.bodyMediumEmphasized
+                            },
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                     )
@@ -266,22 +269,22 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = item.index.toString(),
-            style = when {
-                item.isRead -> MaterialTheme.typography.titleLarge
-                else -> MaterialTheme.typography.titleLargeEmphasized
-            },
+            style =
+                when {
+                    item.isRead -> MaterialTheme.typography.titleLarge
+                    else -> MaterialTheme.typography.titleLargeEmphasized
+                },
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxHeight()
-                .alignBy { 0 },
+            modifier = Modifier.fillMaxHeight().alignBy { 0 },
         )
         item.subIndex?.let {
             Text(
                 text = it.toString(),
-                style = when {
-                    item.isRead -> MaterialTheme.typography.titleMedium
-                    else -> MaterialTheme.typography.titleMediumEmphasized
-                },
+                style =
+                    when {
+                        item.isRead -> MaterialTheme.typography.titleMedium
+                        else -> MaterialTheme.typography.titleMediumEmphasized
+                    },
                 modifier = Modifier.alignBy { 0 },
             )
         }
@@ -304,7 +307,9 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
-fun PreviewManga(@PreviewParameter(ChapterOverviewScreenStateProvider::class) state: MangaChapterScreenState) {
+fun PreviewManga(
+    @PreviewParameter(ChapterOverviewScreenStateProvider::class) state: MangaChapterScreenState
+) {
     val isRefreshing = remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -359,107 +364,117 @@ private object ChapterProvider {
     private val mapChapterRowData = MapChapterRowData()
 
     val values: Sequence<ChapterRowData>
-        get() = sequenceOf(
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000000"),
-                        index = 30u,
-                        title = null,
-                        date = LocalDate.parse("2023-04-16"),
-                        updatedAt = now(),
-                    ),
-                    isRead = false,
+        get() =
+            sequenceOf(
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000000"),
+                                index = 30u,
+                                title = null,
+                                date = LocalDate.parse("2023-04-16"),
+                                updatedAt = now(),
+                            ),
+                        isRead = false,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000001"),
-                        index = 29u,
-                        subIndex = 5u,
-                        title = null,
-                        date = LocalDate.parse(CHAPTER_DATE),
-                        updatedAt = now(),
-                    ),
-                    isRead = false,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000001"),
+                                index = 29u,
+                                subIndex = 5u,
+                                title = null,
+                                date = LocalDate.parse(CHAPTER_DATE),
+                                updatedAt = now(),
+                            ),
+                        isRead = false,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000002"),
-                        index = 29u,
-                        subIndex = 4u,
-                        title = null,
-                        date = LocalDate.parse(CHAPTER_DATE),
-                        updatedAt = now(),
-                    ),
-                    isRead = true,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000002"),
+                                index = 29u,
+                                subIndex = 4u,
+                                title = null,
+                                date = LocalDate.parse(CHAPTER_DATE),
+                                updatedAt = now(),
+                            ),
+                        isRead = true,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000003"),
-                        index = 29u,
-                        subIndex = 3u,
-                        title = null,
-                        date = LocalDate.parse(CHAPTER_DATE),
-                        updatedAt = now(),
-                    ),
-                    isRead = true,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000003"),
+                                index = 29u,
+                                subIndex = 3u,
+                                title = null,
+                                date = LocalDate.parse(CHAPTER_DATE),
+                                updatedAt = now(),
+                            ),
+                        isRead = true,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000004"),
-                        index = 29u,
-                        subIndex = 2u,
-                        title = null,
-                        date = LocalDate.parse(CHAPTER_DATE),
-                        updatedAt = now(),
-                    ),
-                    isRead = true,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000004"),
+                                index = 29u,
+                                subIndex = 2u,
+                                title = null,
+                                date = LocalDate.parse(CHAPTER_DATE),
+                                updatedAt = now(),
+                            ),
+                        isRead = true,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000005"),
-                        index = 29u,
-                        subIndex = 1u,
-                        title = null,
-                        date = LocalDate.parse(CHAPTER_DATE),
-                        updatedAt = now(),
-                    ),
-                    isRead = true,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000005"),
+                                index = 29u,
+                                subIndex = 1u,
+                                title = null,
+                                date = LocalDate.parse(CHAPTER_DATE),
+                                updatedAt = now(),
+                            ),
+                        isRead = true,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000006"),
-                        index = 29u,
-                        title = null,
-                        date = LocalDate.parse("2023-03-15"),
-                        updatedAt = now(),
-                    ),
-                    isRead = false,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000006"),
+                                index = 29u,
+                                title = null,
+                                date = LocalDate.parse("2023-03-15"),
+                                updatedAt = now(),
+                            ),
+                        isRead = false,
+                    )
                 ),
-            ),
-            mapChapterRowData(
-                ChapterForOverview(
-                    chapter = Chapter(
-                        id = ChapterId("000007"),
-                        index = 28u,
-                        title = "Long title to make the title take two lines at least and just a bit more",
-                        date = LocalDate.parse("2023-02-28"),
-                        updatedAt = now(),
-                    ),
-                    isRead = false,
+                mapChapterRowData(
+                    ChapterForOverview(
+                        chapter =
+                            Chapter(
+                                id = ChapterId("000007"),
+                                index = 28u,
+                                title =
+                                    "Long title to make the title take two lines at least and just a bit more",
+                                date = LocalDate.parse("2023-02-28"),
+                                updatedAt = now(),
+                            ),
+                        isRead = false,
+                    )
                 ),
-            ),
-        )
+            )
 }

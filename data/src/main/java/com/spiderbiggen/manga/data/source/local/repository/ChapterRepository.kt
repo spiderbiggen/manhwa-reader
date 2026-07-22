@@ -14,7 +14,10 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class ChapterRepository(private val chapterDao: LocalChapterDao, private val toDomain: ToDomainChapter) {
+class ChapterRepository(
+    private val chapterDao: LocalChapterDao,
+    private val toDomain: ToDomainChapter,
+) {
     suspend fun insert(chapters: List<LocalChapterEntity>): Either<AppError, Unit> = either {
         appError { chapterDao.insert(chapters) }
     }
@@ -24,18 +27,17 @@ class ChapterRepository(private val chapterDao: LocalChapterDao, private val toD
     }
 
     fun getChaptersAsFlow(mangaId: MangaId): Flow<List<ChapterForOverview>> =
-        chapterDao.getFlowForMangaOverview(mangaId)
-            .map { entities ->
-                entities.map {
-                    ChapterForOverview(
-                        chapter = toDomain.invoke(it.chapter),
-                        isRead = it.isRead,
-                    )
-                }
+        chapterDao.getFlowForMangaOverview(mangaId).map { entities ->
+            entities.map {
+                ChapterForOverview(
+                    chapter = toDomain.invoke(it.chapter),
+                    isRead = it.isRead,
+                )
             }
+        }
 
-    fun getChapterAsFlow(id: ChapterId): Flow<ChapterForOverview?> = chapterDao.getFlowForChapterOverview(id)
-        .map { entity ->
+    fun getChapterAsFlow(id: ChapterId): Flow<ChapterForOverview?> =
+        chapterDao.getFlowForChapterOverview(id).map { entity ->
             entity?.let {
                 ChapterForOverview(
                     chapter = toDomain.invoke(it.chapter),

@@ -20,14 +20,18 @@ class LoginImpl(
     private val synchronizeWithRemote: SynchronizeWithRemote,
     private val resetBearerToken: ResetBearerToken,
 ) : Login {
-    override suspend fun invoke(usernameOrEmail: String, password: String): Either<AppError, User> = either {
-        updateSession(usernameOrEmail, password).bind()
-        val user = fetchCurrentUser().bind()
-        synchronizeWithRemote(true).bind()
-        user
-    }
+    override suspend fun invoke(usernameOrEmail: String, password: String): Either<AppError, User> =
+        either {
+            updateSession(usernameOrEmail, password).bind()
+            val user = fetchCurrentUser().bind()
+            synchronizeWithRemote(true).bind()
+            user
+        }
 
-    private suspend fun updateSession(usernameOrEmail: String, password: String): Either<AppError, Unit> = either {
+    private suspend fun updateSession(
+        usernameOrEmail: String,
+        password: String,
+    ): Either<AppError, Unit> = either {
         val session = appError {
             val body = LoginBody(usernameOrEmail, password)
             authService.login(body)

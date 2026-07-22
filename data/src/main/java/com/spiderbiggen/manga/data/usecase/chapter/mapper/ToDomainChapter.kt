@@ -5,21 +5,23 @@ import com.spiderbiggen.manga.data.source.remote.model.ChapterEntity
 import com.spiderbiggen.manga.domain.model.chapter.Chapter
 
 class ToDomainChapter {
-    operator fun invoke(entity: ChapterEntity): Chapter = Chapter(
-        id = entity.id,
-        index = entity.index,
-        subIndex = entity.subIndex,
-        title = entity.title,
-        date = entity.date,
-        updatedAt = entity.updatedAt,
-    )
+    operator fun invoke(entity: ChapterEntity): Chapter =
+        Chapter(
+            id = entity.id,
+            index = entity.index,
+            subIndex = entity.subIndex,
+            title = entity.title,
+            date = entity.date,
+            updatedAt = entity.updatedAt,
+        )
 
-    operator fun invoke(entity: LocalChapterEntity): Chapter = Chapter(
-        id = entity.id,
-        index = entity.index.toUInt(),
-        subIndex = entity.subIndex?.toUInt(),
-        title = entity.title,
-        date = entity.date,
-        updatedAt = entity.updatedAt,
-    )
+    operator fun invoke(entity: LocalChapterEntity): Chapter =
+        Chapter(
+            id = entity.id,
+            index = entity.index.toUInt(),
+            subIndex = entity.subIndex?.toUInt(),
+            title = entity.title,
+            date = entity.date,
+            updatedAt = entity.updatedAt,
+        )
 }

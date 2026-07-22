@@ -10,8 +10,7 @@ import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
-@Serializable
-data object MangaListRoute : NavKey
+@Serializable data object MangaListRoute : NavKey
 
 fun EntryProviderScope<NavKey>.mangaListDestination(
     snackbarHostState: SnackbarHostState,

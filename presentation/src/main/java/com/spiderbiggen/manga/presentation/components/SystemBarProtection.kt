@@ -19,14 +19,16 @@ fun StatusBarProtection(
 ) {
     Canvas(Modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()
-        val gradient = Brush.verticalGradient(
-            colors = listOf(
-                color.copy(alpha = 1f),
-                Color.Transparent,
-            ),
-            startY = 0f,
-            endY = calculatedHeight,
-        )
+        val gradient =
+            Brush.verticalGradient(
+                colors =
+                    listOf(
+                        color.copy(alpha = 1f),
+                        Color.Transparent,
+                    ),
+                startY = 0f,
+                endY = calculatedHeight,
+            )
         drawRect(
             brush = gradient,
             size = Size(size.width, calculatedHeight),

@@ -11,8 +11,7 @@ import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
-@Serializable
-data class MangaChapterListRoute(val id: MangaId) : NavKey
+@Serializable data class MangaChapterListRoute(val id: MangaId) : NavKey
 
 fun NavBackStack<NavKey>.navigateToMangaList(id: MangaId) {
     add(MangaChapterListRoute(id))

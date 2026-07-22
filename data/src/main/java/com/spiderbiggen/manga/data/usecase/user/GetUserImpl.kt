@@ -10,7 +10,8 @@ class GetUserImpl(
     private val authenticationRepository: AuthenticationRepository,
     private val mapUserEntity: MapUserEntity,
 ) : GetUser {
-    override fun invoke(): Flow<User?> = authenticationRepository.getUserFlow().map {
-        it?.let { mapUserEntity(it) }
-    }
+    override fun invoke(): Flow<User?> =
+        authenticationRepository.getUserFlow().map {
+            it?.let { mapUserEntity(it) }
+        }
 }

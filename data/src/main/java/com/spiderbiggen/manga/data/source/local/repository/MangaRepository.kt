@@ -20,8 +20,8 @@ class MangaRepository(private val mangaDao: LocalMangaDao, private val toDomain:
         appError { mangaDao.insert(mangas) }
     }
 
-    fun getMangasForOverview(): Flow<List<MangaForOverview>> = mangaDao.getAllNotDropped()
-        .map { entities ->
+    fun getMangasForOverview(): Flow<List<MangaForOverview>> =
+        mangaDao.getAllNotDropped().map { entities ->
             entities.map {
                 MangaForOverview(
                     manga = toDomain(it.manga),
@@ -32,8 +32,8 @@ class MangaRepository(private val mangaDao: LocalMangaDao, private val toDomain:
             }
         }
 
-    fun getMangaWithFavoriteStatus(id: MangaId): Flow<MangaWithFavorite?> = mangaDao.getWithFavorite(id)
-        .map { entity ->
+    fun getMangaWithFavoriteStatus(id: MangaId): Flow<MangaWithFavorite?> =
+        mangaDao.getWithFavorite(id).map { entity ->
             entity?.let {
                 MangaWithFavorite(
                     manga = toDomain.invoke(it.manga),

@@ -9,8 +9,10 @@ import com.spiderbiggen.manga.domain.usecase.chapter.GetChapterImages
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
-class GetChapterImagesImpl(private val baseUrl: String, private val chapterRepository: ChapterRepository) :
-    GetChapterImages {
+class GetChapterImagesImpl(
+    private val baseUrl: String,
+    private val chapterRepository: ChapterRepository,
+) : GetChapterImages {
     override suspend fun invoke(id: ChapterId): Either<AppError, ImmutableList<String>> = either {
         val count = chapterRepository.getChapterImages(id).bind()
         (0 until count)

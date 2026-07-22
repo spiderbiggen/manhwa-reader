@@ -45,13 +45,14 @@ class MangaChapterReaderViewModel(
     private val surroundingChapters = MutableStateFlow(SurroundingChapters())
     private val chapterImages = MutableStateFlow<ImmutableList<String>>(persistentListOf())
 
-    val state: StateFlow<MangaChapterReaderScreenState> = screenStateFlow()
-        .onStart { onStart() }
-        .stateIn(
-            defaultScope,
-            started = SharingStarted.WhileSubscribed(500),
-            initialValue = MangaChapterReaderScreenState.Loading(null),
-        )
+    val state: StateFlow<MangaChapterReaderScreenState> =
+        screenStateFlow()
+            .onStart { onStart() }
+            .stateIn(
+                defaultScope,
+                started = SharingStarted.WhileSubscribed(500),
+                initialValue = MangaChapterReaderScreenState.Loading(null),
+            )
 
     private suspend fun onStart() {
         launchDefault {
@@ -68,30 +69,33 @@ class MangaChapterReaderViewModel(
         }
     }
 
-    private fun getChapterState(): Flow<Pair<String, Boolean>?> = getChapter(chapterId)
-        .map { chapterState ->
+    private fun getChapterState(): Flow<Pair<String, Boolean>?> =
+        getChapter(chapterId).map { chapterState ->
             chapterState?.let { chapterState.chapter.displayTitle() to chapterState.isRead }
         }
 
-    private fun screenStateFlow() = combine(
-        getChapterState(),
-        isFavorite(mangaId),
-        surroundingChapters,
-        chapterImages,
-    ) { chapterState, isFavorite, surrounding, images ->
-        val (title, isRead) = chapterState ?: return@combine MangaChapterReaderScreenState.Loading(null)
-        return@combine when {
-            images.isEmpty() -> MangaChapterReaderScreenState.Loading(title)
+    private fun screenStateFlow() =
+        combine(
+            getChapterState(),
+            isFavorite(mangaId),
+            surroundingChapters,
+            chapterImages,
+        ) { chapterState, isFavorite, surrounding, images ->
+            val (title, isRead) =
+                chapterState ?: return@combine MangaChapterReaderScreenState.Loading(null)
+            return@combine when {
+                images.isEmpty() -> MangaChapterReaderScreenState.Loading(title)
 
-            else -> MangaChapterReaderScreenState.Ready(
-                title = title,
-                surrounding = surrounding,
-                isFavorite = isFavorite,
-                images = images,
-                isRead = isRead,
-            )
+                else ->
+                    MangaChapterReaderScreenState.Ready(
+                        title = title,
+                        surrounding = surrounding,
+                        isFavorite = isFavorite,
+                        images = images,
+                        isRead = isRead,
+                    )
+            }
         }
-    }
 
     fun toggleFavorite() = suspended {
         toggleFavorite(mangaId)

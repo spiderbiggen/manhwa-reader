@@ -58,36 +58,39 @@ class ProfileOverviewViewModel(
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
-    val state: StateFlow<ProfileOverviewViewState> = screenStateFlow()
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ProfileOverviewViewState.Unknown,
-        )
-
-    fun screenStateFlow() = combine(
-        getUser(),
-        isChangingAvatar,
-        isSynchronizing,
-        getLastSynchronizationTime(),
-    ) { user, isChangingAvatar, isSynchronizing, lastSynchronizationTime ->
-        if (user == null) {
-            ProfileOverviewViewState.Unauthenticated
-        } else {
-            ProfileOverviewViewState.Authenticated(
-                id = user.id,
-                name = user.username,
-                isUpdatingAvatar = isChangingAvatar,
-                avatarUrl = user.avatarUrl,
-                email = user.email,
-                updatedAt = user.updatedAt,
-                isSynchronizing = isSynchronizing,
-                lastSynchronizationTime = lastSynchronizationTime
-                    ?.toLocalDateTime(TimeZone.currentSystemDefault())
-                    ?.format(localDateTimeFormat),
+    val state: StateFlow<ProfileOverviewViewState> =
+        screenStateFlow()
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = ProfileOverviewViewState.Unknown,
             )
+
+    fun screenStateFlow() =
+        combine(
+            getUser(),
+            isChangingAvatar,
+            isSynchronizing,
+            getLastSynchronizationTime(),
+        ) { user, isChangingAvatar, isSynchronizing, lastSynchronizationTime ->
+            if (user == null) {
+                ProfileOverviewViewState.Unauthenticated
+            } else {
+                ProfileOverviewViewState.Authenticated(
+                    id = user.id,
+                    name = user.username,
+                    isUpdatingAvatar = isChangingAvatar,
+                    avatarUrl = user.avatarUrl,
+                    email = user.email,
+                    updatedAt = user.updatedAt,
+                    isSynchronizing = isSynchronizing,
+                    lastSynchronizationTime =
+                        lastSynchronizationTime
+                            ?.toLocalDateTime(TimeZone.currentSystemDefault())
+                            ?.format(localDateTimeFormat),
+                )
+            }
         }
-    }
 
     fun handleLogout() = suspended {
         logout().onLeft {

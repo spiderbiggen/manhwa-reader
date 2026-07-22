@@ -10,8 +10,7 @@ sealed interface MangaChapterReaderScreenState {
     val title: String?
         get() = null
 
-    @Immutable
-    data class Loading(override val title: String?) : MangaChapterReaderScreenState
+    @Immutable data class Loading(override val title: String?) : MangaChapterReaderScreenState
 
     @Immutable
     data class Ready(
@@ -22,6 +21,5 @@ sealed interface MangaChapterReaderScreenState {
         val images: ImmutableList<String>,
     ) : MangaChapterReaderScreenState
 
-    @Immutable
-    data class Error(val errorMessage: String) : MangaChapterReaderScreenState
+    @Immutable data class Error(val errorMessage: String) : MangaChapterReaderScreenState
 }

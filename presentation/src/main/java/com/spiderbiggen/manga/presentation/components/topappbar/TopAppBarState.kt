@@ -20,9 +20,10 @@ fun TopAppBarDefaults.scrollWithContentBehavior(
     state: TopAppBarState = rememberTopAppBarState(),
     canScroll: () -> Boolean = { true },
     reverseLayout: Boolean = false,
-): TopAppBarScrollBehavior = remember(state, canScroll, reverseLayout) {
-    ScrollWithContentBehavior(state, canScroll, reverseLayout)
-}
+): TopAppBarScrollBehavior =
+    remember(state, canScroll, reverseLayout) {
+        ScrollWithContentBehavior(state, canScroll, reverseLayout)
+    }
 
 @ExperimentalMaterial3Api
 internal class ScrollWithContentBehavior(
@@ -55,7 +56,11 @@ internal class ScrollWithContentBehavior(
                 }
             }
 
-            override fun onPostScroll(consumed: Offset, available: Offset, source: NestedScrollSource): Offset {
+            override fun onPostScroll(
+                consumed: Offset,
+                available: Offset,
+                source: NestedScrollSource,
+            ): Offset {
                 if (!canScroll()) return Offset.Zero
                 state.contentOffset += consumed.y
                 if (!reverseLayout) state.heightOffset += consumed.y
@@ -65,7 +70,7 @@ internal class ScrollWithContentBehavior(
             override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
                 if (
                     available.y > 0f &&
-                    (state.heightOffset == 0f || state.heightOffset == state.heightOffsetLimit)
+                        (state.heightOffset == 0f || state.heightOffset == state.heightOffsetLimit)
                 ) {
                     // Reset the total content offset to zero when scrolling all the way down.
                     // This will eliminate some float precision inaccuracies.

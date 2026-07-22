@@ -6,13 +6,14 @@ import kotlinx.collections.immutable.ImmutableList
 
 @Immutable
 sealed interface MangaChapterScreenState {
-    @Immutable
-    data object Loading : MangaChapterScreenState
+    @Immutable data object Loading : MangaChapterScreenState
 
     @Immutable
-    data class Ready(val title: String?, val isFavorite: Boolean, val chapters: ImmutableList<ChapterRowData>) :
-        MangaChapterScreenState
+    data class Ready(
+        val title: String?,
+        val isFavorite: Boolean,
+        val chapters: ImmutableList<ChapterRowData>,
+    ) : MangaChapterScreenState
 
-    @Immutable
-    data class Error(val message: String) : MangaChapterScreenState
+    @Immutable data class Error(val message: String) : MangaChapterScreenState
 }

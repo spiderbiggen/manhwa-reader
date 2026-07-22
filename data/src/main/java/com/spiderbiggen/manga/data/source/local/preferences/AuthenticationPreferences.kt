@@ -15,8 +15,7 @@ import kotlinx.serialization.json.Json
 
 @Serializable
 sealed interface AuthenticationPreferences {
-    @Serializable
-    data object Unauthenticated : AuthenticationPreferences
+    @Serializable data object Unauthenticated : AuthenticationPreferences
 
     @Serializable
     data class Authenticated(
@@ -30,16 +29,21 @@ sealed interface AuthenticationPreferences {
 object AuthenticationPreferencesSerializer : Serializer<AuthenticationPreferences> {
     override val defaultValue: AuthenticationPreferences = AuthenticationPreferences.Unauthenticated
 
-    override suspend fun readFrom(input: InputStream): AuthenticationPreferences = try {
-        val encryptedBytes = input.use { it.readBytes() }
-        val encryptedBytesDecoded = Base64.decode(encryptedBytes)
-        val decryptedBytes = Crypto.decrypt(encryptedBytesDecoded)
-        val decodedJsonString = decryptedBytes.decodeToString()
-        Json.decodeFromString<AuthenticationPreferences>(decodedJsonString)
-    } catch (e: Exception) {
-        Log.e("AuthenticationPreferencesSerializer", "Failed to read AuthenticationPreferences", e)
-        throw CorruptionException("Failed to read AuthenticationPreferences", e)
-    }
+    override suspend fun readFrom(input: InputStream): AuthenticationPreferences =
+        try {
+            val encryptedBytes = input.use { it.readBytes() }
+            val encryptedBytesDecoded = Base64.decode(encryptedBytes)
+            val decryptedBytes = Crypto.decrypt(encryptedBytesDecoded)
+            val decodedJsonString = decryptedBytes.decodeToString()
+            Json.decodeFromString<AuthenticationPreferences>(decodedJsonString)
+        } catch (e: Exception) {
+            Log.e(
+                "AuthenticationPreferencesSerializer",
+                "Failed to read AuthenticationPreferences",
+                e,
+            )
+            throw CorruptionException("Failed to read AuthenticationPreferences", e)
+        }
 
     override suspend fun writeTo(t: AuthenticationPreferences, output: OutputStream) {
         try {
@@ -49,7 +53,11 @@ object AuthenticationPreferencesSerializer : Serializer<AuthenticationPreference
             val encryptedBytesBase64 = Base64.encodeToByteArray(encryptedBytes)
             output.use { it.write(encryptedBytesBase64) }
         } catch (e: Exception) {
-            Log.e("AuthenticationPreferencesSerializer", "Failed to write AuthenticationPreferences", e)
+            Log.e(
+                "AuthenticationPreferencesSerializer",
+                "Failed to write AuthenticationPreferences",
+                e,
+            )
             throw e
         }
     }

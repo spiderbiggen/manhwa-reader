@@ -100,7 +100,11 @@ fun MangaChapterReaderScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalFoundationApi::class,
+)
 @Composable
 fun MangaChapterReaderScreen(
     state: MangaChapterReaderScreenState,
@@ -111,9 +115,7 @@ fun MangaChapterReaderScreen(
     setRead: () -> Unit = {},
     setReadUpToHere: () -> Unit = {},
 ) {
-    val lazyListState = rememberLazyListState(
-        cacheWindow = LazyLayoutCacheWindow(0.33f, 0.33f),
-    )
+    val lazyListState = rememberLazyListState(cacheWindow = LazyLayoutCacheWindow(0.33f, 0.33f))
 
     ReaderScaffold(
         lazyListState = lazyListState,
@@ -123,14 +125,16 @@ fun MangaChapterReaderScreen(
             MangaTopAppBar(
                 navigationIcon = {
                     IconButton(
-                        onClick = dropUnlessStarted {
-                            // Restore bars eagerly so they are visible during the exit transition.
-                            (context as? Activity)?.window?.let {
-                                WindowCompat.getInsetsController(it, view)
-                                    .show(WindowInsetsCompat.Type.systemBars())
+                        onClick =
+                            dropUnlessStarted {
+                                // Restore bars eagerly so they are visible during the exit
+                                // transition.
+                                (context as? Activity)?.window?.let {
+                                    WindowCompat.getInsetsController(it, view)
+                                        .show(WindowInsetsCompat.Type.systemBars())
+                                }
+                                onBackClick()
                             }
-                            onBackClick()
-                        },
                     ) {
                         Icon(painterResource(arrow_back), "Back")
                     }
@@ -151,20 +155,22 @@ fun MangaChapterReaderScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) },
     ) { contentPadding ->
         when (state) {
-            is MangaChapterReaderScreenState.Loading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) {
-                LoadingIndicator()
-            }
+            is MangaChapterReaderScreenState.Loading ->
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LoadingIndicator()
+                }
 
-            is MangaChapterReaderScreenState.Ready -> ReadyImagesOverview(
-                modifier = Modifier.fillMaxSize(),
-                state = state,
-                contentPadding = contentPadding,
-                lazyListState = lazyListState,
-                setRead = setRead,
-            )
+            is MangaChapterReaderScreenState.Ready ->
+                ReadyImagesOverview(
+                    modifier = Modifier.fillMaxSize(),
+                    state = state,
+                    contentPadding = contentPadding,
+                    lazyListState = lazyListState,
+                    setRead = setRead,
+                )
 
             is MangaChapterReaderScreenState.Error -> Text(state.errorMessage)
         }
@@ -182,21 +188,23 @@ private fun ReadyImagesOverview(
 ) {
     val readyTracker = remember(lazyListState) { ReadyTracker(lazyListState) }
     val backgroundColor = MaterialTheme.colorScheme.surface
-    val overlayAlpha = animateFloatAsState(
-        targetValue = if (readyTracker.finishedInitialLoading) 0f else 1f,
-        animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
-    )
+    val overlayAlpha =
+        animateFloatAsState(
+            targetValue = if (readyTracker.finishedInitialLoading) 0f else 1f,
+            animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
+        )
     Box(modifier) {
         PreloadImages(lazyListState, state.images)
         LazyColumn(
             contentPadding = contentPadding,
             state = lazyListState,
-            modifier = Modifier.drawWithContent {
-                drawContent()
-                if (overlayAlpha.value > 0.01f) {
-                    drawRect(backgroundColor, alpha = overlayAlpha.value)
-                }
-            },
+            modifier =
+                Modifier.drawWithContent {
+                    drawContent()
+                    if (overlayAlpha.value > 0.01f) {
+                        drawRect(backgroundColor, alpha = overlayAlpha.value)
+                    }
+                },
         ) {
             items(state.images, key = { it }) {
                 ListImage(
@@ -207,9 +215,7 @@ private fun ReadyImagesOverview(
             }
             item(key = "setReadEffect", contentType = "EndEffect") {
                 Column(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 64.dp),
+                    Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 64.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -249,22 +255,21 @@ private fun ListImage(model: String, modifier: Modifier = Modifier, onSuccess: (
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun DisplayImageState(state: AsyncImagePainter.State, modifier: Modifier = Modifier) {
     when (state) {
-        is AsyncImagePainter.State.Success -> Image(
-            painter = state.painter,
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
-            modifier = modifier,
-        )
+        is AsyncImagePainter.State.Success ->
+            Image(
+                painter = state.painter,
+                contentDescription = null,
+                contentScale = ContentScale.FillWidth,
+                modifier = modifier,
+            )
 
-        is AsyncImagePainter.State.Error -> Box(
-            modifier
-                .aspectRatio(1f)
-                .background(MaterialTheme.colorScheme.error),
-        )
+        is AsyncImagePainter.State.Error ->
+            Box(modifier.aspectRatio(1f).background(MaterialTheme.colorScheme.error))
 
-        else -> Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
-            LoadingIndicator()
-        }
+        else ->
+            Box(modifier.aspectRatio(1f), contentAlignment = Alignment.Center) {
+                LoadingIndicator()
+            }
     }
 }
 
@@ -343,29 +348,36 @@ private class ReadyTracker(private val lazyListState: LazyListState) {
 @PreviewScreenSizes
 @Composable
 fun PreviewReadChapterScreen(
-    @PreviewParameter(ReadChapterScreenProvider::class) data: MangaChapterReaderScreenState.Ready,
+    @PreviewParameter(ReadChapterScreenProvider::class) data: MangaChapterReaderScreenState.Ready
 ) {
     val context = LocalPlatformContext.current
-    val previewHandler = remember(context) {
-        AsyncImagePreviewHandler { _, request ->
-            when (request.data.toString()) {
-                "1" -> {
-                    val image = ResourcesCompat.getDrawable(
-                        context.resources,
-                        R.mipmap.preview_cover_placeholder,
-                        null,
-                    )!!.asImage()
-                    AsyncImagePainter.State.Success(image.asPainter(context), SuccessResult(image, request))
+    val previewHandler =
+        remember(context) {
+            AsyncImagePreviewHandler { _, request ->
+                when (request.data.toString()) {
+                    "1" -> {
+                        val image =
+                            ResourcesCompat.getDrawable(
+                                    context.resources,
+                                    R.mipmap.preview_cover_placeholder,
+                                    null,
+                                )!!
+                                .asImage()
+                        AsyncImagePainter.State.Success(
+                            image.asPainter(context),
+                            SuccessResult(image, request),
+                        )
+                    }
+
+                    "2" -> AsyncImagePainter.State.Loading(null)
+
+                    "3" ->
+                        AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
+
+                    else -> AsyncImagePainter.State.Empty
                 }
-
-                "2" -> AsyncImagePainter.State.Loading(null)
-
-                "3" -> AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
-
-                else -> AsyncImagePainter.State.Empty
             }
         }
-    }
 
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
@@ -376,33 +388,35 @@ fun PreviewReadChapterScreen(
 
 class ReadChapterScreenProvider : PreviewParameterProvider<MangaChapterReaderScreenState.Ready> {
     override val values: Sequence<MangaChapterReaderScreenState.Ready>
-        get() = sequenceOf(
-            MangaChapterReaderScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = false,
-                isRead = false,
-                surrounding = SurroundingChapters(
-                    previous = null,
-                    next = null,
+        get() =
+            sequenceOf(
+                MangaChapterReaderScreenState.Ready(
+                    title = "Heavenly Martial God",
+                    isFavorite = false,
+                    isRead = false,
+                    surrounding =
+                        SurroundingChapters(
+                            previous = null,
+                            next = null,
+                        ),
+                    images =
+                        persistentListOf(
+                            "1",
+                            "2",
+                            "3",
+                            "4",
+                        ),
                 ),
-                images = persistentListOf(
-                    "1",
-                    "2",
-                    "3",
-                    "4",
+                MangaChapterReaderScreenState.Ready(
+                    title = "Heavenly Martial God",
+                    isFavorite = true,
+                    isRead = true,
+                    surrounding =
+                        SurroundingChapters(
+                            previous = ChapterId(""),
+                            next = ChapterId(""),
+                        ),
+                    images = persistentListOf("1"),
                 ),
-            ),
-            MangaChapterReaderScreenState.Ready(
-                title = "Heavenly Martial God",
-                isFavorite = true,
-                isRead = true,
-                surrounding = SurroundingChapters(
-                    previous = ChapterId(""),
-                    next = ChapterId(""),
-                ),
-                images = persistentListOf(
-                    "1",
-                ),
-            ),
-        )
+            )
 }

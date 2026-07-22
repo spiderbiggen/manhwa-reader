@@ -7,6 +7,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TokenEntity(
     val token: String,
-    @SerialName("expires_at")
-    val expiresAt: Instant,
+    @SerialName("expires_at") val expiresAt: Instant,
 )

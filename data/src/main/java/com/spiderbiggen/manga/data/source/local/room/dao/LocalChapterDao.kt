@@ -12,16 +12,19 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocalChapterDao {
-    @Upsert
-    suspend fun insert(chapter: List<LocalChapterEntity>)
+    @Upsert suspend fun insert(chapter: List<LocalChapterEntity>)
 
     @Query("SELECT * FROM chapter where id = :id")
     suspend fun get(id: ChapterId): LocalChapterEntity?
 
-    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
+    @Query(
+        "SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC"
+    )
     fun flowByMangaId(mangaId: MangaId): Flow<List<LocalChapterEntity>>
 
-    @Query("SELECT updated_at FROM chapter WHERE manga_id = :mangaId ORDER BY updated_at DESC LIMIT 1")
+    @Query(
+        "SELECT updated_at FROM chapter WHERE manga_id = :mangaId ORDER BY updated_at DESC LIMIT 1"
+    )
     suspend fun getLastUpdatedAtByMangaId(mangaId: MangaId): Instant?
 
     @Query(
@@ -31,7 +34,7 @@ interface LocalChapterDao {
             LEFT JOIN chapter_read_status r ON c.id = r.id
         WHERE c.manga_id = :mangaId 
         ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC
-        """,
+        """
     )
     fun getFlowForMangaOverview(mangaId: MangaId): Flow<List<LocalChapterForOverview>>
 
@@ -42,11 +45,13 @@ interface LocalChapterDao {
             LEFT JOIN chapter_read_status r ON c.id = r.id
         WHERE c.id = :id
         LIMIT 1
-        """,
+        """
     )
     fun getFlowForChapterOverview(id: ChapterId): Flow<LocalChapterForOverview?>
 
-    @Query("SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC")
+    @Query(
+        "SELECT * FROM chapter WHERE manga_id = :mangaId ORDER BY index_num DESC, COALESCE(sub_index, 0) DESC"
+    )
     suspend fun getForMangaId(mangaId: MangaId): List<LocalChapterEntity>
 
     @Query("DELETE FROM chapter WHERE manga_id = :mangaId AND id NOT IN (:knownIds)")
@@ -57,7 +62,7 @@ interface LocalChapterDao {
         SELECT c1.id FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
         WHERE c2.id = :id AND c1.index_num < c2.index_num OR (c1.index_num = c2.index_num AND COALESCE(c1.sub_index, 0) < COALESCE(c2.sub_index, 0))
         ORDER BY c1.index_num DESC, COALESCE(c1.sub_index, 0) DESC
-        """,
+        """
     )
     suspend fun getPreviousChapterIds(id: ChapterId): List<ChapterId>
 
@@ -71,7 +76,7 @@ interface LocalChapterDao {
             )
         ORDER BY c1.index_num DESC, COALESCE(c1.sub_index, 0) DESC
         LIMIT 1
-        """,
+        """
     )
     suspend fun getPrevChapterId(id: ChapterId): ChapterId?
 
@@ -85,7 +90,7 @@ interface LocalChapterDao {
             )
         ORDER BY c1.index_num ASC, COALESCE(c1.sub_index, 0) ASC
         LIMIT 1
-        """,
+        """
     )
     suspend fun getNextChapterId(id: ChapterId): ChapterId?
 }

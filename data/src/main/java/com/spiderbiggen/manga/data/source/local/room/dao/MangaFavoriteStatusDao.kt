@@ -10,11 +10,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MangaFavoriteStatusDao {
-    @Upsert
-    suspend fun insert(mangas: List<MangaFavoriteStatusEntity>)
+    @Upsert suspend fun insert(mangas: List<MangaFavoriteStatusEntity>)
 
-    @Upsert
-    suspend fun insert(manga: MangaFavoriteStatusEntity)
+    @Upsert suspend fun insert(manga: MangaFavoriteStatusEntity)
 
     @Query("SELECT * FROM manga_favorite_status WHERE updated_at > :since")
     suspend fun get(since: Instant): List<MangaFavoriteStatusEntity>

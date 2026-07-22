@@ -18,22 +18,30 @@ class RegisterImpl(
     private val fetchCurrentUser: FetchCurrentUser,
     private val resetBearerToken: ResetBearerToken,
 ) : Register {
-    override suspend fun invoke(username: String, email: String?, password: String): Either<AppError, User> = either {
+    override suspend fun invoke(
+        username: String,
+        email: String?,
+        password: String,
+    ): Either<AppError, User> = either {
         updateSession(username, email, password).bind()
         fetchCurrentUser().bind()
     }
 
-    private suspend fun updateSession(username: String, email: String?, password: String): Either<AppError, Unit> =
-        either {
-            val session = appError {
-                val body = RegisterBody(
+    private suspend fun updateSession(
+        username: String,
+        email: String?,
+        password: String,
+    ): Either<AppError, Unit> = either {
+        val session = appError {
+            val body =
+                RegisterBody(
                     username = username,
                     email = email?.takeUnless { it.isEmpty() },
                     password = password,
                 )
-                authService.register(body)
-            }
-            authenticationRepository.saveTokens(session.accessToken, session.refreshToken).bind()
-            resetBearerToken()
+            authService.register(body)
         }
+        authenticationRepository.saveTokens(session.accessToken, session.refreshToken).bind()
+        resetBearerToken()
+    }
 }

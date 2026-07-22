@@ -13,10 +13,12 @@ class EncodeBitmap {
         appError {
             ByteArrayOutputStream().use { stream ->
                 @Suppress("DEPRECATION")
-                val format = when {
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.R -> Bitmap.CompressFormat.WEBP_LOSSY
-                    else -> Bitmap.CompressFormat.WEBP
-                }
+                val format =
+                    when {
+                        Build.VERSION.SDK_INT >= Build.VERSION_CODES.R ->
+                            Bitmap.CompressFormat.WEBP_LOSSY
+                        else -> Bitmap.CompressFormat.WEBP
+                    }
                 bitmap.compress(format, 85, stream)
                 stream.toByteArray()
             }

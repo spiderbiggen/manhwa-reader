@@ -48,7 +48,7 @@ Testing is configured per module. To add testing to a module:
 dependencies {
     // For unit tests
     testImplementation(libs.junit)
-    
+
     // For Android instrumented tests (app/presentation modules)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -92,7 +92,7 @@ The project includes a comprehensive test example for the `Either` class in the 
 ## Code Style & Architecture
 
 ### Code Formatting
-The project uses **Spotless** with **ktlint 1.3.1** for automatic code formatting:
+The project uses **Spotless** with **ktfmt 0.64** for automatic code formatting:
 
 ```bash
 # Check formatting
@@ -106,8 +106,8 @@ The project uses **Spotless** with **ktlint 1.3.1** for automatic code formattin
 - 4 spaces for indentation (tabs converted to spaces)
 - Trailing whitespace trimmed
 - Files end with newline
-- Kotlin files formatted with ktlint
-- Gradle files (.gradle.kts) formatted with ktlint
+- Kotlin files formatted with ktfmt
+- Gradle files (.gradle.kts) formatted with ktfmt
 - Misc files (.gitignore, .properties, .md) formatted
 - Ratchet mode: only formats files changed from `origin/master`
 

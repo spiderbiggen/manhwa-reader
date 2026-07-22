@@ -80,20 +80,19 @@ private fun CoverImage(
     modifier: Modifier = Modifier,
     sizeResolver: ConstraintsSizeResolver = rememberConstraintsSizeResolver(),
 ) {
-    val asyncPainter = rememberAsyncImagePainter(
-        model = ImageRequest.Builder(LocalPlatformContext.current)
-            .data(url)
-            .size(sizeResolver)
-            .build(),
-    )
+    val asyncPainter =
+        rememberAsyncImagePainter(
+            model =
+                ImageRequest.Builder(LocalPlatformContext.current)
+                    .data(url)
+                    .size(sizeResolver)
+                    .build()
+        )
     Image(
         painter = asyncPainter,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = modifier
-            .size(COVER_SIZE)
-            .clip(MaterialTheme.shapes.small)
-            .then(sizeResolver),
+        modifier = modifier.size(COVER_SIZE).clip(MaterialTheme.shapes.small).then(sizeResolver),
     )
 }
 
@@ -114,10 +113,11 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
         modifier,
         verticalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterVertically),
     ) {
-        val titleStyle = when {
-            manga.isRead -> MaterialTheme.typography.titleLarge
-            else -> MaterialTheme.typography.titleLargeEmphasized
-        }
+        val titleStyle =
+            when {
+                manga.isRead -> MaterialTheme.typography.titleLarge
+                else -> MaterialTheme.typography.titleLargeEmphasized
+            }
         Text(
             text = manga.title,
             style = titleStyle,
@@ -136,12 +136,17 @@ private fun MangaInfoColumn(manga: MangaViewData, modifier: Modifier) {
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@Preview(
+    "Dark - Red",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
+)
 @Composable
 fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
-        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
+        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!
+            .asImage()
     }
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
@@ -189,6 +194,7 @@ class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
     private companion object {
         private const val DATE_STRING = "2023-04-23"
         private const val TITLE = "Heavenly Martial God"
-        private const val COVER_IMAGE = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"
+        private const val COVER_IMAGE =
+            "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg"
     }
 }

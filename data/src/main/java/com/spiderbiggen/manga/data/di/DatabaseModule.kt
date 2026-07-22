@@ -14,7 +14,7 @@ val databaseModule = module {
         MangaDatabaseDecorator(
             Room.databaseBuilder(androidContext(), MangaDatabase::class.java, "manga")
                 .fallbackToDestructiveMigration(dropAllTables = true)
-                .build(),
+                .build()
         )
     }
 

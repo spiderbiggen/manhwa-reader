@@ -6,6 +6,6 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun InterruptBackHandler(enabled: Boolean) {
-    PredictiveBackHandler(enabled = enabled) { it.collect { } }
-    BackHandler(enabled = enabled) { }
+    PredictiveBackHandler(enabled = enabled) { it.collect {} }
+    BackHandler(enabled = enabled) {}
 }

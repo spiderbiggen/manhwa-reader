@@ -49,8 +49,9 @@ fun ReaderScaffold(
 
     val atExtreme by remember {
         derivedStateOf {
-            val atStart = lazyListState.firstVisibleItemIndex == 0 &&
-                lazyListState.firstVisibleItemScrollOffset == 0
+            val atStart =
+                lazyListState.firstVisibleItemIndex == 0 &&
+                    lazyListState.firstVisibleItemScrollOffset == 0
             atStart || lastItemIsVisible(lazyListState)
         }
     }
@@ -77,7 +78,9 @@ fun ReaderScaffold(
     // always holds a fresh window reference rather than a stale one from first composition.
     DisposableEffect(context, view) {
         onDispose {
-            (context as? Activity)?.window?.let { WindowCompat.getInsetsController(it, view) }
+            (context as? Activity)
+                ?.window
+                ?.let { WindowCompat.getInsetsController(it, view) }
                 ?.show(WindowInsetsCompat.Type.systemBars())
         }
     }
@@ -87,17 +90,20 @@ fun ReaderScaffold(
         if (barsVisible) {
             controller.show(WindowInsetsCompat.Type.systemBars())
         } else {
-            controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
             controller.hide(WindowInsetsCompat.Type.systemBars())
         }
     }
 
     Box(
-        modifier = modifier
-            .background(containerColor)
-            .clickable(interactionSource = null, indication = null) {
+        modifier =
+            modifier.background(containerColor).clickable(
+                interactionSource = null,
+                indication = null,
+            ) {
                 if (!atExtreme) barsVisible = !barsVisible
-            },
+            }
     ) {
         content(PaddingValues(top = topContentPadding, bottom = bottomContentPadding))
         AnimatedVisibility(
@@ -120,9 +126,7 @@ fun ReaderScaffold(
             }
         }
         Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(bottom = bottomContentPadding),
+            modifier = Modifier.align(Alignment.BottomCenter).padding(bottom = bottomContentPadding)
         ) {
             snackbarHost()
         }

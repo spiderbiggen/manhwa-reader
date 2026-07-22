@@ -8,8 +8,7 @@ import com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverview
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
-@Serializable
-data object ProfileOverviewRoute : NavKey
+@Serializable data object ProfileOverviewRoute : NavKey
 
 fun NavBackStack<NavKey>.navigateToProfileOverview() {
     add(ProfileOverviewRoute)

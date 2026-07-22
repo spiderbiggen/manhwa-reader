@@ -27,16 +27,21 @@ class UpdateStateFromRemoteImpl(
         parZip(
             { synchronizeWithRemote(ignoreInterval = false).bind() },
             { updateMangaFromRemote(skipCache).bind() },
-        ) { _, _ -> }
+        ) { _, _ ->
+        }
 
         val outOfDataMangas = mangaRepository.getMangaForUpdate().bind()
 
-        val favoriteMangas = outOfDataMangas.filter { favoritesRepository.get(it).getOrElse { false } }
-
-        favoriteMangas.parMapOrAccumulate { mangaId ->
-            updateChaptersFromRemote(mangaId, skipCache).bind()
-        }.onLeft { errors ->
-            raise(if (errors.size == 1) errors.first() else AppError.Multi(errors))
+        val favoriteMangas = outOfDataMangas.filter {
+            favoritesRepository.get(it).getOrElse { false }
         }
+
+        favoriteMangas
+            .parMapOrAccumulate { mangaId ->
+                updateChaptersFromRemote(mangaId, skipCache).bind()
+            }
+            .onLeft { errors ->
+                raise(if (errors.size == 1) errors.first() else AppError.Multi(errors))
+            }
     }
 }

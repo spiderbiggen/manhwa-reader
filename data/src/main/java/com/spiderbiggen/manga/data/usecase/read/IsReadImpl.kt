@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class IsReadImpl(private val readRepository: ReadRepository) : IsReadFlow {
-    override fun invoke(id: ChapterId): Flow<Boolean> = readRepository.getFlow(id).map { it == true }
+    override fun invoke(id: ChapterId): Flow<Boolean> =
+        readRepository.getFlow(id).map { it == true }
 }

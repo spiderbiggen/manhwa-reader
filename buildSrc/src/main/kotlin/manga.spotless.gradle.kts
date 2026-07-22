@@ -1,10 +1,11 @@
 import com.diffplug.gradle.spotless.SpotlessExtension
+import com.diffplug.spotless.kotlin.KtfmtStep.TrailingCommaManagementStrategy
 
 plugins {
     id("com.diffplug.spotless")
 }
 
-private val ktlintVersion = "1.8.0"
+private val ktfmtVersion = "0.64"
 
 val spotlessConfig: SpotlessExtension.() -> Unit = {
     // optional: limit format enforcement to just the files changed by this feature branch
@@ -26,8 +27,7 @@ val spotlessConfig: SpotlessExtension.() -> Unit = {
                 project.subprojects.forEach {
                     exclude(it.projectDir.toRelativeString(project.projectDir))
                 }
-            }
-
+            },
         )
 
         // define the steps to apply to those files
@@ -38,13 +38,17 @@ val spotlessConfig: SpotlessExtension.() -> Unit = {
     kotlin {
         target(project.fileTree("src") { include("**/*.kt") })
         // by default the target is every '.kt' and '.kts` file in the java sourcesets
-        ktlint(ktlintVersion)
+        ktfmt(ktfmtVersion).kotlinlangStyle().configure {
+            it.setTrailingCommaManagementStrategy(TrailingCommaManagementStrategy.COMPLETE)
+        }
         // has its own section below
         // licenseHeader("/* (C)\$YEAR */") // or licenseHeaderFile
     }
     kotlinGradle {
         target("*.gradle.kts")
-        ktlint(ktlintVersion)
+        ktfmt(ktfmtVersion).kotlinlangStyle().configure {
+            it.setTrailingCommaManagementStrategy(TrailingCommaManagementStrategy.COMPLETE)
+        }
     }
 }
 

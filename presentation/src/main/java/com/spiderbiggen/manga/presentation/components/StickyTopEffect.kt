@@ -13,11 +13,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.collections.immutable.ImmutableCollection
 
 @Composable
-fun rememberManualScrollState(listState: LazyListState): State<Boolean> = rememberManualScrollState(
-    listState.interactionSource,
-    hasItems = { listState.layoutInfo.totalItemsCount > 0 },
-    canScrollBackwards = { listState.canScrollBackward },
-)
+fun rememberManualScrollState(listState: LazyListState): State<Boolean> =
+    rememberManualScrollState(
+        listState.interactionSource,
+        hasItems = { listState.layoutInfo.totalItemsCount > 0 },
+        canScrollBackwards = { listState.canScrollBackward },
+    )
 
 @Composable
 fun rememberManualScrollState(
@@ -37,7 +38,11 @@ fun rememberManualScrollState(
 }
 
 @Composable
-fun <T> StickyTopEffect(items: ImmutableCollection<T>, listState: LazyListState, isManuallyScrolled: () -> Boolean) {
+fun <T> StickyTopEffect(
+    items: ImmutableCollection<T>,
+    listState: LazyListState,
+    isManuallyScrolled: () -> Boolean,
+) {
     LaunchedEffect(items) {
         if (!isManuallyScrolled()) {
             // scroll to top to ensure latest added element becomes visible

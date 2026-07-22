@@ -30,32 +30,34 @@ class ProfileViewModel(
 
     private val isRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    val state: StateFlow<ProfileState> = screenStateFlow()
-        .onStart { onStart() }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5_000),
-            initialValue = ProfileState.Unauthenticated,
-        )
+    val state: StateFlow<ProfileState> =
+        screenStateFlow()
+            .onStart { onStart() }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5_000),
+                initialValue = ProfileState.Unauthenticated,
+            )
 
     private suspend fun onStart() = launchDefault {
         synchronize()
     }
 
-    private fun screenStateFlow() = combine(
-        getUser(),
-        isRefreshing,
-    ) { user, isRefreshing ->
-        if (user == null) {
-            ProfileState.Unauthenticated
-        } else {
-            ProfileState.Authenticated(
-                name = user.username,
-                avatarUrl = user.avatarUrl,
-                refreshing = isRefreshing,
-            )
+    private fun screenStateFlow() =
+        combine(
+            getUser(),
+            isRefreshing,
+        ) { user, isRefreshing ->
+            if (user == null) {
+                ProfileState.Unauthenticated
+            } else {
+                ProfileState.Authenticated(
+                    name = user.username,
+                    avatarUrl = user.avatarUrl,
+                    refreshing = isRefreshing,
+                )
+            }
         }
-    }
 
     private suspend fun synchronize() {
         isRefreshing.emit(true)

@@ -13,8 +13,8 @@ class RefreshAccessToken(
     private val authenticationRepository: AuthenticationRepository,
 ) {
     suspend operator fun invoke(): Either<AppError, String> = either {
-        val refreshToken = authenticationRepository.getRefreshToken().bind()
-            ?: raise(AppError.Auth.Unauthorized())
+        val refreshToken =
+            authenticationRepository.getRefreshToken().bind() ?: raise(AppError.Auth.Unauthorized())
 
         val response = appError {
             authService.refresh(RefreshTokenBody(refreshToken.token))

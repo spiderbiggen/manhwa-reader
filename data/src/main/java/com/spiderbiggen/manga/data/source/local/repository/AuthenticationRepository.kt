@@ -16,13 +16,15 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
-private val Context.authdataStore by dataStore(
-    fileName = "auth-preferences",
-    serializer = AuthenticationPreferencesSerializer,
-    corruptionHandler = ReplaceFileCorruptionHandler(
-        produceNewData = { AuthenticationPreferencesSerializer.defaultValue },
-    ),
-)
+private val Context.authdataStore by
+    dataStore(
+        fileName = "auth-preferences",
+        serializer = AuthenticationPreferencesSerializer,
+        corruptionHandler =
+            ReplaceFileCorruptionHandler(
+                produceNewData = { AuthenticationPreferencesSerializer.defaultValue }
+            ),
+    )
 
 class AuthenticationRepository(context: Context) {
 
@@ -32,7 +34,8 @@ class AuthenticationRepository(context: Context) {
         appError { dataStore.updateData { AuthenticationPreferences.Unauthenticated } }
     }
 
-    suspend fun getAuthenticatedState(): Either<AppError, AuthenticationPreferences.Authenticated?> = either {
+    suspend fun getAuthenticatedState():
+        Either<AppError, AuthenticationPreferences.Authenticated?> = either {
         appError { dataStore.data.firstOrNull() as? AuthenticationPreferences.Authenticated }
     }
 
@@ -52,15 +55,20 @@ class AuthenticationRepository(context: Context) {
         getAuthenticatedState().bind()?.lastSynchronizationTime
     }
 
-    fun getUserFlow(): Flow<UserEntity?> = dataStore.data.map {
-        (it as? AuthenticationPreferences.Authenticated)?.user
-    }
+    fun getUserFlow(): Flow<UserEntity?> =
+        dataStore.data.map {
+            (it as? AuthenticationPreferences.Authenticated)?.user
+        }
 
-    fun getLastSynchronizationTimeFlow(): Flow<Instant?> = dataStore.data.map {
-        (it as? AuthenticationPreferences.Authenticated)?.lastSynchronizationTime
-    }
+    fun getLastSynchronizationTimeFlow(): Flow<Instant?> =
+        dataStore.data.map {
+            (it as? AuthenticationPreferences.Authenticated)?.lastSynchronizationTime
+        }
 
-    suspend fun saveTokens(accessToken: TokenEntity, refreshToken: TokenEntity): Either<AppError, Unit> = either {
+    suspend fun saveTokens(
+        accessToken: TokenEntity,
+        refreshToken: TokenEntity,
+    ): Either<AppError, Unit> = either {
         appError {
             dataStore.updateData {
                 when (it) {
@@ -76,9 +84,7 @@ class AuthenticationRepository(context: Context) {
     suspend fun saveUser(user: UserEntity): Either<AppError, UserEntity?> = either {
         val result = appError {
             dataStore.updateData { data ->
-                (data as? AuthenticationPreferences.Authenticated)
-                    ?.copy(user = user)
-                    ?: data
+                (data as? AuthenticationPreferences.Authenticated)?.copy(user = user) ?: data
             }
         }
         (result as? AuthenticationPreferences.Authenticated)?.user
@@ -87,9 +93,9 @@ class AuthenticationRepository(context: Context) {
     suspend fun saveLastSynchronizationTime(time: Instant): Either<AppError, Unit> = either {
         appError {
             dataStore.updateData { data ->
-                (data as? AuthenticationPreferences.Authenticated)
-                    ?.copy(lastSynchronizationTime = time)
-                    ?: data
+                val authenticated =
+                    (data as? AuthenticationPreferences.Authenticated) ?: return@updateData data
+                authenticated.copy(lastSynchronizationTime = time)
             }
         }
     }

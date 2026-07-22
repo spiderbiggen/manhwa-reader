@@ -6,8 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class FavoriteState(
-    @SerialName("is_favorite")
-    val isFavorite: Boolean,
-    @SerialName("updated_at")
-    val updatedAt: Instant,
+    @SerialName("is_favorite") val isFavorite: Boolean,
+    @SerialName("updated_at") val updatedAt: Instant,
 )

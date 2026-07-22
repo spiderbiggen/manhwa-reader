@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoginViewModel(private val login: Login, private val formatAppError: FormatAppError) : ViewModel() {
+class LoginViewModel(private val login: Login, private val formatAppError: FormatAppError) :
+    ViewModel() {
 
     private val _state = MutableStateFlow<LoginState>(LoginState.Idle)
     val state = _state.asStateFlow()
@@ -18,10 +19,12 @@ class LoginViewModel(private val login: Login, private val formatAppError: Forma
         defaultScope.launch {
             if (_state.value is LoginState.Loading) return@launch
             _state.emit(LoginState.Loading)
-            val newState = login(username, password).fold(
-                { LoginState.Error(formatAppError(it)) },
-                { LoginState.Success },
-            )
+            val newState =
+                login(username, password)
+                    .fold(
+                        { LoginState.Error(formatAppError(it)) },
+                        { LoginState.Success },
+                    )
             _state.emit(newState)
         }
     }
@@ -30,9 +33,10 @@ class LoginViewModel(private val login: Login, private val formatAppError: Forma
 @Immutable
 sealed interface LoginState {
     data object Idle : LoginState
+
     data object Loading : LoginState
+
     data object Success : LoginState
 
-    @Immutable
-    data class Error(val message: String) : LoginState
+    @Immutable data class Error(val message: String) : LoginState
 }

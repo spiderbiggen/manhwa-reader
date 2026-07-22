@@ -32,7 +32,7 @@ class FavoritesRepository(private val favoritesDao: MangaFavoriteStatusDao) {
             favoritesDao.insert(
                 updates.map { (id, state) ->
                     MangaFavoriteStatusEntity(id, state.isFavorite, state.updatedAt)
-                },
+                }
             )
         }
     }

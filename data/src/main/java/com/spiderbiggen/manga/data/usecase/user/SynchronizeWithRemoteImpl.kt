@@ -37,8 +37,8 @@ class SynchronizeWithRemoteImpl(
     override suspend operator fun invoke(ignoreInterval: Boolean): Either<AppError, Unit> = either {
         if (mutex.isLocked) return@either
         mutex.withLock {
-            val authenticationState = authenticationRepository.getAuthenticatedState().bind()
-                ?: return@withLock
+            val authenticationState =
+                authenticationRepository.getAuthenticatedState().bind() ?: return@withLock
 
             val lastSyncTime = authenticationState.lastSynchronizationTime ?: SYNC_FALLBACK_TIME
             val currentTime = now()
@@ -47,7 +47,8 @@ class SynchronizeWithRemoteImpl(
             parZip(
                 { syncFavorites(lastSyncTime) },
                 { syncReads(lastSyncTime) },
-            ) { _, _ -> }
+            ) { _, _ ->
+            }
             authenticationRepository.saveLastSynchronizationTime(currentTime).bind()
         }
     }
@@ -56,14 +57,23 @@ class SynchronizeWithRemoteImpl(
         val favorites = favoritesRepository.get(lastSyncTime).bind()
         if (favorites.isNotEmpty()) {
             favorites
-                .chunked(100) { chunk -> chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) } }
+                .chunked(100) { chunk ->
+                    chunk.associate { it.id to FavoriteState(it.isFavorite, it.updatedAt) }
+                }
                 .parMapOrAccumulate { chunk ->
-                    val receivedUpdates = appError { userService.updateFavorites(chunk) }.sanitizeKeys()
+                    val receivedUpdates = appError {
+                        userService.updateFavorites(chunk)
+                    }
+                        .sanitizeKeys()
                     favoritesRepository.set(receivedUpdates).bind()
-                }.onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
+                }
+                .onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
         }
 
-        val receivedFavoriteUpdates = appError { userService.getFavorites(lastSyncTime) }.sanitizeKeys()
+        val receivedFavoriteUpdates = appError {
+            userService.getFavorites(lastSyncTime)
+        }
+            .sanitizeKeys()
         favoritesRepository.set(receivedFavoriteUpdates).bind()
     }
 
@@ -71,22 +81,33 @@ class SynchronizeWithRemoteImpl(
         val reads = readRepository.get(lastSyncTime).bind()
         if (reads.isNotEmpty()) {
             reads
-                .chunked(100) { chunk -> chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) } }
+                .chunked(100) { chunk ->
+                    chunk.associate { it.id to ReadState(it.isRead, it.updatedAt) }
+                }
                 .parMapOrAccumulate { chunk ->
-                    val receivedUpdates = appError { userService.updateReadProgress(chunk) }.sanitizeKeys()
+                    val receivedUpdates = appError {
+                        userService.updateReadProgress(chunk)
+                    }
+                        .sanitizeKeys()
                     readRepository.set(receivedUpdates).bind()
-                }.onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
+                }
+                .onLeft { raise(if (it.size == 1) it.first() else AppError.Multi(it)) }
         }
 
-        val receivedReadUpdates = appError { userService.getReadProgress(lastSyncTime) }.sanitizeKeys()
+        val receivedReadUpdates = appError {
+            userService.getReadProgress(lastSyncTime)
+        }
+            .sanitizeKeys()
         readRepository.set(receivedReadUpdates).bind()
     }
 
     @JvmName("sanitizeKeysManga")
-    private fun <T> Map<MangaId, T>.sanitizeKeys(): Map<MangaId, T> =
-        mapKeys { (key, _) -> MangaId(key.value.filter { it != '-' }) }
+    private fun <T> Map<MangaId, T>.sanitizeKeys(): Map<MangaId, T> = mapKeys { (key, _) ->
+        MangaId(key.value.filter { it != '-' })
+    }
 
     @JvmName("sanitizeKeysChapter")
-    private fun <T> Map<ChapterId, T>.sanitizeKeys(): Map<ChapterId, T> =
-        mapKeys { (key, _) -> ChapterId(key.value.filter { it != '-' }) }
+    private fun <T> Map<ChapterId, T>.sanitizeKeys(): Map<ChapterId, T> = mapKeys { (key, _) ->
+        ChapterId(key.value.filter { it != '-' })
+    }
 }
