@@ -7,14 +7,16 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.stability.analyzer)
     id("manga.spotless")
+    id("manga.detekt")
 }
 
 android {
     namespace = "com.spiderbiggen.manga.presentation"
     compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
+        version =
+            release(37) {
+                minorApiLevel = 1
+            }
     }
 
     defaultConfig {
@@ -110,4 +112,6 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.androidX.compose.bom))
     androidTestImplementation(libs.androidX.compose.uiTestJunit4)
+
+    detektRuleSet(libs.compose.rules.detekt)
 }

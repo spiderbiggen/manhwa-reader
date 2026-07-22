@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.kotlinX.serialization)
     id("manga.spotless")
+    id("manga.detekt")
     id("com.android.lint")
 }
 
