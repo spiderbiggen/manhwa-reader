@@ -14,7 +14,11 @@ plugins {
 
 android {
     namespace = "com.spiderbiggen.manga"
-    compileSdk = 37
+    compileSdk {
+        version = release(37) {
+            minorApiLevel = 1
+        }
+    }
 
     buildFeatures {
         compose = true
@@ -50,13 +54,10 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = true
-            isShrinkResources = true
             signingConfig = signingConfigs.getByName("release")
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
+            optimization {
+                enable = true
+            }
         }
         debug {
             applicationIdSuffix = ".debug"
@@ -124,6 +125,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    // this is required for linting even though the IDE says it is duplicated
     androidTestImplementation(platform(libs.androidX.compose.bom))
     androidTestImplementation(libs.androidX.compose.uiTestJunit4)
 }
