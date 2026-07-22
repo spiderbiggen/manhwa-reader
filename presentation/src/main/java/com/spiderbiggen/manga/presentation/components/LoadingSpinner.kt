@@ -14,9 +14,7 @@ import androidx.compose.ui.Modifier
 @Composable
 fun LoadingSpinner(padding: PaddingValues = PaddingValues()) {
     Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding),
+        modifier = Modifier.fillMaxSize().padding(padding),
         contentAlignment = Alignment.Center,
     ) {
         LoadingIndicator()

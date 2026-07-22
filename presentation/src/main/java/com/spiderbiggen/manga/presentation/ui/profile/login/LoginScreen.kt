@@ -101,13 +101,10 @@ private fun LoginScreenContent(
                     Text("Login")
                 },
             )
-        },
+        }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -115,28 +112,22 @@ private fun LoginScreenContent(
                 state = username,
                 label = { Text("Username") },
                 enabled = loginState !is LoginState.Loading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
                         contentType = ContentType.Username + ContentType.EmailAddress
                     },
                 lineLimits = TextFieldLineLimits.SingleLine,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
             OutlinedSecureTextField(
                 state = password,
                 label = { Text("Password") },
                 enabled = loginState !is LoginState.Loading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
                         contentType = ContentType.Password
                     },
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Go,
-                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
                 onKeyboardAction = {
                     onLogin(
                         username.text.toString(),
@@ -160,22 +151,23 @@ private fun LoginScreenContent(
                                 username.text.toString(),
                                 password.text.toString(),
                             )
-                        },
+                        }
                     ) {
                         Text("Login")
                     }
                     HorizontalDivider()
                     Text(
-                        text = buildAnnotatedString {
-                            this.append("Don't have an account? ")
-                            this.withLink(
-                                LinkAnnotation.Clickable("Register") {
-                                    onRegisterlick()
-                                },
-                            ) {
-                                append("Register instead")
+                        text =
+                            buildAnnotatedString {
+                                this.append("Don't have an account? ")
+                                this.withLink(
+                                    LinkAnnotation.Clickable("Register") {
+                                        onRegisterlick()
+                                    }
+                                ) {
+                                    append("Register instead")
+                                }
                             }
-                        },
                     )
                 }
             }
@@ -189,17 +181,19 @@ private fun LoginScreenContent(
 @PreviewDynamicColors
 @PreviewFontScale
 @Composable
-private fun LoginScreenPreview(@PreviewParameter(LoginStatePreviewProvider::class) state: LoginState) =
-    MangaReaderTheme {
-        CompositionLocalProvider(LocalAppVersion provides "1.23.0 (66)") {
-            LoginScreenContent(loginState = state)
-        }
+private fun LoginScreenPreview(
+    @PreviewParameter(LoginStatePreviewProvider::class) state: LoginState
+) = MangaReaderTheme {
+    CompositionLocalProvider(LocalAppVersion provides "1.23.0 (66)") {
+        LoginScreenContent(loginState = state)
     }
+}
 
 private class LoginStatePreviewProvider : PreviewParameterProvider<LoginState> {
-    override val values = sequenceOf(
-        LoginState.Idle,
-        LoginState.Loading,
-        LoginState.Error("Could not log in"),
-    )
+    override val values =
+        sequenceOf(
+            LoginState.Idle,
+            LoginState.Loading,
+            LoginState.Error("Could not log in"),
+        )
 }

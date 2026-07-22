@@ -31,13 +31,14 @@ android {
 
     signingConfigs {
         create("release") {
-            val properties = Properties().apply {
-                try {
-                    load(rootProject.rootDir.resolve("local.properties").reader())
-                } catch (e: Exception) {
-                    System.err.println("Failed to load local.properties: ${e.message}")
+            val properties =
+                Properties().apply {
+                    try {
+                        load(rootProject.rootDir.resolve("local.properties").reader())
+                    } catch (e: Exception) {
+                        System.err.println("Failed to load local.properties: ${e.message}")
+                    }
                 }
-            }
             properties.getProperty("signing.keystore")?.let {
                 storeFile = rootProject.rootDir.resolve(it)
                 storePassword = properties.getProperty("signing.password")

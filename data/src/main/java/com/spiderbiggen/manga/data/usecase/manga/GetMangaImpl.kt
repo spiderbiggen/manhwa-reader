@@ -7,5 +7,6 @@ import com.spiderbiggen.manga.domain.usecase.manga.GetManga
 import kotlinx.coroutines.flow.Flow
 
 class GetMangaImpl(private val mangaRepository: MangaRepository) : GetManga {
-    override fun invoke(id: MangaId): Flow<MangaWithFavorite?> = mangaRepository.getMangaWithFavoriteStatus(id)
+    override fun invoke(id: MangaId): Flow<MangaWithFavorite?> =
+        mangaRepository.getMangaWithFavoriteStatus(id)
 }

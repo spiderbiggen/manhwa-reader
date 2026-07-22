@@ -97,13 +97,10 @@ private fun RegistrationScreenContent(
                     Text("Register")
                 },
             )
-        },
+        }
     ) { paddingValues ->
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp),
+            modifier = Modifier.fillMaxSize().padding(paddingValues).padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
@@ -111,45 +108,42 @@ private fun RegistrationScreenContent(
                 state = username,
                 label = { Text("Username") },
                 enabled = !isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
                         contentType = ContentType.NewUsername
                     },
                 lineLimits = TextFieldLineLimits.SingleLine,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
             OutlinedTextField(
                 state = email,
                 label = { Text("Email") },
                 enabled = !isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
                         contentType = ContentType.EmailAddress
                     },
                 lineLimits = TextFieldLineLimits.SingleLine,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next,
+                    ),
             )
             OutlinedSecureTextField(
                 state = password,
                 label = { Text("Password") },
                 enabled = !isLoading,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .semantics {
+                modifier =
+                    Modifier.fillMaxWidth().semantics {
                         contentType = ContentType.NewPassword
                     },
-                keyboardOptions = KeyboardOptions(
-                    autoCorrectEnabled = false,
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Go,
-                ),
+                keyboardOptions =
+                    KeyboardOptions(
+                        autoCorrectEnabled = false,
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Go,
+                    ),
                 onKeyboardAction = {
                     onRegister(
                         username.text.toString(),
@@ -174,7 +168,7 @@ private fun RegistrationScreenContent(
                             email.text.toString(),
                             password.text.toString(),
                         )
-                    },
+                    }
                 ) {
                     Text("Register")
                 }
@@ -190,7 +184,7 @@ private fun RegistrationScreenContent(
 @PreviewFontScale
 @Composable
 private fun RegistrationScreenPreview(
-    @PreviewParameter(RegistrationStatePreviewProvider::class) data: RegistrationState,
+    @PreviewParameter(RegistrationStatePreviewProvider::class) data: RegistrationState
 ) = MangaReaderTheme {
     CompositionLocalProvider(LocalAppVersion provides "1.23.0 (66)") {
         RegistrationScreenContent(data)
@@ -198,9 +192,10 @@ private fun RegistrationScreenPreview(
 }
 
 private class RegistrationStatePreviewProvider : PreviewParameterProvider<RegistrationState> {
-    override val values = sequenceOf(
-        RegistrationState.Idle,
-        RegistrationState.Loading,
-        RegistrationState.Error("Could not register"),
-    )
+    override val values =
+        sequenceOf(
+            RegistrationState.Idle,
+            RegistrationState.Loading,
+            RegistrationState.Error("Could not register"),
+        )
 }

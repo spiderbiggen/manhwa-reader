@@ -12,8 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LocalMangaDao {
-    @Upsert
-    suspend fun insert(chapter: List<LocalMangaEntity>)
+    @Upsert suspend fun insert(chapter: List<LocalMangaEntity>)
 
     @Query(
         """
@@ -21,7 +20,7 @@ interface LocalMangaDao {
         FROM manga m
             LEFT JOIN manga_favorite_status f on f.id = m.id
         WHERE m.id = :id
-        """,
+        """
     )
     fun getWithFavorite(id: MangaId): Flow<LocalMangaWithFavoriteStatus?>
 
@@ -40,7 +39,7 @@ interface LocalMangaDao {
             ) r ON r.manga_id = m.id
         WHERE m.status <> 'Dropped'
         ORDER BY updated_at DESC
-        """,
+        """
     )
     fun getAllNotDropped(): Flow<List<LocalMangaForOverviewEntity>>
 
@@ -50,7 +49,7 @@ interface LocalMangaDao {
         FROM manga m
             LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
         WHERE c.id IS NULL
-        """,
+        """
     )
     suspend fun getForUpdate(): List<MangaId>
 

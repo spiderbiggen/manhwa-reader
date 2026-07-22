@@ -4,14 +4,15 @@ import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntit
 import com.spiderbiggen.manga.data.source.remote.model.MangaEntity
 
 class ToLocalManga {
-    operator fun invoke(entity: MangaEntity) = LocalMangaEntity(
-        id = entity.id,
-        source = entity.source,
-        title = entity.title,
-        cover = entity.cover,
-        dominantColor = entity.dominantColor,
-        description = entity.description,
-        status = entity.status,
-        updatedAt = entity.updatedAt,
-    )
+    operator fun invoke(entity: MangaEntity) =
+        LocalMangaEntity(
+            id = entity.id,
+            source = entity.source,
+            title = entity.title,
+            cover = entity.cover,
+            dominantColor = entity.dominantColor,
+            description = entity.description,
+            status = entity.status,
+            updatedAt = entity.updatedAt,
+        )
 }

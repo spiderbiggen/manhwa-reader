@@ -7,8 +7,7 @@ import com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 
-@Serializable
-data object LoginRoute : NavKey
+@Serializable data object LoginRoute : NavKey
 
 fun NavBackStack<NavKey>.navigateToLogin() {
     add(LoginRoute)

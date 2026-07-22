@@ -6,8 +6,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ReadState(
-    @SerialName("is_read")
-    val isRead: Boolean,
-    @SerialName("updated_at")
-    val updatedAt: Instant,
+    @SerialName("is_read") val isRead: Boolean,
+    @SerialName("updated_at") val updatedAt: Instant,
 )

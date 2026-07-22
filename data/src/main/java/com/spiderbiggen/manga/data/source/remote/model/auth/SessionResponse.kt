@@ -5,8 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class SessionResponse(
-    @SerialName("access_token")
-    val accessToken: TokenEntity,
-    @SerialName("refresh_token")
-    val refreshToken: TokenEntity,
+    @SerialName("access_token") val accessToken: TokenEntity,
+    @SerialName("refresh_token") val refreshToken: TokenEntity,
 )

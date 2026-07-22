@@ -12,12 +12,9 @@ data class MangaScreenData(
 
 @Immutable
 sealed interface MangaScreenState {
-    @Immutable
-    data object Loading : MangaScreenState
+    @Immutable data object Loading : MangaScreenState
 
-    @Immutable
-    data class Ready(val manga: ImmutableList<MangaViewData>) : MangaScreenState
+    @Immutable data class Ready(val manga: ImmutableList<MangaViewData>) : MangaScreenState
 
-    @Immutable
-    data class Error(val message: String) : MangaScreenState
+    @Immutable data class Error(val message: String) : MangaScreenState
 }

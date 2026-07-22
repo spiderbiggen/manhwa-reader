@@ -124,15 +124,14 @@ fun ProfileOverviewContent(
         },
     ) { scaffoldPadding ->
         when (state) {
-            is ProfileOverviewViewState.Authenticated -> AuthenticatedUserProfile(
-                state = state,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(scaffoldPadding),
-                onChangeAvatarClick = onChangeAvatarClick,
-                onLogoutClick = onLogoutClick,
-                onSyncClick = onSyncClick,
-            )
+            is ProfileOverviewViewState.Authenticated ->
+                AuthenticatedUserProfile(
+                    state = state,
+                    modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
+                    onChangeAvatarClick = onChangeAvatarClick,
+                    onLogoutClick = onLogoutClick,
+                    onSyncClick = onSyncClick,
+                )
 
             else -> {
                 LoadingUserProfile(scaffoldPadding)
@@ -152,16 +151,17 @@ private fun AuthenticatedUserProfile(
     onLogoutClick: () -> Unit = {},
     onSyncClick: () -> Unit = {},
 ) {
-    val pickMedia = rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
-        // Callback is invoked after the user selects a media item or closes the
-        // photo picker.
-        if (uri != null) {
-            Log.d("PhotoPicker", "Selected URI: $uri")
-            onChangeAvatarClick(uri)
-        } else {
-            Log.d("PhotoPicker", "No media selected")
+    val pickMedia =
+        rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
+            // Callback is invoked after the user selects a media item or closes the
+            // photo picker.
+            if (uri != null) {
+                Log.d("PhotoPicker", "Selected URI: $uri")
+                onChangeAvatarClick(uri)
+            } else {
+                Log.d("PhotoPicker", "No media selected")
+            }
         }
-    }
 
     Column(
         modifier = modifier.padding(16.dp),
@@ -182,11 +182,17 @@ private fun AuthenticatedUserProfile(
                         modifier = avatarSizeModifier.clip(CircleShape),
                     )
                 }
-                ExpressiveAnimatedVisibility(state.isUpdatingAvatar, avatarSizeModifier, "AvatarProgress") {
+                ExpressiveAnimatedVisibility(
+                    state.isUpdatingAvatar,
+                    avatarSizeModifier,
+                    "AvatarProgress",
+                ) {
                     CircularWavyProgressIndicator(avatarSizeModifier, waveSpeed = 40.dp)
                 }
                 FilledIconButton(
-                    onClick = { pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly)) },
+                    onClick = {
+                        pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+                    },
                     modifier = Modifier.align(Alignment.BottomEnd),
                     enabled = !state.isUpdatingAvatar,
                 ) {
@@ -254,10 +260,7 @@ private fun AuthenticatedUserProfile(
 @Composable
 private fun LoadingUserProfile(padding: PaddingValues) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)
-            .padding(16.dp),
+        modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
@@ -270,7 +273,7 @@ private fun LoadingUserProfile(padding: PaddingValues) {
 @PreviewFontScale
 @Composable
 private fun ProfileOverviewPreview(
-    @PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState,
+    @PreviewParameter(ProfileOverviewStatePreviewProvider::class) state: ProfileOverviewViewState
 ) = MangaReaderTheme {
     CompositionLocalProvider(LocalAppVersion provides "1.23.0 (66)") {
         val snackbarHostState = remember { SnackbarHostState() }
@@ -281,29 +284,31 @@ private fun ProfileOverviewPreview(
     }
 }
 
-private class ProfileOverviewStatePreviewProvider : PreviewParameterProvider<ProfileOverviewViewState> {
-    override val values = sequenceOf(
-        ProfileOverviewViewState.Authenticated(
-            id = "",
-            name = "Spiderbiggen",
-            email = "spiderbiggen@gmail.com",
-            isUpdatingAvatar = false,
-            avatarUrl = "example.com",
-            updatedAt = now(),
-            isSynchronizing = false,
-            lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
-        ),
-        ProfileOverviewViewState.Authenticated(
-            id = "",
-            name = "Spiderbiggen",
-            email = "spiderbiggen@gmail.com",
-            isUpdatingAvatar = true,
-            avatarUrl = "example.com",
-            updatedAt = now(),
-            isSynchronizing = true,
-            lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
-        ),
-        ProfileOverviewViewState.Unknown,
-        ProfileOverviewViewState.Unauthenticated,
-    )
+private class ProfileOverviewStatePreviewProvider :
+    PreviewParameterProvider<ProfileOverviewViewState> {
+    override val values =
+        sequenceOf(
+            ProfileOverviewViewState.Authenticated(
+                id = "",
+                name = "Spiderbiggen",
+                email = "spiderbiggen@gmail.com",
+                isUpdatingAvatar = false,
+                avatarUrl = "example.com",
+                updatedAt = now(),
+                isSynchronizing = false,
+                lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
+            ),
+            ProfileOverviewViewState.Authenticated(
+                id = "",
+                name = "Spiderbiggen",
+                email = "spiderbiggen@gmail.com",
+                isUpdatingAvatar = true,
+                avatarUrl = "example.com",
+                updatedAt = now(),
+                isSynchronizing = true,
+                lastSynchronizationTime = "2025-12-15:23:16:23.000Z",
+            ),
+            ProfileOverviewViewState.Unknown,
+            ProfileOverviewViewState.Unauthenticated,
+        )
 }

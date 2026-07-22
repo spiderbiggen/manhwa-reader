@@ -19,7 +19,10 @@ fun NavBackStack<NavKey>.navigateToProfile(state: ProfileState) {
     if (state is ProfileState.Authenticated) navigateToProfileOverview() else navigateToLogin()
 }
 
-fun EntryProviderScope<NavKey>.profile(backStack: NavBackStack<NavKey>, snackbarHostState: SnackbarHostState) {
+fun EntryProviderScope<NavKey>.profile(
+    backStack: NavBackStack<NavKey>,
+    snackbarHostState: SnackbarHostState,
+) {
     profileOverviewDestination(
         snackbarHostState = snackbarHostState,
         onBackClick = { backStack.popUpToInclusive<ProfileOverviewRoute>() },

@@ -5,7 +5,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class LoginBody(
-    @SerialName("username_or_email")
-    val usernameOrEmail: String,
+    @SerialName("username_or_email") val usernameOrEmail: String,
     val password: String,
 )

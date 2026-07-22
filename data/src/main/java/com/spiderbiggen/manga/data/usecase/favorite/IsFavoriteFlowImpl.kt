@@ -7,5 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class IsFavoriteFlowImpl(private val favoritesRepository: FavoritesRepository) : IsFavoriteFlow {
-    override fun invoke(id: MangaId): Flow<Boolean> = favoritesRepository.getFlow(id).map { it == true }
+    override fun invoke(id: MangaId): Flow<Boolean> =
+        favoritesRepository.getFlow(id).map { it == true }
 }

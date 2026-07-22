@@ -62,34 +62,39 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
     val floatAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
     NavDisplay(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
-        entryDecorators = listOf(
-            // Add the default decorators for managing scenes and saving state
-            rememberSaveableStateHolderNavEntryDecorator(),
-            // Then add the view model store decorator
-            rememberViewModelStoreNavEntryDecorator(),
-        ),
+        entryDecorators =
+            listOf(
+                // Add the default decorators for managing scenes and saving state
+                rememberSaveableStateHolderNavEntryDecorator(),
+                // Then add the view model store decorator
+                rememberViewModelStoreNavEntryDecorator(),
+            ),
         backStack = backStack,
         transitionSpec = {
-            slideInHorizontally(animationSpec) { it } togetherWith slideOutHorizontally(animationSpec) { -it / 2 }
+            slideInHorizontally(animationSpec) { it } togetherWith
+                slideOutHorizontally(animationSpec) { -it / 2 }
         },
         popTransitionSpec = {
-            slideInHorizontally(animationSpec) { -it / 2 } togetherWith slideOutHorizontally(animationSpec) { it }
+            slideInHorizontally(animationSpec) { -it / 2 } togetherWith
+                slideOutHorizontally(animationSpec) { it }
         },
         predictivePopTransitionSpec = {
-            slideInHorizontally(animationSpec) { -it / 2 } togetherWith slideOutHorizontally(animationSpec) { it }
+            slideInHorizontally(animationSpec) { -it / 2 } togetherWith
+                slideOutHorizontally(animationSpec) { it }
         },
-        entryProvider = entryProvider {
-            manga(
-                backStack = backStack,
-                profileState = profileState,
-                snackbarHostState = snackbarHostState,
-                floatAnimationSpec = floatAnimationSpec,
-            )
+        entryProvider =
+            entryProvider {
+                manga(
+                    backStack = backStack,
+                    profileState = profileState,
+                    snackbarHostState = snackbarHostState,
+                    floatAnimationSpec = floatAnimationSpec,
+                )
 
-            profile(
-                backStack = backStack,
-                snackbarHostState = snackbarHostState,
-            )
-        },
+                profile(
+                    backStack = backStack,
+                    snackbarHostState = snackbarHostState,
+                )
+            },
     )
 }

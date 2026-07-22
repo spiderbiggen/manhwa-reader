@@ -79,22 +79,27 @@ class HttpClientFactory(
             install(Auth) {
                 bearer {
                     loadTokens {
-                        authRepository.getAuthenticatedState().getOrElse { null }?.let {
-                            BearerTokens(it.accessToken.token, it.refreshToken.token)
-                        }
+                        authRepository
+                            .getAuthenticatedState()
+                            .getOrElse { null }
+                            ?.let {
+                                BearerTokens(it.accessToken.token, it.refreshToken.token)
+                            }
                     }
                     refreshTokens {
                         val refreshToken = oldTokens?.refreshToken ?: return@refreshTokens null
-                        val response = client.post("api/v1/auth/refresh") {
-                            setBody(RefreshTokenBody(refreshToken))
-                            markAsRefreshTokenRequest()
-                        }
+                        val response =
+                            client.post("api/v1/auth/refresh") {
+                                setBody(RefreshTokenBody(refreshToken))
+                                markAsRefreshTokenRequest()
+                            }
                         if (response.status == HttpStatusCode.OK) {
                             val sessionResponse: SessionResponse = response.body()
-                            val _ = authRepository.saveTokens(
-                                sessionResponse.accessToken,
-                                sessionResponse.refreshToken,
-                            )
+                            val _ =
+                                authRepository.saveTokens(
+                                    sessionResponse.accessToken,
+                                    sessionResponse.refreshToken,
+                                )
                             BearerTokens(
                                 accessToken = sessionResponse.accessToken.token,
                                 refreshToken = sessionResponse.refreshToken.token,

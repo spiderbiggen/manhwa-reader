@@ -37,31 +37,43 @@ class UserServiceImpl(private val client: HttpClient) : UserService {
                                 append(HttpHeaders.ContentDisposition, "filename=\"avatar.webp\"")
                             },
                         )
-                    },
-                ),
+                    }
+                )
             )
         }
     }
 
     override suspend fun getFavorites(since: Instant?): Map<MangaId, FavoriteState> =
-        client.get("api/v1/users/favorites") {
-            parameter("since", since)
-        }.body()
+        client
+            .get("api/v1/users/favorites") {
+                parameter("since", since)
+            }
+            .body()
 
-    override suspend fun updateFavorites(updates: Map<MangaId, FavoriteState>): Map<MangaId, FavoriteState> =
-        client.post("api/v1/users/favorites") {
-            compress("gzip")
-            setBody(updates)
-        }.body()
+    override suspend fun updateFavorites(
+        updates: Map<MangaId, FavoriteState>
+    ): Map<MangaId, FavoriteState> =
+        client
+            .post("api/v1/users/favorites") {
+                compress("gzip")
+                setBody(updates)
+            }
+            .body()
 
     override suspend fun getReadProgress(since: Instant?): Map<ChapterId, ReadState> =
-        client.get("api/v1/users/reads") {
-            parameter("since", since)
-        }.body()
+        client
+            .get("api/v1/users/reads") {
+                parameter("since", since)
+            }
+            .body()
 
-    override suspend fun updateReadProgress(updates: Map<ChapterId, ReadState>): Map<ChapterId, ReadState> =
-        client.post("api/v1/users/reads") {
-            compress("gzip")
-            setBody(updates)
-        }.body()
+    override suspend fun updateReadProgress(
+        updates: Map<ChapterId, ReadState>
+    ): Map<ChapterId, ReadState> =
+        client
+            .post("api/v1/users/reads") {
+                compress("gzip")
+                setBody(updates)
+            }
+            .body()
 }

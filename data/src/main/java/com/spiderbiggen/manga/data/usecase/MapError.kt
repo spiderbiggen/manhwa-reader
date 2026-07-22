@@ -17,33 +17,34 @@ import java.net.UnknownHostException
 import kotlin.coroutines.cancellation.CancellationException
 import okhttp3.internal.http2.ConnectionShutdownException
 
-fun Throwable.toAppError(): AppError = when (this) {
-    is CancellationException -> throw this
+fun Throwable.toAppError(): AppError =
+    when (this) {
+        is CancellationException -> throw this
 
-    // HTTP Responses
-    is RedirectResponseException -> handleResponseException(this.response.status, this)
+        // HTTP Responses
+        is RedirectResponseException -> handleResponseException(this.response.status, this)
 
-    is ClientRequestException -> handleResponseException(this.response.status, this)
+        is ClientRequestException -> handleResponseException(this.response.status, this)
 
-    is ServerResponseException -> handleResponseException(this.response.status, this)
+        is ServerResponseException -> handleResponseException(this.response.status, this)
 
-    // Database
-    is SQLiteException -> AppError.Database.Io(this)
+        // Database
+        is SQLiteException -> AppError.Database.Io(this)
 
-    // Connections
-    is SocketTimeoutException -> AppError.Remote.NoConnection(this)
+        // Connections
+        is SocketTimeoutException -> AppError.Remote.NoConnection(this)
 
-    is UnknownHostException -> AppError.Remote.NoConnection(this)
+        is UnknownHostException -> AppError.Remote.NoConnection(this)
 
-    is ConnectionShutdownException -> AppError.Remote.NoConnection(this)
+        is ConnectionShutdownException -> AppError.Remote.NoConnection(this)
 
-    is IOException -> AppError.Remote.Io(this)
+        is IOException -> AppError.Remote.Io(this)
 
-    is Exception -> AppError.Unknown(this)
+        is Exception -> AppError.Unknown(this)
 
-    // Anything else
-    else -> throw this
-}
+        // Anything else
+        else -> throw this
+    }
 
 private fun handleResponseException(status: HttpStatusCode, cause: Throwable): AppError {
     val message = cause.message
@@ -57,9 +58,10 @@ private fun handleResponseException(status: HttpStatusCode, cause: Throwable): A
     }
 }
 
-fun <R> Result<R>.either(): Either<AppError, R> = fold(
-    { it.right() },
-    { it.toAppError().left() },
-)
+fun <R> Result<R>.either(): Either<AppError, R> =
+    fold(
+        onSuccess = { it.right() },
+        onFailure = { it.toAppError().left() },
+    )
 
 inline fun <A> Raise<AppError>.appError(block: () -> A): A = catch(block) { raise(it.toAppError()) }

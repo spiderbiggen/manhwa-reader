@@ -9,10 +9,7 @@ import kotlin.time.Instant
 
 @Entity(tableName = "chapter_read_status")
 data class ChapterReadStatusEntity(
-    @PrimaryKey
-    val id: ChapterId,
-    @ColumnInfo("is_read")
-    val isRead: Boolean,
-    @ColumnInfo("updated_at")
-    val updatedAt: Instant = Clock.System.now(),
+    @PrimaryKey val id: ChapterId,
+    @ColumnInfo("is_read") val isRead: Boolean,
+    @ColumnInfo("updated_at") val updatedAt: Instant = Clock.System.now(),
 )

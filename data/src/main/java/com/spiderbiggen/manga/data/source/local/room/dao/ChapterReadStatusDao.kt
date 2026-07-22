@@ -10,11 +10,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ChapterReadStatusDao {
-    @Upsert
-    suspend fun insert(chapter: List<ChapterReadStatusEntity>)
+    @Upsert suspend fun insert(chapter: List<ChapterReadStatusEntity>)
 
-    @Upsert
-    suspend fun insert(chapter: ChapterReadStatusEntity)
+    @Upsert suspend fun insert(chapter: ChapterReadStatusEntity)
 
     @Query("SELECT * FROM chapter_read_status WHERE updated_at > :since")
     suspend fun get(since: Instant): List<ChapterReadStatusEntity>

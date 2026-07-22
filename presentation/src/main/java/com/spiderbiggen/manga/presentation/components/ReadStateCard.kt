@@ -19,18 +19,17 @@ fun ReadStateCard(
     shape: Shape = RectangleShape,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val colors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-    ).let {
-        when {
-            isRead -> {
-                val alpha = it.contentColor.alpha * 0.8f
-                it.copy(contentColor = it.contentColor.copy(alpha = alpha))
-            }
+    val colors =
+        CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer).let {
+            when {
+                isRead -> {
+                    val alpha = it.contentColor.alpha * 0.8f
+                    it.copy(contentColor = it.contentColor.copy(alpha = alpha))
+                }
 
-            else -> it
+                else -> it
+            }
         }
-    }
     MaterialCard(
         onClick = onClick,
         modifier = modifier,

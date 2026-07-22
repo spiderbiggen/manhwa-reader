@@ -5,17 +5,20 @@ import com.spiderbiggen.manga.data.source.remote.model.ChapterEntity
 import com.spiderbiggen.manga.domain.model.id.MangaId
 
 class ToLocalChapter {
-    operator fun invoke(id: MangaId, entity: ChapterEntity) = LocalChapterEntity(
-        id = entity.id,
-        mangaId = id,
-        index = entity.index.toInt(),
-        subIndex = entity.subIndex?.toInt(),
-        title = entity.title,
-        date = entity.date,
-        updatedAt = entity.updatedAt,
-        imageChunks = entity.images.toInt(),
-    )
+    operator fun invoke(id: MangaId, entity: ChapterEntity) =
+        LocalChapterEntity(
+            id = entity.id,
+            mangaId = id,
+            index = entity.index.toInt(),
+            subIndex = entity.subIndex?.toInt(),
+            title = entity.title,
+            date = entity.date,
+            updatedAt = entity.updatedAt,
+            imageChunks = entity.images.toInt(),
+        )
 
     operator fun invoke(id: MangaId, entities: List<ChapterEntity>): List<LocalChapterEntity> =
-        entities.map { invoke(id, it) }
+        entities.map {
+            invoke(id, it)
+        }
 }

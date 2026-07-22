@@ -16,11 +16,12 @@ class MapUserEntity(private val baseUrl: String) {
         )
     }
 
-    operator fun invoke(entity: User): UserEntity = UserEntity(
-        id = entity.id,
-        username = entity.username,
-        email = entity.email,
-        createdAt = entity.createdAt,
-        updatedAt = entity.updatedAt,
-    )
+    operator fun invoke(entity: User): UserEntity =
+        UserEntity(
+            id = entity.id,
+            username = entity.username,
+            email = entity.email,
+            createdAt = entity.createdAt,
+            updatedAt = entity.updatedAt,
+        )
 }

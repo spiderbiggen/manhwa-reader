@@ -9,9 +9,11 @@ import kotlinx.datetime.toKotlinLocalDate
 
 class LocalDateConverter {
     @TypeConverter
-    fun fromString(value: String?): LocalDate? =
-        value?.let { JavaLocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE).toKotlinLocalDate() }
+    fun fromString(value: String?): LocalDate? = value?.let {
+        JavaLocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE).toKotlinLocalDate()
+    }
 
     @TypeConverter
-    fun toString(value: LocalDate?): String? = value?.toJavaLocalDate()?.format(DateTimeFormatter.ISO_LOCAL_DATE)
+    fun toString(value: LocalDate?): String? =
+        value?.toJavaLocalDate()?.format(DateTimeFormatter.ISO_LOCAL_DATE)
 }

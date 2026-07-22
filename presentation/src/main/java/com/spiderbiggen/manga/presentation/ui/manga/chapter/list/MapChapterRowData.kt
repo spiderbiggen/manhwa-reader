@@ -12,19 +12,24 @@ import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 
 class MapChapterRowData {
-    operator fun invoke(value: ChapterForOverview): ChapterRowData = with(value) {
-        // TODO: Update domain model with optional release date
-        val formattedDate = chapter.date?.format(dateFormat)
-            ?: chapter.updatedAt.toLocalDateTime(TimeZone.currentSystemDefault()).date.format(dateFormat)
-        ChapterRowData(
-            id = chapter.id,
-            index = chapter.index,
-            subIndex = chapter.subIndex,
-            title = chapter.title,
-            date = formattedDate,
-            isRead = isRead,
-        )
-    }
+    operator fun invoke(value: ChapterForOverview): ChapterRowData =
+        with(value) {
+            // TODO: Update domain model with optional release date
+            val formattedDate =
+                chapter.date?.format(dateFormat)
+                    ?: chapter.updatedAt
+                        .toLocalDateTime(TimeZone.currentSystemDefault())
+                        .date
+                        .format(dateFormat)
+            ChapterRowData(
+                id = chapter.id,
+                index = chapter.index,
+                subIndex = chapter.subIndex,
+                title = chapter.title,
+                date = formattedDate,
+                isRead = isRead,
+            )
+        }
 
     private companion object {
         private val dateFormat: DateTimeFormat<LocalDate> = LocalDate.Format {

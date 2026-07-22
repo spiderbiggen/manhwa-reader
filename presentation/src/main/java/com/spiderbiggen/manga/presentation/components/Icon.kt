@@ -74,48 +74,48 @@ fun FavoriteToggle(
     contentColor: Color = MaterialTheme.colorScheme.outline,
     favoriteContentColor: Color = MaterialTheme.colorScheme.primary,
 ) {
-    val scale by animateFloatAsState(
-        targetValue = if (isFavorite) 1f else 0f,
-        label = "scale",
-        animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
-    )
-    val painter = rememberVectorPainter(
-        defaultWidth = 24.dp,
-        defaultHeight = 24.dp,
-        viewportWidth = 24f,
-        viewportHeight = 24f,
-        autoMirror = true,
-    ) { _, _ ->
-        Group(
-            name = "Outline",
-        ) {
-            Path(
-                FavoriteIconPaths.Outline,
-                fill = SolidColor(contentColor),
-                strokeLineWidth = 1f,
-                strokeLineCap = StrokeCap.Butt,
-                strokeLineJoin = StrokeJoin.Bevel,
-                strokeLineMiter = 1f,
-            )
-        }
+    val scale by
+        animateFloatAsState(
+            targetValue = if (isFavorite) 1f else 0f,
+            label = "scale",
+            animationSpec = MaterialTheme.motionScheme.fastSpatialSpec(),
+        )
+    val painter =
+        rememberVectorPainter(
+            defaultWidth = 24.dp,
+            defaultHeight = 24.dp,
+            viewportWidth = 24f,
+            viewportHeight = 24f,
+            autoMirror = true,
+        ) { _, _ ->
+            Group(name = "Outline") {
+                Path(
+                    FavoriteIconPaths.Outline,
+                    fill = SolidColor(contentColor),
+                    strokeLineWidth = 1f,
+                    strokeLineCap = StrokeCap.Butt,
+                    strokeLineJoin = StrokeJoin.Bevel,
+                    strokeLineMiter = 1f,
+                )
+            }
 
-        Group(
-            name = "Fill",
-            pivotX = 12f,
-            pivotY = 12f,
-            scaleX = scale,
-            scaleY = scale,
-        ) {
-            Path(
-                pathData = FavoriteIconPaths.Fill,
-                fill = SolidColor(favoriteContentColor),
-                strokeLineWidth = 1f,
-                strokeLineCap = StrokeCap.Butt,
-                strokeLineJoin = StrokeJoin.Bevel,
-                strokeLineMiter = 1f,
-            )
+            Group(
+                name = "Fill",
+                pivotX = 12f,
+                pivotY = 12f,
+                scaleX = scale,
+                scaleY = scale,
+            ) {
+                Path(
+                    pathData = FavoriteIconPaths.Fill,
+                    fill = SolidColor(favoriteContentColor),
+                    strokeLineWidth = 1f,
+                    strokeLineCap = StrokeCap.Butt,
+                    strokeLineJoin = StrokeJoin.Bevel,
+                    strokeLineMiter = 1f,
+                )
+            }
         }
-    }
     Icon(
         painter = painter,
         contentDescription = if (isFavorite) "Unfavorite" else "Favorite",

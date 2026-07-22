@@ -20,16 +20,17 @@ class DecodeAvatarBitmap(private val contentResolver: ContentResolver) {
     }
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {
-        val bytes = openInputStream(uri)!!.use { source ->
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                source.readAllBytes()
-            } else {
-                ByteArrayOutputStream().use { sink ->
-                    source.copyTo(sink)
-                    sink.toByteArray()
+        val bytes =
+            openInputStream(uri)!!.use { source ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    source.readAllBytes()
+                } else {
+                    ByteArrayOutputStream().use { sink ->
+                        source.copyTo(sink)
+                        sink.toByteArray()
+                    }
                 }
             }
-        }
         val options = BitmapFactory.Options()
         options.inJustDecodeBounds = true
         BitmapFactory.decodeByteArray(bytes, 0, bytes.size, options)

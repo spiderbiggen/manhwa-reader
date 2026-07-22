@@ -38,7 +38,7 @@ class ReadRepository(private val readDao: ChapterReadStatusDao) {
             readDao.insert(
                 updates.map { (id, state) ->
                     ChapterReadStatusEntity(id, state.isRead, state.updatedAt)
-                },
+                }
             )
         }
     }

@@ -15,18 +15,28 @@ import kotlin.time.Instant
 class MangaServiceImpl(private val client: HttpClient) : MangaService {
 
     override suspend fun getAllMangas(since: Instant?, skipCache: Boolean): List<MangaEntity> =
-        client.get("api/v1/mangas") {
-            parameter("since", since)
-            if (skipCache) header("Cache-Control", "max-age=15")
-        }.body()
+        client
+            .get("api/v1/mangas") {
+                parameter("since", since)
+                if (skipCache) header("Cache-Control", "max-age=0")
+            }
+            .body()
 
-    override suspend fun getManga(id: MangaId): MangaEntity = client.get("api/v1/mangas/${id.value}").body()
+    override suspend fun getManga(id: MangaId): MangaEntity =
+        client.get("api/v1/mangas/${id.value}").body()
 
-    override suspend fun getMangaChapters(id: MangaId, since: Instant?, skipCache: Boolean): List<ChapterEntity> =
-        client.get("api/v3/mangas/${id.value}/chapters") {
-            parameter("since", since)
-            if (skipCache) header("Cache-Control", "max-age=15")
-        }.body()
+    override suspend fun getMangaChapters(
+        id: MangaId,
+        since: Instant?,
+        skipCache: Boolean,
+    ): List<ChapterEntity> =
+        client
+            .get("api/v3/mangas/${id.value}/chapters") {
+                parameter("since", since)
+                if (skipCache) header("Cache-Control", "max-age=0")
+            }
+            .body()
 
-    override suspend fun getChapter(id: ChapterId): ChapterEntity = client.get("api/v2/chapters/${id.value}").body()
+    override suspend fun getChapter(id: ChapterId): ChapterEntity =
+        client.get("api/v2/chapters/${id.value}").body()
 }

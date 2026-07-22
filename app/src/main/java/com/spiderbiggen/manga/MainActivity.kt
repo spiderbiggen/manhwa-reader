@@ -16,9 +16,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installSplashScreen()
-        enableEdgeToEdge(
-            navigationBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT),
-        )
+        enableEdgeToEdge(navigationBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT))
 
         val appVersionName = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
         setContent {

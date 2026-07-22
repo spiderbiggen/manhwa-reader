@@ -9,7 +9,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RegistrationViewModel(private val register: Register, private val formatAppError: FormatAppError) : ViewModel() {
+class RegistrationViewModel(
+    private val register: Register,
+    private val formatAppError: FormatAppError,
+) : ViewModel() {
     private val _state = MutableStateFlow<RegistrationState>(RegistrationState.Idle)
     val state = _state.asStateFlow()
 
@@ -17,10 +20,12 @@ class RegistrationViewModel(private val register: Register, private val formatAp
         defaultScope.launch {
             if (_state.value is RegistrationState.Loading) return@launch
             _state.emit(RegistrationState.Loading)
-            val newState = register(username, email, password).fold(
-                { RegistrationState.Error(formatAppError(it)) },
-                { RegistrationState.Success },
-            )
+            val newState =
+                register(username, email, password)
+                    .fold(
+                        { RegistrationState.Error(formatAppError(it)) },
+                        { RegistrationState.Success },
+                    )
             _state.emit(newState)
         }
     }
@@ -29,9 +34,10 @@ class RegistrationViewModel(private val register: Register, private val formatAp
 @Immutable
 sealed interface RegistrationState {
     data object Idle : RegistrationState
+
     data object Loading : RegistrationState
+
     data object Success : RegistrationState
 
-    @Immutable
-    data class Error(val message: String) : RegistrationState
+    @Immutable data class Error(val message: String) : RegistrationState
 }

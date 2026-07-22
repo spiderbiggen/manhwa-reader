@@ -9,8 +9,6 @@ data class UserEntity(
     val id: String,
     val username: String,
     val email: String? = null,
-    @SerialName("created_at")
-    val createdAt: Instant,
-    @SerialName("updated_at")
-    val updatedAt: Instant,
+    @SerialName("created_at") val createdAt: Instant,
+    @SerialName("updated_at") val updatedAt: Instant,
 )

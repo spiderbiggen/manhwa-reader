@@ -43,30 +43,30 @@ class MangaChapterListViewModel(
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
-    val state: StateFlow<MangaChapterScreenState> = screenStateFlow()
-        .onStart { onStart() }
-        .stateIn(
-            defaultScope,
-            started = SharingStarted.WhileSubscribed(500),
-            initialValue = MangaChapterScreenState.Loading,
-        )
+    val state: StateFlow<MangaChapterScreenState> =
+        screenStateFlow()
+            .onStart { onStart() }
+            .stateIn(
+                defaultScope,
+                started = SharingStarted.WhileSubscribed(500),
+                initialValue = MangaChapterScreenState.Loading,
+            )
 
     private suspend fun onStart() = launchDefault {
         updateChapters(skipCache = false)
     }
 
-    private fun screenStateFlow() = combine(
-        getManga(mangaId),
-        getOverviewChapters(mangaId),
-    ) { manga, chapters ->
-        Ready(
-            title = manga?.manga?.title,
-            isFavorite = manga?.isFavorite == true,
-            chapters = chapters
-                .map { mapChapterRowData(it) }
-                .toImmutableList(),
-        )
-    }
+    private fun screenStateFlow() =
+        combine(
+            getManga(mangaId),
+            getOverviewChapters(mangaId),
+        ) { manga, chapters ->
+            Ready(
+                title = manga?.manga?.title,
+                isFavorite = manga?.isFavorite == true,
+                chapters = chapters.map { mapChapterRowData(it) }.toImmutableList(),
+            )
+        }
 
     fun onRefresh() = suspended {
         updateChapters(skipCache = true)

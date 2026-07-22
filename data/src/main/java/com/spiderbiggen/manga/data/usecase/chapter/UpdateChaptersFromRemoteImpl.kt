@@ -15,7 +15,10 @@ class UpdateChaptersFromRemoteImpl(
     private val chapterRepository: ChapterRepository,
     private val toLocal: ToLocalChapter,
 ) : UpdateChaptersFromRemote {
-    override suspend operator fun invoke(mangaId: MangaId, skipCache: Boolean): Either<AppError, Unit> = either {
+    override suspend operator fun invoke(
+        mangaId: MangaId,
+        skipCache: Boolean,
+    ): Either<AppError, Unit> = either {
         val since = chapterRepository.getLastUpdatedAtByMangaId(mangaId).getOrElse { null }
         val chapters = getRemoteChapters(mangaId, since, skipCache).bind()
         chapterRepository.insert(toLocal(mangaId, chapters)).bind()

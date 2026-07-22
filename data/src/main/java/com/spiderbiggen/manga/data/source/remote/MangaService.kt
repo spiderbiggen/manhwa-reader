@@ -11,7 +11,11 @@ interface MangaService {
 
     suspend fun getManga(id: MangaId): MangaEntity
 
-    suspend fun getMangaChapters(id: MangaId, since: Instant?, skipCache: Boolean = false): List<ChapterEntity>
+    suspend fun getMangaChapters(
+        id: MangaId,
+        since: Instant?,
+        skipCache: Boolean = false,
+    ): List<ChapterEntity>
 
     suspend fun getChapter(id: ChapterId): ChapterEntity
 }

@@ -44,14 +44,17 @@ class MangaListViewModel(
             field = value
             savedStateHandle[UNREAD_SELECTED_KEY] = value
         }
+
     private val unreadSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(UNREAD_SELECTED_KEY, unreadSelected)
 
-    private var favoriteSelected: Boolean = savedStateHandle[FAVORITE_SELECTED_KEY] as Boolean? == true
+    private var favoriteSelected: Boolean =
+        savedStateHandle[FAVORITE_SELECTED_KEY] as Boolean? == true
         set(value) {
             field = value
             savedStateHandle[FAVORITE_SELECTED_KEY] = value
         }
+
     private val favoriteSelectedFlow: StateFlow<Boolean>
         get() = savedStateHandle.getStateFlow(FAVORITE_SELECTED_KEY, favoriteSelected)
 
@@ -62,37 +65,40 @@ class MangaListViewModel(
     val snackbarFlow: SharedFlow<SnackbarData>
         get() = _snackbarFlow.asSharedFlow()
 
-    val state: StateFlow<MangaScreenData> = screenStateFlow()
-        .onStart { onStart() }
-        .stateIn(
-            defaultScope,
-            started = SharingStarted.WhileSubscribed(500),
-            initialValue = MangaScreenData(),
-        )
+    val state: StateFlow<MangaScreenData> =
+        screenStateFlow()
+            .onStart { onStart() }
+            .stateIn(
+                defaultScope,
+                started = SharingStarted.WhileSubscribed(500),
+                initialValue = MangaScreenData(),
+            )
 
     private suspend fun onStart() = launchDefault {
         updateMangas(skipCache = false)
     }
 
-    private fun screenStateFlow() = combine(
-        getOverviewManga(),
-        unreadSelectedFlow,
-        favoriteSelectedFlow,
-    ) { manga, unreadSelected, favoriteSelected ->
-        val timeZone = TimeZone.currentSystemDefault()
-        val viewData = manga
-            .asSequence()
-            .filter { !unreadSelected || !it.isRead }
-            .filter { !favoriteSelected || it.isFavorite }
-            .map { mapMangaListViewData(it, timeZone) }
-            .toImmutableList()
+    private fun screenStateFlow() =
+        combine(
+            getOverviewManga(),
+            unreadSelectedFlow,
+            favoriteSelectedFlow,
+        ) { manga, unreadSelected, favoriteSelected ->
+            val timeZone = TimeZone.currentSystemDefault()
+            val viewData =
+                manga
+                    .asSequence()
+                    .filter { !unreadSelected || !it.isRead }
+                    .filter { !favoriteSelected || it.isFavorite }
+                    .map { mapMangaListViewData(it, timeZone) }
+                    .toImmutableList()
 
-        MangaScreenData(
-            filterFavorites = favoriteSelected,
-            filterUnread = unreadSelected,
-            state = MangaScreenState.Ready(viewData),
-        )
-    }
+            MangaScreenData(
+                filterFavorites = favoriteSelected,
+                filterUnread = unreadSelected,
+                state = MangaScreenState.Ready(viewData),
+            )
+        }
 
     fun onToggleUnread() {
         unreadSelected = !unreadSelected

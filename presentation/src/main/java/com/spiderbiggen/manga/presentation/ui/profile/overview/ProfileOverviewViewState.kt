@@ -5,11 +5,9 @@ import kotlin.time.Instant
 
 @Immutable
 sealed interface ProfileOverviewViewState {
-    @Immutable
-    data object Unknown : ProfileOverviewViewState
+    @Immutable data object Unknown : ProfileOverviewViewState
 
-    @Immutable
-    data object Unauthenticated : ProfileOverviewViewState
+    @Immutable data object Unauthenticated : ProfileOverviewViewState
 
     @Immutable
     data class Authenticated(

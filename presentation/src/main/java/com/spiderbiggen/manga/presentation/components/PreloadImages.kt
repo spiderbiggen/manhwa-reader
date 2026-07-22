@@ -28,14 +28,18 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @Composable
-fun PreloadImages(lazyListState: LazyListState, items: ImmutableList<String>, preloadCount: Int = 5) {
+fun PreloadImages(
+    lazyListState: LazyListState,
+    items: ImmutableList<String>,
+    preloadCount: Int = 5,
+) {
     val width = LocalWindowInfo.current.containerSize.width
     val sizeResolver by rememberUpdatedState {
         SizeResolver(
             Size(
                 width = width,
                 Dimension.Undefined,
-            ),
+            )
         )
     }
     PreloadImages(lazyListState, items, sizeResolver, preloadCount)
@@ -83,23 +87,25 @@ private fun PreloadImagesInternal(
 ) {
     if (items.isEmpty() || preloadCount <= 0) return
 
-    val state = retain(items) {
-        PreloadImagesState(items)
-    }
+    val state =
+        retain(items) {
+            PreloadImagesState(items)
+        }
     DisposableEffect(items) {
         onDispose { state.disposeActive() }
     }
 
-    val range by remember(items, preloadCount) {
-        derivedStateOf {
-            computeWindow(
-                firstVisibleItemIndex = firstVisibleItemIndex(),
-                visibleItemsCount = visibleItemsCount(),
-                lastIndex = items.lastIndex,
-                preloadCount = preloadCount,
-            )
+    val range by
+        remember(items, preloadCount) {
+            derivedStateOf {
+                computeWindow(
+                    firstVisibleItemIndex = firstVisibleItemIndex(),
+                    visibleItemsCount = visibleItemsCount(),
+                    lastIndex = items.lastIndex,
+                    preloadCount = preloadCount,
+                )
+            }
         }
-    }
 
     val context = LocalContext.current
     LaunchedEffect(context, items, range) {
@@ -121,11 +127,12 @@ private class PreloadImagesState(
     private val states: SnapshotStateList<PreloadState>,
     private val activeIndices: SnapshotStateSet<Int> = mutableStateSetOf(),
 ) {
-    constructor(items: ImmutableList<String>) :
-        this(
-            items,
-            SnapshotStateList<PreloadState>(items.size) { PreloadState.Idle },
-        )
+    constructor(
+        items: ImmutableList<String>
+    ) : this(
+        items,
+        SnapshotStateList<PreloadState>(items.size) { PreloadState.Idle },
+    )
 
     fun disposeActive() {
         val snapshot = activeIndices.toSet()
@@ -139,9 +146,7 @@ private class PreloadImagesState(
         activeIndices.clear()
     }
 
-    /**
-     * Ensure desired indices are enqueued (or marked as success).
-     */
+    /** Ensure desired indices are enqueued (or marked as success). */
     fun preload(
         context: PlatformContext,
         desiredIndices: IntRange,
@@ -158,7 +163,10 @@ private class PreloadImagesState(
                         continue
                     }
 
-                    val hasImage = runCatching { job.getCompleted().image != null }.getOrDefault(false)
+                    val hasImage = runCatching {
+                        job.getCompleted().image != null
+                    }
+                        .getOrDefault(false)
                     if (hasImage) {
                         existing.disposable.dispose()
                         states[index] = PreloadState.Success
@@ -175,13 +183,14 @@ private class PreloadImagesState(
                     }
                 }
 
-                PreloadState.Idle -> enqueueIndex(
-                    context = context,
-                    index = index,
-                    url = items[index],
-                    imageLoader = imageLoader,
-                    sizeResolver = sizeResolver,
-                )
+                PreloadState.Idle ->
+                    enqueueIndex(
+                        context = context,
+                        index = index,
+                        url = items[index],
+                        imageLoader = imageLoader,
+                        sizeResolver = sizeResolver,
+                    )
             }
         }
     }
@@ -205,11 +214,12 @@ private class PreloadImagesState(
         imageLoader: ImageLoader,
         sizeResolver: SizeResolver,
     ) {
-        val request = buildPreloadRequest(
-            context = context,
-            url = url,
-            sizeResolver = sizeResolver,
-        )
+        val request =
+            buildPreloadRequest(
+                context = context,
+                url = url,
+                sizeResolver = sizeResolver,
+            )
         states[index] = PreloadState.Loading(imageLoader.enqueue(request))
         activeIndices.add(index)
     }
@@ -222,20 +232,32 @@ private fun computeWindow(
     preloadCount: Int,
 ): IntRange {
     val startIndex = (firstVisibleItemIndex - preloadCount).coerceIn(0, lastIndex)
-    val endIndex = (firstVisibleItemIndex + visibleItemsCount + preloadCount - 1).coerceIn(startIndex, lastIndex)
+    val endIndex =
+        (firstVisibleItemIndex + visibleItemsCount + preloadCount - 1).coerceIn(
+            startIndex,
+            lastIndex,
+        )
 
     return startIndex..endIndex
 }
 
-private fun buildPreloadRequest(context: PlatformContext, url: String, sizeResolver: SizeResolver): ImageRequest =
-    ImageRequest.Builder(context).apply {
-        data(url)
-        size(sizeResolver)
-        precision(Precision.INEXACT)
-    }.build()
+private fun buildPreloadRequest(
+    context: PlatformContext,
+    url: String,
+    sizeResolver: SizeResolver,
+): ImageRequest =
+    ImageRequest.Builder(context)
+        .apply {
+            data(url)
+            size(sizeResolver)
+            precision(Precision.INEXACT)
+        }
+        .build()
 
 private sealed interface PreloadState {
     data object Idle : PreloadState
+
     data class Loading(val disposable: Disposable) : PreloadState
+
     data object Success : PreloadState
 }

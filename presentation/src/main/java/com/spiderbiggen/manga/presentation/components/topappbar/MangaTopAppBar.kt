@@ -29,15 +29,17 @@ fun MangaTopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     expandedHeight: Dp = TopAppBarDefaults.TopAppBarExpandedHeight,
     windowInsets: WindowInsets = WindowInsets(),
-    colors: TopAppBarColors = TopAppBarDefaults.topAppBarColors(
-        scrolledContainerColor = TopAppBarDefaults.topAppBarColors().containerColor,
-    ),
+    colors: TopAppBarColors =
+        TopAppBarDefaults.topAppBarColors(
+            scrolledContainerColor = TopAppBarDefaults.topAppBarColors().containerColor
+        ),
     scrollBehavior: TopAppBarScrollBehavior? = null,
     contentPadding: PaddingValues = TopAppBarDefaults.ContentPadding,
 ) {
-    val insets = WindowInsets.systemBars
-        .union(WindowInsets.displayCutout)
-        .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
+    val insets =
+        WindowInsets.systemBars
+            .union(WindowInsets.displayCutout)
+            .only(WindowInsetsSides.Horizontal + WindowInsetsSides.Top)
     val padding = insets.asPaddingValues() + contentPadding
     TopAppBar(
         title = title,

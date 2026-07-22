@@ -145,38 +145,41 @@ private fun MangaOverviewContent(
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState()
-    val topAppBarScrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(
-        lazyListState,
-        canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
-    )
+    val topAppBarScrollBehavior =
+        TopAppBarDefaults.enterAlwaysScrollBehavior(
+            lazyListState,
+            canScroll = { lazyListState.canScrollForward || lazyListState.canScrollBackward },
+        )
     Scaffold(
         topBar = {
             MangaTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onProfileClicked) {
                         when (profileState) {
-                            is ProfileState.Unauthenticated -> Icon(
-                                painterResource(R.drawable.account_circle),
-                                contentDescription = "Profile",
-                            )
-
-                            is ProfileState.Authenticated -> Box(contentAlignment = Alignment.Center) {
-                                AsyncImage(
-                                    model = profileState.avatarUrl,
+                            is ProfileState.Unauthenticated ->
+                                Icon(
+                                    painterResource(R.drawable.account_circle),
                                     contentDescription = "Profile",
-                                    contentScale = ContentScale.Crop,
-                                    error = painterResource(R.drawable.account_circle),
-                                    modifier = Modifier
-                                        .clip(CircleShape)
-                                        .size(24.dp),
                                 )
-                                ExpressiveAnimatedVisibility(
-                                    profileState.refreshing,
-                                    Modifier.size(WavyProgressIndicatorDefaults.CircularContainerSize),
-                                ) {
-                                    CircularWavyProgressIndicator()
+
+                            is ProfileState.Authenticated ->
+                                Box(contentAlignment = Alignment.Center) {
+                                    AsyncImage(
+                                        model = profileState.avatarUrl,
+                                        contentDescription = "Profile",
+                                        contentScale = ContentScale.Crop,
+                                        error = painterResource(R.drawable.account_circle),
+                                        modifier = Modifier.clip(CircleShape).size(24.dp),
+                                    )
+                                    ExpressiveAnimatedVisibility(
+                                        profileState.refreshing,
+                                        Modifier.size(
+                                            WavyProgressIndicatorDefaults.CircularContainerSize
+                                        ),
+                                    ) {
+                                        CircularWavyProgressIndicator()
+                                    }
                                 }
-                            }
                         }
                     }
                 },
@@ -202,14 +205,16 @@ private fun MangaOverviewContent(
             isRefreshing = isRefreshing,
             onRefresh = onRefresh,
             topOffSet = {
-                (topAppBarScrollBehavior.state.heightOffset - topAppBarScrollBehavior.state.heightOffsetLimit).toInt()
+                (topAppBarScrollBehavior.state.heightOffset -
+                        topAppBarScrollBehavior.state.heightOffsetLimit)
+                    .toInt()
             },
         ) {
             MangaList(
                 mangas = manga,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                 contentPadding = contentPadding,
                 lazyListState = lazyListState,
                 onMangaClick = onMangaClick,
@@ -220,17 +225,22 @@ private fun MangaOverviewContent(
 }
 
 @Composable
-private fun CheckedFilterChip(selected: Boolean, label: @Composable () -> Unit, onClick: () -> Unit) {
+private fun CheckedFilterChip(
+    selected: Boolean,
+    label: @Composable () -> Unit,
+    onClick: () -> Unit,
+) {
     FilterChip(
         selected = selected,
         label = label,
-        leadingIcon = if (selected) {
-            {
-                Icon(painterResource(R.drawable.check), null)
-            }
-        } else {
-            null
-        },
+        leadingIcon =
+            if (selected) {
+                {
+                    Icon(painterResource(R.drawable.check), null)
+                }
+            } else {
+                null
+            },
         onClick = onClick,
     )
 }
@@ -249,9 +259,10 @@ private fun MangaList(
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
 
     val coverSizeResolver = rememberConstraintsSizeResolver()
-    val allImages = remember(mangas) {
-        mangas.map { it.coverImage }.toImmutableList()
-    }
+    val allImages =
+        remember(mangas) {
+            mangas.map { it.coverImage }.toImmutableList()
+        }
     PreloadImages(
         lazyListState = lazyListState,
         items = allImages,
@@ -274,11 +285,12 @@ private fun MangaList(
                 manga = item,
                 onMangaClick = onMangaClick,
                 onMangaFavoriteToggleClick = onFavoriteClick,
-                modifier = Modifier.animateItem(
-                    fadeInSpec = floatAnimationSpec,
-                    placementSpec = intOffsetAnimateSpec,
-                    fadeOutSpec = floatAnimationSpec,
-                ),
+                modifier =
+                    Modifier.animateItem(
+                        fadeInSpec = floatAnimationSpec,
+                        placementSpec = intOffsetAnimateSpec,
+                        fadeOutSpec = floatAnimationSpec,
+                    ),
                 shape = shape,
                 coverSizeResolver = coverSizeResolver,
             )
@@ -295,7 +307,8 @@ private fun MangaList(
 fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
-        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
+        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!
+            .asImage()
     }
     val snackbarHostState = remember { SnackbarHostState() }
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
@@ -311,53 +324,56 @@ fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state
 
 class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData> {
     override val values
-        get() = sequenceOf(
-            MangaScreenData(),
-            MangaScreenData(
-                state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.toImmutableList(),
+        get() =
+            sequenceOf(
+                MangaScreenData(),
+                MangaScreenData(
+                    state = MangaScreenState.Ready(manga = MangaProvider.values.toImmutableList())
                 ),
-            ),
-            MangaScreenData(
-                filterUnread = true,
-                state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.filter { !it.isRead }.toImmutableList(),
+                MangaScreenData(
+                    filterUnread = true,
+                    state =
+                        MangaScreenState.Ready(
+                            manga = MangaProvider.values.filter { !it.isRead }.toImmutableList()
+                        ),
                 ),
-            ),
-            MangaScreenData(
-                filterFavorites = true,
-                state = MangaScreenState.Ready(
-                    manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList(),
+                MangaScreenData(
+                    filterFavorites = true,
+                    state =
+                        MangaScreenState.Ready(
+                            manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList()
+                        ),
                 ),
-            ),
-        )
+            )
 }
 
 object MangaProvider {
-    private val baseViewData = MangaViewData(
-        source = "Asura",
-        id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
-        title = "Heavenly Martial God",
-        coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-        status = "Ongoing",
-        updatedAt = "2023-04-23",
-        isFavorite = false,
-        isRead = false,
-    )
+    private val baseViewData =
+        MangaViewData(
+            source = "Asura",
+            id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
+            title = "Heavenly Martial God",
+            coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+            status = "Ongoing",
+            updatedAt = "2023-04-23",
+            isFavorite = false,
+            isRead = false,
+        )
 
     val values
-        get() = sequenceOf(
-            baseViewData,
-            baseViewData.copy(
-                id = MangaId("2"),
-                status = "Dropped",
-                isFavorite = true,
-                isRead = false,
-            ),
-            baseViewData.copy(
-                id = MangaId("3"),
-                isFavorite = true,
-                isRead = true,
-            ),
-        )
+        get() =
+            sequenceOf(
+                baseViewData,
+                baseViewData.copy(
+                    id = MangaId("2"),
+                    status = "Dropped",
+                    isFavorite = true,
+                    isRead = false,
+                ),
+                baseViewData.copy(
+                    id = MangaId("3"),
+                    isFavorite = true,
+                    isRead = true,
+                ),
+            )
 }
