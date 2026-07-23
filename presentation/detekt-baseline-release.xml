@@ -1,0 +1,83 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ComposableParamOrder:LoginScreen.kt:@Composable fun LoginScreen</ID>
+    <ID>ComposableParamOrder:MangaChapterListScreen.kt:@Composable fun ChapterListScreen</ID>
+    <ID>ComposableParamOrder:MangaChapterReaderScreen.kt:@Composable fun MangaChapterReaderScreen</ID>
+    <ID>ComposableParamOrder:RegistrationScreen.kt:@Composable fun RegistrationScreen</ID>
+    <ID>ComposableParamOrder:UpdatedListButton.kt:@Composable fun &lt;T : Any&gt; UpdatedListButton</ID>
+    <ID>CompositionLocalAllowlist:MainContent.kt:val LocalAppVersion = staticCompositionLocalOf { "" }</ID>
+    <ID>ExplicitItLambdaMultipleParameters:Section.kt:{ _, it -&gt; contentType(it) }</ID>
+    <ID>ExplicitItLambdaMultipleParameters:Section.kt:{ _, it -&gt; key(it) }</ID>
+    <ID>ExplicitItLambdaMultipleParameters:Section.kt:{ index, it -&gt; SectionItem(isFirst = index == 0, isLast = index == lastIndex) { shape -&gt; content(it, shape) } }</ID>
+    <ID>ForbiddenComment:MapChapterRowData.kt:MapChapterRowData$// TODO: Update domain model with optional release date</ID>
+    <ID>InjectDispatcher:ViewModelExtensions.kt:Default</ID>
+    <ID>LambdaParameterInRestartableEffect:LoginScreen.kt:onSuccess: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:MangaChapterReaderScreen.kt:onSuccess: () -&gt; Unit = {}</ID>
+    <ID>LambdaParameterInRestartableEffect:MangaChapterReaderScreen.kt:setRead: () -&gt; Unit = {}</ID>
+    <ID>LambdaParameterInRestartableEffect:PreloadImages.kt:sizeResolver: () -&gt; SizeResolver</ID>
+    <ID>LambdaParameterInRestartableEffect:ProfileOverview.kt:onLogout: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:RegistrationScreen.kt:onSuccess: () -&gt; Unit</ID>
+    <ID>LambdaParameterInRestartableEffect:StickyTopEffect.kt:isManuallyScrolled: () -&gt; Boolean</ID>
+    <ID>LambdaParameterInRestartableEffect:UpdatedListButton.kt:key: (item: T) -&gt; String</ID>
+    <ID>LongMethod:LoginScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable private fun LoginScreenContent</ID>
+    <ID>LongMethod:MangaListScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable private fun MangaOverviewContent</ID>
+    <ID>LongMethod:ProfileOverview.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable private fun AuthenticatedUserProfile</ID>
+    <ID>LongMethod:ReaderScaffold.kt:@Composable fun ReaderScaffold</ID>
+    <ID>LongMethod:RegistrationScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable private fun RegistrationScreenContent</ID>
+    <ID>LongParameterList:MangaChapterListScreen.kt:@Composable @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) fun ChapterListScreen</ID>
+    <ID>LongParameterList:MangaChapterListViewModel.kt:MangaChapterListViewModel</ID>
+    <ID>LongParameterList:MangaChapterReaderScreen.kt:@OptIn( ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ) @Composable fun MangaChapterReaderScreen</ID>
+    <ID>LongParameterList:MangaChapterReaderViewModel.kt:MangaChapterReaderViewModel</ID>
+    <ID>LongParameterList:MangaListScreen.kt:@Composable fun MangaListScreen</ID>
+    <ID>LongParameterList:MangaListScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable private fun MangaOverviewContent</ID>
+    <ID>LongParameterList:MangaListScreen.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable private fun MangaList</ID>
+    <ID>LongParameterList:MangaRow.kt:@Composable fun MangaRow</ID>
+    <ID>LongParameterList:MangaTopAppBar.kt:@ExperimentalMaterial3Api @Composable fun MangaTopAppBar</ID>
+    <ID>LongParameterList:ProfileOverview.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileOverviewContent</ID>
+    <ID>LongParameterList:PullToRefresh.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun PullToRefreshBox</ID>
+    <ID>LongParameterList:ReaderScaffold.kt:@Composable fun ReaderScaffold</ID>
+    <ID>LongParameterList:UpdatedListButton.kt:@Composable fun &lt;T : Any&gt; UpdatedListButton</ID>
+    <ID>MatchingDeclarationName:Icon.kt:FavoriteIconPaths</ID>
+    <ID>MatchingDeclarationName:LoginNavigation.kt:LoginRoute : NavKey</ID>
+    <ID>MatchingDeclarationName:MangaChapterListNavigation.kt:MangaChapterListRoute : NavKey</ID>
+    <ID>MatchingDeclarationName:MangaChapterReaderNavigation.kt:MangaChapterReaderRoute : NavKey</ID>
+    <ID>MatchingDeclarationName:MangaListNavigation.kt:MangaListRoute : NavKey</ID>
+    <ID>MatchingDeclarationName:ProfileOverviewNavigation.kt:ProfileOverviewRoute : NavKey</ID>
+    <ID>MatchingDeclarationName:RegistrationNavigation.kt:RegistrationRoute : NavKey</ID>
+    <ID>MissingReadOnlyComposable:Section.kt:SectionDefaults$@Composable get() = MaterialTheme.shapes.extraSmall</ID>
+    <ID>MissingReadOnlyComposable:Section.kt:SectionDefaults$@Composable get() = MaterialTheme.shapes.medium</ID>
+    <ID>ModifierMissing:LoadingSpinner.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun LoadingSpinner</ID>
+    <ID>ModifierMissing:MangaChapterListScreen.kt:@Composable @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) fun ChapterListScreen</ID>
+    <ID>ModifierMissing:MangaChapterReaderScreen.kt:@OptIn( ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ) @Composable fun MangaChapterReaderScreen</ID>
+    <ID>ModifierMissing:ProfileOverview.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileOverviewContent</ID>
+    <ID>ModifierMissing:SystemBarProtection.kt:@Composable fun StatusBarProtection</ID>
+    <ID>ModifierWithoutDefault:MangaRow.kt:modifier: Modifier</ID>
+    <ID>NoNameShadowing:MainContent.kt:{ -it / 2 }</ID>
+    <ID>NoNameShadowing:MainContent.kt:{ it }</ID>
+    <ID>ParameterNaming:MangaListScreen.kt:onProfileClicked: () -&gt; Unit = {}</ID>
+    <ID>ParameterNaming:MangaListScreen.kt:onToggleFavoritesRequested: () -&gt; Unit = {}</ID>
+    <ID>ParameterNaming:MangaListScreen.kt:onToggleUnreadRequested: () -&gt; Unit = {}</ID>
+    <ID>PreviewPublic:Icon.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @PreviewDynamicColors @PreviewLightDark @Composable fun FavoriteTogglePreview</ID>
+    <ID>PreviewPublic:MangaChapterListScreen.kt:@PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
+    <ID>PreviewPublic:MangaChapterReaderScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewReadChapterScreen</ID>
+    <ID>PreviewPublic:MangaListScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
+    <ID>PreviewPublic:MangaRow.kt:@OptIn(ExperimentalCoilApi::class) @Preview("Light") @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES) @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE) @Preview( "Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE, ) @Composable fun PreviewManga</ID>
+    <ID>StateParam:MainContent.kt:profileState: State&lt;ProfileState&gt;</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:MangaChapterReaderScreen.kt:Throwable()</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:MangaListScreen.kt:Throwable()</ID>
+    <ID>TooGenericExceptionThrown:MangaListScreen.kt:throw Throwable()</ID>
+    <ID>UnsafeCallOnNullableType:MangaChapterReaderScreen.kt:ResourcesCompat.getDrawable( context.resources, R.mipmap.preview_cover_placeholder, null, )!!</ID>
+    <ID>UnsafeCallOnNullableType:MangaListScreen.kt:ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!</ID>
+    <ID>UnsafeCallOnNullableType:MangaRow.kt:ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!</ID>
+    <ID>UnusedParameter:MangaListScreen.kt:isFavoritesSelected: Boolean</ID>
+    <ID>UnusedParameter:MangaListScreen.kt:isUnreadSelected: Boolean</ID>
+    <ID>UnusedParameter:MangaListScreen.kt:onToggleFavoritesRequested: () -&gt; Unit = {}</ID>
+    <ID>UnusedParameter:MangaListScreen.kt:onToggleUnreadRequested: () -&gt; Unit = {}</ID>
+    <ID>UnusedPrivateFunction:LoginScreen.kt:@PreviewLightDark @PreviewDynamicColors @PreviewFontScale @Composable private fun LoginScreenPreview</ID>
+    <ID>UnusedPrivateFunction:MangaListScreen.kt:@Composable private fun CheckedFilterChip</ID>
+    <ID>UnusedPrivateFunction:ProfileOverview.kt:@PreviewLightDark @PreviewDynamicColors @PreviewFontScale @Composable private fun ProfileOverviewPreview</ID>
+    <ID>UnusedPrivateFunction:RegistrationScreen.kt:@PreviewLightDark @PreviewDynamicColors @PreviewFontScale @Composable private fun RegistrationScreenPreview</ID>
+  </CurrentIssues>
+</SmellBaseline>
