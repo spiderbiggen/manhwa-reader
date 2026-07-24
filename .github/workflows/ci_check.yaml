@@ -20,6 +20,7 @@ concurrency:
 # Where it will run
 jobs:
   build:
+    name: Build Debug
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -43,7 +44,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [ test, lint, spotlessCheck, detekt ]
+        include:
+          - task: test
+            gradle-tasks: test
+          - task: lint
+            gradle-tasks: lint
+          - task: spotlessCheck
+            gradle-tasks: spotlessCheck
+          - task: detekt
+            gradle-tasks: detekt
+          - task: stability
+            gradle-tasks: app:stabilityCheck presentation:stabilityCheck
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -56,17 +67,20 @@ jobs:
           SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
 
       - name: Run ${{ matrix.task }}
-        run: ./gradlew ${{ matrix.task }}
+        run: ./gradlew ${{ matrix.gradle-tasks }}
 
       - name: Upload ${{ matrix.task }} reports
         uses: actions/upload-artifact@v7
         with:
           name: reports-${{ matrix.task }}
-          path: ./**/build/reports
+          path: |
+            ./**/build/reports
+            ./**/build/test-results
         if: always()
 
   sonar:
-    needs: [ checks ]
+    name: SonarQube Analysis
+    needs: [ build, checks ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
