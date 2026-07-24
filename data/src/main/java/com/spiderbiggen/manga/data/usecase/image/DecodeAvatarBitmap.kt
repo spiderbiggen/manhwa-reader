@@ -21,7 +21,7 @@ class DecodeAvatarBitmap(private val contentResolver: ContentResolver) {
 
     private fun ContentResolver.decodeSimpleImage(uri: Uri): Bitmap {
         val bytes =
-            openInputStream(uri)!!.use { source ->
+            checkNotNull(openInputStream(uri)).use { source ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                     source.readAllBytes()
                 } else {

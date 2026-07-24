@@ -38,7 +38,7 @@ class UpdateAvatarImpl(
         val _ = fetchCurrentUser().bind()
     }
 
-    private suspend fun processBitmap(avatar: URI): Either<AppError, ByteArray> = either {
+    private fun processBitmap(avatar: URI): Either<AppError, ByteArray> = either {
         val uri = avatar.toString().toUri()
         val bitmap = resizeBitmap(uri).bind()
         encodeBitmap(bitmap).bind()
