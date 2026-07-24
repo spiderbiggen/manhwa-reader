@@ -22,51 +22,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v7
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Cache Build files
-        uses: actions/cache@v6
-        with:
-          path: ./**/build
-          key: ${{ runner.os }}-dbg-build-${{ hashFiles('**/*.kt') }}
-          restore-keys: ${{ runner.os }}-dbg-build
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@4d90f943634881869c98b16d759177c8ee849798
-        with:
-          cmdline-tools-version: 14742923
-          log-accepted-android-sdk-licenses: false
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Create Google Services JSON File
+      - uses: ./.github/actions/setup-android
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
-
-      - name: Update local.properties
-        env:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
-        run: |
-          echo "signing.keystore=keystore.jks" >> ./local.properties
-          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
-          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Create debug build
         run: ./gradlew app:assembleDebug
@@ -85,60 +46,14 @@ jobs:
         task: [ test, lint, spotlessCheck, detekt ]
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Cache SonarQube packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Cache Build files
-        uses: actions/cache@v6
-        with:
-          path: ./**/build
-          key: ${{ runner.os }}-dbg-build-${{ hashFiles('**/*.kt') }}
-          restore-keys: ${{ runner.os }}-dbg-build
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@4d90f943634881869c98b16d759177c8ee849798
-        with:
-          cmdline-tools-version: 14742923
-          log-accepted-android-sdk-licenses: false
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Create Google Services JSON File
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-android
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
-
-      - name: Update local.properties
-        env:
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
-        run: |
-          echo "signing.keystore=keystore.jks" >> ./local.properties
-          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
-          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Run ${{ matrix.task }}
         run: ./gradlew ${{ matrix.task }}
@@ -156,13 +71,12 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
-        with:
-          distribution: 'temurin'
-          java-version: '17'
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-android
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
+          SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
 
       - name: Cache SonarQube packages
         uses: actions/cache@v6
@@ -170,43 +84,6 @@ jobs:
           path: ~/.sonar/cache
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle.kts') }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Cache Build files
-        uses: actions/cache@v6
-        with:
-          path: ./**/build
-          key: ${{ runner.os }}-dbg-build-${{ hashFiles('**/*.kt') }}
-          restore-keys: ${{ runner.os }}-dbg-build
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@4d90f943634881869c98b16d759177c8ee849798
-        with:
-          cmdline-tools-version: 14742923
-          log-accepted-android-sdk-licenses: false
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Create Google Services JSON File
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
-
-      - name: Update local.properties
-        env:
-          SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-          SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
-        run: |
-          echo "signing.keystore=keystore.jks" >> ./local.properties
-          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
-          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Download check reports
         uses: actions/download-artifact@v7

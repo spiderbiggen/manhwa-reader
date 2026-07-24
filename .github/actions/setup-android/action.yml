@@ -1,0 +1,84 @@
+name: Setup Android project
+description: Prepare the Android project for Gradle tasks
+
+inputs:
+  java-distribution:
+    description: Java distribution used for Gradle tasks
+    required: false
+    default: temurin
+  java-version:
+    description: Java version used for Gradle tasks
+    required: false
+    default: '17'
+  signing-key:
+    description: Base64-encoded signing keystore
+    required: false
+    default: ''
+  signing-keystore:
+    description: Default signing keystore path
+    required: false
+    default: keystore.jks
+
+runs:
+  using: composite
+  steps:
+    - name: Setup JDK
+      uses: actions/setup-java@v5
+      with:
+        distribution: ${{ inputs.java-distribution }}
+        java-version: ${{ inputs.java-version }}
+        cache: gradle
+
+    - name: Cache Build files
+      uses: actions/cache@v6
+      with:
+        path: ./**/build
+        key: ${{ runner.os }}-dbg-build-${{ hashFiles('**/*.kt') }}
+        restore-keys: ${{ runner.os }}-dbg-build
+
+    - name: Setup Android SDK
+      uses: android-actions/setup-android@4d90f943634881869c98b16d759177c8ee849798
+      with:
+        cmdline-tools-version: 14742923
+        log-accepted-android-sdk-licenses: false
+
+    - name: Make gradlew executable
+      shell: bash
+      run: chmod +x ./gradlew
+
+    - name: Create Google Services JSON File
+      shell: bash
+      env:
+        GOOGLE_SERVICES_JSON: ${{ env.GOOGLE_SERVICES_JSON }}
+      run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
+
+    - name: Decode Keystore
+      id: decode_keystore
+      if: inputs.signing-key != ''
+      uses: timheuer/base64-to-file@v2
+      with:
+        fileName: keystore/keystore.jks
+        encodedString: ${{ inputs.signing-key }}
+
+    - name: Update local.properties
+      if: inputs.signing-key == ''
+      shell: bash
+      env:
+        SIGNING_PASSWORD: ${{ env.SIGNING_PASSWORD }}
+        SIGNING_ALIAS: ${{ env.SIGNING_ALIAS }}
+      run: |
+        echo "signing.keystore=${{ inputs.signing-keystore }}" >> ./local.properties
+        echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
+        echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
+
+    - name: Update signed local.properties
+      if: inputs.signing-key != ''
+      shell: bash
+      env:
+        KEYSTORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
+        SIGNING_PASSWORD: ${{ env.SIGNING_PASSWORD }}
+        SIGNING_ALIAS: ${{ env.SIGNING_ALIAS }}
+      run: |
+        echo "signing.keystore=$KEYSTORE_PATH" >> ./local.properties
+        echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
+        echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
