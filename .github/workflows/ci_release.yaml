@@ -19,46 +19,14 @@ jobs:
       contents: read
     runs-on: ubuntu-latest
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v7
-
-      - name: Setup JDK
-        uses: actions/setup-java@v5
+      - uses: ./.github/actions/setup-android
         with:
-          distribution: 'temurin'
-          java-version: '17'
-          cache: gradle
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@4d90f943634881869c98b16d759177c8ee849798
-        with:
-          cmdline-tools-version: 14742923
-          log-accepted-android-sdk-licenses: false
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
-
-      - name: Create Google Services JSON File
+          signing-key: ${{ secrets.SIGNING_KEY }}
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: echo "$GOOGLE_SERVICES_JSON" | base64 -di > ./app/google-services.json
-
-      - name: Decode Keystore
-        id: decode_keystore
-        uses: timheuer/base64-to-file@v2
-        with:
-          fileName: "keystore/keystore.jks"
-          encodedString: ${{ secrets.SIGNING_KEY }}
-
-      - name: Update local.properties
-        env:
-          KEYSTORE_PATH: ${{ steps.decode_keystore.outputs.filePath }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
           SIGNING_ALIAS: ${{ secrets.SIGNING_ALIAS }}
-        run: |
-          echo "signing.keystore=$KEYSTORE_PATH" >> ./local.properties
-          echo "signing.password=$SIGNING_PASSWORD" >> ./local.properties
-          echo "signing.alias=$SIGNING_ALIAS" >> ./local.properties
 
       - name: Create release build
         run: ./gradlew app:bundleRelease app:assembleRelease
