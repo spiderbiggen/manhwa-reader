@@ -32,10 +32,10 @@ ksp {
 }
 
 kotlin {
-    jvmToolchain(17)
     compilerOptions {
         freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
         freeCompilerArgs.add("-Xreturn-value-checker=full")
+        freeCompilerArgs.add("-XXLanguage:+UnnamedLocalVariables")
     }
 }
 

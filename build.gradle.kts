@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     alias(libs.plugins.google.ksp) apply false
@@ -30,6 +33,17 @@ sonar {
 }
 
 subprojects {
+    pluginManager.withPlugin("org.jetbrains.kotlin.jvm") {
+        extensions.configure<KotlinJvmProjectExtension> {
+            jvmToolchain(21)
+        }
+    }
+    pluginManager.withPlugin("org.jetbrains.kotlin.android") {
+        extensions.configure<KotlinAndroidProjectExtension> {
+            jvmToolchain(21)
+        }
+    }
+
     sonar {
         setAndroidVariant("debug")
     }
