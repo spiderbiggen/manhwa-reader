@@ -34,7 +34,7 @@
     <ID>MatchingDeclarationName:RegistrationNavigation.kt:RegistrationRoute : NavKey</ID>
     <ID>ModifierMissing:LoadingSpinner.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun LoadingSpinner</ID>
     <ID>ModifierMissing:MangaChapterListScreen.kt:@Composable @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) fun ChapterListScreen</ID>
-    <ID>ModifierMissing:MangaChapterReaderScreen.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class) @Composable fun MangaChapterReaderScreen</ID>
+    <ID>ModifierMissing:MangaChapterReaderScreen.kt:@OptIn( ExperimentalMaterial3ExpressiveApi::class, ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ) @Composable fun MangaChapterReaderScreen</ID>
     <ID>ModifierMissing:ProfileOverview.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProfileOverviewContent</ID>
     <ID>ModifierMissing:SystemBarProtection.kt:@Composable fun StatusBarProtection</ID>
     <ID>ModifierWithoutDefault:MangaRow.kt:modifier: Modifier</ID>
@@ -45,7 +45,7 @@
     <ID>PreviewPublic:MangaChapterListScreen.kt:@PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
     <ID>PreviewPublic:MangaChapterReaderScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewReadChapterScreen</ID>
     <ID>PreviewPublic:MangaListScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
-    <ID>PreviewPublic:MangaRow.kt:@OptIn(ExperimentalCoilApi::class) @Preview("Light") @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES) @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE) @Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE) @Composable fun PreviewManga</ID>
+    <ID>PreviewPublic:MangaRow.kt:@OptIn(ExperimentalCoilApi::class) @Preview("Light") @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES) @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE) @Preview( "Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE, ) @Composable fun PreviewManga</ID>
     <ID>StateParam:MainContent.kt:profileState: State&lt;ProfileState&gt;</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:MangaChapterReaderScreen.kt:Throwable()</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:MangaListScreen.kt:Throwable()</ID>
