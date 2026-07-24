@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:HttpClientFactory.kt:HttpClientFactory$fun create: HttpClient</ID>
+    <ID>TooGenericExceptionCaught:AuthenticationPreferences.kt:AuthenticationPreferencesSerializer$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LogoutImpl.kt:LogoutImpl$e: Exception</ID>
+  </CurrentIssues>
+</SmellBaseline>

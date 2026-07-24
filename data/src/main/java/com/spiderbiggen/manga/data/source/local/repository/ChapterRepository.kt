@@ -47,7 +47,7 @@ class ChapterRepository(
         }
 
     suspend fun getChapterImages(id: ChapterId): Either<AppError, Int> = either {
-        appError { chapterDao.get(id)!!.imageChunks }
+        appError { checkNotNull(chapterDao.get(id)).imageChunks }
     }
 
     suspend fun getPreviousChapters(id: ChapterId): Either<AppError, Set<ChapterId>> = either {

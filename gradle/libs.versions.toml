@@ -8,11 +8,13 @@ arrow = "2.2.3"
 coil-bom = "3.5.0"
 compose-bom = "2026.06.01"
 compose-material3 = "1.5.0-alpha24"
+compose-rules = "0.6.3"
 core-ktx = "1.19.0"
 core-splashscreen = "1.2.0"
 coroutines = "1.11.0"
 crashlytics = "3.0.7"
 datastore = "1.2.1"
+detekt = "2.0.0-alpha.5"
 espresso-core = "3.7.0"
 firebase-bom = "34.16.0"
 google-gms-google-services = "4.5.0"
@@ -126,6 +128,9 @@ arrow-bom = { group = "io.arrow-kt", name = "arrow-stack", version.ref = "arrow"
 arrow-core = { group = "io.arrow-kt", name = "arrow-core" }
 arrow-fx-coroutines = { group = "io.arrow-kt", name = "arrow-fx-coroutines" }
 
+# Compose rules for detekt
+compose-rules-detekt = { group = "io.nlopez.compose.rules", name = "detekt", version.ref = "compose-rules" }
+
 # Spotless for BuildSrc convention script
 spotless-plugin-gradle = { group = "com.diffplug.spotless", name = "spotless-plugin-gradle", version.ref = "spotless-plugin-gradle" }
 
@@ -142,6 +147,7 @@ kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyser" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
+detekt = { id = "dev.detekt", version.ref = "detekt" }
 
 
 [bundles]

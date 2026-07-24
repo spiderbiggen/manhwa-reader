@@ -142,6 +142,9 @@ jobs:
       - name: Check if everything is formatted correctly
         run: ./gradlew spotlessCheck
 
+      - name: Run detekt
+        run: ./gradlew detekt
+
       - name: Perform SonarQube analysis
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -151,5 +154,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: Reports
-          path: app/build/reports
+          path: ./**/build/reports
         if: always()

@@ -3,14 +3,16 @@ plugins {
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.ksp)
     id("manga.spotless")
+    id("manga.detekt")
 }
 
 android {
     namespace = "com.spiderbiggen.manga.data"
     compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
+        version =
+            release(37) {
+                minorApiLevel = 1
+            }
     }
 
     defaultConfig {

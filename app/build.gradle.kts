@@ -10,14 +10,16 @@ plugins {
     alias(libs.plugins.google.crashlytics)
     alias(libs.plugins.stability.analyzer)
     id("manga.spotless")
+    id("manga.detekt")
 }
 
 android {
     namespace = "com.spiderbiggen.manga"
     compileSdk {
-        version = release(37) {
-            minorApiLevel = 1
-        }
+        version =
+            release(37) {
+                minorApiLevel = 1
+            }
     }
 
     buildFeatures {
@@ -128,4 +130,6 @@ dependencies {
     // this is required for linting even though the IDE says it is duplicated
     androidTestImplementation(platform(libs.androidX.compose.bom))
     androidTestImplementation(libs.androidX.compose.uiTestJunit4)
+
+    detektRuleSet(libs.compose.rules.detekt)
 }
