@@ -75,8 +75,6 @@ android {
 }
 
 kotlin {
-    jvmToolchain(17)
-
     compilerOptions {
         freeCompilerArgs.add("-Xreturn-value-checker=full")
     }
