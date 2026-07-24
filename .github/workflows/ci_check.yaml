@@ -43,7 +43,13 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        task: [ test, lint, spotlessCheck, detekt ]
+        task:
+          - 'test'
+          - 'lint'
+          - 'spotlessCheck'
+          - 'detekt'
+          - 'app:stabilityCheck'
+          - 'presentation:stabilityCheck'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
