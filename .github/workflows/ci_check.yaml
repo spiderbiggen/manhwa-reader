@@ -86,7 +86,7 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Download check reports
-        uses: actions/download-artifact@v7
+        uses: actions/download-artifact@v8
         with:
           pattern: reports-*
           merge-multiple: true
