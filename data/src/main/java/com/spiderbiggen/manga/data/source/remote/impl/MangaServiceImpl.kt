@@ -38,5 +38,5 @@ class MangaServiceImpl(private val client: HttpClient) : MangaService {
             .body()
 
     override suspend fun getChapter(id: ChapterId): ChapterEntity =
-        client.get("api/v2/chapters/${id.value}").body()
+        client.get("api/v3/chapters/${id.value}").body()
 }

@@ -16,7 +16,7 @@ class GetChapterImagesImpl(
     override suspend fun invoke(id: ChapterId): Either<AppError, ImmutableList<String>> = either {
         val count = chapterRepository.getChapterImages(id).bind()
         (0 until count)
-            .map { index -> "$baseUrl/api/v1/chapters/${id.value}/images/$index" }
+            .map { index -> "$baseUrl/api/v3/chapters/${id.value}/images/$index" }
             .toImmutableList()
     }
 }
