@@ -31,12 +31,12 @@ class MangaServiceImpl(private val client: HttpClient) : MangaService {
         skipCache: Boolean,
     ): List<ChapterEntity> =
         client
-            .get("api/v3/mangas/${id.value}/chapters") {
+            .get("api/v1/mangas/${id.value}/chapters") {
                 parameter("since", since)
                 if (skipCache) header("Cache-Control", "max-age=0")
             }
             .body()
 
     override suspend fun getChapter(id: ChapterId): ChapterEntity =
-        client.get("api/v3/chapters/${id.value}").body()
+        client.get("api/v1/chapters/${id.value}").body()
 }
