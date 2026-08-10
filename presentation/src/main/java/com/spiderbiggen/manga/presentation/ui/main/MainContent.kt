@@ -58,8 +58,8 @@ fun MainContent() {
 @Composable
 private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: State<ProfileState>) {
     val backStack = rememberNavBackStack(MangaListRoute)
-    val animationSpec = MaterialTheme.motionScheme.slowSpatialSpec<IntOffset>()
-    val floatAnimationSpec = MaterialTheme.motionScheme.slowSpatialSpec<Float>()
+    val animationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+    val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     NavDisplay(
         modifier = Modifier.background(MaterialTheme.colorScheme.background),
         entryDecorators =

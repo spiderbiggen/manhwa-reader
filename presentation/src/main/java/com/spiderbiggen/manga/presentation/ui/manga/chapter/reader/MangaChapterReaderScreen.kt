@@ -191,7 +191,7 @@ private fun ReadyImagesOverview(
     val overlayAlpha =
         animateFloatAsState(
             targetValue = if (readyTracker.finishedInitialLoading) 0f else 1f,
-            animationSpec = MaterialTheme.motionScheme.slowEffectsSpec(),
+            animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
         )
     Box(modifier) {
         PreloadImages(lazyListState, state.images)
