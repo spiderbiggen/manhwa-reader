@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -51,47 +52,39 @@ fun MangaCoverCard(
     onMangaFavoriteToggleClick: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val footerColor = manga.dominantColor
-        ?.let { Color(it).copy(alpha = 0.88f) }
-        ?: Color.Black.copy(alpha = 0.75f)
+    val footerColor =
+        manga.dominantColor?.let { Color(it).copy(alpha = 0.88f) }
+            ?: Color.Black.copy(alpha = 0.75f)
 
     Card(
         onClick = dropUnlessStarted { onMangaClick(manga.id) },
         modifier = modifier.alpha(if (manga.isRead) 0.55f else 1f),
         shape = MaterialTheme.shapes.medium,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
+        colors =
+            CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .aspectRatio(2f / 3f),
-        ) {
+        Box(modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f)) {
             val sizeResolver = rememberConstraintsSizeResolver()
             AsyncImage(
-                model = ImageRequest.Builder(LocalPlatformContext.current)
-                    .data(manga.coverImage)
-                    .size(sizeResolver)
-                    .build(),
+                model =
+                    ImageRequest.Builder(LocalPlatformContext.current)
+                        .data(manga.coverImage)
+                        .size(sizeResolver)
+                        .build(),
                 contentDescription = manga.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxSize()
-                    .then(sizeResolver),
+                modifier = Modifier.fillMaxSize().then(sizeResolver),
             )
 
             // Gradient footer with title
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .background(
-                        brush = Brush.verticalGradient(
-                            colors = listOf(Color.Transparent, footerColor),
-                        ),
-                    )
-                    .padding(horizontal = 6.dp, vertical = 8.dp),
+                modifier =
+                    Modifier.fillMaxWidth()
+                        .align(Alignment.BottomCenter)
+                        .background(
+                            Brush.verticalGradient(colors = listOf(Color.Transparent, footerColor))
+                        )
+                        .padding(horizontal = 6.dp, vertical = 8.dp),
                 contentAlignment = Alignment.BottomStart,
             ) {
                 Text(
@@ -103,12 +96,9 @@ fun MangaCoverCard(
                 )
             }
 
-            // Favourite toggle — top-right corner
-            Box(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .size(36.dp),
-                contentAlignment = Alignment.Center,
+            IconButton(
+                modifier = Modifier.align(Alignment.TopEnd).size(36.dp),
+                onClick = dropUnlessStarted { onMangaFavoriteToggleClick(manga.id) },
             ) {
                 FavoriteToggle(
                     isFavorite = manga.isFavorite,
@@ -125,12 +115,19 @@ fun MangaCoverCard(
 @Preview("Light")
 @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview("Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
+@Preview(
+    "Dark - Red",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
+)
 @Composable
-private fun PreviewMangaCoverCard(@PreviewParameter(MangaViewDataProvider::class) state: MangaViewData) {
+private fun PreviewMangaCoverCard(
+    @PreviewParameter(MangaViewDataProvider::class) state: MangaViewData
+) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
-        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!.asImage()
+        ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!
+            .asImage()
     }
     CompositionLocalProvider(LocalAsyncImagePreviewHandler provides previewHandler) {
         MangaReaderTheme {
@@ -139,9 +136,7 @@ private fun PreviewMangaCoverCard(@PreviewParameter(MangaViewDataProvider::class
                     manga = state,
                     onMangaClick = {},
                     onMangaFavoriteToggleClick = {},
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth(0.33f),
+                    modifier = Modifier.padding(8.dp).fillMaxWidth(0.33f),
                 )
             }
         }
