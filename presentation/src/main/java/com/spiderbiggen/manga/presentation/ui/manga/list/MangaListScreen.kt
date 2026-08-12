@@ -283,7 +283,9 @@ private fun MangaGrid(
         lazyGridState = lazyGridState,
         items = allImages,
         sizeResolver = {
-            SizeResolver(Size(width = Dimension.Pixels(windowWidth / 3), height = Dimension.Undefined))
+            SizeResolver(
+                Size(width = Dimension.Pixels(windowWidth / 3), height = Dimension.Undefined)
+            )
         },
         preloadCount = 15,
     )
@@ -298,9 +300,7 @@ private fun MangaGrid(
     ) {
         item(span = { GridItemSpan(maxLineSpan) }) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 4.dp),
+                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 CheckedFilterChip(
@@ -337,7 +337,6 @@ private fun MangaGrid(
 
 @OptIn(ExperimentalCoilApi::class)
 @PreviewLightDark
-@PreviewDynamicColors
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
@@ -385,17 +384,18 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
 }
 
 object MangaProvider {
-    private val baseViewData = MangaViewData(
-        source = "Asura",
-        id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
-        title = "Heavenly Martial God",
-        coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
-        status = "Ongoing",
-        updatedAt = "2023-04-23",
-        isFavorite = false,
-        isRead = false,
-        dominantColor = null,
-    )
+    private val baseViewData =
+        MangaViewData(
+            source = "Asura",
+            id = MangaId("7df204a8-2d37-42d1-a2e0-e795ae618388"),
+            title = "Heavenly Martial God",
+            coverImage = "https://www.asurascans.com/wp-content/uploads/2021/09/martialgod.jpg",
+            status = "Ongoing",
+            updatedAt = "2023-04-23",
+            isFavorite = false,
+            isRead = false,
+            dominantColor = null,
+        )
 
     val values
         get() =
