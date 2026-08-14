@@ -16,6 +16,8 @@ class MapMangaListViewData {
             updatedAt = state.manga.updatedAt.toLocalDateTime(timeZone).date.toString(),
             isFavorite = state.isFavorite,
             isRead = state.isRead,
+            readChapterCount = state.readChapterCount,
+            totalChapterCount = state.totalChapterCount,
             dominantColor = state.manga.dominantColor,
         )
 }

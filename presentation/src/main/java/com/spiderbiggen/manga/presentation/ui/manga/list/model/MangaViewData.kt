@@ -13,5 +13,12 @@ data class MangaViewData(
     val updatedAt: String?,
     val isFavorite: Boolean,
     val isRead: Boolean,
+    val readChapterCount: Int = 0,
+    val totalChapterCount: Int = 0,
     val dominantColor: Int?,
-)
+) {
+    val readProgress: Float
+        get() =
+            if (totalChapterCount == 0) 0f
+            else (readChapterCount.toFloat() / totalChapterCount).coerceIn(0f, 1f)
+}

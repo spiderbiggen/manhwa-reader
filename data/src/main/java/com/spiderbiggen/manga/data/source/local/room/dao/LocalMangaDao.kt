@@ -26,12 +26,19 @@ interface LocalMangaDao {
 
     @Query(
         """
-        SELECT DISTINCT m.*, COALESCE(f.is_favorite, 0) as is_favorite, MIN(COALESCE(r.is_read, 0), r.has_last_update) as is_read, c.id as chapter_id
+        SELECT m.*, COALESCE(f.is_favorite, 0) as is_favorite,
+            MIN(COALESCE(r.is_read, 0), r.has_last_update) as is_read, c.id as chapter_id,
+            COALESCE(r.read_chapter_count, 0) as read_chapter_count,
+            COALESCE(r.total_chapter_count, 0) as total_chapter_count
         FROM manga m 
             LEFT JOIN manga_favorite_status f on f.id = m.id
             LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
             LEFT JOIN (
-                SELECT c.manga_id, MIN(COALESCE(is_read, 0)) as is_read, MAX(m.updated_at = c.updated_at) as has_last_update
+                SELECT c.manga_id,
+                    MIN(COALESCE(r.is_read, 0)) as is_read,
+                    MAX(m.updated_at = c.updated_at) as has_last_update,
+                    CAST(SUM(CASE WHEN COALESCE(r.is_read, 0) = 1 THEN 1 ELSE 0 END) AS INTEGER) as read_chapter_count,
+                    CAST(COUNT(c.id) AS INTEGER) as total_chapter_count
                     FROM manga m 
                     JOIN chapter c ON m.id = c.manga_id
                     LEFT JOIN chapter_read_status r ON c.id = r.id

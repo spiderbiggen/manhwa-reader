@@ -3,6 +3,7 @@ package com.spiderbiggen.manga.presentation.ui.manga.list.components
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -20,9 +22,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -53,8 +59,9 @@ fun MangaCoverCard(
     modifier: Modifier = Modifier,
 ) {
     val footerColor =
-        manga.dominantColor?.let { Color(it).copy(alpha = 0.88f) }
-            ?: Color.Black.copy(alpha = 0.75f)
+        manga.dominantColor?.let {
+            MaterialTheme.colorScheme.scrim.copy(alpha = 0.55f).compositeOver(Color(it))
+        } ?: MaterialTheme.colorScheme.scrim
 
     Card(
         onClick = dropUnlessStarted { onMangaClick(manga.id) },
@@ -82,18 +89,44 @@ fun MangaCoverCard(
                     Modifier.fillMaxWidth()
                         .align(Alignment.BottomCenter)
                         .background(
-                            Brush.verticalGradient(colors = listOf(Color.Transparent, footerColor))
+                            Brush.verticalGradient(
+                                colorStops =
+                                    arrayOf(
+                                        0f to Color.Transparent,
+                                        0.55f to footerColor.copy(alpha = 0.45f),
+                                        1f to footerColor,
+                                    )
+                            )
                         )
                         .padding(horizontal = 6.dp, vertical = 8.dp),
                 contentAlignment = Alignment.BottomStart,
             ) {
-                Text(
-                    text = manga.title,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.White,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp)
+                ) {
+                    Text(
+                        text = manga.title,
+                        style =
+                            MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                shadow =
+                                    Shadow(
+                                        color = Color.Black,
+                                        offset = Offset(0f, 2f),
+                                        blurRadius = 4f,
+                                    ),
+                            ),
+                        color = Color.White,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    LinearProgressIndicator(
+                        progress = { manga.readProgress },
+                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = Color.White.copy(alpha = 0.35f),
+                    )
+                }
             }
 
             IconButton(
