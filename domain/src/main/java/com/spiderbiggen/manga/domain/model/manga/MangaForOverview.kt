@@ -7,4 +7,6 @@ data class MangaForOverview(
     val isFavorite: Boolean,
     val isRead: Boolean,
     val lastChapterId: ChapterId?,
+    val readChapterCount: Int,
+    val totalChapterCount: Int,
 )

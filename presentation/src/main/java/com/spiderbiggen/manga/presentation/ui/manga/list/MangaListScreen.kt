@@ -394,6 +394,8 @@ object MangaProvider {
             updatedAt = "2023-04-23",
             isFavorite = false,
             isRead = false,
+            readChapterCount = 4,
+            totalChapterCount = 10,
             dominantColor = null,
         )
 
@@ -406,11 +408,15 @@ object MangaProvider {
                     status = "Dropped",
                     isFavorite = true,
                     isRead = false,
+                    readChapterCount = 0,
+                    totalChapterCount = 10,
                 ),
                 baseViewData.copy(
                     id = MangaId("3"),
                     isFavorite = true,
                     isRead = true,
+                    readChapterCount = 10,
+                    totalChapterCount = 10,
                 ),
             )
 }
