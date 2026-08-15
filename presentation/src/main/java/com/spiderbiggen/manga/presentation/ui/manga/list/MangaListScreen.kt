@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -75,6 +76,9 @@ import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+
+private val MangaGridMinCardWidth = 180.dp
+private val MangaGridSpacing = 4.dp
 
 @Composable
 fun MangaListScreen(
@@ -279,19 +283,28 @@ private fun MangaGrid(
             mangas.map { it.coverImage }.toImmutableList()
         }
     val windowWidth = LocalWindowInfo.current.containerSize.width
+    val availableWidth = with(LocalDensity.current) { windowWidth.toDp() } - 16.dp
+    val estimatedColumnCount =
+        ((availableWidth.value + MangaGridSpacing.value) /
+                (MangaGridMinCardWidth.value + MangaGridSpacing.value))
+            .toInt()
+            .coerceAtLeast(1)
     PreloadImages(
         lazyGridState = lazyGridState,
         items = allImages,
         sizeResolver = {
             SizeResolver(
-                Size(width = Dimension.Pixels(windowWidth / 3), height = Dimension.Undefined)
+                Size(
+                    width = Dimension.Pixels(windowWidth / estimatedColumnCount),
+                    height = Dimension.Undefined,
+                )
             )
         },
         preloadCount = 15,
     )
 
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Adaptive(minSize = MangaGridMinCardWidth),
         modifier = modifier,
         state = lazyGridState,
         contentPadding = contentPadding + PaddingValues(horizontal = 8.dp, vertical = 8.dp),

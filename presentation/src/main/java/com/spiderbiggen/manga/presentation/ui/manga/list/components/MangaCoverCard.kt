@@ -1,14 +1,15 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list.components
 
-import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -19,6 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -30,9 +32,8 @@ import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.tooling.preview.Wallpapers
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.dropUnlessStarted
@@ -58,11 +59,6 @@ fun MangaCoverCard(
     onMangaFavoriteToggleClick: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val footerColor =
-        manga.dominantColor?.let {
-            MaterialTheme.colorScheme.scrim.copy(alpha = 0.55f).compositeOver(Color(it))
-        } ?: MaterialTheme.colorScheme.scrim
-
     Card(
         onClick = dropUnlessStarted { onMangaClick(manga.id) },
         modifier = modifier.alpha(if (manga.isRead) 0.55f else 1f),
@@ -84,16 +80,18 @@ fun MangaCoverCard(
             )
 
             // Gradient footer with title
+            val footerColor = manga.footerColor
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
+                        .fillMaxHeight(0.45f)
                         .align(Alignment.BottomCenter)
                         .background(
                             Brush.verticalGradient(
                                 colorStops =
                                     arrayOf(
                                         0f to Color.Transparent,
-                                        0.55f to footerColor.copy(alpha = 0.45f),
+                                        0.55f to footerColor.copy(alpha = 0.65f),
                                         1f to footerColor,
                                     )
                             )
@@ -144,15 +142,18 @@ fun MangaCoverCard(
     }
 }
 
+val MangaViewData.footerColor: Color
+    @ReadOnlyComposable
+    @Composable
+    get() {
+        val dominantColor = dominantColor ?: return MaterialTheme.colorScheme.scrim
+        return Color(dominantColor)
+            .copy(alpha = 0.75f)
+            .compositeOver(MaterialTheme.colorScheme.scrim)
+    }
+
 @OptIn(ExperimentalCoilApi::class)
-@Preview("Light")
-@Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES)
-@Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE)
-@Preview(
-    "Dark - Red",
-    uiMode = Configuration.UI_MODE_NIGHT_YES,
-    wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE,
-)
+@PreviewLightDark
 @Composable
 private fun PreviewMangaCoverCard(
     @PreviewParameter(MangaViewDataProvider::class) state: MangaViewData
@@ -169,7 +170,7 @@ private fun PreviewMangaCoverCard(
                     manga = state,
                     onMangaClick = {},
                     onMangaFavoriteToggleClick = {},
-                    modifier = Modifier.padding(8.dp).fillMaxWidth(0.33f),
+                    modifier = Modifier.padding(8.dp).width(180.dp),
                 )
             }
         }
