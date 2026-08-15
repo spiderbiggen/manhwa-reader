@@ -21,4 +21,12 @@ data class MangaViewData(
         get() =
             if (totalChapterCount == 0) 0f
             else (readChapterCount.toFloat() / totalChapterCount).coerceIn(0f, 1f)
+
+    val visualReadProgress: Float
+        get() =
+            when {
+                totalChapterCount <= 0 -> 0f
+                readChapterCount >= totalChapterCount -> 1f
+                else -> readProgress.coerceAtMost(0.95f)
+            }
 }
