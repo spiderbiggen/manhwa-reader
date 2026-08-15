@@ -136,23 +136,20 @@ fun MangaCoverCard(
             }
 
             IconButton(
-                modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(48.dp),
+                modifier =
+                    Modifier.align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(manga.favoriteButtonBrush),
                 onClick = dropUnlessStarted { onMangaFavoriteToggleClick(manga.id) },
             ) {
-                Box(
-                    modifier =
-                        Modifier.size(32.dp)
-                            .clip(CircleShape)
-                            .background(manga.favoriteButtonBrush),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    FavoriteToggle(
-                        isFavorite = manga.isFavorite,
-                        contentColor = Color.White,
-                        favoriteContentColor = MaterialTheme.colorScheme.secondary,
-                        modifier = Modifier.size(20.dp),
-                    )
-                }
+                FavoriteToggle(
+                    isFavorite = manga.isFavorite,
+                    contentColor = Color.White,
+                    favoriteContentColor = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.size(20.dp),
+                )
             }
         }
     }
@@ -175,9 +172,10 @@ val MangaViewData.favoriteButtonBrush: Brush
         Brush.radialGradient(
             colorStops =
                 arrayOf(
-                    0f to coverAccentColor,
-                    0.65f to coverAccentColor.copy(alpha = 0.75f),
-                    1f to coverAccentColor.copy(alpha = 0.35f),
+                    0f to coverAccentColor.copy(alpha = 0.9f),
+                    0.35f to coverAccentColor.copy(alpha = 0.7f),
+                    0.7f to coverAccentColor.copy(alpha = 0.3f),
+                    1f to Color.Transparent,
                 )
         )
 
