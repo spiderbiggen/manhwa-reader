@@ -84,7 +84,7 @@ fun MangaCoverCard(
             )
 
             // Gradient footer with title
-            val footerColor = manga.footerColor
+            val coverAccentColor = manga.coverAccentColor
             Box(
                 modifier =
                     Modifier.fillMaxWidth()
@@ -95,8 +95,8 @@ fun MangaCoverCard(
                                 colorStops =
                                     arrayOf(
                                         0f to Color.Transparent,
-                                        0.55f to footerColor.copy(alpha = 0.65f),
-                                        1f to footerColor,
+                                        0.55f to coverAccentColor.copy(alpha = 0.65f),
+                                        1f to coverAccentColor,
                                     )
                             )
                         )
@@ -136,26 +136,29 @@ fun MangaCoverCard(
             }
 
             IconButton(
-                modifier =
-                    Modifier.align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(36.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
+                modifier = Modifier.align(Alignment.TopEnd).padding(4.dp).size(48.dp),
                 onClick = dropUnlessStarted { onMangaFavoriteToggleClick(manga.id) },
             ) {
-                FavoriteToggle(
-                    isFavorite = manga.isFavorite,
-                    contentColor = Color.White.copy(alpha = 0.75f),
-                    favoriteContentColor = MaterialTheme.colorScheme.secondary,
-                    modifier = Modifier.size(20.dp),
-                )
+                Box(
+                    modifier =
+                        Modifier.size(32.dp)
+                            .clip(CircleShape)
+                            .background(manga.favoriteButtonBrush),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    FavoriteToggle(
+                        isFavorite = manga.isFavorite,
+                        contentColor = Color.White,
+                        favoriteContentColor = MaterialTheme.colorScheme.secondary,
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
             }
         }
     }
 }
 
-val MangaViewData.footerColor: Color
+val MangaViewData.coverAccentColor: Color
     @ReadOnlyComposable
     @Composable
     get() {
@@ -164,6 +167,19 @@ val MangaViewData.footerColor: Color
             .copy(alpha = 0.75f)
             .compositeOver(MaterialTheme.colorScheme.scrim)
     }
+
+val MangaViewData.favoriteButtonBrush: Brush
+    @ReadOnlyComposable
+    @Composable
+    get() =
+        Brush.radialGradient(
+            colorStops =
+                arrayOf(
+                    0f to coverAccentColor,
+                    0.65f to coverAccentColor.copy(alpha = 0.75f),
+                    1f to coverAccentColor.copy(alpha = 0.35f),
+                )
+        )
 
 @OptIn(ExperimentalCoilApi::class)
 @PreviewLightDark
