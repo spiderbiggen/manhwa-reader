@@ -409,7 +409,7 @@ object MangaProvider {
             isRead = false,
             readChapterCount = 4,
             totalChapterCount = 10,
-            dominantColor = null,
+            dominantColor = 0xFF7A4E9B.toInt(),
         )
 
     val values
@@ -430,6 +430,14 @@ object MangaProvider {
                     isRead = true,
                     readChapterCount = 10,
                     totalChapterCount = 10,
+                ),
+                baseViewData.copy(
+                    id = MangaId("4"),
+                    isFavorite = false,
+                    isRead = false,
+                    readChapterCount = 334,
+                    totalChapterCount = 335,
+                    dominantColor = 0xFF3F6E8C.toInt(),
                 ),
             )
 }

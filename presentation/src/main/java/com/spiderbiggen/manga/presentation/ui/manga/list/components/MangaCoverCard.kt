@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -24,13 +25,13 @@ import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
@@ -61,7 +62,7 @@ fun MangaCoverCard(
 ) {
     Card(
         onClick = dropUnlessStarted { onMangaClick(manga.id) },
-        modifier = modifier.alpha(if (manga.isRead) 0.55f else 1f),
+        modifier = modifier,
         shape = MaterialTheme.shapes.medium,
         colors =
             CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
@@ -76,7 +77,10 @@ fun MangaCoverCard(
                         .build(),
                 contentDescription = manga.title,
                 contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().then(sizeResolver),
+                modifier =
+                    Modifier.fillMaxSize()
+                        .alpha(if (manga.isRead) 0.55f else 1f)
+                        .then(sizeResolver),
             )
 
             // Gradient footer with title
@@ -102,24 +106,28 @@ fun MangaCoverCard(
                 Column(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp)
                 ) {
+                    val titleStyle =
+                        when {
+                            manga.isRead -> MaterialTheme.typography.titleSmall
+                            else -> MaterialTheme.typography.titleSmallEmphasized
+                        }
                     Text(
                         text = manga.title,
                         style =
-                            MaterialTheme.typography.titleSmall.copy(
-                                fontWeight = FontWeight.Bold,
+                            titleStyle.copy(
                                 shadow =
                                     Shadow(
                                         color = Color.Black,
                                         offset = Offset(0f, 2f),
                                         blurRadius = 4f,
-                                    ),
+                                    )
                             ),
                         color = Color.White,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
                     LinearProgressIndicator(
-                        progress = { manga.readProgress },
+                        progress = { manga.visualReadProgress },
                         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = Color.White.copy(alpha = 0.35f),
@@ -128,7 +136,12 @@ fun MangaCoverCard(
             }
 
             IconButton(
-                modifier = Modifier.align(Alignment.TopEnd).size(36.dp),
+                modifier =
+                    Modifier.align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(36.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.72f)),
                 onClick = dropUnlessStarted { onMangaFavoriteToggleClick(manga.id) },
             ) {
                 FavoriteToggle(

@@ -20,6 +20,32 @@ class MangaViewDataTest {
         assertEquals(1f, viewData(readChapterCount = 8, totalChapterCount = 5).readProgress)
     }
 
+    @Test
+    fun `visual read progress stays visibly incomplete when one chapter remains unread`() {
+        assertEquals(
+            0.95f,
+            viewData(readChapterCount = 334, totalChapterCount = 335).visualReadProgress,
+        )
+    }
+
+    @Test
+    fun `visual read progress is full when all chapters are read`() {
+        assertEquals(
+            1f,
+            viewData(readChapterCount = 335, totalChapterCount = 335).visualReadProgress,
+        )
+    }
+
+    @Test
+    fun `visual read progress is zero when manga has no chapters`() {
+        assertEquals(0f, viewData(readChapterCount = 0, totalChapterCount = 0).visualReadProgress)
+    }
+
+    @Test
+    fun `visual read progress treats over-count as complete`() {
+        assertEquals(1f, viewData(readChapterCount = 8, totalChapterCount = 5).visualReadProgress)
+    }
+
     private fun viewData(readChapterCount: Int, totalChapterCount: Int) =
         MangaViewData(
             id = MangaId("test"),
