@@ -34,6 +34,7 @@ room = "2.8.4"
 spotless-plugin-gradle = "8.9.0"
 stability-analyser = "0.12.0"
 sonarqube = "7.4.0.8496"
+kover = "0.9.9"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -151,6 +152,7 @@ kotlinX-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", vers
 stability-analyzer = { id = "com.github.skydoves.compose.stability.analyzer", version.ref = "stability-analyser" }
 sonarqube = { id = "org.sonarqube", version.ref = "sonarqube" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
 
 [bundles]

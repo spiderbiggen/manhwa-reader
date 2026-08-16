@@ -20,7 +20,7 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.spiderbiggen.manga.presentation.components.StatusBarProtection
+import com.spiderbiggen.manga.presentation.framework.adapter.StatusBarProtection
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.navigation.MangaListRoute
 import com.spiderbiggen.manga.presentation.ui.manga.navigation.manga

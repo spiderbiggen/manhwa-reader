@@ -44,7 +44,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
-import com.spiderbiggen.manga.presentation.components.InterruptBackHandler
+import com.spiderbiggen.manga.presentation.framework.adapter.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
 import org.koin.androidx.compose.koinViewModel

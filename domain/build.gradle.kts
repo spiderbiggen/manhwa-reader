@@ -5,6 +5,7 @@ plugins {
     id("manga.spotless")
     id("manga.detekt")
     id("com.android.lint")
+    id("manga.coverage")
 }
 
 kotlin {
