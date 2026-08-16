@@ -38,8 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -54,11 +52,10 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.ConstraintsSizeResolver
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.compose.LocalPlatformContext
-import coil3.size.Dimension
-import coil3.size.Size
-import coil3.size.SizeResolver
+import coil3.compose.rememberConstraintsSizeResolver
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
@@ -77,8 +74,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
-private val MangaGridMinCardWidth = 180.dp
-private val MangaGridSpacing = 4.dp
+private val MangaGridMinCardWidth = 110.dp
 
 @Composable
 fun MangaListScreen(
@@ -282,24 +278,11 @@ private fun MangaGrid(
         remember(mangas) {
             mangas.map { it.coverImage }.toImmutableList()
         }
-    val windowWidth = LocalWindowInfo.current.containerSize.width
-    val availableWidth = with(LocalDensity.current) { windowWidth.toDp() } - 16.dp
-    val estimatedColumnCount =
-        ((availableWidth.value + MangaGridSpacing.value) /
-                (MangaGridMinCardWidth.value + MangaGridSpacing.value))
-            .toInt()
-            .coerceAtLeast(1)
+    val coverSizeResolver: ConstraintsSizeResolver = rememberConstraintsSizeResolver()
     PreloadImages(
         lazyGridState = lazyGridState,
         items = allImages,
-        sizeResolver = {
-            SizeResolver(
-                Size(
-                    width = Dimension.Pixels(windowWidth / estimatedColumnCount),
-                    height = Dimension.Undefined,
-                )
-            )
-        },
+        sizeResolver = { coverSizeResolver },
         preloadCount = 15,
     )
 
@@ -337,6 +320,7 @@ private fun MangaGrid(
                 manga = item,
                 onMangaClick = onMangaClick,
                 onMangaFavoriteToggleClick = onFavoriteClick,
+                coverSizeResolver = coverSizeResolver,
                 modifier =
                     Modifier.animateItem(
                         fadeInSpec = floatAnimationSpec,

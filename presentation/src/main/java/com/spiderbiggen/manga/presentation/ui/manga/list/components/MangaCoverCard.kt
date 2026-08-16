@@ -42,6 +42,7 @@ import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
+import coil3.compose.ConstraintsSizeResolver
 import coil3.compose.LocalAsyncImagePreviewHandler
 import coil3.compose.LocalPlatformContext
 import coil3.compose.rememberConstraintsSizeResolver
@@ -59,6 +60,7 @@ fun MangaCoverCard(
     onMangaClick: (MangaId) -> Unit,
     onMangaFavoriteToggleClick: (MangaId) -> Unit,
     modifier: Modifier = Modifier,
+    coverSizeResolver: ConstraintsSizeResolver = rememberConstraintsSizeResolver(),
 ) {
     Card(
         onClick = dropUnlessStarted { onMangaClick(manga.id) },
@@ -68,19 +70,18 @@ fun MangaCoverCard(
             CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
     ) {
         Box(modifier = Modifier.fillMaxWidth().aspectRatio(2f / 3f)) {
-            val sizeResolver = rememberConstraintsSizeResolver()
             AsyncImage(
                 model =
                     ImageRequest.Builder(LocalPlatformContext.current)
                         .data(manga.coverImage)
-                        .size(sizeResolver)
+                        .size(coverSizeResolver)
                         .build(),
                 contentDescription = manga.title,
                 contentScale = ContentScale.Crop,
                 modifier =
                     Modifier.fillMaxSize()
                         .alpha(if (manga.isRead) 0.55f else 1f)
-                        .then(sizeResolver),
+                        .then(coverSizeResolver),
             )
 
             // Gradient footer with title
