@@ -83,8 +83,8 @@ dependencies {
     implementation(libs.androidX.compose.material3)
     implementation(libs.androidX.compose.animation)
     implementation(libs.androidX.compose.foundation)
-    implementation(libs.androidX.compose.uiTooling)
-    implementation(libs.androidX.compose.uiTestManifest)
+    debugImplementation(libs.androidX.compose.uiTooling)
+    debugImplementation(libs.androidX.compose.uiTestManifest)
     implementation(libs.androidX.compose.uiToolingPreview)
 
     // Navigation
@@ -98,7 +98,7 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network)
     implementation(libs.coil.svg)
-    implementation(libs.coil.test)
+    testImplementation(libs.coil.test)
 
     // Arrow
     implementation(platform(libs.arrow.bom))

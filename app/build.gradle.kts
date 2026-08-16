@@ -114,8 +114,8 @@ dependencies {
     implementation(libs.androidX.compose.uiGraphics)
     implementation(libs.androidX.compose.uiToolingPreview)
     implementation(libs.androidX.compose.material3)
-    implementation(libs.androidX.compose.uiTooling)
-    implementation(libs.androidX.compose.uiTestManifest)
+    debugImplementation(libs.androidX.compose.uiTooling)
+    debugImplementation(libs.androidX.compose.uiTestManifest)
 
     // Coil
     implementation(platform(libs.coil.bom))
