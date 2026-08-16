@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -97,6 +98,7 @@ import kotlinx.collections.immutable.toImmutableList
 private val MangaGridPhoneMinCardWidth = 110.dp
 private val MangaGridTabletMinCardWidth = 180.dp
 private val MangaGridTabletBreakpoint = 600.dp
+private val MangaFilterSheetHorizontalPadding = 16.dp
 
 private data class MangaFilterDefinition(
     val filter: MangaFilter,
@@ -289,7 +291,10 @@ private fun MangaOverviewContent(
             ModalBottomSheet(onDismissRequest = { isFilterSheetVisible = false }) {
                 Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 16.dp),
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                                .padding(horizontal = MangaFilterSheetHorizontalPadding),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
@@ -383,6 +388,7 @@ private fun MangaGrid(
 private fun FilterOption(label: String, selected: Boolean, onToggle: () -> Unit) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        contentPadding = PaddingValues(horizontal = MangaFilterSheetHorizontalPadding),
         trailingContent = { Checkbox(checked = selected, onCheckedChange = null) },
         modifier =
             Modifier.fillMaxWidth()
