@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -210,11 +210,9 @@ private fun ReadyImagesOverview(
                     }
                 },
         ) {
-            itemsIndexed(state.images, key = { _, image -> image }) { index, image ->
+            items(state.images, key = { it }) {
                 ListImage(
-                    model = image,
-                    pageNumber = index + 1,
-                    pageCount = state.images.size,
+                    model = it,
                     modifier = Modifier.fillParentMaxWidth(),
                     onSuccess = readyTracker::onContentReady,
                 )
@@ -250,14 +248,12 @@ private fun ReadyImagesOverview(
 @Composable
 private fun ListImage(
     model: String,
-    pageNumber: Int,
-    pageCount: Int,
     modifier: Modifier = Modifier,
     onSuccess: () -> Unit = {},
 ) {
     val asyncPainter = rememberAsyncImagePainter(model)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
-    DisplayImageState(painterState, pageNumber, pageCount, modifier)
+    DisplayImageState(painterState, modifier)
     LaunchedEffect(painterState) {
         if (painterState is AsyncImagePainter.State.Success) onSuccess()
     }
@@ -267,16 +263,13 @@ private fun ListImage(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun DisplayImageState(
     state: AsyncImagePainter.State,
-    pageNumber: Int,
-    pageCount: Int,
     modifier: Modifier = Modifier,
 ) {
     when (state) {
         is AsyncImagePainter.State.Success ->
             Image(
                 painter = state.painter,
-                contentDescription =
-                    stringResource(R.string.chapter_page_description, pageNumber, pageCount),
+                contentDescription = null,
                 contentScale = ContentScale.FillWidth,
                 modifier = modifier,
             )

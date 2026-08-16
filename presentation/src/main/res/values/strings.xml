@@ -5,7 +5,6 @@
     <string name="action_next_chapter">Next chapter</string>
     <string name="action_previous_chapter">Previous chapter</string>
     <string name="chapter_list_header">Chapters</string>
-    <string name="chapter_page_description">Chapter page %1$d of %2$d</string>
     <string name="manga_filter_title">Filters</string>
     <string name="manga_filter_clear">Clear</string>
     <string name="manga_filter_unread">Unread chapters</string>

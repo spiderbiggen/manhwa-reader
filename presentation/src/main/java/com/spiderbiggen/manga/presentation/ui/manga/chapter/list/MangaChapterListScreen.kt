@@ -101,6 +101,7 @@ fun ChapterListScreen(
     )
 }
 
+@Suppress("LongMethod", "ModifierMissing")
 @Composable
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun ChapterListScreen(
