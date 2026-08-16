@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -eu
+
+message_file=$1
+subject=$(sed -n '1p' "$message_file")
+
+case "$subject" in
+    fixup\!* | squash\!*)
+        exit 0
+        ;;
+esac
+
+pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\((app|data|domain|presentation|build|repo|deps|ci|release|docs|auth)\))?!?: [a-z][^[:space:]].*[^.]$'
+
+if ! printf '%s\n' "$subject" | grep -Eq "$pattern"; then
+    printf '%s\n' 'Invalid commit subject.' >&2
+    printf '%s\n' 'Use <type>(<optional-scope>): <lowercase imperative description>.' >&2
+    exit 1
+fi

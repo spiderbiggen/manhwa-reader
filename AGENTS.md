@@ -186,6 +186,15 @@ value class MangaId(val value: String)
 2. Run tests: `./gradlew test`
 3. Ensure build passes: `./gradlew build` (if necessary)
 
+### Commit and Pull Request Messages
+- Use the Conventional Commits format for every commit subject and pull request title: `<type>(<optional-scope>): <imperative description>`.
+- Allowed types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, and `revert`; append `!` before the colon for breaking changes.
+- Allowed lowercase scopes are `app`, `data`, `domain`, `presentation`, `build`, `repo`, `deps`, `ci`, `release`, `docs`, and `auth`.
+- Subjects must begin with lowercase text, use imperative wording, omit a trailing period, and have no length limit; temporary `fixup!` and `squash!` commits are allowed locally.
+- Pull request descriptions must contain exactly `## Summary` followed by `## Changes`, with at least one `-` bullet under each and no verification or testing section.
+- Activate the versioned commit hook in a clone with `git config core.hooksPath .githooks`.
+- The pull request template in `.github/pull_request_template.md` is the canonical description structure, and `.github/workflows/message_check.yaml` enforces these rules for pull requests.
+
 ### Adding New Features
 1. Start with domain models and use cases
 2. Add repository interfaces in domain, implementations in data
