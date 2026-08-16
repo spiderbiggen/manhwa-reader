@@ -28,6 +28,8 @@ class MangaRepository(private val mangaDao: LocalMangaDao, private val toDomain:
                     isFavorite = it.isFavorite,
                     isRead = it.isRead,
                     lastChapterId = it.lastChapterId,
+                    readChapterCount = it.readChapterCount,
+                    totalChapterCount = it.totalChapterCount,
                 )
             }
         }

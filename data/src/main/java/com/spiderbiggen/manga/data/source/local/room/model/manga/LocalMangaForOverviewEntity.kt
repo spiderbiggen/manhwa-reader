@@ -9,4 +9,6 @@ data class LocalMangaForOverviewEntity(
     @ColumnInfo("is_favorite") val isFavorite: Boolean,
     @ColumnInfo("is_read") val isRead: Boolean,
     @ColumnInfo("chapter_id") val lastChapterId: ChapterId?,
+    @ColumnInfo("read_chapter_count") val readChapterCount: Int,
+    @ColumnInfo("total_chapter_count") val totalChapterCount: Int,
 )

@@ -21,6 +21,7 @@
     <ID>LambdaParameterInRestartableEffect:StickyTopEffect.kt:isManuallyScrolled: () -&gt; Boolean</ID>
     <ID>LambdaParameterInRestartableEffect:UpdatedListButton.kt:key: (item: T) -&gt; String</ID>
     <ID>LongMethod:LoginScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable private fun LoginScreenContent</ID>
+    <ID>LongMethod:MangaCoverCard.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun MangaCoverCard</ID>
     <ID>LongMethod:MangaListScreen.kt:@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class) @Composable private fun MangaOverviewContent</ID>
     <ID>LongMethod:ProfileOverview.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable private fun AuthenticatedUserProfile</ID>
     <ID>LongMethod:ReaderScaffold.kt:@Composable fun ReaderScaffold</ID>
@@ -44,15 +45,11 @@
     <ID>PreviewPublic:Icon.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @PreviewDynamicColors @PreviewLightDark @Composable fun FavoriteTogglePreview</ID>
     <ID>PreviewPublic:MangaChapterListScreen.kt:@PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
     <ID>PreviewPublic:MangaChapterReaderScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewReadChapterScreen</ID>
-    <ID>PreviewPublic:MangaListScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewDynamicColors @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
+    <ID>PreviewPublic:MangaListScreen.kt:@OptIn(ExperimentalCoilApi::class) @PreviewLightDark @PreviewFontScale @PreviewScreenSizes @Composable fun PreviewManga</ID>
     <ID>PreviewPublic:MangaRow.kt:@OptIn(ExperimentalCoilApi::class) @Preview("Light") @Preview("Dark", uiMode = Configuration.UI_MODE_NIGHT_YES) @Preview("Light - Red", wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE) @Preview( "Dark - Red", uiMode = Configuration.UI_MODE_NIGHT_YES, wallpaper = Wallpapers.RED_DOMINATED_EXAMPLE, ) @Composable fun PreviewManga</ID>
     <ID>StateParam:MainContent.kt:profileState: State&lt;ProfileState&gt;</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:MangaChapterReaderScreen.kt:Throwable()</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:MangaListScreen.kt:Throwable()</ID>
     <ID>TooGenericExceptionThrown:MangaListScreen.kt:throw Throwable()</ID>
-    <ID>UnusedParameter:MangaListScreen.kt:isFavoritesSelected: Boolean</ID>
-    <ID>UnusedParameter:MangaListScreen.kt:isUnreadSelected: Boolean</ID>
-    <ID>UnusedParameter:MangaListScreen.kt:onToggleFavoritesRequested: () -&gt; Unit = {}</ID>
-    <ID>UnusedParameter:MangaListScreen.kt:onToggleUnreadRequested: () -&gt; Unit = {}</ID>
   </CurrentIssues>
 </SmellBaseline>
