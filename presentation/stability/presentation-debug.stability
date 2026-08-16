@@ -381,23 +381,23 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.ReadyIma
     - setRead: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.CheckedFilterChip(selected: kotlin.Boolean, label: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>, onClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterOption(label: kotlin.String, selected: kotlin.Boolean, onToggle: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
+    - label: STABLE (String is immutable)
     - selected: STABLE (primitive type)
-    - label: STABLE (composable function type)
-    - onClick: STABLE (function type)
+    - onToggle: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaList(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyListState: androidx.compose.foundation.lazy.LazyListState, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - mangas: STABLE (known stable type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
-    - lazyListState: STABLE (marked @Stable or @Immutable)
+    - lazyGridState: STABLE (marked @Stable or @Immutable)
     - onMangaClick: STABLE (function type)
     - onFavoriteClick: STABLE (function type)
 
@@ -464,6 +464,17 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.IconRow
     - onClickFavorite: STABLE (function type)
 
 @Composable
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCoverCard(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onMangaFavoriteToggleClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, coverSizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - manga: STABLE (marked @Stable or @Immutable)
+    - onMangaClick: STABLE (function type)
+    - onMangaFavoriteToggleClick: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - coverSizeResolver: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaInfoColumn(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
@@ -482,6 +493,18 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow
     - modifier: STABLE (marked @Stable or @Immutable)
     - shape: STABLE (marked @Stable or @Immutable)
     - coverSizeResolver: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.coverAccentColor(): androidx.compose.ui.graphics.Color
+  skippable: false
+  restartable: false
+  params:
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.favoriteButtonBrush(): androidx.compose.ui.graphics.Brush
+  skippable: false
+  restartable: false
+  params:
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen(viewModel: com.spiderbiggen.manga.presentation.ui.profile.login.LoginViewModel, onBackClick: kotlin.Function0<kotlin.Unit>, onRegisterClick: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
