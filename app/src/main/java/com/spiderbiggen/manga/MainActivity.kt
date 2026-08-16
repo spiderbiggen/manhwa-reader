@@ -14,8 +14,8 @@ import com.spiderbiggen.manga.presentation.ui.main.MainContent
 class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         installSplashScreen()
+        super.onCreate(savedInstanceState)
         enableEdgeToEdge(navigationBarStyle = SystemBarStyle.auto(TRANSPARENT, TRANSPARENT))
 
         val appVersionName = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
