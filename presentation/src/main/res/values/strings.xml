@@ -1,4 +1,10 @@
 <resources>
+    <string name="action_back">Back</string>
+    <string name="action_favorite">Favorite</string>
+    <string name="action_unfavorite">Unfavorite</string>
+    <string name="action_next_chapter">Next chapter</string>
+    <string name="action_previous_chapter">Previous chapter</string>
+    <string name="chapter_list_header">Chapters</string>
     <string name="manga_filter_title">Filters</string>
     <string name="manga_filter_clear">Clear</string>
     <string name="manga_filter_unread">Unread chapters</string>

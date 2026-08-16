@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -136,7 +137,10 @@ fun MangaChapterReaderScreen(
                                 onBackClick()
                             }
                     ) {
-                        Icon(painterResource(arrow_back), "Back")
+                        Icon(
+                            painterResource(arrow_back),
+                            stringResource(R.string.action_back),
+                        )
                     }
                 },
                 title = { Text(text = state.title.orEmpty()) },
@@ -242,7 +246,11 @@ private fun ReadyImagesOverview(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ListImage(model: String, modifier: Modifier = Modifier, onSuccess: () -> Unit = {}) {
+private fun ListImage(
+    model: String,
+    modifier: Modifier = Modifier,
+    onSuccess: () -> Unit = {},
+) {
     val asyncPainter = rememberAsyncImagePainter(model)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
     DisplayImageState(painterState, modifier)
@@ -253,7 +261,10 @@ private fun ListImage(model: String, modifier: Modifier = Modifier, onSuccess: (
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun DisplayImageState(state: AsyncImagePainter.State, modifier: Modifier = Modifier) {
+private fun DisplayImageState(
+    state: AsyncImagePainter.State,
+    modifier: Modifier = Modifier,
+) {
     when (state) {
         is AsyncImagePainter.State.Success ->
             Image(
@@ -313,14 +324,17 @@ private fun ReaderBottomBar(
             onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
             enabled = previousChapterId != null,
         ) {
-            Icon(painterResource(arrow_back), null)
+            Icon(painterResource(arrow_back), stringResource(R.string.action_previous_chapter))
         }
         val nextChapterId = screenState?.surrounding?.next
         IconButton(
             onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
             enabled = nextChapterId != null,
         ) {
-            Icon(painterResource(R.drawable.arrow_forward), null)
+            Icon(
+                painterResource(R.drawable.arrow_forward),
+                stringResource(R.string.action_next_chapter),
+            )
         }
     }
 }
