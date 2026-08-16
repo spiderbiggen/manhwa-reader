@@ -74,7 +74,7 @@ val coverageXmlReport = coverageReportDirectory.map { it.file("coverage.xml") }
 val coverageHtmlReport = coverageReportDirectory.map { it.dir("html") }
 
 tasks.register<CoverageVerificationTask>("coverage") {
-    dependsOn("koverXmlReport", "koverHtmlReport")
+    dependsOn(tasks.named("koverXmlReport"), tasks.named("koverHtmlReport"))
     xmlReport.set(coverageXmlReport)
     htmlReport.set(coverageHtmlReport)
 }
