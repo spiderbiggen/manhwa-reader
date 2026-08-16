@@ -38,6 +38,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.text.style.TextAlign
@@ -123,7 +124,10 @@ fun ChapterListScreen(
             MangaTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
-                        Icon(painterResource(R.drawable.arrow_back), "Back")
+                        Icon(
+                            painterResource(R.drawable.arrow_back),
+                            stringResource(R.string.action_back),
+                        )
                     }
                 },
                 title = { readyState?.title?.let { Text(it) } },
@@ -143,8 +147,16 @@ fun ChapterListScreen(
         },
     ) { scaffoldPadding ->
         when (state) {
-            is MangaChapterScreenState.Loading,
-            is MangaChapterScreenState.Error -> LoadingSpinner(scaffoldPadding)
+            is MangaChapterScreenState.Loading -> LoadingSpinner(scaffoldPadding)
+
+            is MangaChapterScreenState.Error ->
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    Text(state.message, textAlign = TextAlign.Center)
+                }
 
             is MangaChapterScreenState.Ready -> {
                 PullToRefreshBox(
@@ -182,6 +194,7 @@ private fun ChaptersList(
 ) {
     val floatAnimationSpec = MaterialTheme.motionScheme.defaultSpatialSpec<Float>()
     val intOffsetAnimateSpec = MaterialTheme.motionScheme.defaultSpatialSpec<IntOffset>()
+    val chapterListHeader = stringResource(R.string.chapter_list_header)
     LazyColumn(
         modifier = modifier,
         state = lazyListState,
@@ -189,7 +202,7 @@ private fun ChaptersList(
         verticalArrangement = Arrangement.spacedBy(1.dp),
     ) {
         section(
-            header = "Chapters",
+            header = chapterListHeader,
             items = chapters,
             key = { item -> item.id.value },
         ) { item, shape ->

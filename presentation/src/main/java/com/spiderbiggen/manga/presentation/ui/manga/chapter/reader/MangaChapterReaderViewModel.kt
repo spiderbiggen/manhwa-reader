@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 
 private const val TAG = "MangaChapterReaderViewModel"
+private const val UNKNOWN_ERROR_MESSAGE = "Unknown error"
 
 class MangaChapterReaderViewModel(
     navKey: MangaChapterReaderRoute,
@@ -44,6 +45,7 @@ class MangaChapterReaderViewModel(
 
     private val surroundingChapters = MutableStateFlow(SurroundingChapters())
     private val chapterImages = MutableStateFlow<ImmutableList<String>>(persistentListOf())
+    private val chapterImagesError = MutableStateFlow<String?>(null)
 
     val state: StateFlow<MangaChapterReaderScreenState> =
         screenStateFlow()
@@ -57,8 +59,13 @@ class MangaChapterReaderViewModel(
     private suspend fun onStart() {
         launchDefault {
             when (val images = getChapterImages(chapterId)) {
-                is Either.Right -> chapterImages.emit(images.value)
-                is Either.Left -> Log.e(TAG, "failed to get images")
+                is Either.Right -> {
+                    chapterImagesError.emit(null)
+                    chapterImages.emit(images.value)
+                }
+                is Either.Left -> {
+                    chapterImagesError.emit(images.value.message ?: UNKNOWN_ERROR_MESSAGE)
+                }
             }
         }
         launchDefault {
@@ -80,7 +87,11 @@ class MangaChapterReaderViewModel(
             isFavorite(mangaId),
             surroundingChapters,
             chapterImages,
-        ) { chapterState, isFavorite, surrounding, images ->
+            chapterImagesError,
+        ) { chapterState, isFavorite, surrounding, images, imageError ->
+            imageError?.let {
+                return@combine MangaChapterReaderScreenState.Error(it)
+            }
             val (title, isRead) =
                 chapterState ?: return@combine MangaChapterReaderScreenState.Loading(null)
             return@combine when {

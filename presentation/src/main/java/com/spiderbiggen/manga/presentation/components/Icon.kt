@@ -20,9 +20,11 @@ import androidx.compose.ui.graphics.vector.Group
 import androidx.compose.ui.graphics.vector.Path
 import androidx.compose.ui.graphics.vector.PathData
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
+import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
 object FavoriteIconPaths {
@@ -118,7 +120,10 @@ fun FavoriteToggle(
         }
     Icon(
         painter = painter,
-        contentDescription = if (isFavorite) "Unfavorite" else "Favorite",
+        contentDescription =
+            stringResource(
+                if (isFavorite) R.string.action_unfavorite else R.string.action_favorite
+            ),
         modifier = modifier,
         tint = Color.Unspecified,
     )

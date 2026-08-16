@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +46,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -136,7 +137,10 @@ fun MangaChapterReaderScreen(
                                 onBackClick()
                             }
                     ) {
-                        Icon(painterResource(arrow_back), "Back")
+                        Icon(
+                            painterResource(arrow_back),
+                            stringResource(R.string.action_back),
+                        )
                     }
                 },
                 title = { Text(text = state.title.orEmpty()) },
@@ -206,9 +210,11 @@ private fun ReadyImagesOverview(
                     }
                 },
         ) {
-            items(state.images, key = { it }) {
+            itemsIndexed(state.images, key = { _, image -> image }) { index, image ->
                 ListImage(
-                    model = it,
+                    model = image,
+                    pageNumber = index + 1,
+                    pageCount = state.images.size,
                     modifier = Modifier.fillParentMaxWidth(),
                     onSuccess = readyTracker::onContentReady,
                 )
@@ -242,10 +248,16 @@ private fun ReadyImagesOverview(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun ListImage(model: String, modifier: Modifier = Modifier, onSuccess: () -> Unit = {}) {
+private fun ListImage(
+    model: String,
+    pageNumber: Int,
+    pageCount: Int,
+    modifier: Modifier = Modifier,
+    onSuccess: () -> Unit = {},
+) {
     val asyncPainter = rememberAsyncImagePainter(model)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
-    DisplayImageState(painterState, modifier)
+    DisplayImageState(painterState, pageNumber, pageCount, modifier)
     LaunchedEffect(painterState) {
         if (painterState is AsyncImagePainter.State.Success) onSuccess()
     }
@@ -253,12 +265,18 @@ private fun ListImage(model: String, modifier: Modifier = Modifier, onSuccess: (
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun DisplayImageState(state: AsyncImagePainter.State, modifier: Modifier = Modifier) {
+private fun DisplayImageState(
+    state: AsyncImagePainter.State,
+    pageNumber: Int,
+    pageCount: Int,
+    modifier: Modifier = Modifier,
+) {
     when (state) {
         is AsyncImagePainter.State.Success ->
             Image(
                 painter = state.painter,
-                contentDescription = null,
+                contentDescription =
+                    stringResource(R.string.chapter_page_description, pageNumber, pageCount),
                 contentScale = ContentScale.FillWidth,
                 modifier = modifier,
             )
@@ -313,14 +331,17 @@ private fun ReaderBottomBar(
             onClick = dropUnlessStarted { previousChapterId?.let { toChapterClicked(it) } },
             enabled = previousChapterId != null,
         ) {
-            Icon(painterResource(arrow_back), null)
+            Icon(painterResource(arrow_back), stringResource(R.string.action_previous_chapter))
         }
         val nextChapterId = screenState?.surrounding?.next
         IconButton(
             onClick = dropUnlessStarted { nextChapterId?.let { toChapterClicked(it) } },
             enabled = nextChapterId != null,
         ) {
-            Icon(painterResource(R.drawable.arrow_forward), null)
+            Icon(
+                painterResource(R.drawable.arrow_forward),
+                stringResource(R.string.action_next_chapter),
+            )
         }
     }
 }
