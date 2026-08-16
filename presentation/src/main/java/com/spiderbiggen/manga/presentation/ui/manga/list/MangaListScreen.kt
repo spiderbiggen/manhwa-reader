@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list
 
+import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -51,6 +53,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -87,12 +90,26 @@ import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import kotlinx.collections.immutable.toImmutableList
 
 private val MangaGridPhoneMinCardWidth = 110.dp
 private val MangaGridTabletMinCardWidth = 180.dp
 private val MangaGridTabletBreakpoint = 600.dp
+private val MangaFilterSheetHorizontalPadding = 16.dp
+
+private data class MangaFilterDefinition(
+    val filter: MangaFilter,
+    @StringRes val labelResId: Int,
+)
+
+private val mangaFilterDefinitions =
+    persistentListOf(
+        MangaFilterDefinition(MangaFilter.Unread, R.string.manga_filter_unread),
+        MangaFilterDefinition(MangaFilter.Favorites, R.string.manga_filter_favorites),
+    )
 
 internal fun mangaGridMinCardWidth(maxWidth: Dp) =
     if (maxWidth >= MangaGridTabletBreakpoint) {
@@ -122,12 +139,9 @@ fun MangaListScreen(
         snackbarHostState = snackbarHostState,
         profileState = profileState,
         isRefreshing = isRefreshing,
-        onRefresh = viewModel::onRefresh,
+        onAction = viewModel::onAction,
         onProfileClicked = onProfileClick,
-        onToggleUnread = viewModel::onToggleUnread,
-        onToggleFavorites = viewModel::onToggleFavorites,
         onMangaClick = onMangaClick,
-        onFavoriteClick = viewModel::onFavoriteClick,
     )
 }
 
@@ -137,27 +151,20 @@ fun MangaListScreen(
     snackbarHostState: SnackbarHostState,
     profileState: ProfileState,
     isRefreshing: Boolean = false,
-    onRefresh: () -> Unit = {},
+    onAction: (MangaListAction) -> Unit = {},
     onProfileClicked: () -> Unit = {},
-    onToggleUnread: () -> Unit = {},
-    onToggleFavorites: () -> Unit = {},
     onMangaClick: (MangaId) -> Unit = {},
-    onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val manga = (state.state as? MangaScreenState.Ready)?.manga ?: persistentListOf()
     MangaOverviewContent(
         snackbarHostState = snackbarHostState,
         profileState = profileState,
         manga = manga,
-        isUnreadSelected = state.filterUnread,
-        isFavoritesSelected = state.filterFavorites,
+        activeFilters = state.activeFilters,
         isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
+        onAction = onAction,
         onProfileClicked = onProfileClicked,
-        onToggleUnreadRequested = onToggleUnread,
-        onToggleFavoritesRequested = onToggleFavorites,
         onMangaClick = onMangaClick,
-        onFavoriteClick = onFavoriteClick,
     )
 }
 
@@ -167,19 +174,15 @@ private fun MangaOverviewContent(
     snackbarHostState: SnackbarHostState,
     profileState: ProfileState,
     manga: ImmutableList<MangaViewData>,
-    isUnreadSelected: Boolean,
-    isFavoritesSelected: Boolean,
+    activeFilters: ImmutableSet<MangaFilter>,
     isRefreshing: Boolean,
-    onRefresh: () -> Unit = {},
+    onAction: (MangaListAction) -> Unit = {},
     onProfileClicked: () -> Unit = {},
-    onToggleUnreadRequested: () -> Unit = {},
-    onToggleFavoritesRequested: () -> Unit = {},
     onMangaClick: (MangaId) -> Unit = {},
-    onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val lazyGridState = rememberLazyGridState()
     var isFilterSheetVisible by rememberSaveable { mutableStateOf(false) }
-    val activeFilterCount = listOf(isUnreadSelected, isFavoritesSelected).count { it }
+    val activeFilterCount = activeFilters.size
     val topAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(
             lazyGridState,
@@ -264,7 +267,7 @@ private fun MangaOverviewContent(
         ) { contentPadding ->
             PullToRefreshBox(
                 isRefreshing = isRefreshing,
-                onRefresh = onRefresh,
+                onRefresh = { onAction(MangaListAction.Refresh) },
                 topOffSet = {
                     (topAppBarScrollBehavior.state.heightOffset -
                             topAppBarScrollBehavior.state.heightOffsetLimit)
@@ -279,7 +282,7 @@ private fun MangaOverviewContent(
                     contentPadding = contentPadding,
                     lazyGridState = lazyGridState,
                     onMangaClick = onMangaClick,
-                    onFavoriteClick = onFavoriteClick,
+                    onFavoriteClick = { onAction(MangaListAction.FavoriteClicked(it)) },
                 )
             }
         }
@@ -288,32 +291,38 @@ private fun MangaOverviewContent(
             ModalBottomSheet(onDismissRequest = { isFilterSheetVisible = false }) {
                 Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 16.dp),
+                        modifier =
+                            Modifier.fillMaxWidth()
+                                .heightIn(min = 48.dp)
+                                .padding(horizontal = MangaFilterSheetHorizontalPadding),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
-                        Text(text = "Filters", style = MaterialTheme.typography.headlineSmall)
+                        Text(
+                            text = stringResource(R.string.manga_filter_title),
+                            style = MaterialTheme.typography.headlineSmall,
+                        )
                         if (activeFilterCount > 0) {
-                            TextButton(
-                                onClick = {
-                                    if (isUnreadSelected) onToggleUnreadRequested()
-                                    if (isFavoritesSelected) onToggleFavoritesRequested()
-                                }
-                            ) {
-                                Text("Clear")
+                            TextButton(onClick = { onAction(MangaListAction.ClearFilters) }) {
+                                Text(stringResource(R.string.manga_filter_clear))
                             }
                         }
                     }
-                    FilterOption(
-                        label = "Unread chapters",
-                        selected = isUnreadSelected,
-                        onToggle = onToggleUnreadRequested,
-                    )
-                    FilterOption(
-                        label = "Favorite manga",
-                        selected = isFavoritesSelected,
-                        onToggle = onToggleFavoritesRequested,
-                    )
+                    mangaFilterDefinitions.forEach { definition ->
+                        val selected = definition.filter in activeFilters
+                        FilterOption(
+                            label = stringResource(definition.labelResId),
+                            selected = selected,
+                            onToggle = {
+                                onAction(
+                                    MangaListAction.SetFilter(
+                                        filter = definition.filter,
+                                        enabled = !selected,
+                                    )
+                                )
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -379,6 +388,7 @@ private fun MangaGrid(
 private fun FilterOption(label: String, selected: Boolean, onToggle: () -> Unit) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        contentPadding = PaddingValues(horizontal = MangaFilterSheetHorizontalPadding),
         trailingContent = { Checkbox(checked = selected, onCheckedChange = null) },
         modifier =
             Modifier.fillMaxWidth()
@@ -420,14 +430,14 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
                     state = MangaScreenState.Ready(manga = MangaProvider.values.toImmutableList())
                 ),
                 MangaScreenData(
-                    filterUnread = true,
+                    activeFilters = persistentSetOf(MangaFilter.Unread),
                     state =
                         MangaScreenState.Ready(
                             manga = MangaProvider.values.filter { !it.isRead }.toImmutableList()
                         ),
                 ),
                 MangaScreenData(
-                    filterFavorites = true,
+                    activeFilters = persistentSetOf(MangaFilter.Favorites),
                     state =
                         MangaScreenState.Ready(
                             manga = MangaProvider.values.filter { it.isFavorite }.toImmutableList()
