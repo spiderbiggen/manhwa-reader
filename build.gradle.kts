@@ -13,6 +13,7 @@ plugins {
     alias(libs.plugins.kotlinX.serialization) apply false
     alias(libs.plugins.stability.analyzer) apply false
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.kover)
     alias(libs.plugins.sonarqube)
     id("manga.spotless")
 }
@@ -28,8 +29,54 @@ sonar {
     properties {
         property("sonar.projectKey", "spiderbiggen_manhwa-reader")
         property("sonar.organization", "spiderbiggen")
+        property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/coverage/coverage.xml")
     }
     setAndroidVariant("debug")
+}
+
+dependencies {
+    add("kover", project(":app"))
+    add("kover", project(":data"))
+    add("kover", project(":domain"))
+    add("kover", project(":presentation"))
+}
+
+kover {
+    reports {
+        total {
+            filters {
+                excludes {
+                    classes(
+                        "**.BuildConfig",
+                        "**.R",
+                        "**.R$*",
+                        "**.*_Factory",
+                        "**.*_MembersInjector",
+                    )
+                    annotatedBy("androidx.compose.ui.tooling.preview.Preview")
+                    annotatedBy("com.spiderbiggen.manga.presentation.coverage.CoverageExcluded")
+                }
+            }
+            xml {
+                onCheck = false
+                xmlFile = layout.buildDirectory.file("reports/coverage/coverage.xml").get().asFile
+            }
+            html {
+                onCheck = false
+                htmlDir = layout.buildDirectory.dir("reports/coverage/html").get().asFile
+            }
+        }
+    }
+}
+
+val coverageReportDirectory = layout.buildDirectory.dir("reports/coverage")
+val coverageXmlReport = coverageReportDirectory.map { it.file("coverage.xml") }
+val coverageHtmlReport = coverageReportDirectory.map { it.dir("html") }
+
+tasks.register<CoverageVerificationTask>("coverage") {
+    dependsOn("koverXmlReport", "koverHtmlReport")
+    xmlReport.set(coverageXmlReport)
+    htmlReport.set(coverageHtmlReport)
 }
 
 subprojects {

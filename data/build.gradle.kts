@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.google.ksp)
     id("manga.spotless")
     id("manga.detekt")
+    id("manga.coverage")
 }
 
 android {

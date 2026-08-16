@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.stability.analyzer)
     id("manga.spotless")
     id("manga.detekt")
+    id("manga.coverage")
 }
 
 android {

@@ -184,7 +184,14 @@ value class MangaId(val value: String)
 ### Before Committing
 1. Run code formatting: `./gradlew spotlessApply`
 2. Run tests: `./gradlew test`
-3. Ensure build passes: `./gradlew build` (if necessary)
+3. Generate and inspect coverage: `./gradlew coverage`
+4. Ensure build passes: `./gradlew build` (if necessary)
+
+### Coverage
+- Kover `0.9.9` is the project coverage engine; `./gradlew coverage` runs host unit tests and generates the aggregate XML and HTML reports.
+- Reports are written to `build/reports/coverage/coverage.xml` and `build/reports/coverage/html/index.html`.
+- Generated classes, Compose previews, and presentation framework adapters marked with `com.spiderbiggen.manga.presentation.coverage.CoverageExcluded` are excluded; do not mark ViewModels, state mapping, repositories, domain logic, or behavioral UI code.
+- SonarCloud consumes the aggregate XML report and owns the 80% new-code quality gate.
 
 ### Commit and Pull Request Messages
 - Use the Conventional Commits format for every commit subject and pull request title: `<type>(<optional-scope>): <imperative description>`.

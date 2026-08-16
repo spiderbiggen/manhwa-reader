@@ -11,13 +11,16 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
+import com.spiderbiggen.manga.presentation.coverage.CoverageExcluded
 
 @Composable
+@CoverageExcluded
 fun StatusBarProtection(
     color: Color = MaterialTheme.colorScheme.background,
     heightProvider: () -> Float = calculateStatusBarGradientHeight(),
+    modifier: Modifier = Modifier,
 ) {
-    Canvas(Modifier.fillMaxSize()) {
+    Canvas(modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()
         val gradient =
             Brush.verticalGradient(

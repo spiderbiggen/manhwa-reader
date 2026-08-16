@@ -29,15 +29,19 @@ Use the Gradle wrapper from the project root:
 # macOS/Linux
 ./gradlew :app:assembleDebug
 ./gradlew test
+./gradlew coverage
 ./gradlew spotlessCheck
 
 # Windows
 gradlew.bat :app:assembleDebug
 gradlew.bat test
+gradlew.bat coverage
 gradlew.bat spotlessCheck
 ```
 
 The debug build uses the `.debug` application ID suffix and `-debug` version suffix. Release signing values are read from `local.properties` when configured; do not commit signing credentials or generated build artifacts.
+
+The `coverage` task runs host unit tests and writes the aggregate Kover reports to `build/reports/coverage/coverage.xml` and `build/reports/coverage/html/index.html`. Generated code, Compose previews, and explicitly marked presentation framework adapters are excluded; behavioral presentation and domain/data code remains measured.
 
 ## Contribution messages
 
