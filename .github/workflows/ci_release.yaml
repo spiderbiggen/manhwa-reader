@@ -53,6 +53,7 @@ jobs:
         with:
           token: ${{ github.token }}
           tag: ${{ github.ref_name }}
+          excludeScopes: deps,release,ci,docs,tests,examples,build,devops,infra,workflow
 
       - name: Create Release
         uses: softprops/action-gh-release@v3
