@@ -60,7 +60,11 @@ interface LocalChapterDao {
     @Query(
         """
         SELECT c1.id FROM chapter c1 LEFT JOIN chapter c2 USING (manga_id)
-        WHERE c2.id = :id AND c1.index_num < c2.index_num OR (c1.index_num = c2.index_num AND COALESCE(c1.sub_index, 0) < COALESCE(c2.sub_index, 0))
+        WHERE c2.id = :id
+            AND (
+                c1.index_num < c2.index_num
+                OR (c1.index_num = c2.index_num AND COALESCE(c1.sub_index, 0) < COALESCE(c2.sub_index, 0))
+            )
         ORDER BY c1.index_num DESC, COALESCE(c1.sub_index, 0) DESC
         """
     )

@@ -20,6 +20,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
+    testOptions { unitTests.isReturnDefaultValues = true }
     buildFeatures {
         buildConfig = true
     }
@@ -90,6 +91,8 @@ dependencies {
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.androidX.room.test)
+    androidTestImplementation(libs.androidX.test.core)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    androidTestImplementation(libs.kotlinX.coroutines.test)
 }
