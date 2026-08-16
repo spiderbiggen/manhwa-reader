@@ -13,6 +13,7 @@ import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.persistentSetOf
 import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
@@ -34,25 +35,25 @@ class MangaListScreenTest {
     }
 
     @Test
-    fun `given an active filter when clear is clicked then its toggle callback is invoked`() {
-        var unreadToggleCount = 0
+    fun `given an active filter when clear is clicked then clear action is dispatched`() {
+        var action: MangaListAction? = null
         setContent(
             MangaScreenData(
-                filterUnread = true,
+                activeFilters = persistentSetOf(MangaFilter.Unread),
                 state = MangaScreenState.Ready(manga = persistentListOf()),
             ),
-            onToggleUnread = { unreadToggleCount++ },
+            onAction = { action = it },
         )
 
         composeTestRule.onNodeWithContentDescription("Filters, 1 active").performClick()
         composeTestRule.onNodeWithText("Clear").performClick()
 
-        assertEquals(1, unreadToggleCount)
+        assertEquals(MangaListAction.ClearFilters, action)
     }
 
     private fun setContent(
         state: MangaScreenData,
-        onToggleUnread: () -> Unit = {},
+        onAction: (MangaListAction) -> Unit = {},
     ) {
         composeTestRule.setContent {
             val snackbarHostState = remember { SnackbarHostState() }
@@ -61,7 +62,7 @@ class MangaListScreenTest {
                     state = state,
                     snackbarHostState = snackbarHostState,
                     profileState = ProfileState.Unauthenticated,
-                    onToggleUnread = onToggleUnread,
+                    onAction = onAction,
                 )
             }
         }

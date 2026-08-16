@@ -1,12 +1,14 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list.model
 
 import androidx.compose.runtime.Immutable
+import com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter
 import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.ImmutableSet
+import kotlinx.collections.immutable.persistentSetOf
 
 @Immutable
 data class MangaScreenData(
-    val filterFavorites: Boolean = false,
-    val filterUnread: Boolean = false,
+    val activeFilters: ImmutableSet<MangaFilter> = persistentSetOf(),
     val state: MangaScreenState = MangaScreenState.Loading,
 )
 

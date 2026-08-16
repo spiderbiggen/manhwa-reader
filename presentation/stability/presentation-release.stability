@@ -413,7 +413,7 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(vie
     - onMangaClick: STABLE (function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(state: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData, snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, isRefreshing: kotlin.Boolean, onRefresh: kotlin.Function0<kotlin.Unit>, onProfileClicked: kotlin.Function0<kotlin.Unit>, onToggleUnread: kotlin.Function0<kotlin.Unit>, onToggleFavorites: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(state: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData, snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClicked: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -421,30 +421,23 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(sta
     - snackbarHostState: STABLE (marked @Stable or @Immutable)
     - profileState: STABLE (marked @Stable or @Immutable)
     - isRefreshing: STABLE (primitive type)
-    - onRefresh: STABLE (function type)
+    - onAction: STABLE (function type)
     - onProfileClicked: STABLE (function type)
-    - onToggleUnread: STABLE (function type)
-    - onToggleFavorites: STABLE (function type)
     - onMangaClick: STABLE (function type)
-    - onFavoriteClick: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewContent(snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, manga: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, isUnreadSelected: kotlin.Boolean, isFavoritesSelected: kotlin.Boolean, isRefreshing: kotlin.Boolean, onRefresh: kotlin.Function0<kotlin.Unit>, onProfileClicked: kotlin.Function0<kotlin.Unit>, onToggleUnreadRequested: kotlin.Function0<kotlin.Unit>, onToggleFavoritesRequested: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewContent(snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, manga: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClicked: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - snackbarHostState: STABLE (marked @Stable or @Immutable)
     - profileState: STABLE (marked @Stable or @Immutable)
     - manga: STABLE (known stable type)
-    - isUnreadSelected: STABLE (primitive type)
-    - isFavoritesSelected: STABLE (primitive type)
+    - activeFilters: STABLE (known stable type)
     - isRefreshing: STABLE (primitive type)
-    - onRefresh: STABLE (function type)
+    - onAction: STABLE (function type)
     - onProfileClicked: STABLE (function type)
-    - onToggleUnreadRequested: STABLE (function type)
-    - onToggleFavoritesRequested: STABLE (function type)
     - onMangaClick: STABLE (function type)
-    - onFavoriteClick: STABLE (function type)
 
 @Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.CoverImage(url: kotlin.String, modifier: androidx.compose.ui.Modifier, sizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
