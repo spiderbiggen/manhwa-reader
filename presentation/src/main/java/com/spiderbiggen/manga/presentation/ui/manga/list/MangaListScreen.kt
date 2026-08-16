@@ -2,6 +2,8 @@ package com.spiderbiggen.manga.presentation.ui.manga.list
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,41 +11,55 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material3.Badge
+import androidx.compose.material3.BadgedBox
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.WavyProgressIndicatorDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewFontScale
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.core.content.res.ResourcesCompat
@@ -74,7 +90,16 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 
-private val MangaGridMinCardWidth = 110.dp
+private val MangaGridPhoneMinCardWidth = 110.dp
+private val MangaGridTabletMinCardWidth = 180.dp
+private val MangaGridTabletBreakpoint = 600.dp
+
+internal fun mangaGridMinCardWidth(maxWidth: Dp) =
+    if (maxWidth >= MangaGridTabletBreakpoint) {
+        MangaGridTabletMinCardWidth
+    } else {
+        MangaGridPhoneMinCardWidth
+    }
 
 @Composable
 fun MangaListScreen(
@@ -153,118 +178,152 @@ private fun MangaOverviewContent(
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {
     val lazyGridState = rememberLazyGridState()
+    var isFilterSheetVisible by rememberSaveable { mutableStateOf(false) }
+    val activeFilterCount = listOf(isUnreadSelected, isFavoritesSelected).count { it }
     val topAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(
             lazyGridState,
             canScroll = { lazyGridState.canScrollForward || lazyGridState.canScrollBackward },
         )
-    Scaffold(
-        topBar = {
-            MangaTopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onProfileClicked) {
-                        when (profileState) {
-                            is ProfileState.Unauthenticated ->
-                                Icon(
-                                    painterResource(R.drawable.account_circle),
-                                    contentDescription = "Profile",
-                                )
-
-                            is ProfileState.Authenticated ->
-                                Box(contentAlignment = Alignment.Center) {
-                                    AsyncImage(
-                                        model = profileState.avatarUrl,
+    Box {
+        Scaffold(
+            topBar = {
+                MangaTopAppBar(
+                    navigationIcon = {
+                        IconButton(onClick = onProfileClicked) {
+                            when (profileState) {
+                                is ProfileState.Unauthenticated ->
+                                    Icon(
+                                        painterResource(R.drawable.account_circle),
                                         contentDescription = "Profile",
-                                        contentScale = ContentScale.Crop,
-                                        error = painterResource(R.drawable.account_circle),
-                                        modifier = Modifier.clip(CircleShape).size(24.dp),
                                     )
-                                    ExpressiveAnimatedVisibility(
-                                        profileState.refreshing,
-                                        Modifier.size(
-                                            WavyProgressIndicatorDefaults.CircularContainerSize
-                                        ),
-                                    ) {
-                                        CircularWavyProgressIndicator()
+
+                                is ProfileState.Authenticated ->
+                                    Box(contentAlignment = Alignment.Center) {
+                                        AsyncImage(
+                                            model = profileState.avatarUrl,
+                                            contentDescription = "Profile",
+                                            contentScale = ContentScale.Crop,
+                                            error = painterResource(R.drawable.account_circle),
+                                            modifier = Modifier.clip(CircleShape).size(24.dp),
+                                        )
+                                        ExpressiveAnimatedVisibility(
+                                            profileState.refreshing,
+                                            Modifier.size(
+                                                WavyProgressIndicatorDefaults.CircularContainerSize
+                                            ),
+                                        ) {
+                                            CircularWavyProgressIndicator()
+                                        }
                                     }
+                            }
+                        }
+                    },
+                    title = {
+                        // TODO search top app bar
+                    },
+                    actions = {
+                        BadgedBox(
+                            badge = {
+                                if (activeFilterCount > 0) {
+                                    Badge { Text(activeFilterCount.toString()) }
                                 }
+                            }
+                        ) {
+                            IconButton(
+                                onClick = { isFilterSheetVisible = true },
+                                modifier =
+                                    Modifier.semantics {
+                                        contentDescription =
+                                            if (activeFilterCount > 0) {
+                                                "Filters, $activeFilterCount active"
+                                            } else {
+                                                "Filters"
+                                            }
+                                    },
+                            ) {
+                                Icon(
+                                    painter = painterResource(R.drawable.filter_list),
+                                    contentDescription = null,
+                                )
+                            }
                         }
-                    }
-                },
-                title = {
-                    // TODO search top app bar
-                },
-                actions = {
-                    if (BuildConfig.DEBUG) {
-                        IconButton(onClick = { throw Throwable() }) {
-                            Icon(
-                                painter = painterResource(R.drawable.bug_report),
-                                contentDescription = "Create a crash report (by crashing)",
-                            )
+                        if (BuildConfig.DEBUG) {
+                            IconButton(onClick = { throw Throwable() }) {
+                                Icon(
+                                    painter = painterResource(R.drawable.bug_report),
+                                    contentDescription = "Create a crash report (by crashing)",
+                                )
+                            }
                         }
-                    }
-                },
-                scrollBehavior = topAppBarScrollBehavior,
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-    ) { contentPadding ->
-        PullToRefreshBox(
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh,
-            topOffSet = {
-                (topAppBarScrollBehavior.state.heightOffset -
-                        topAppBarScrollBehavior.state.heightOffsetLimit)
-                    .toInt()
+                    },
+                    scrollBehavior = topAppBarScrollBehavior,
+                )
             },
-        ) {
-            MangaGrid(
-                mangas = manga,
-                isUnreadSelected = isUnreadSelected,
-                isFavoritesSelected = isFavoritesSelected,
-                onToggleUnreadRequested = onToggleUnreadRequested,
-                onToggleFavoritesRequested = onToggleFavoritesRequested,
-                modifier =
-                    Modifier.fillMaxSize()
-                        .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
-                contentPadding = contentPadding,
-                lazyGridState = lazyGridState,
-                onMangaClick = onMangaClick,
-                onFavoriteClick = onFavoriteClick,
-            )
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+        ) { contentPadding ->
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = onRefresh,
+                topOffSet = {
+                    (topAppBarScrollBehavior.state.heightOffset -
+                            topAppBarScrollBehavior.state.heightOffsetLimit)
+                        .toInt()
+                },
+            ) {
+                MangaGrid(
+                    mangas = manga,
+                    modifier =
+                        Modifier.fillMaxSize()
+                            .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
+                    contentPadding = contentPadding,
+                    lazyGridState = lazyGridState,
+                    onMangaClick = onMangaClick,
+                    onFavoriteClick = onFavoriteClick,
+                )
+            }
+        }
+
+        if (isFilterSheetVisible) {
+            ModalBottomSheet(onDismissRequest = { isFilterSheetVisible = false }) {
+                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(text = "Filters", style = MaterialTheme.typography.headlineSmall)
+                        if (activeFilterCount > 0) {
+                            TextButton(
+                                onClick = {
+                                    if (isUnreadSelected) onToggleUnreadRequested()
+                                    if (isFavoritesSelected) onToggleFavoritesRequested()
+                                }
+                            ) {
+                                Text("Clear")
+                            }
+                        }
+                    }
+                    FilterOption(
+                        label = "Unread chapters",
+                        selected = isUnreadSelected,
+                        onToggle = onToggleUnreadRequested,
+                    )
+                    FilterOption(
+                        label = "Favorite manga",
+                        selected = isFavoritesSelected,
+                        onToggle = onToggleFavoritesRequested,
+                    )
+                }
+            }
         }
     }
-}
-
-@Composable
-private fun CheckedFilterChip(
-    selected: Boolean,
-    label: @Composable () -> Unit,
-    onClick: () -> Unit,
-) {
-    FilterChip(
-        selected = selected,
-        label = label,
-        leadingIcon =
-            if (selected) {
-                {
-                    Icon(painterResource(R.drawable.check), null)
-                }
-            } else {
-                null
-            },
-        onClick = onClick,
-    )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaGrid(
     mangas: ImmutableList<MangaViewData>,
-    isUnreadSelected: Boolean,
-    isFavoritesSelected: Boolean,
-    onToggleUnreadRequested: () -> Unit,
-    onToggleFavoritesRequested: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyGridState: LazyGridState = rememberLazyGridState(),
@@ -286,49 +345,46 @@ private fun MangaGrid(
         preloadCount = 15,
     )
 
-    LazyVerticalGrid(
-        columns = GridCells.Adaptive(minSize = MangaGridMinCardWidth),
-        modifier = modifier,
-        state = lazyGridState,
-        contentPadding = contentPadding + PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        item(span = { GridItemSpan(maxLineSpan) }) {
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(bottom = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                CheckedFilterChip(
-                    selected = isUnreadSelected,
-                    label = { Text("Unread") },
-                    onClick = onToggleUnreadRequested,
-                )
-                CheckedFilterChip(
-                    selected = isFavoritesSelected,
-                    label = { Text("Favorites") },
-                    onClick = onToggleFavoritesRequested,
+    BoxWithConstraints(modifier = modifier) {
+        LazyVerticalGrid(
+            columns = GridCells.Adaptive(minSize = mangaGridMinCardWidth(maxWidth)),
+            modifier = Modifier.fillMaxSize(),
+            state = lazyGridState,
+            contentPadding = contentPadding + PaddingValues(horizontal = 8.dp, vertical = 8.dp),
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            items(
+                items = mangas,
+                key = { it.id.value },
+            ) { item ->
+                MangaCoverCard(
+                    manga = item,
+                    onMangaClick = onMangaClick,
+                    onMangaFavoriteToggleClick = onFavoriteClick,
+                    coverSizeResolver = coverSizeResolver,
+                    modifier =
+                        Modifier.animateItem(
+                            fadeInSpec = floatAnimationSpec,
+                            placementSpec = intOffsetAnimateSpec,
+                            fadeOutSpec = floatAnimationSpec,
+                        ),
                 )
             }
         }
+    }
+}
 
-        items(
-            items = mangas,
-            key = { it.id.value },
-        ) { item ->
-            MangaCoverCard(
-                manga = item,
-                onMangaClick = onMangaClick,
-                onMangaFavoriteToggleClick = onFavoriteClick,
-                coverSizeResolver = coverSizeResolver,
-                modifier =
-                    Modifier.animateItem(
-                        fadeInSpec = floatAnimationSpec,
-                        placementSpec = intOffsetAnimateSpec,
-                        fadeOutSpec = floatAnimationSpec,
-                    ),
-            )
-        }
+@Composable
+private fun FilterOption(label: String, selected: Boolean, onToggle: () -> Unit) {
+    ListItem(
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+        trailingContent = { Checkbox(checked = selected, onCheckedChange = null) },
+        modifier =
+            Modifier.fillMaxWidth()
+                .toggleable(value = selected, role = Role.Checkbox, onValueChange = { onToggle() }),
+    ) {
+        Text(label)
     }
 }
 
