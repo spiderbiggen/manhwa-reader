@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.data.di
 
+import com.spiderbiggen.manga.data.source.remote.usecase.BearerTokenResetter
 import com.spiderbiggen.manga.data.source.remote.usecase.FetchCurrentUser
 import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteChapters
 import com.spiderbiggen.manga.data.source.remote.usecase.GetRemoteManga
@@ -89,7 +90,7 @@ val useCaseModule = module {
     singleOf(::UpdateChaptersFromRemoteImpl) { bind<UpdateChaptersFromRemote>() }
 
     factoryOf(::FetchCurrentUser)
-    factoryOf(::ResetBearerToken)
+    factoryOf(::ResetBearerToken) { bind<BearerTokenResetter>() }
     factory { MapUserEntity(get(named<BaseUrl>())) }
     factoryOf(::RefreshAccessToken)
     factoryOf(::GetRemoteChapters)
