@@ -116,12 +116,13 @@ public fun com.spiderbiggen.manga.presentation.components.SectionItem(isFirst: k
     - content: STABLE (composable function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.StatusBarProtection(color: androidx.compose.ui.graphics.Color, heightProvider: kotlin.Function0<kotlin.Float>): kotlin.Unit
+public fun com.spiderbiggen.manga.presentation.components.StatusBarProtection(color: androidx.compose.ui.graphics.Color, heightProvider: kotlin.Function0<kotlin.Float>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - color: STABLE (marked @Stable or @Immutable)
     - heightProvider: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.StickyTopEffect(items: kotlinx.collections.immutable.ImmutableCollection<T of com.spiderbiggen.manga.presentation.components.StickyTopEffect>, listState: androidx.compose.foundation.lazy.LazyListState, isManuallyScrolled: kotlin.Function0<kotlin.Boolean>): kotlin.Unit
