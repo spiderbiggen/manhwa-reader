@@ -21,6 +21,9 @@ dependencies {
     implementation(libs.kotlinX.serialization)
     implementation(libs.kotlinX.collections.immutable)
 
+    // Testing
+    testImplementation(libs.junit)
+
     // Arrow
     implementation(platform(libs.arrow.bom))
     implementation(libs.arrow.core)

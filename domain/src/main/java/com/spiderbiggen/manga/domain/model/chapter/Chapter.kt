@@ -19,7 +19,7 @@ data class Chapter(
             append(it)
         }
 
-        title?.let {
+        title?.takeIf(String::isNotBlank)?.let {
             when {
                 it[0].isLetterOrDigit() -> append(" - ")
                 else -> append(' ')
