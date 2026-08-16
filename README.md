@@ -41,7 +41,9 @@ gradlew.bat spotlessCheck
 
 The debug build uses the `.debug` application ID suffix and `-debug` version suffix. Release signing values are read from `local.properties` when configured; do not commit signing credentials or generated build artifacts.
 
-The `coverage` task runs host unit tests and writes the aggregate Kover reports to `build/reports/coverage/coverage.xml` and `build/reports/coverage/html/index.html`. Generated code, Compose previews, and explicitly marked presentation framework adapters are excluded; behavioral presentation and domain/data code remains measured.
+The `coverage` task runs host unit tests and writes the aggregate Kover reports to `build/reports/coverage/coverage.xml` and `build/reports/coverage/html/index.html`. Generated code and Compose previews are excluded, along with passive framework adapters under `presentation/framework/adapter`; behavioral presentation and domain/data code remains measured.
+
+Presentation framework adapters are limited to passive wrappers around Compose or Android system integrations. Keep ViewModels, state mapping, repositories, domain logic, and behavior-bearing UI outside this boundary; use `CoverageExcluded` only on reviewed adapter declarations when the wrapper itself cannot provide meaningful host-test coverage. Extract and test any pure calculation or decision before considering an adapter exclusion.
 
 ## Contribution messages
 

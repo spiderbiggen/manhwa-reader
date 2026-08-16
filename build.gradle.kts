@@ -30,6 +30,10 @@ sonar {
         property("sonar.projectKey", "spiderbiggen_manhwa-reader")
         property("sonar.organization", "spiderbiggen")
         property("sonar.coverage.jacoco.xmlReportPaths", "build/reports/coverage/coverage.xml")
+        property(
+            "sonar.coverage.exclusions",
+            "presentation/src/main/java/com/spiderbiggen/manga/presentation/framework/adapter/**/*",
+        )
     }
     setAndroidVariant("debug")
 }
@@ -53,6 +57,7 @@ kover {
                         "**.*_Factory",
                         "**.*_MembersInjector",
                     )
+                    packages("com.spiderbiggen.manga.presentation.framework.adapter")
                     annotatedBy("androidx.compose.ui.tooling.preview.Preview")
                     annotatedBy("com.spiderbiggen.manga.presentation.coverage.CoverageExcluded")
                 }

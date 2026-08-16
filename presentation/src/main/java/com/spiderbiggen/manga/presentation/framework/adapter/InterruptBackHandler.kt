@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.components
+package com.spiderbiggen.manga.presentation.framework.adapter
 
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.PredictiveBackHandler

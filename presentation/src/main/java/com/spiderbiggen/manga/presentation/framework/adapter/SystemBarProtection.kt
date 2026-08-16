@@ -1,4 +1,4 @@
-package com.spiderbiggen.manga.presentation.components
+package com.spiderbiggen.manga.presentation.framework.adapter
 
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.WindowInsets
@@ -16,9 +16,9 @@ import com.spiderbiggen.manga.presentation.coverage.CoverageExcluded
 @Composable
 @CoverageExcluded
 fun StatusBarProtection(
+    modifier: Modifier = Modifier,
     color: Color = MaterialTheme.colorScheme.background,
     heightProvider: () -> Float = calculateStatusBarGradientHeight(),
-    modifier: Modifier = Modifier,
 ) {
     Canvas(modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()

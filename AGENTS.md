@@ -190,7 +190,8 @@ value class MangaId(val value: String)
 ### Coverage
 - Kover `0.9.9` is the project coverage engine; `./gradlew coverage` runs host unit tests and generates the aggregate XML and HTML reports.
 - Reports are written to `build/reports/coverage/coverage.xml` and `build/reports/coverage/html/index.html`.
-- Generated classes, Compose previews, and presentation framework adapters marked with `com.spiderbiggen.manga.presentation.coverage.CoverageExcluded` are excluded; do not mark ViewModels, state mapping, repositories, domain logic, or behavioral UI code.
+- Generated classes and Compose previews are excluded, together with the narrow `presentation/framework/adapter` Sonar boundary for passive Compose or Android system integrations.
+- `com.spiderbiggen.manga.presentation.coverage.CoverageExcluded` is an explicit reviewed marker for adapter declarations only; never mark ViewModels, state mapping, repositories, domain logic, or behavioral UI code, and extract and test pure decisions before excluding a wrapper.
 - SonarCloud consumes the aggregate XML report and owns the 80% new-code quality gate.
 
 ### Commit and Pull Request Messages

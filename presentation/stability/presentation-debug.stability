@@ -15,13 +15,6 @@ public fun com.spiderbiggen.manga.presentation.components.FavoriteToggle(isFavor
     - favoriteContentColor: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.InterruptBackHandler(enabled: kotlin.Boolean): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - enabled: STABLE (primitive type)
-
-@Composable
 public fun com.spiderbiggen.manga.presentation.components.LoadingSpinner(padding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
   skippable: true
   restartable: true
@@ -116,15 +109,6 @@ public fun com.spiderbiggen.manga.presentation.components.SectionItem(isFirst: k
     - content: STABLE (composable function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.StatusBarProtection(color: androidx.compose.ui.graphics.Color, heightProvider: kotlin.Function0<kotlin.Float>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - color: STABLE (marked @Stable or @Immutable)
-    - heightProvider: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.spiderbiggen.manga.presentation.components.StickyTopEffect(items: kotlinx.collections.immutable.ImmutableCollection<T of com.spiderbiggen.manga.presentation.components.StickyTopEffect>, listState: androidx.compose.foundation.lazy.LazyListState, isManuallyScrolled: kotlin.Function0<kotlin.Boolean>): kotlin.Unit
   skippable: true
   restartable: true
@@ -154,12 +138,6 @@ public fun com.spiderbiggen.manga.presentation.components.animation.ExpressiveAn
     - modifier: STABLE (marked @Stable or @Immutable)
     - label: STABLE (String is immutable)
     - content: STABLE (composable function type)
-
-@Composable
-private fun com.spiderbiggen.manga.presentation.components.calculateStatusBarGradientHeight(): kotlin.Function0<kotlin.Float>
-  skippable: false
-  restartable: false
-  params:
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.fusedShape(topShape: androidx.compose.foundation.shape.CornerBasedShape, bottomShape: androidx.compose.foundation.shape.CornerBasedShape, density: androidx.compose.ui.unit.Density): androidx.compose.ui.graphics.Shape
@@ -229,6 +207,28 @@ public fun com.spiderbiggen.manga.presentation.components.topappbar.scrollWithCo
     - state: STABLE (marked @Stable or @Immutable)
     - canScroll: STABLE (function type)
     - reverseLayout: STABLE (primitive type)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.framework.adapter.InterruptBackHandler(enabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - enabled: STABLE (primitive type)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.framework.adapter.StatusBarProtection(modifier: androidx.compose.ui.Modifier, color: androidx.compose.ui.graphics.Color, heightProvider: kotlin.Function0<kotlin.Float>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - color: STABLE (marked @Stable or @Immutable)
+    - heightProvider: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.framework.adapter.calculateStatusBarGradientHeight(): kotlin.Function0<kotlin.Float>
+  skippable: false
+  restartable: false
+  params:
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.theme.AppTheme(darkTheme: kotlin.Boolean, content: @[Composable] androidx.compose.runtime.internal.ComposableFunction0<kotlin.Unit>): kotlin.Unit
