@@ -16,6 +16,12 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 
+interface AuthenticationStore {
+    suspend fun clear(): Either<AppError, Unit>
+
+    suspend fun getRefreshToken(): Either<AppError, TokenEntity?>
+}
+
 private val Context.authdataStore by
     dataStore(
         fileName = "auth-preferences",
@@ -26,11 +32,11 @@ private val Context.authdataStore by
             ),
     )
 
-class AuthenticationRepository(context: Context) {
+class AuthenticationRepository(context: Context) : AuthenticationStore {
 
     private val dataStore = context.authdataStore
 
-    suspend fun clear(): Either<AppError, Unit> = either {
+    override suspend fun clear(): Either<AppError, Unit> = either {
         appError { dataStore.updateData { AuthenticationPreferences.Unauthenticated } }
     }
 
@@ -43,7 +49,7 @@ class AuthenticationRepository(context: Context) {
         getAuthenticatedState().bind()?.accessToken
     }
 
-    suspend fun getRefreshToken(): Either<AppError, TokenEntity?> = either {
+    override suspend fun getRefreshToken(): Either<AppError, TokenEntity?> = either {
         getAuthenticatedState().bind()?.refreshToken
     }
 
