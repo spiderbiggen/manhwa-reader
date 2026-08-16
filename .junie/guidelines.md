@@ -1,5 +1,7 @@
 # Manhwa Reader - Development Guidelines
 
+Last verified against the repository on 2026-08-16. Treat the checked-in Gradle files and version catalog as the source of truth when these guidelines and the code diverge.
+
 ## Project Overview
 This is a multi-module Android application for reading manga/manhwa built with modern Android development practices. The project follows Clean Architecture principles with separate modules for domain logic, data access, presentation, and the main application.
 
@@ -7,30 +9,32 @@ This is a multi-module Android application for reading manga/manhwa built with m
 
 ### Module Structure
 - **app**: Main Android application module
-- **domain**: Pure Kotlin module containing business logic, use cases, and models
+- **domain**: Kotlin/JVM module containing business logic, use cases, and models; it has no project-module dependencies but does use external Kotlin, Arrow, serialization, coroutine, datetime, and immutable-collection libraries
 - **data**: Data access layer with repositories and data sources
 - **presentation**: UI layer with Compose screens, ViewModels, and UI components
 
 ### Build Requirements
-- **Android API**: Min SDK 26, Target/Compile SDK 36
-- **Java Version**: Java 17 (JVM target and source/target compatibility)
-- **Kotlin**: 2.2.0 with Compose compiler plugin
-- **Android Gradle Plugin**: 8.11.1
+- **Android API**: Min SDK 26, target SDK 37, compile SDK API 37.1
+- **Java Version**: Java 21 via the Kotlin JVM toolchain
+- **Kotlin**: 2.4.10 with the Compose compiler plugin
+- **Android Gradle Plugin**: 9.3.1
 
 ### Key Dependencies
-- **Jetpack Compose**: BOM 2025.07.00 for UI
-- **Dagger Hilt**: 2.57 for dependency injection
-- **Coil**: 3.2.0 for image loading
-- **Room**: 2.7.2 for local database
-- **Retrofit**: 3.0.0 for networking
-- **Coroutines**: 1.10.2 for asynchronous programming
-- **KotlinX Serialization**: For JSON handling
-- **KotlinX Collections Immutable**: 0.4.0 for immutable data structures
+- **Jetpack Compose**: BOM 2026.08.00 for UI
+- **Koin**: 4.2.2 for dependency injection
+- **Coil**: BOM 3.5.0 for image loading
+- **Room**: 2.8.4 for the local database
+- **Ktor**: 3.5.2 for HTTP networking; Retrofit is not used
+- **Coroutines**: 1.11.0 for asynchronous programming
+- **KotlinX Serialization**: 1.11.0 for JSON handling
+- **KotlinX Collections Immutable**: 0.5.1 for immutable data structures
+- **Arrow**: 2.2.3 for typed error handling and functional utilities
+- **Navigation 3**: Navigation 3 core `1.1.6` with Lifecycle ViewModel Navigation 3 `2.11.0`
 
 ### Build Variants
-- **debug**: Development build with debugging enabled, `.debug` suffix
-- **staging**: Pre-production build with release optimizations, `.staging` suffix
-- **release**: Production build with ProGuard, code shrinking, and signing
+- **debug**: Development build with `.debug` application ID and `-debug` version suffix
+- **release**: Signed release build with optimization enabled; signing values are read from `local.properties` when available
+- There is no `staging` build type or flavor in the current application module, and no explicit `proguardFiles` or `minifyEnabled` declaration is present there
 
 ### Version Catalog
 The project uses Gradle version catalogs (`gradle/libs.versions.toml`) for centralized dependency management. All dependencies are declared in the catalog and referenced using `libs.` notation.
@@ -64,7 +68,7 @@ src/androidTest/java/com/spiderbiggen/manga/[module]/[package]/  # For Android t
 ```
 
 ### Running Tests
-```bash
+```text
 # Run all tests
 ./gradlew test
 
@@ -72,18 +76,18 @@ src/androidTest/java/com/spiderbiggen/manga/[module]/[package]/  # For Android t
 ./gradlew :domain:test
 ./gradlew :app:connectedAndroidTest
 
-# Run specific test class
-./gradlew :domain:test --tests "com.spiderbiggen.manga.domain.model.EitherTest"
+# Run a specific test class
+./gradlew :presentation:test --tests "com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewDataTest"
 ```
 
 ### Test Example
-The project includes a comprehensive test example for the `Either` class in the domain module:
-- Location: `domain/src/test/java/com/spiderbiggen/manga/domain/model/EitherTest.kt`
-- Tests functional programming utilities like `mapLeft`, `mapRight`, `leftOr`, `rightOr`
-- Demonstrates proper test structure and naming conventions
+The project includes a representative unit test in the presentation module:
+- Location: `presentation/src/test/java/com/spiderbiggen/manga/presentation/ui/manga/list/model/MangaViewDataTest.kt`
+- Uses JUnit 4 and tests manga view-data mapping behavior
+- Follow the module build files for the test dependencies available in each source set
 
 ### Testing Guidelines
-- Use descriptive test names with backticks: `` `should return expected result when condition` ``
+- Use descriptive test names with backticks, preferably in the form `` `given [precondition] when [action] then [expected result]` ``
 - Test both success and error cases
 - Use `assertEquals` for value comparisons
 - Test edge cases and boundary conditions
@@ -117,11 +121,11 @@ The project uses **Spotless** with **ktfmt 0.64** for automatic code formatting:
 - **Use Cases**: Implemented as functional interfaces with suspend operator invoke
 ```kotlin
 fun interface GetManga {
-    suspend operator fun invoke(id: MangaId): Either<Manga, AppError>
+    suspend operator fun invoke(id: MangaId): Either<AppError, Manga>
 }
 ```
 
-- **Error Handling**: Uses `Either<Success, Error>` monad pattern
+- **Error Handling**: Uses Arrow's `Either<Error, Success>` convention, with errors on the left and successful values on the right
 - **Type Safety**: Value classes for IDs with `@JvmInline` and `@Serializable`
 ```kotlin
 @JvmInline
@@ -130,15 +134,15 @@ value class MangaId(val value: String)
 ```
 
 #### Presentation Layer
-- **ViewModels**: Use `@HiltViewModel` with dependency injection
+- **ViewModels**: Use constructor parameters and Koin modules for dependency injection; do not use Hilt annotations
 - **State Management**: `StateFlow` for UI state, `SharedFlow` for events
 - **Lifecycle Awareness**: `SharingStarted.WhileSubscribed(500)` for proper lifecycle handling
 - **Immutable Collections**: Use `kotlinx-collections-immutable` for UI state
-- **Navigation**: Type-safe navigation with `savedStateHandle.toRoute<>()`
+- **Navigation**: Uses AndroidX Navigation 3 APIs with Koin's Navigation 3 integration; pass navigation parameters through the established Koin/ViewModel patterns
 
 #### Data Layer
 - **Repository Pattern**: Separate repositories for different data concerns
-- **Dependency Injection**: Hilt modules for providing dependencies
+- **Dependency Injection**: Koin modules for providing repositories, data sources, HTTP clients, and other dependencies
 
 ### Coding Conventions
 
@@ -159,15 +163,14 @@ value class MangaId(val value: String)
 - Collect flows with `collectLatest` for latest value semantics
 
 #### Error Handling
-- Use `Either` monad for operations that can fail
-- Use extension functions like `leftOr()`, `leftOrElse()` for safe value extraction
+- Use Arrow's `Either` for operations that can fail, keeping the error type on the left
+- Use the Arrow APIs and project extensions established around `Either` for safe value extraction
 - Log errors appropriately with meaningful messages
 
 ### Dependencies & Injection
-- Use constructor injection with `@Inject`
+- Use constructor parameters and declare providers in Koin modules
 - Prefer interfaces over concrete implementations
-- Use `@HiltViewModel` for ViewModels
-- Use `@Singleton` sparingly, prefer scoped instances
+- Use Koin scopes deliberately; do not introduce Hilt alongside Koin
 
 ### UI Development
 - Use Jetpack Compose for all UI
@@ -195,6 +198,6 @@ value class MangaId(val value: String)
 - **app** depends on: data, domain, presentation
 - **presentation** depends on: domain
 - **data** depends on: domain
-- **domain**: No dependencies (pure Kotlin)
+- **domain**: No project-module dependencies; external Kotlin, Arrow, serialization, coroutine, datetime, and immutable-collection dependencies are declared in its Gradle file
 
 This dependency structure ensures proper separation of concerns and prevents circular dependencies.
