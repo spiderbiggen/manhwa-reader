@@ -11,18 +11,7 @@ The project is organized into four Gradle modules:
 - `data`: repositories, remote data sources, and local persistence
 - `presentation`: Jetpack Compose UI, ViewModels, and navigation
 
-The modules follow a Clean Architecture-style dependency direction: `app` depends on `data`, `domain`, and `presentation`; `data` and `presentation` depend on `domain`.
-
-## Technology
-
-- Kotlin `2.4.10` and Android Gradle Plugin `9.3.1`
-- Jetpack Compose with BOM `2026.08.00`
-- Koin for dependency injection
-- Ktor for HTTP networking
-- Room for local persistence
-- Coil for image loading
-- Kotlin coroutines and Flow for asynchronous work
-- Arrow `Either` for typed error handling
+The app follows Clean Architecture principles: `app` depends on `data`, `domain`, and `presentation`; `data` and `presentation` depend on `domain`.
 
 ## Requirements
 
