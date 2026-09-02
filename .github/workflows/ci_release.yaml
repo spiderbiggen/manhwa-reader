@@ -47,12 +47,33 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - uses: actions/download-artifact@v8
+
+      - name: Find previous release tag
+        id: previous-tag
+        env:
+          CURRENT_TAG: ${{ github.ref_name }}
+        run: |
+          previous_tag=""
+          while read -r tag; do
+            [[ "$tag" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]] || continue
+            [[ "$tag" == "$CURRENT_TAG" ]] && continue
+
+            # Stable releases should start at the previous stable release.
+            if [[ "$CURRENT_TAG" == *-* || "$tag" != *-* ]]; then
+              previous_tag="$tag"
+              break
+            fi
+          done < <(git tag --merged "$CURRENT_TAG" --sort=-version:refname)
+
+          echo "tag=$previous_tag" >> "$GITHUB_OUTPUT"
+
       - name: Update CHANGELOG
         id: changelog
-        uses: requarks/changelog-action@v1
+        uses: requarks/changelog-action@b78a3354a01f4a1affb484b9264b506a815c46b1 # v1.10.3
         with:
           token: ${{ github.token }}
-          tag: ${{ github.ref_name }}
+          fromTag: ${{ github.ref_name }}
+          toTag: ${{ steps.previous-tag.outputs.tag }}
           excludeScopes: deps,release,ci,docs,tests,examples,build,devops,infra,workflow
 
       - name: Create Release
