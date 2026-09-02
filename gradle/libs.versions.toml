@@ -33,7 +33,7 @@ nav3Core = "1.1.7"
 room = "2.8.4"
 spotless-plugin-gradle = "8.9.0"
 stability-analyser = "0.12.0"
-sonarqube = "7.4.0.8496"
+sonarqube = "7.5.0.8588"
 kover = "0.9.9"
 
 [libraries]
