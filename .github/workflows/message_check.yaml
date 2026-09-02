@@ -54,6 +54,7 @@ jobs:
       - name: Validate pull request description
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
+        if: github.event.pull_request.user.login != 'renovate[bot]' && !startsWith(github.head_ref, 'renovate/')
         run: |
           set -euo pipefail
           awk '
