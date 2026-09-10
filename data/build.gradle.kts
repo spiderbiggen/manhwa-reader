@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.ksp)
+    alias(libs.plugins.room3)
     id("manga.spotless")
     id("manga.detekt")
     id("manga.coverage")
@@ -27,18 +28,16 @@ android {
     }
 }
 
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-    arg("room.incremental", "true")
-    arg("room.generateKotlin", "true")
-}
-
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-XXLanguage:+PropertyParamAnnotationDefaultTargetMode")
         freeCompilerArgs.add("-Xreturn-value-checker=full")
         freeCompilerArgs.add("-XXLanguage:+UnnamedLocalVariables")
     }
+}
+
+room3 {
+    schemaDirectory("$projectDir/schemas")
 }
 
 dependencies {
@@ -62,10 +61,9 @@ dependencies {
     implementation(libs.kotlinX.coroutines.android)
     implementation(libs.kotlinX.collections.immutable)
 
-    // Room
-    implementation(libs.androidX.room.runtime)
-    implementation(libs.androidX.room.ktx)
-    ksp(libs.androidX.room.compiler)
+    // room3
+    implementation(libs.androidX.room3.runtime)
+    ksp(libs.androidX.room3.compiler)
 
     // Datastore
     implementation(libs.androidX.datastore.preferences)
@@ -91,7 +89,7 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
-    testImplementation(libs.androidX.room.test)
+    testImplementation(libs.androidX.room3.test)
     androidTestImplementation(libs.androidX.test.core)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)

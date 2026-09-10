@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.data.source.local.room.model.chapter
 
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
+import androidx.room3.ColumnInfo
+import androidx.room3.Embedded
 
 data class LocalChapterForOverview(
     @Embedded val chapter: LocalChapterEntity,

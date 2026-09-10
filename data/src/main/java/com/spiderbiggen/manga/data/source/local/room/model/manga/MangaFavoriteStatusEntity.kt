@@ -1,8 +1,8 @@
 package com.spiderbiggen.manga.data.source.local.room.model.manga
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room3.ColumnInfo
+import androidx.room3.Entity
+import androidx.room3.PrimaryKey
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import kotlin.time.Clock
 import kotlin.time.Instant

@@ -30,7 +30,7 @@ ktor = "3.5.2"
 lifecycle = "2.11.0"
 lifecycleViewmodelNav3 = "2.11.0"
 nav3Core = "1.1.7"
-room = "2.8.5"
+room3 = "3.0.3"
 spotless-plugin-gradle = "8.10.2"
 stability-analyser = "0.13.0"
 sonarqube = "7.5.0.8588"
@@ -78,11 +78,10 @@ androidX-navigation3-runtime = { module = "androidx.navigation3:navigation3-runt
 androidX-navigation3-ui = { module = "androidx.navigation3:navigation3-ui", version.ref = "nav3Core" }
 androidX-lifecycle-viewmodel-navigation3 = { module = "androidx.lifecycle:lifecycle-viewmodel-navigation3", version.ref = "lifecycleViewmodelNav3" }
 
-# Room
-androidX-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
-androidX-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
-androidX-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
-androidX-room-test = { group = "androidx.room", name = "room-testing", version.ref = "room" }
+# room3
+androidX-room3-runtime = { group = "androidx.room3", name = "room3-runtime", version.ref = "room3" }
+androidX-room3-compiler = { group = "androidx.room3", name = "room3-compiler", version.ref = "room3" }
+androidX-room3-test = { group = "androidx.room3", name = "room3-testing", version.ref = "room3" }
 
 # Datastore
 androidX-datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "datastore" }
@@ -144,6 +143,8 @@ android-library = { id = "com.android.library", version.ref = "android-gradle-pl
 google-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "google-gms-google-services" }
 google-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "crashlytics" }
+
+room3 = { id = "androidx.room3", version.ref = "room3" }
 
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinX-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

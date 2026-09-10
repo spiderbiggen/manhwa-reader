@@ -1,7 +1,7 @@
 package com.spiderbiggen.manga.data.di
 
 import android.content.Context
-import androidx.room.Room
+import androidx.room3.Room
 import com.spiderbiggen.manga.data.source.local.room.MangaDatabase
 import com.spiderbiggen.manga.data.source.local.room.MangaDatabaseDecorator
 import org.koin.android.ext.koin.androidContext
