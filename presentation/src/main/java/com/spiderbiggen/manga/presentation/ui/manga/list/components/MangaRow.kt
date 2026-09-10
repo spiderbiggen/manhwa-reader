@@ -163,7 +163,7 @@ fun PreviewManga(@PreviewParameter(MangaViewDataProvider::class) state: MangaVie
     }
 }
 
-class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
+open class MangaViewDataProvider : PreviewParameterProvider<MangaViewData> {
 
     override val values: Sequence<MangaViewData>
         get() {

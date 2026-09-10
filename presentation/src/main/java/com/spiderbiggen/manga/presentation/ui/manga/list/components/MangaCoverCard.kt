@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -50,10 +48,10 @@ import coil3.request.ImageRequest
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
+import com.spiderbiggen.manga.presentation.components.GappedLinearProgressIndicator
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MangaCoverCard(
     manga: MangaViewData,
@@ -127,7 +125,7 @@ fun MangaCoverCard(
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
                     )
-                    LinearProgressIndicator(
+                    GappedLinearProgressIndicator(
                         progress = { manga.visualReadProgress },
                         modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
                         color = MaterialTheme.colorScheme.primary,
@@ -184,7 +182,7 @@ val MangaViewData.favoriteButtonBrush: Brush
 @PreviewLightDark
 @Composable
 private fun PreviewMangaCoverCard(
-    @PreviewParameter(MangaViewDataProvider::class) state: MangaViewData
+    @PreviewParameter(MangaCardViewDataProvider::class) state: MangaViewData
 ) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
@@ -198,9 +196,23 @@ private fun PreviewMangaCoverCard(
                     manga = state,
                     onMangaClick = {},
                     onMangaFavoriteToggleClick = {},
-                    modifier = Modifier.padding(8.dp).width(180.dp),
+                    modifier = Modifier.padding(8.dp).width(105.dp),
                 )
             }
         }
     }
+}
+
+class MangaCardViewDataProvider : MangaViewDataProvider() {
+    override val values: Sequence<MangaViewData>
+        get() =
+            super.values.flatMap {
+                sequenceOf(
+                    it.copy(totalChapterCount = 200),
+                    it.copy(readChapterCount = 1, totalChapterCount = 200),
+                    it.copy(readChapterCount = 100, totalChapterCount = 200),
+                    it.copy(readChapterCount = 199, totalChapterCount = 200),
+                    it.copy(readChapterCount = 200, totalChapterCount = 200),
+                )
+            }
 }
