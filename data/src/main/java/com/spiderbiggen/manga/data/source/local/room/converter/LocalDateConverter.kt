@@ -1,6 +1,6 @@
 package com.spiderbiggen.manga.data.source.local.room.converter
 
-import androidx.room.TypeConverter
+import androidx.room3.ColumnTypeConverter
 import java.time.LocalDate as JavaLocalDate
 import java.time.format.DateTimeFormatter
 import kotlinx.datetime.LocalDate
@@ -8,12 +8,12 @@ import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toKotlinLocalDate
 
 class LocalDateConverter {
-    @TypeConverter
+    @ColumnTypeConverter
     fun fromString(value: String?): LocalDate? = value?.let {
         JavaLocalDate.parse(it, DateTimeFormatter.ISO_LOCAL_DATE).toKotlinLocalDate()
     }
 
-    @TypeConverter
+    @ColumnTypeConverter
     fun toString(value: LocalDate?): String? =
         value?.toJavaLocalDate()?.format(DateTimeFormatter.ISO_LOCAL_DATE)
 }

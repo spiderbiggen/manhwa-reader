@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm) apply false
     alias(libs.plugins.kotlinX.compose) apply false
     alias(libs.plugins.kotlinX.serialization) apply false
+    alias(libs.plugins.room3) apply false
     alias(libs.plugins.stability.analyzer) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.kover)
@@ -29,7 +30,10 @@ sonar {
     properties {
         property("sonar.projectKey", "spiderbiggen_manhwa-reader")
         property("sonar.organization", "spiderbiggen")
-        property("sonar.coverage.jacoco.aggregateXmlReportPaths", "build/reports/coverage/coverage.xml")
+        property(
+            "sonar.coverage.jacoco.aggregateXmlReportPaths",
+            "build/reports/coverage/coverage.xml",
+        )
         property(
             "sonar.coverage.exclusions",
             "presentation/src/main/java/com/spiderbiggen/manga/presentation/framework/adapter/**/*",

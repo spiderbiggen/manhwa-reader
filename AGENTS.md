@@ -23,7 +23,7 @@ This is a multi-module Android application for reading manga/manhwa built with m
 - **Jetpack Compose**: BOM 2026.08.00 for UI
 - **Koin**: 4.2.2 for dependency injection
 - **Coil**: BOM 3.5.0 for image loading
-- **Room**: 2.8.4 for the local database
+- **room3**: 2.8.4 for the local database
 - **Ktor**: 3.5.2 for HTTP networking; Retrofit is not used
 - **Coroutines**: 1.11.0 for asynchronous programming
 - **KotlinX Serialization**: 1.11.0 for JSON handling

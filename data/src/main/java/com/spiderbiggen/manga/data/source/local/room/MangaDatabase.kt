@@ -1,9 +1,9 @@
 package com.spiderbiggen.manga.data.source.local.room
 
-import androidx.room.AutoMigration
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
+import androidx.room3.AutoMigration
+import androidx.room3.ColumnTypeConverters
+import androidx.room3.Database
+import androidx.room3.RoomDatabase
 import com.spiderbiggen.manga.data.source.local.room.converter.InstantConverter
 import com.spiderbiggen.manga.data.source.local.room.converter.LocalDateConverter
 import com.spiderbiggen.manga.data.source.local.room.converter.OffsetDateTimeConverter
@@ -16,7 +16,7 @@ import com.spiderbiggen.manga.data.source.local.room.model.chapter.LocalChapterE
 import com.spiderbiggen.manga.data.source.local.room.model.manga.LocalMangaEntity
 import com.spiderbiggen.manga.data.source.local.room.model.manga.MangaFavoriteStatusEntity
 
-@TypeConverters(
+@ColumnTypeConverters(
     InstantConverter::class,
     LocalDateConverter::class,
     OffsetDateTimeConverter::class,
