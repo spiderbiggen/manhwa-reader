@@ -2,6 +2,7 @@ package com.spiderbiggen.manga.presentation.ui.manga.list.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -82,57 +83,12 @@ fun MangaCoverCard(
                         .then(coverSizeResolver),
             )
 
-            // Gradient footer with title
-            val coverAccentColor = manga.coverAccentColor
-            Box(
-                modifier =
-                    Modifier.fillMaxWidth()
-                        .fillMaxHeight(0.45f)
-                        .align(Alignment.BottomCenter)
-                        .background(
-                            Brush.verticalGradient(
-                                colorStops =
-                                    arrayOf(
-                                        0f to Color.Transparent,
-                                        0.55f to coverAccentColor.copy(alpha = 0.65f),
-                                        1f to coverAccentColor,
-                                    )
-                            )
-                        )
-                        .padding(horizontal = 6.dp, vertical = 8.dp),
-                contentAlignment = Alignment.BottomStart,
-            ) {
-                Column(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp)
-                ) {
-                    val titleStyle =
-                        when {
-                            manga.isRead -> MaterialTheme.typography.titleSmall
-                            else -> MaterialTheme.typography.titleSmallEmphasized
-                        }
-                    Text(
-                        text = manga.title,
-                        style =
-                            titleStyle.copy(
-                                shadow =
-                                    Shadow(
-                                        color = Color.Black,
-                                        offset = Offset(0f, 2f),
-                                        blurRadius = 4f,
-                                    )
-                            ),
-                        color = Color.White,
-                        maxLines = 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                    GappedLinearProgressIndicator(
-                        progress = { manga.visualReadProgress },
-                        modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                        color = MaterialTheme.colorScheme.primary,
-                        trackColor = Color.White.copy(alpha = 0.35f),
-                    )
-                }
-            }
+            CoverDetails(
+                title = manga.title,
+                isRead = manga.isRead,
+                accentColor = manga.coverAccentColor,
+                progress = { manga.readProgress },
+            )
 
             IconButton(
                 modifier =
@@ -141,7 +97,7 @@ fun MangaCoverCard(
                         .size(36.dp)
                         .clip(CircleShape)
                         .background(manga.favoriteButtonBrush),
-                onClick = dropUnlessStarted { onMangaFavoriteToggleClick(manga.id) },
+                onClick = { onMangaFavoriteToggleClick(manga.id) },
             ) {
                 FavoriteToggle(
                     isFavorite = manga.isFavorite,
@@ -150,6 +106,62 @@ fun MangaCoverCard(
                     modifier = Modifier.size(20.dp),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun BoxScope.CoverDetails(
+    title: String,
+    isRead: Boolean,
+    accentColor: Color,
+    progress: () -> Float,
+) {
+    Box(
+        modifier =
+            Modifier.fillMaxWidth()
+                .fillMaxHeight(0.45f)
+                .align(Alignment.BottomCenter)
+                .background(
+                    Brush.verticalGradient(
+                        colorStops =
+                            arrayOf(
+                                0f to Color.Transparent,
+                                0.55f to accentColor.copy(alpha = 0.65f),
+                                1f to accentColor,
+                            )
+                    )
+                )
+                .padding(horizontal = 6.dp, vertical = 8.dp),
+        contentAlignment = Alignment.BottomStart,
+    ) {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp)) {
+            val titleStyle =
+                when {
+                    isRead -> MaterialTheme.typography.titleSmall
+                    else -> MaterialTheme.typography.titleSmallEmphasized
+                }
+            Text(
+                text = title,
+                style =
+                    titleStyle.copy(
+                        shadow =
+                            Shadow(
+                                color = Color.Black,
+                                offset = Offset(0f, 2f),
+                                blurRadius = 4f,
+                            )
+                    ),
+                color = Color.White,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+            GappedLinearProgressIndicator(
+                progress = progress,
+                modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = Color.White.copy(alpha = 0.35f),
+            )
         }
     }
 }
