@@ -15,6 +15,20 @@ public fun com.spiderbiggen.manga.presentation.components.FavoriteToggle(isFavor
     - favoriteContentColor: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.spiderbiggen.manga.presentation.components.GappedLinearProgressIndicator(progress: kotlin.Function0<kotlin.Float>, modifier: androidx.compose.ui.Modifier, color: androidx.compose.ui.graphics.Color, trackColor: androidx.compose.ui.graphics.Color, strokeCap: androidx.compose.ui.graphics.StrokeCap, gapSize: androidx.compose.ui.unit.Dp, stopSize: androidx.compose.ui.unit.Dp, drawStopIndicator: @[ExtensionFunctionType] kotlin.Function1<androidx.compose.ui.graphics.drawscope.DrawScope, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - progress: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - color: STABLE (marked @Stable or @Immutable)
+    - trackColor: STABLE (marked @Stable or @Immutable)
+    - strokeCap: STABLE (marked @Stable or @Immutable)
+    - gapSize: STABLE (marked @Stable or @Immutable)
+    - stopSize: STABLE (marked @Stable or @Immutable)
+    - drawStopIndicator: STABLE (function type)
+
+@Composable
 public fun com.spiderbiggen.manga.presentation.components.LoadingSpinner(padding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
   skippable: true
   restartable: true
@@ -324,7 +338,7 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.DisplayI
   skippable: false
   restartable: true
   params:
-    - state: UNSTABLE (has mutable properties or unstable members)
+    - state: UNSTABLE (cross-module type without @Stable/@Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -439,6 +453,16 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewConte
     - onAction: STABLE (function type)
     - onProfileClicked: STABLE (function type)
     - onMangaClick: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.CoverDetails(title: kotlin.String, isRead: kotlin.Boolean, accentColor: androidx.compose.ui.graphics.Color, progress: kotlin.Function0<kotlin.Float>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - title: STABLE (String is immutable)
+    - isRead: STABLE (primitive type)
+    - accentColor: STABLE (marked @Stable or @Immutable)
+    - progress: STABLE (function type)
 
 @Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.CoverImage(url: kotlin.String, modifier: androidx.compose.ui.Modifier, sizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
