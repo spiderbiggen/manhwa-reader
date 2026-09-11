@@ -1,6 +1,8 @@
 package com.spiderbiggen.manga.presentation.ui.manga.list.model
 
+import androidx.annotation.FloatRange
 import androidx.compose.runtime.Immutable
+import androidx.compose.ui.util.fastCoerceIn
 import com.spiderbiggen.manga.domain.model.id.MangaId
 
 @Immutable
@@ -18,15 +20,8 @@ data class MangaViewData(
     val dominantColor: Int?,
 ) {
     val readProgress: Float
+        @FloatRange(0.0, 1.0)
         get() =
             if (totalChapterCount == 0) 0f
-            else (readChapterCount.toFloat() / totalChapterCount).coerceIn(0f, 1f)
-
-    val visualReadProgress: Float
-        get() =
-            when {
-                totalChapterCount <= 0 -> 0f
-                readChapterCount >= totalChapterCount -> 1f
-                else -> readProgress.coerceAtMost(0.95f)
-            }
+            else (readChapterCount.toFloat() / totalChapterCount).fastCoerceIn(0f, 1f)
 }
