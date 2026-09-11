@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -60,7 +62,6 @@ import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
-import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
@@ -148,7 +149,13 @@ fun ChapterListScreen(
         },
     ) { scaffoldPadding ->
         when (state) {
-            is MangaChapterScreenState.Loading -> LoadingSpinner(scaffoldPadding)
+            is MangaChapterScreenState.Loading ->
+                Box(
+                    modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    LoadingIndicator()
+                }
 
             is MangaChapterScreenState.Error ->
                 Column(
@@ -159,7 +166,7 @@ fun ChapterListScreen(
                     Text(state.message, textAlign = TextAlign.Center)
                 }
 
-            is MangaChapterScreenState.Ready -> {
+            is MangaChapterScreenState.Ready ->
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = onRefresh,
@@ -179,7 +186,6 @@ fun ChapterListScreen(
                         onChapterClick = onChapterClick,
                     )
                 }
-            }
         }
     }
 }
