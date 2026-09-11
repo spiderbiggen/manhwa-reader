@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 
-object FavoriteIconPaths {
+private object FavoriteIconPaths {
     val Outline = PathData {
         moveTo(19.66f, 3.99f)
         curveToRelative(-2.64f, -1.8f, -5.9f, -0.96f, -7.66f, 1.1f)
@@ -68,7 +67,6 @@ object FavoriteIconPaths {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun FavoriteToggle(
     isFavorite: Boolean,
@@ -129,11 +127,10 @@ fun FavoriteToggle(
     )
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @PreviewDynamicColors
 @PreviewLightDark
 @Composable
-fun FavoriteTogglePreview() {
+private fun FavoriteTogglePreview() {
     MangaReaderTheme {
         Surface {
             val isFavoriteState = remember { mutableStateOf(true) }
