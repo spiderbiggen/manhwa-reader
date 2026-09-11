@@ -24,7 +24,7 @@ class MangaListScreenTest {
     @get:Rule val composeTestRule = createComposeRule()
 
     @Test
-    fun `given no active filters when filter action is clicked then filter options are shown`() {
+    fun givenNoActiveFiltersWhenFilterActionIsClickedThenFilterOptionsAreShown() {
         setContent(MangaScreenData())
 
         composeTestRule.onNodeWithContentDescription("Filters").performClick()
@@ -35,7 +35,7 @@ class MangaListScreenTest {
     }
 
     @Test
-    fun `given an active filter when clear is clicked then clear action is dispatched`() {
+    fun givenAnActiveFilterWhenClearIsClickedThenClearActionIsDispatched() {
         var action: MangaListAction? = null
         setContent(
             MangaScreenData(
