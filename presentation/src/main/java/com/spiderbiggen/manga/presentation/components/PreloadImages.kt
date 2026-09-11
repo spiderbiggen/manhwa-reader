@@ -108,7 +108,7 @@ private fun PreloadImagesInternal(
         }
 
     val context = LocalContext.current
-    LaunchedEffect(context, items, range) {
+    LaunchedEffect(context, items, range, sizeResolver) {
         val imageLoader = SingletonImageLoader.get(context)
         state.preload(
             context = context,
