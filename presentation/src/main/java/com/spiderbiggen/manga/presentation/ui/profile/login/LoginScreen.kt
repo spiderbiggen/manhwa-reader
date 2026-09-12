@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.input.KeyboardActionHandler
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
@@ -19,7 +18,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,11 +45,11 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.input.PasswordTextField
+import com.spiderbiggen.manga.presentation.extensions.asString
 import com.spiderbiggen.manga.presentation.framework.adapter.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
-import kotlin.toString
-import org.w3c.dom.Text
 
 @Composable
 fun LoginScreen(
@@ -111,7 +109,7 @@ private fun LoginScreenContent(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            UsernameTextField(
+            UsernameOrEmailTextField(
                 state = username,
                 enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth(),
@@ -121,14 +119,14 @@ private fun LoginScreenContent(
                 enabled = !isLoading,
                 modifier = Modifier.fillMaxWidth(),
                 onKeyboardAction = { performDefaultAction ->
-                    onLogin(username.text.toString(), password.text.toString())
+                    onLogin(username.asString(), password.asString())
                     performDefaultAction()
                 },
             )
             LoginStateContent(
                 loginState = loginState,
                 onLoginClick = {
-                    onLogin(username.text.toString(), password.text.toString())
+                    onLogin(username.asString(), password.asString())
                 },
                 onRegisterClick = onRegisterClick,
             )
@@ -139,7 +137,7 @@ private fun LoginScreenContent(
 }
 
 @Composable
-private fun UsernameTextField(
+private fun UsernameOrEmailTextField(
     state: TextFieldState,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
@@ -154,26 +152,6 @@ private fun UsernameTextField(
             },
         lineLimits = TextFieldLineLimits.SingleLine,
         keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-    )
-}
-
-@Composable
-private fun PasswordTextField(
-    state: TextFieldState,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    onKeyboardAction: KeyboardActionHandler? = null,
-) {
-    OutlinedSecureTextField(
-        state = state,
-        label = { Text("Password") },
-        enabled = enabled,
-        modifier =
-            modifier.semantics {
-                contentType = ContentType.Password
-            },
-        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Go),
-        onKeyboardAction = onKeyboardAction,
     )
 }
 
