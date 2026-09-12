@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
@@ -62,11 +63,11 @@ inline fun <T> LazyListScope.sectionItems(
     val lastIndex = items.lastIndex
     itemsIndexed(
         items = items,
-        key = if (key != null) { _, it -> key(it) } else null,
-        contentType = { _, it -> contentType(it) },
-        itemContent = { index, it ->
+        key = if (key != null) { _, item -> key(item) } else null,
+        contentType = { _, item -> contentType(item) },
+        itemContent = { index, item ->
             SectionItem(isFirst = index == 0, isLast = index == lastIndex) { shape ->
-                content(it, shape)
+                content(item, shape)
             }
         },
     )
@@ -134,8 +135,10 @@ fun combinedCornerShape(
 
 object SectionDefaults {
     val largeShape: CornerBasedShape
+    @ReadOnlyComposable
         @Composable get() = MaterialTheme.shapes.medium
 
     val smallShape: CornerBasedShape
+    @ReadOnlyComposable
         @Composable get() = MaterialTheme.shapes.extraSmall
 }
