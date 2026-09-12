@@ -28,6 +28,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,16 +71,16 @@ import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlin.time.Clock.System.now
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ChapterListScreen(
-    viewModel: MangaChapterListViewModel = koinViewModel(),
+    viewModel: MangaChapterListViewModel,
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onChapterClick: (ChapterId) -> Unit,
@@ -102,9 +103,8 @@ fun ChapterListScreen(
     )
 }
 
-@Suppress("LongMethod", "ModifierMissing")
+@Suppress("ModifierMissing")
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun ChapterListScreen(
     state: MangaChapterScreenState,
     snackbarHostState: SnackbarHostState,
@@ -123,49 +123,19 @@ fun ChapterListScreen(
     val readyState = state as? MangaChapterScreenState.Ready
     Scaffold(
         topBar = {
-            MangaTopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            painterResource(R.drawable.arrow_back),
-                            stringResource(R.string.action_back),
-                        )
-                    }
-                },
-                title = { readyState?.title?.let { Text(it) } },
-                actions = {
-                    IconButton(onClick = onToggleFavorite) {
-                        FavoriteToggle(
-                            isFavorite = readyState?.isFavorite == true,
-                            favoriteContentColor = LocalContentColor.current,
-                        )
-                    }
-                },
-                scrollBehavior = topAppBarScrollBehavior,
+            ChapterListTopAppBar(
+                onBackClick = onBackClick,
+                title = readyState?.title,
+                isFavorite = readyState?.isFavorite == true,
+                onToggleFavorite = onToggleFavorite,
+                topAppBarScrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
-        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { scaffoldPadding ->
         when (state) {
-            is MangaChapterScreenState.Loading ->
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    LoadingIndicator()
-                }
-
-            is MangaChapterScreenState.Error ->
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(state.message, textAlign = TextAlign.Center)
-                }
-
+            is MangaChapterScreenState.Loading -> LoadingState(scaffoldPadding)
+            is MangaChapterScreenState.Error -> ErrorState(scaffoldPadding, state)
             is MangaChapterScreenState.Ready ->
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
@@ -190,7 +160,58 @@ fun ChapterListScreen(
     }
 }
 
+@Composable
+private fun ChapterListTopAppBar(
+    onBackClick: () -> Unit,
+    title: String?,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior? = null,
+) {
+    MangaTopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    painterResource(R.drawable.arrow_back),
+                    stringResource(R.string.action_back),
+                )
+            }
+        },
+        title = { title?.let { Text(it) } },
+        actions = {
+            IconButton(onClick = onToggleFavorite) {
+                FavoriteToggle(
+                    isFavorite = isFavorite,
+                    favoriteContentColor = LocalContentColor.current,
+                )
+            }
+        },
+        scrollBehavior = topAppBarScrollBehavior,
+    )
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun LoadingState(padding: PaddingValues) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(padding),
+        contentAlignment = Alignment.Center,
+    ) {
+        LoadingIndicator()
+    }
+}
+
+@Composable
+private fun ErrorState(padding: PaddingValues, state: MangaChapterScreenState.Error) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(padding),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(state.message, textAlign = TextAlign.Center)
+    }
+}
+
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
@@ -327,7 +348,7 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
-fun PreviewManga(
+private fun PreviewManga(
     @PreviewParameter(ChapterOverviewScreenStateProvider::class) state: MangaChapterScreenState
 ) {
     val isRefreshing = remember { mutableStateOf(false) }
@@ -341,7 +362,7 @@ fun PreviewManga(
             onRefresh = {
                 coroutineScope.launch {
                     isRefreshing.value = true
-                    delay(2000)
+                    delay(2000.milliseconds)
                     isRefreshing.value = false
                 }
             },
