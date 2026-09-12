@@ -2,29 +2,27 @@ package com.spiderbiggen.manga.presentation.ui.profile.registration
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.input.TextFieldLineLimits
+import androidx.compose.foundation.text.input.TextFieldState
 import androidx.compose.foundation.text.input.rememberTextFieldState
-import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedSecureTextField
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.ContentType
@@ -41,22 +39,25 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.input.ButtonWithLoadingState
+import com.spiderbiggen.manga.presentation.components.input.PasswordTextField
+import com.spiderbiggen.manga.presentation.extensions.asString
 import com.spiderbiggen.manga.presentation.framework.adapter.InterruptBackHandler
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun RegistrationScreen(
-    viewModel: RegistrationViewModel = koinViewModel(),
+    viewModel: RegistrationViewModel,
     onBackClick: () -> Unit,
     onSuccess: () -> Unit,
 ) {
     val registrationState by viewModel.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(registrationState) {
+    val onSuccessState = rememberUpdatedState(onSuccess)
+    SideEffect(registrationState) {
         if (registrationState is RegistrationState.Success) {
-            onSuccess()
+            onSuccessState.value()
         }
     }
 
@@ -71,7 +72,6 @@ fun RegistrationScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun RegistrationScreenContent(
     registrationState: RegistrationState,
@@ -93,9 +93,7 @@ private fun RegistrationScreenContent(
                         Icon(painterResource(R.drawable.arrow_back), "Back")
                     }
                 },
-                title = {
-                    Text("Register")
-                },
+                title = { Text("Register") },
             )
         }
     ) { paddingValues ->
@@ -104,79 +102,97 @@ private fun RegistrationScreenContent(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            OutlinedTextField(
+            UsernameTextField(
                 state = username,
-                label = { Text("Username") },
                 enabled = !isLoading,
-                modifier =
-                    Modifier.fillMaxWidth().semantics {
-                        contentType = ContentType.NewUsername
-                    },
-                lineLimits = TextFieldLineLimits.SingleLine,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                modifier = Modifier.fillMaxWidth(),
             )
-            OutlinedTextField(
+            EmailTextField(
                 state = email,
-                label = { Text("Email") },
                 enabled = !isLoading,
-                modifier =
-                    Modifier.fillMaxWidth().semantics {
-                        contentType = ContentType.EmailAddress
-                    },
-                lineLimits = TextFieldLineLimits.SingleLine,
-                keyboardOptions =
-                    KeyboardOptions(
-                        keyboardType = KeyboardType.Email,
-                        imeAction = ImeAction.Next,
-                    ),
+                modifier = Modifier.fillMaxWidth(),
             )
-            OutlinedSecureTextField(
+            PasswordTextField(
                 state = password,
-                label = { Text("Password") },
                 enabled = !isLoading,
-                modifier =
-                    Modifier.fillMaxWidth().semantics {
-                        contentType = ContentType.NewPassword
-                    },
-                keyboardOptions =
-                    KeyboardOptions(
-                        autoCorrectEnabled = false,
-                        keyboardType = KeyboardType.Password,
-                        imeAction = ImeAction.Go,
-                    ),
-                onKeyboardAction = {
-                    onRegister(
-                        username.text.toString(),
-                        email.text.toString(),
-                        password.text.toString(),
-                    )
+                modifier = Modifier.fillMaxWidth(),
+                onKeyboardAction = { performDefaultAction ->
+                    onRegister(username.asString(), email.asString(), password.asString())
+                    performDefaultAction()
                 },
             )
-            if (registrationState is RegistrationState.Error) {
-                Text(
-                    text = registrationState.message,
-                    color = MaterialTheme.colorScheme.error,
-                )
-            }
-            if (isLoading) {
-                LoadingIndicator()
-            } else {
-                Button(
-                    onClick = {
-                        onRegister(
-                            username.text.toString(),
-                            email.text.toString(),
-                            password.text.toString(),
-                        )
-                    }
-                ) {
-                    Text("Register")
-                }
-            }
+
+            RegistrationStateContent(
+                registrationState = registrationState,
+                onRegisterClick = {
+                    onRegister(username.asString(), email.asString(), password.asString())
+                },
+            )
+
             Spacer(Modifier.weight(1f))
             Text(LocalAppVersion.current, style = MaterialTheme.typography.labelSmall)
         }
     }
+}
+
+@Composable
+private fun UsernameTextField(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    OutlinedTextField(
+        state = state,
+        label = { Text("Username") },
+        enabled = enabled,
+        modifier =
+            modifier.semantics {
+                contentType = ContentType.NewUsername
+            },
+        lineLimits = TextFieldLineLimits.SingleLine,
+        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+    )
+}
+
+@Composable
+private fun EmailTextField(
+    state: TextFieldState,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+) {
+    OutlinedTextField(
+        state = state,
+        label = { Text("Email") },
+        enabled = enabled,
+        modifier =
+            modifier.semantics {
+                contentType = ContentType.EmailAddress
+            },
+        lineLimits = TextFieldLineLimits.SingleLine,
+        keyboardOptions =
+            KeyboardOptions(
+                keyboardType = KeyboardType.Email,
+                imeAction = ImeAction.Next,
+            ),
+    )
+}
+
+@Composable
+private fun ColumnScope.RegistrationStateContent(
+    registrationState: RegistrationState,
+    onRegisterClick: () -> Unit,
+) {
+    if (registrationState is RegistrationState.Error) {
+        Text(
+            text = registrationState.message,
+            color = MaterialTheme.colorScheme.error,
+        )
+    }
+    ButtonWithLoadingState(
+        isLoading = registrationState is RegistrationState.Loading,
+        onClick = onRegisterClick,
+        content = { Text("Register") },
+    )
 }
 
 @PreviewLightDark

@@ -1,6 +1,5 @@
 package com.spiderbiggen.manga.presentation.theme
 
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -19,7 +18,6 @@ val bodyFontFamily = displayFontFamily
 // Baseline uses the old constructor :( so the expressive variants are not available
 val baseline = Typography()
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 val AppTypography =
     Typography(
         displayLarge = baseline.displayLarge.copy(fontFamily = displayFontFamily),

@@ -9,6 +9,7 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import kotlinx.collections.immutable.ImmutableCollection
 
@@ -43,8 +44,9 @@ fun <T> StickyTopEffect(
     listState: LazyListState,
     isManuallyScrolled: () -> Boolean,
 ) {
+    val isManuallyScrolledState = rememberUpdatedState(isManuallyScrolled)
     LaunchedEffect(items) {
-        if (!isManuallyScrolled()) {
+        if (!isManuallyScrolledState.value()) {
             // scroll to top to ensure latest added element becomes visible
             listState.animateScrollToItem(0)
         }

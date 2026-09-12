@@ -4,7 +4,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateSetOf
@@ -108,7 +108,7 @@ private fun PreloadImagesInternal(
         }
 
     val context = LocalContext.current
-    LaunchedEffect(context, items, range) {
+    SideEffect(context, items, range, sizeResolver) {
         val imageLoader = SingletonImageLoader.get(context)
         state.preload(
             context = context,

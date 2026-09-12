@@ -215,7 +215,7 @@ private fun PreviewMangaCoverCard(
     }
 }
 
-class MangaCardViewDataProvider : MangaViewDataProvider() {
+internal class MangaCardViewDataProvider : MangaViewDataProvider() {
     override val values: Sequence<MangaViewData>
         get() =
             super.values.flatMap {

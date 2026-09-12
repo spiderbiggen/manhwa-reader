@@ -2,7 +2,6 @@ package com.spiderbiggen.manga.presentation.components.topappbar
 
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.DecayAnimationSpec
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.material3.TopAppBarState
@@ -14,7 +13,6 @@ import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
 import androidx.compose.ui.input.nestedscroll.NestedScrollSource
 import androidx.compose.ui.unit.Velocity
 
-@ExperimentalMaterial3Api
 @Composable
 fun TopAppBarDefaults.scrollWithContentBehavior(
     state: TopAppBarState = rememberTopAppBarState(),
@@ -25,7 +23,6 @@ fun TopAppBarDefaults.scrollWithContentBehavior(
         ScrollWithContentBehavior(state, canScroll, reverseLayout)
     }
 
-@ExperimentalMaterial3Api
 internal class ScrollWithContentBehavior(
     override val state: TopAppBarState,
     val canScroll: () -> Boolean = { true },

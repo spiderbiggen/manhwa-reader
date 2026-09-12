@@ -11,20 +11,16 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Badge
 import androidx.compose.material3.BadgedBox
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
@@ -37,7 +33,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.WavyProgressIndicatorDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -48,10 +44,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -69,7 +63,6 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
-import coil3.compose.AsyncImage
 import coil3.compose.AsyncImagePreviewHandler
 import coil3.compose.ConstraintsSizeResolver
 import coil3.compose.LocalAsyncImagePreviewHandler
@@ -79,7 +72,7 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.PreloadImages
-import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
+import com.spiderbiggen.manga.presentation.components.ProfileIcon
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
@@ -140,11 +133,12 @@ fun MangaListScreen(
         profileState = profileState,
         isRefreshing = isRefreshing,
         onAction = viewModel::onAction,
-        onProfileClicked = onProfileClick,
+        onProfileClick = onProfileClick,
         onMangaClick = onMangaClick,
     )
 }
 
+@Suppress("ModifierMissing")
 @Composable
 fun MangaListScreen(
     state: MangaScreenData,
@@ -152,7 +146,7 @@ fun MangaListScreen(
     profileState: ProfileState,
     isRefreshing: Boolean = false,
     onAction: (MangaListAction) -> Unit = {},
-    onProfileClicked: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     onMangaClick: (MangaId) -> Unit = {},
 ) {
     val manga = (state.state as? MangaScreenState.Ready)?.manga ?: persistentListOf()
@@ -163,12 +157,12 @@ fun MangaListScreen(
         activeFilters = state.activeFilters,
         isRefreshing = isRefreshing,
         onAction = onAction,
-        onProfileClicked = onProfileClicked,
+        onProfileClick = onProfileClick,
         onMangaClick = onMangaClick,
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MangaOverviewContent(
     snackbarHostState: SnackbarHostState,
@@ -177,7 +171,7 @@ private fun MangaOverviewContent(
     activeFilters: ImmutableSet<MangaFilter>,
     isRefreshing: Boolean,
     onAction: (MangaListAction) -> Unit = {},
-    onProfileClicked: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     onMangaClick: (MangaId) -> Unit = {},
 ) {
     val lazyGridState = rememberLazyGridState()
@@ -188,79 +182,16 @@ private fun MangaOverviewContent(
             lazyGridState,
             canScroll = { lazyGridState.canScrollForward || lazyGridState.canScrollBackward },
         )
+
     Box {
         Scaffold(
             topBar = {
-                MangaTopAppBar(
-                    navigationIcon = {
-                        IconButton(onClick = onProfileClicked) {
-                            when (profileState) {
-                                is ProfileState.Unauthenticated ->
-                                    Icon(
-                                        painterResource(R.drawable.account_circle),
-                                        contentDescription = "Profile",
-                                    )
-
-                                is ProfileState.Authenticated ->
-                                    Box(contentAlignment = Alignment.Center) {
-                                        AsyncImage(
-                                            model = profileState.avatarUrl,
-                                            contentDescription = "Profile",
-                                            contentScale = ContentScale.Crop,
-                                            error = painterResource(R.drawable.account_circle),
-                                            modifier = Modifier.clip(CircleShape).size(24.dp),
-                                        )
-                                        ExpressiveAnimatedVisibility(
-                                            profileState.refreshing,
-                                            Modifier.size(
-                                                WavyProgressIndicatorDefaults.CircularContainerSize
-                                            ),
-                                        ) {
-                                            CircularWavyProgressIndicator()
-                                        }
-                                    }
-                            }
-                        }
-                    },
-                    title = {
-                        // TODO search top app bar
-                    },
-                    actions = {
-                        BadgedBox(
-                            badge = {
-                                if (activeFilterCount > 0) {
-                                    Badge { Text(activeFilterCount.toString()) }
-                                }
-                            }
-                        ) {
-                            IconButton(
-                                onClick = { isFilterSheetVisible = true },
-                                modifier =
-                                    Modifier.semantics {
-                                        contentDescription =
-                                            if (activeFilterCount > 0) {
-                                                "Filters, $activeFilterCount active"
-                                            } else {
-                                                "Filters"
-                                            }
-                                    },
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.filter_list),
-                                    contentDescription = null,
-                                )
-                            }
-                        }
-                        if (BuildConfig.DEBUG) {
-                            IconButton(onClick = { throw Throwable() }) {
-                                Icon(
-                                    painter = painterResource(R.drawable.bug_report),
-                                    contentDescription = "Create a crash report (by crashing)",
-                                )
-                            }
-                        }
-                    },
-                    scrollBehavior = topAppBarScrollBehavior,
+                MangaListTopAppBar(
+                    profileState = profileState,
+                    activeFilterCount = activeFilterCount,
+                    topAppBarScrollBehavior = topAppBarScrollBehavior,
+                    onProfileClick = onProfileClick,
+                    onFilterClick = { isFilterSheetVisible = true },
                 )
             },
             snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -289,47 +220,72 @@ private fun MangaOverviewContent(
 
         if (isFilterSheetVisible) {
             ModalBottomSheet(onDismissRequest = { isFilterSheetVisible = false }) {
-                Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
-                    Row(
-                        modifier =
-                            Modifier.fillMaxWidth()
-                                .heightIn(min = 48.dp)
-                                .padding(horizontal = MangaFilterSheetHorizontalPadding),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.manga_filter_title),
-                            style = MaterialTheme.typography.headlineSmall,
-                        )
-                        if (activeFilterCount > 0) {
-                            TextButton(onClick = { onAction(MangaListAction.ClearFilters) }) {
-                                Text(stringResource(R.string.manga_filter_clear))
-                            }
-                        }
-                    }
-                    mangaFilterDefinitions.forEach { definition ->
-                        val selected = definition.filter in activeFilters
-                        FilterOption(
-                            label = stringResource(definition.labelResId),
-                            selected = selected,
-                            onToggle = {
-                                onAction(
-                                    MangaListAction.SetFilter(
-                                        filter = definition.filter,
-                                        enabled = !selected,
-                                    )
-                                )
-                            },
-                        )
-                    }
-                }
+                FilterBottomSheetContent(
+                    activeFilters = activeFilters,
+                    activeFilterCount = activeFilterCount,
+                    onAction = onAction,
+                )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun MangaListTopAppBar(
+    topAppBarScrollBehavior: TopAppBarScrollBehavior,
+    profileState: ProfileState,
+    activeFilterCount: Int,
+    onProfileClick: () -> Unit,
+    onFilterClick: () -> Unit,
+) {
+    MangaTopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onProfileClick) {
+                ProfileIcon(profileState)
+            }
+        },
+        title = {
+            // Empty
+        },
+        actions = {
+            BadgedBox(
+                badge = {
+                    if (activeFilterCount > 0) {
+                        Badge { Text(activeFilterCount.toString()) }
+                    }
+                }
+            ) {
+                IconButton(
+                    onClick = onFilterClick,
+                    modifier =
+                        Modifier.semantics {
+                            contentDescription =
+                                if (activeFilterCount > 0) {
+                                    "Filters, $activeFilterCount active"
+                                } else {
+                                    "Filters"
+                                }
+                        },
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.filter_list),
+                        contentDescription = null,
+                    )
+                }
+            }
+            if (BuildConfig.DEBUG) {
+                IconButton(onClick = { error("crash report") }) {
+                    Icon(
+                        painter = painterResource(R.drawable.bug_report),
+                        contentDescription = "Create a crash report (by crashing)",
+                    )
+                }
+            }
+        },
+        scrollBehavior = topAppBarScrollBehavior,
+    )
+}
+
 @Composable
 private fun MangaGrid(
     mangas: ImmutableList<MangaViewData>,
@@ -385,6 +341,49 @@ private fun MangaGrid(
 }
 
 @Composable
+private fun FilterBottomSheetContent(
+    activeFilters: ImmutableSet<MangaFilter>,
+    activeFilterCount: Int,
+    onAction: (MangaListAction) -> Unit,
+) {
+    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)) {
+        Row(
+            modifier =
+                Modifier.fillMaxWidth()
+                    .heightIn(min = 48.dp)
+                    .padding(horizontal = MangaFilterSheetHorizontalPadding),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Text(
+                text = stringResource(R.string.manga_filter_title),
+                style = MaterialTheme.typography.headlineSmall,
+            )
+            if (activeFilterCount > 0) {
+                TextButton(onClick = { onAction(MangaListAction.ClearFilters) }) {
+                    Text(stringResource(R.string.manga_filter_clear))
+                }
+            }
+        }
+        mangaFilterDefinitions.forEach { definition ->
+            val selected = definition.filter in activeFilters
+            FilterOption(
+                label = stringResource(definition.labelResId),
+                selected = selected,
+                onToggle = {
+                    onAction(
+                        MangaListAction.SetFilter(
+                            filter = definition.filter,
+                            enabled = !selected,
+                        )
+                    )
+                },
+            )
+        }
+    }
+}
+
+@Composable
 private fun FilterOption(label: String, selected: Boolean, onToggle: () -> Unit) {
     ListItem(
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
@@ -403,7 +402,9 @@ private fun FilterOption(label: String, selected: Boolean, onToggle: () -> Unit)
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
-fun PreviewManga(@PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData) {
+private fun PreviewManga(
+    @PreviewParameter(MangaOverviewScreenDataProvider::class) state: MangaScreenData
+) {
     val context = LocalPlatformContext.current
     val previewHandler = AsyncImagePreviewHandler {
         ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!

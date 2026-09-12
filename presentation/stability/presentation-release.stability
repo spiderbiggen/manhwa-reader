@@ -29,13 +29,6 @@ public fun com.spiderbiggen.manga.presentation.components.GappedLinearProgressIn
     - drawStopIndicator: STABLE (function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.LoadingSpinner(padding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - padding: STABLE (marked @Stable or @Immutable)
-
-@Composable
 public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, preloadCount: kotlin.Int): kotlin.Unit
   skippable: true
   restartable: true
@@ -74,6 +67,30 @@ private fun com.spiderbiggen.manga.presentation.components.PreloadImagesInternal
     - items: STABLE (known stable type)
     - sizeResolver: STABLE (function type)
     - preloadCount: STABLE (primitive type)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.components.ProfileIcon(profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - profileState: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.components.ProfileIconAuthenticated(avatar: kotlin.String, modifier: androidx.compose.ui.Modifier, refreshing: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - avatar: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - refreshing: STABLE (primitive type)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.components.ProfileIconUnauthenticated(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.ReadStateCard(isRead: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, shape: androidx.compose.ui.graphics.Shape, content: @[Composable] @[ExtensionFunctionType] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.foundation.layout.ColumnScope, kotlin.Unit>): kotlin.Unit
@@ -132,16 +149,11 @@ public fun com.spiderbiggen.manga.presentation.components.StickyTopEffect(items:
     - isManuallyScrolled: STABLE (function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.UpdatedListButton(collection: kotlinx.collections.immutable.ImmutableCollection<T of com.spiderbiggen.manga.presentation.components.UpdatedListButton>, key: kotlin.Function1<@[ParameterName(name = \, listState: androidx.compose.foundation.lazy.LazyListState, modifier: androidx.compose.ui.Modifier, scope: kotlinx.coroutines.CoroutineScope, manuallyScrolled: kotlin.Boolean): kotlin.Unit
-  skippable: false
+private fun com.spiderbiggen.manga.presentation.components.SystemBarsVisibilityEffect(visible: kotlin.Boolean): kotlin.Unit
+  skippable: true
   restartable: true
   params:
-    - collection: STABLE (class with no mutable properties)
-    - key: STABLE (function type)
-    - listState: STABLE (marked @Stable or @Immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - scope: UNKNOWN (interface or non-final class; concrete implementation unknown)
-    - manuallyScrolled: STABLE (primitive type)
+    - visible: STABLE (primitive type)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility(visible: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, label: kotlin.String, content: @[Composable] @[ExtensionFunctionType] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.animation.AnimatedVisibilityScope, kotlin.Unit>): kotlin.Unit
@@ -161,6 +173,27 @@ public fun com.spiderbiggen.manga.presentation.components.fusedShape(topShape: a
     - topShape: STABLE (known stable type)
     - bottomShape: STABLE (known stable type)
     - density: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.components.input.ButtonWithLoadingState(isLoading: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, content: @[Composable] @[ExtensionFunctionType] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.foundation.layout.RowScope, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isLoading: STABLE (primitive type)
+    - onClick: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - content: STABLE (composable function type)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.components.input.PasswordTextField(state: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, imeAction: androidx.compose.ui.text.input.ImeAction, enabled: kotlin.Boolean, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?): kotlin.Unit
+  skippable: false
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - imeAction: RUNTIME (requires runtime check)
+    - enabled: STABLE (primitive type)
+    - onKeyboardAction: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.plus(paddingValues: androidx.compose.foundation.layout.PaddingValues): androidx.compose.foundation.layout.PaddingValues
@@ -298,6 +331,17 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterList
     - onChapterClick: STABLE (function type)
 
 @Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterListTopAppBar(onBackClick: kotlin.Function0<kotlin.Unit>, title: kotlin.String?, isFavorite: kotlin.Boolean, onToggleFavorite: kotlin.Function0<kotlin.Unit>, topAppBarScrollBehavior: androidx.compose.material3.TopAppBarScrollBehavior?): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - onBackClick: STABLE (function type)
+    - title: STABLE (class with no mutable properties)
+    - isFavorite: STABLE (primitive type)
+    - onToggleFavorite: STABLE (function type)
+    - topAppBarScrollBehavior: STABLE (marked @Stable or @Immutable)
+
+@Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterRow(item: com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData, navigateToChapter: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.ChapterId, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, shape: androidx.compose.ui.graphics.Shape): kotlin.Unit
   skippable: true
   restartable: true
@@ -317,6 +361,21 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChaptersLi
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - lazyListState: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ErrorState(padding: androidx.compose.foundation.layout.PaddingValues, state: com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterScreenState.Error): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - padding: STABLE (marked @Stable or @Immutable)
+    - state: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.LoadingState(padding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - padding: STABLE (marked @Stable or @Immutable)
 
 @Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.NumberDisplay(item: com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
@@ -396,6 +455,15 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.ReadyIma
     - setRead: STABLE (function type)
 
 @Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterBottomSheetContent(activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, activeFilterCount: kotlin.Int, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - activeFilters: STABLE (known stable type)
+    - activeFilterCount: STABLE (primitive type)
+    - onAction: STABLE (function type)
+
+@Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterOption(label: kotlin.String, selected: kotlin.Boolean, onToggle: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
@@ -428,7 +496,7 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(vie
     - onMangaClick: STABLE (function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(state: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData, snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClicked: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(state: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData, snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClick: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -437,11 +505,22 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(sta
     - profileState: STABLE (marked @Stable or @Immutable)
     - isRefreshing: STABLE (primitive type)
     - onAction: STABLE (function type)
-    - onProfileClicked: STABLE (function type)
+    - onProfileClick: STABLE (function type)
     - onMangaClick: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewContent(snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, manga: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClicked: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListTopAppBar(topAppBarScrollBehavior: androidx.compose.material3.TopAppBarScrollBehavior, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, activeFilterCount: kotlin.Int, onProfileClick: kotlin.Function0<kotlin.Unit>, onFilterClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - topAppBarScrollBehavior: STABLE (marked @Stable or @Immutable)
+    - profileState: STABLE (marked @Stable or @Immutable)
+    - activeFilterCount: STABLE (primitive type)
+    - onProfileClick: STABLE (function type)
+    - onFilterClick: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewContent(snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, manga: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClick: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -451,7 +530,7 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewConte
     - activeFilters: STABLE (known stable type)
     - isRefreshing: STABLE (primitive type)
     - onAction: STABLE (function type)
-    - onProfileClicked: STABLE (function type)
+    - onProfileClick: STABLE (function type)
     - onMangaClick: STABLE (function type)
 
 @Composable
@@ -465,23 +544,6 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.CoverDe
     - progress: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.CoverImage(url: kotlin.String, modifier: androidx.compose.ui.Modifier, sizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - url: STABLE (String is immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - sizeResolver: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.IconRow(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, onClickFavorite: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - manga: STABLE (marked @Stable or @Immutable)
-    - onClickFavorite: STABLE (function type)
-
-@Composable
 public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCoverCard(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onMangaFavoriteToggleClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, coverSizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
   skippable: true
   restartable: true
@@ -490,26 +552,6 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCov
     - onMangaClick: STABLE (function type)
     - onMangaFavoriteToggleClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
-    - coverSizeResolver: STABLE (marked @Stable or @Immutable)
-
-@Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaInfoColumn(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - manga: STABLE (marked @Stable or @Immutable)
-    - modifier: STABLE (marked @Stable or @Immutable)
-
-@Composable
-public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaRow(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onMangaFavoriteToggleClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, shape: androidx.compose.ui.graphics.Shape, coverSizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
-  skippable: true
-  restartable: true
-  params:
-    - manga: STABLE (marked @Stable or @Immutable)
-    - onMangaClick: STABLE (function type)
-    - onMangaFavoriteToggleClick: STABLE (function type)
-    - modifier: STABLE (marked @Stable or @Immutable)
-    - shape: STABLE (marked @Stable or @Immutable)
     - coverSizeResolver: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -535,25 +577,51 @@ public fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen(view
     - onSuccess: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreenContent(loginState: com.spiderbiggen.manga.presentation.ui.profile.login.LoginState, onBackClick: kotlin.Function0<kotlin.Unit>, onLogin: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, onRegisterlick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreenContent(loginState: com.spiderbiggen.manga.presentation.ui.profile.login.LoginState, onBackClick: kotlin.Function0<kotlin.Unit>, onLogin: kotlin.Function2<kotlin.String, kotlin.String, kotlin.Unit>, onRegisterClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - loginState: STABLE (marked @Stable or @Immutable)
     - onBackClick: STABLE (function type)
     - onLogin: STABLE (function type)
-    - onRegisterlick: STABLE (function type)
+    - onRegisterClick: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.profile.overview.AuthenticatedUserProfile(state: com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverviewViewState.Authenticated, modifier: androidx.compose.ui.Modifier, onChangeAvatarClick: kotlin.Function1<android.net.Uri, kotlin.Unit>, onLogoutClick: kotlin.Function0<kotlin.Unit>, onSyncClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginStateContent(loginState: com.spiderbiggen.manga.presentation.ui.profile.login.LoginState, onLoginClick: kotlin.Function0<kotlin.Unit>, onRegisterClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - loginState: STABLE (marked @Stable or @Immutable)
+    - onLoginClick: STABLE (function type)
+    - onRegisterClick: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.login.UsernameOrEmailTextField(state: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, enabled: kotlin.Boolean): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - state: STABLE (marked @Stable or @Immutable)
     - modifier: STABLE (marked @Stable or @Immutable)
-    - onChangeAvatarClick: STABLE (function type)
+    - enabled: STABLE (primitive type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.overview.AuthenticatedUserProfile(state: com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverviewViewState.Authenticated, modifier: androidx.compose.ui.Modifier, onChangeAvatar: kotlin.Function1<android.net.Uri, kotlin.Unit>, onLogoutClick: kotlin.Function0<kotlin.Unit>, onSyncClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - onChangeAvatar: STABLE (function type)
     - onLogoutClick: STABLE (function type)
     - onSyncClick: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.overview.AvatarWithUpdater(state: com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverviewViewState.Authenticated, onChangeAvatar: kotlin.Function1<android.net.Uri, kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - onChangeAvatar: STABLE (function type)
 
 @Composable
 private fun com.spiderbiggen.manga.presentation.ui.profile.overview.LoadingUserProfile(padding: androidx.compose.foundation.layout.PaddingValues): kotlin.Unit
@@ -585,6 +653,30 @@ public fun com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOvervi
     - onSyncClick: STABLE (function type)
 
 @Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.overview.SyncIconButton(isSynchronizing: kotlin.Boolean, onSyncClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - isSynchronizing: STABLE (primitive type)
+    - onSyncClick: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.overview.rememberRotationAnimation(enabled: kotlin.Boolean): androidx.compose.runtime.State<kotlin.Float>
+  skippable: false
+  restartable: false
+  params:
+    - enabled: STABLE (primitive type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.registration.EmailTextField(state: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, enabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - enabled: STABLE (primitive type)
+
+@Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationScreen(viewModel: com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationViewModel, onBackClick: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: false
   restartable: true
@@ -601,4 +693,21 @@ private fun com.spiderbiggen.manga.presentation.ui.profile.registration.Registra
     - registrationState: STABLE (marked @Stable or @Immutable)
     - onBackClick: STABLE (function type)
     - onRegister: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationStateContent(registrationState: com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationState, onRegisterClick: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - registrationState: STABLE (marked @Stable or @Immutable)
+    - onRegisterClick: STABLE (function type)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.profile.registration.UsernameTextField(state: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, enabled: kotlin.Boolean): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - state: STABLE (marked @Stable or @Immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+    - enabled: STABLE (primitive type)
 

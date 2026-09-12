@@ -4,7 +4,6 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -31,7 +30,6 @@ import org.koin.androidx.compose.koinViewModel
 
 val LocalAppVersion = staticCompositionLocalOf { "" }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MainContent() {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -54,7 +52,6 @@ fun MainContent() {
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: State<ProfileState>) {
     val backStack = rememberNavBackStack(MangaListRoute)
@@ -78,7 +75,7 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
             slideInHorizontally(animationSpec) { -it / 2 } togetherWith
                 slideOutHorizontally(animationSpec) { it }
         },
-        predictivePopTransitionSpec = {
+        predictivePopTransitionSpec = { _ ->
             slideInHorizontally(animationSpec) { -it / 2 } togetherWith
                 slideOutHorizontally(animationSpec) { it }
         },

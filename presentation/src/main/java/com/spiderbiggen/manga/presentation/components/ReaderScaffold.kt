@@ -16,7 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -47,17 +47,8 @@ fun ReaderScaffold(
 ) {
     var barsVisible by rememberSaveable { mutableStateOf(true) }
 
-    val atExtreme by remember {
-        derivedStateOf {
-            val atStart =
-                lazyListState.firstVisibleItemIndex == 0 &&
-                    lazyListState.firstVisibleItemScrollOffset == 0
-            atStart || lastItemIsVisible(lazyListState)
-        }
-    }
-
     LaunchedEffect(lazyListState) {
-        snapshotFlow { atExtreme to lazyListState.isScrollInProgress }
+        snapshotFlow { isAtExtreme(lazyListState) to lazyListState.isScrollInProgress }
             .collect { (extreme, scrolling) ->
                 when {
                     extreme -> barsVisible = true
@@ -71,38 +62,13 @@ fun ReaderScaffold(
     var bottomBarHeightPx by remember { mutableIntStateOf(0) }
     val topContentPadding = with(density) { topBarHeightPx.toDp() }
     val bottomContentPadding = with(density) { bottomBarHeightPx.toDp() }
-
-    val view = LocalView.current
-    val context = LocalContext.current
-    // Keys ensure the effect re-runs after Activity recreation (e.g. rotation) so onDispose
-    // always holds a fresh window reference rather than a stale one from first composition.
-    DisposableEffect(context, view) {
-        onDispose {
-            (context as? Activity)
-                ?.window
-                ?.let { WindowCompat.getInsetsController(it, view) }
-                ?.show(WindowInsetsCompat.Type.systemBars())
-        }
-    }
-    LaunchedEffect(barsVisible) {
-        val window = (context as? Activity)?.window ?: return@LaunchedEffect
-        val controller = WindowCompat.getInsetsController(window, view)
-        if (barsVisible) {
-            controller.show(WindowInsetsCompat.Type.systemBars())
-        } else {
-            controller.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            controller.hide(WindowInsetsCompat.Type.systemBars())
-        }
-    }
-
     Box(
         modifier =
             modifier.background(containerColor).clickable(
                 interactionSource = null,
                 indication = null,
             ) {
-                if (!atExtreme) barsVisible = !barsVisible
+                if (!isAtExtreme(lazyListState)) barsVisible = !barsVisible
             }
     ) {
         content(PaddingValues(top = topContentPadding, bottom = bottomContentPadding))
@@ -131,6 +97,39 @@ fun ReaderScaffold(
             snackbarHost()
         }
     }
+
+    SystemBarsVisibilityEffect(barsVisible)
+}
+
+@Composable
+private fun SystemBarsVisibilityEffect(visible: Boolean) {
+    val context = LocalContext.current
+    val view = LocalView.current
+    DisposableEffect(context, view) {
+        onDispose {
+            (context as? Activity)
+                ?.window
+                ?.let { WindowCompat.getInsetsController(it, view) }
+                ?.show(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+    SideEffect(context, view, visible) {
+        val window = (context as? Activity)?.window ?: return@SideEffect
+        val controller = WindowCompat.getInsetsController(window, view)
+        if (visible) {
+            controller.show(WindowInsetsCompat.Type.systemBars())
+        } else {
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+        }
+    }
+}
+
+private fun isAtExtreme(lazyListState: LazyListState): Boolean {
+    val atStart =
+        lazyListState.firstVisibleItemIndex == 0 && lazyListState.firstVisibleItemScrollOffset == 0
+    return atStart || lastItemIsVisible(lazyListState)
 }
 
 private fun lastItemIsVisible(lazyListState: LazyListState): Boolean {

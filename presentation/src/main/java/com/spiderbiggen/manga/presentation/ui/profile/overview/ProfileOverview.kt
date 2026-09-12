@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularWavyProgressIndicator
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -37,9 +35,12 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -64,6 +65,7 @@ import com.spiderbiggen.manga.presentation.ui.main.LocalAppVersion
 import kotlin.time.Clock.System.now
 import kotlinx.coroutines.isActive
 
+@Suppress("ModifierMissing")
 @Composable
 fun ProfileOverview(
     viewModel: ProfileOverviewViewModel,
@@ -78,9 +80,11 @@ fun ProfileOverview(
     }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
-    LaunchedEffect(state) {
+
+    val onLogoutState = rememberUpdatedState(onLogout)
+    SideEffect(state) {
         if (state is ProfileOverviewViewState.Unauthenticated) {
-            onLogout()
+            onLogoutState.value()
         }
     }
 
@@ -94,7 +98,7 @@ fun ProfileOverview(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("ModifierMissing")
 @Composable
 fun ProfileOverviewContent(
     state: ProfileOverviewViewState,
@@ -128,7 +132,7 @@ fun ProfileOverviewContent(
                 AuthenticatedUserProfile(
                     state = state,
                     modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
-                    onChangeAvatarClick = onChangeAvatarClick,
+                    onChangeAvatar = onChangeAvatarClick,
                     onLogoutClick = onLogoutClick,
                     onSyncClick = onSyncClick,
                 )
@@ -142,14 +146,54 @@ fun ProfileOverviewContent(
 
 private val avatarSizeModifier = Modifier.size(128.dp)
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AuthenticatedUserProfile(
     state: ProfileOverviewViewState.Authenticated,
     modifier: Modifier = Modifier,
-    onChangeAvatarClick: (Uri) -> Unit = {},
+    onChangeAvatar: (Uri) -> Unit = {},
     onLogoutClick: () -> Unit = {},
     onSyncClick: () -> Unit = {},
+) {
+    Column(
+        modifier.padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        AvatarWithUpdater(state, onChangeAvatar)
+
+        Text(text = state.name, style = MaterialTheme.typography.headlineMediumEmphasized)
+        state.email?.let {
+            Text(text = it, style = MaterialTheme.typography.bodyLarge)
+        }
+        HorizontalDivider()
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column {
+                Text(text = "Last Synchronization:")
+                Text(
+                    text = state.lastSynchronizationTime ?: "Never",
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+            SyncIconButton(isSynchronizing = state.isSynchronizing, onSyncClick = onSyncClick)
+        }
+        HorizontalDivider()
+        Button(onClick = onLogoutClick) {
+            Text("Logout")
+        }
+        Spacer(modifier = Modifier.weight(1f))
+        Text(LocalAppVersion.current, style = MaterialTheme.typography.labelSmall)
+    }
+}
+
+@Composable
+private fun AvatarWithUpdater(
+    state: ProfileOverviewViewState.Authenticated,
+    onChangeAvatar: (Uri) -> Unit = {},
 ) {
     val pickMedia =
         rememberLauncherForActivityResult(PickVisualMedia()) { uri ->
@@ -157,104 +201,83 @@ private fun AuthenticatedUserProfile(
             // photo picker.
             if (uri != null) {
                 Log.d("PhotoPicker", "Selected URI: $uri")
-                onChangeAvatarClick(uri)
+                onChangeAvatar(uri)
             } else {
                 Log.d("PhotoPicker", "No media selected")
             }
         }
 
-    Column(
-        modifier = modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-    ) {
-        Column(
-            Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+    Box(contentAlignment = Alignment.Center) {
+        key(state.avatarUrl, state.updatedAt) {
+            AsyncImage(
+                model = state.avatarUrl,
+                error = painterResource(R.drawable.account_circle),
+                contentDescription = "User Avatar",
+                contentScale = ContentScale.Crop,
+                modifier = avatarSizeModifier.clip(CircleShape),
+            )
+        }
+        ExpressiveAnimatedVisibility(
+            state.isUpdatingAvatar,
+            avatarSizeModifier,
+            "AvatarProgress",
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                key(state.avatarUrl, state.updatedAt) {
-                    AsyncImage(
-                        model = state.avatarUrl,
-                        error = painterResource(R.drawable.account_circle),
-                        contentDescription = "User Avatar",
-                        contentScale = ContentScale.Crop,
-                        modifier = avatarSizeModifier.clip(CircleShape),
-                    )
-                }
-                ExpressiveAnimatedVisibility(
-                    state.isUpdatingAvatar,
-                    avatarSizeModifier,
-                    "AvatarProgress",
-                ) {
-                    CircularWavyProgressIndicator(avatarSizeModifier, waveSpeed = 40.dp)
-                }
-                FilledIconButton(
-                    onClick = {
-                        pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
-                    },
-                    modifier = Modifier.align(Alignment.BottomEnd),
-                    enabled = !state.isUpdatingAvatar,
-                ) {
-                    Icon(painterResource(R.drawable.edit), "Edit Avatar")
-                }
-            }
-            Text(text = state.name, style = MaterialTheme.typography.headlineMediumEmphasized)
-            state.email?.let {
-                Text(text = it, style = MaterialTheme.typography.bodyLarge)
-            }
-            HorizontalDivider()
-
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Column {
-                    Text(text = "Last Synchronization:")
-                    Text(
-                        text = state.lastSynchronizationTime ?: "Never",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-                Spacer(modifier = Modifier.weight(1f))
-
-                val rotation = remember { Animatable(0f) }
-                LaunchedEffect(state.isSynchronizing) {
-                    if (state.isSynchronizing) {
-                        while (isActive) {
-                            val remaining = 360f - rotation.value
-                            val duration = (remaining / 360f * 1000).toInt().coerceAtLeast(1)
-                            rotation.animateTo(
-                                targetValue = 360f,
-                                animationSpec = tween(duration, easing = LinearEasing),
-                            )
-                            // Reset to 0 to allow for another rotation without reversing direction
-                            rotation.snapTo(0f)
-                        }
-                    } else {
-                        val remaining = 360f - rotation.value
-                        val duration = (remaining / 360f * 1000).toInt().coerceAtLeast(1)
-                        rotation.animateTo(
-                            targetValue = 360f,
-                            animationSpec = tween(durationMillis = duration, easing = EaseOutQuad),
-                        )
-                        // Reset to 0 to allow for another rotation without reversing direction
-                        rotation.snapTo(0f)
-                    }
-                }
-                FilledIconButton(onSyncClick) {
-                    Icon(
-                        painterResource(R.drawable.sync),
-                        contentDescription = "Sync",
-                        modifier = Modifier.graphicsLayer { rotationZ = rotation.value },
-                    )
-                }
-            }
-            HorizontalDivider()
-            Button(onClick = onLogoutClick) {
-                Text("Logout")
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Text(LocalAppVersion.current, style = MaterialTheme.typography.labelSmall)
+            CircularWavyProgressIndicator(avatarSizeModifier, waveSpeed = 40.dp)
+        }
+        FilledIconButton(
+            onClick = {
+                pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
+            },
+            modifier = Modifier.align(Alignment.BottomEnd),
+            enabled = !state.isUpdatingAvatar,
+        ) {
+            Icon(painterResource(R.drawable.edit), "Edit Avatar")
         }
     }
+}
+
+@Composable
+private fun SyncIconButton(
+    isSynchronizing: Boolean,
+    onSyncClick: () -> Unit,
+) {
+    val rotation = rememberRotationAnimation(isSynchronizing)
+    FilledIconButton(onSyncClick) {
+        Icon(
+            painterResource(R.drawable.sync),
+            contentDescription = "Sync",
+            modifier = Modifier.graphicsLayer { rotationZ = rotation.value },
+        )
+    }
+}
+
+@Composable
+private fun rememberRotationAnimation(enabled: Boolean): State<Float> {
+    val rotation = remember { Animatable(0f) }
+    LaunchedEffect(enabled) {
+        if (enabled) {
+            while (isActive) {
+                val remaining = 360f - rotation.value
+                val duration = (remaining / 360f * 1000).toInt().coerceAtLeast(1)
+                rotation.animateTo(
+                    targetValue = 360f,
+                    animationSpec = tween(duration, easing = LinearEasing),
+                )
+                // Reset to 0 to allow for another rotation without reversing direction
+                rotation.snapTo(0f)
+            }
+        } else {
+            val remaining = 360f - rotation.value
+            val duration = (remaining / 360f * 1000).toInt().coerceAtLeast(1)
+            rotation.animateTo(
+                targetValue = 360f,
+                animationSpec = tween(durationMillis = duration, easing = EaseOutQuad),
+            )
+            // Reset to 0 to allow for another rotation without reversing direction
+            rotation.snapTo(0f)
+        }
+    }
+    return rotation.asState()
 }
 
 @Composable

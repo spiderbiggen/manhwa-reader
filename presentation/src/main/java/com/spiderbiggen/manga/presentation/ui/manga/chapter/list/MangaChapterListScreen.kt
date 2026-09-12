@@ -1,6 +1,7 @@
 package com.spiderbiggen.manga.presentation.ui.manga.chapter.list
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -15,10 +16,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -26,6 +27,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,7 +62,6 @@ import com.spiderbiggen.manga.domain.model.chapter.ChapterForOverview
 import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
-import com.spiderbiggen.manga.presentation.components.LoadingSpinner
 import com.spiderbiggen.manga.presentation.components.ReadStateCard
 import com.spiderbiggen.manga.presentation.components.plus
 import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefreshBox
@@ -69,16 +70,16 @@ import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.model.ChapterRowData
 import kotlin.time.Clock.System.now
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun ChapterListScreen(
-    viewModel: MangaChapterListViewModel = koinViewModel(),
+    viewModel: MangaChapterListViewModel,
     snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onChapterClick: (ChapterId) -> Unit,
@@ -101,9 +102,8 @@ fun ChapterListScreen(
     )
 }
 
-@Suppress("LongMethod", "ModifierMissing")
+@Suppress("ModifierMissing")
 @Composable
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 fun ChapterListScreen(
     state: MangaChapterScreenState,
     snackbarHostState: SnackbarHostState,
@@ -122,44 +122,20 @@ fun ChapterListScreen(
     val readyState = state as? MangaChapterScreenState.Ready
     Scaffold(
         topBar = {
-            MangaTopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            painterResource(R.drawable.arrow_back),
-                            stringResource(R.string.action_back),
-                        )
-                    }
-                },
-                title = { readyState?.title?.let { Text(it) } },
-                actions = {
-                    IconButton(onClick = onToggleFavorite) {
-                        FavoriteToggle(
-                            isFavorite = readyState?.isFavorite == true,
-                            favoriteContentColor = LocalContentColor.current,
-                        )
-                    }
-                },
-                scrollBehavior = topAppBarScrollBehavior,
+            ChapterListTopAppBar(
+                onBackClick = onBackClick,
+                title = readyState?.title,
+                isFavorite = readyState?.isFavorite == true,
+                onToggleFavorite = onToggleFavorite,
+                topAppBarScrollBehavior = topAppBarScrollBehavior,
             )
         },
-        snackbarHost = {
-            SnackbarHost(snackbarHostState)
-        },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { scaffoldPadding ->
         when (state) {
-            is MangaChapterScreenState.Loading -> LoadingSpinner(scaffoldPadding)
-
-            is MangaChapterScreenState.Error ->
-                Column(
-                    modifier = Modifier.fillMaxSize().padding(scaffoldPadding),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Text(state.message, textAlign = TextAlign.Center)
-                }
-
-            is MangaChapterScreenState.Ready -> {
+            is MangaChapterScreenState.Loading -> LoadingState(scaffoldPadding)
+            is MangaChapterScreenState.Error -> ErrorState(scaffoldPadding, state)
+            is MangaChapterScreenState.Ready ->
                 PullToRefreshBox(
                     isRefreshing = isRefreshing,
                     onRefresh = onRefresh,
@@ -179,12 +155,62 @@ fun ChapterListScreen(
                         onChapterClick = onChapterClick,
                     )
                 }
-            }
         }
     }
 }
 
+@Composable
+private fun ChapterListTopAppBar(
+    onBackClick: () -> Unit,
+    title: String?,
+    isFavorite: Boolean,
+    onToggleFavorite: () -> Unit,
+    topAppBarScrollBehavior: TopAppBarScrollBehavior? = null,
+) {
+    MangaTopAppBar(
+        navigationIcon = {
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    painterResource(R.drawable.arrow_back),
+                    stringResource(R.string.action_back),
+                )
+            }
+        },
+        title = { title?.let { Text(it) } },
+        actions = {
+            IconButton(onClick = onToggleFavorite) {
+                FavoriteToggle(
+                    isFavorite = isFavorite,
+                    favoriteContentColor = LocalContentColor.current,
+                )
+            }
+        },
+        scrollBehavior = topAppBarScrollBehavior,
+    )
+}
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun LoadingState(padding: PaddingValues) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(padding),
+        contentAlignment = Alignment.Center,
+    ) {
+        LoadingIndicator()
+    }
+}
+
+@Composable
+private fun ErrorState(padding: PaddingValues, state: MangaChapterScreenState.Error) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(padding),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(state.message, textAlign = TextAlign.Center)
+    }
+}
+
 @Composable
 private fun ChaptersList(
     chapters: ImmutableList<ChapterRowData>,
@@ -223,7 +249,6 @@ private fun ChaptersList(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ChapterRow(
     item: ChapterRowData,
@@ -271,7 +296,6 @@ private fun ChapterRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
     val maxTextWidth = rememberMaxTextWidth(MaterialTheme.typography.titleLargeEmphasized)
@@ -321,7 +345,7 @@ private fun rememberMaxTextWidth(style: TextStyle): Dp {
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
-fun PreviewManga(
+private fun PreviewManga(
     @PreviewParameter(ChapterOverviewScreenStateProvider::class) state: MangaChapterScreenState
 ) {
     val isRefreshing = remember { mutableStateOf(false) }
@@ -335,7 +359,7 @@ fun PreviewManga(
             onRefresh = {
                 coroutineScope.launch {
                     isRefreshing.value = true
-                    delay(2000)
+                    delay(2000.milliseconds)
                     isRefreshing.value = false
                 }
             },

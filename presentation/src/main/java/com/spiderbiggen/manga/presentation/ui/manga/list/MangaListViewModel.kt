@@ -69,10 +69,10 @@ class MangaListViewModel(
         combine(
             getOverviewManga(),
             activeFiltersFlow,
-        ) { manga, activeFilters ->
+        ) { mangas, activeFilters ->
             val timeZone = TimeZone.currentSystemDefault()
             val viewData =
-                manga
+                mangas
                     .asSequence()
                     .filter { manga -> activeFilters.all { it.matches(manga) } }
                     .map { mapMangaListViewData(it, timeZone) }
