@@ -104,6 +104,7 @@ fun MangaChapterReaderScreen(
     ExperimentalMaterial3ExpressiveApi::class,
     ExperimentalFoundationApi::class,
 )
+@Suppress("ModifierMissing")
 @Composable
 fun MangaChapterReaderScreen(
     state: MangaChapterReaderScreenState,
@@ -232,10 +233,10 @@ private fun ReadyImagesOverview(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
-                val setRead by rememberUpdatedState(setRead)
+                val setReadState = rememberUpdatedState(setRead)
                 LaunchedEffect(true) {
                     readyTracker.onContentReady()
-                    setRead()
+                    setReadState.value()
                 }
             }
         }
@@ -251,8 +252,9 @@ private fun ListImage(
     val asyncPainter = rememberAsyncImagePainter(model)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
     DisplayImageState(painterState, modifier)
+    val onSuccessState = rememberUpdatedState(onSuccess)
     LaunchedEffect(painterState) {
-        if (painterState is AsyncImagePainter.State.Success) onSuccess()
+        if (painterState is AsyncImagePainter.State.Success) onSuccessState.value()
     }
 }
 
