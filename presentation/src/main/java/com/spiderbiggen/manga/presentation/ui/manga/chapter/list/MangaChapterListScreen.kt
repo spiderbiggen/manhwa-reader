@@ -249,7 +249,6 @@ private fun ChaptersList(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ChapterRow(
     item: ChapterRowData,
@@ -297,7 +296,6 @@ private fun ChapterRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
     val maxTextWidth = rememberMaxTextWidth(MaterialTheme.typography.titleLargeEmphasized)

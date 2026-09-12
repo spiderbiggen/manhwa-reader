@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,7 +27,6 @@ object SectionHeaderContentType
 
 private val NO_CORNER = CornerSize(0.dp)
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 inline fun <T> LazyListScope.section(
     header: String?,
     items: ImmutableList<T>,
