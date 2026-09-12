@@ -133,10 +133,8 @@ fun combinedCornerShape(
 
 object SectionDefaults {
     val largeShape: CornerBasedShape
-    @ReadOnlyComposable
-        @Composable get() = MaterialTheme.shapes.medium
+        @ReadOnlyComposable @Composable get() = MaterialTheme.shapes.medium
 
     val smallShape: CornerBasedShape
-    @ReadOnlyComposable
-        @Composable get() = MaterialTheme.shapes.extraSmall
+        @ReadOnlyComposable @Composable get() = MaterialTheme.shapes.extraSmall
 }
