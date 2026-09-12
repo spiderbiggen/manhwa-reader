@@ -19,7 +19,6 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FlexibleBottomAppBar
 import androidx.compose.material3.Icon
@@ -38,6 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,12 +79,11 @@ import com.spiderbiggen.manga.presentation.components.ReaderScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun MangaChapterReaderScreen(
-    viewModel: MangaChapterReaderViewModel = koinViewModel(),
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    viewModel: MangaChapterReaderViewModel,
+    snackbarHostState: SnackbarHostState,
     onBackClick: () -> Unit,
     onChapterClick: (ChapterId) -> Unit,
 ) {
@@ -103,7 +102,6 @@ fun MangaChapterReaderScreen(
 
 @OptIn(
     ExperimentalMaterial3ExpressiveApi::class,
-    ExperimentalMaterial3Api::class,
     ExperimentalFoundationApi::class,
 )
 @Composable
@@ -181,7 +179,6 @@ fun MangaChapterReaderScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReadyImagesOverview(
     state: MangaChapterReaderScreenState.Ready,
@@ -235,6 +232,7 @@ private fun ReadyImagesOverview(
                         color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
+                val setRead by rememberUpdatedState(setRead)
                 LaunchedEffect(true) {
                     readyTracker.onContentReady()
                     setRead()
@@ -244,7 +242,6 @@ private fun ReadyImagesOverview(
     }
 }
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ListImage(
     model: String,
@@ -284,7 +281,6 @@ private fun DisplayImageState(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReaderBottomBar(
     screenState: MangaChapterReaderScreenState.Ready?,
@@ -361,7 +357,7 @@ private class ReadyTracker(private val lazyListState: LazyListState) {
 @PreviewFontScale
 @PreviewScreenSizes
 @Composable
-fun PreviewReadChapterScreen(
+private fun PreviewReadChapterScreen(
     @PreviewParameter(ReadChapterScreenProvider::class) data: MangaChapterReaderScreenState.Ready
 ) {
     val context = LocalPlatformContext.current
@@ -386,7 +382,10 @@ fun PreviewReadChapterScreen(
                     "2" -> AsyncImagePainter.State.Loading(null)
 
                     "3" ->
-                        AsyncImagePainter.State.Error(null, ErrorResult(null, request, Throwable()))
+                        AsyncImagePainter.State.Error(
+                            null,
+                            ErrorResult(null, request, IllegalStateException("test exception")),
+                        )
 
                     else -> AsyncImagePainter.State.Empty
                 }
