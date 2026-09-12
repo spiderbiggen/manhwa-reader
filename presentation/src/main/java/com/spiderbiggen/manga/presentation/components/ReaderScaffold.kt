@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -112,8 +113,8 @@ private fun SystemBarsVisibilityEffect(visible: Boolean) {
                 ?.show(WindowInsetsCompat.Type.systemBars())
         }
     }
-    LaunchedEffect(context, view, visible) {
-        val window = (context as? Activity)?.window ?: return@LaunchedEffect
+    SideEffect(context, view, visible) {
+        val window = (context as? Activity)?.window ?: return@SideEffect
         val controller = WindowCompat.getInsetsController(window, view)
         if (visible) {
             controller.show(WindowInsetsCompat.Type.systemBars())

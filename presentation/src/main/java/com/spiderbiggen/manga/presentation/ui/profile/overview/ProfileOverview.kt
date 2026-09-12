@@ -35,6 +35,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
@@ -81,7 +82,7 @@ fun ProfileOverview(
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val onLogoutState = rememberUpdatedState(onLogout)
-    LaunchedEffect(state) {
+    SideEffect(state) {
         if (state is ProfileOverviewViewState.Unauthenticated) {
             onLogoutState.value()
         }

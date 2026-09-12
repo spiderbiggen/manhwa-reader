@@ -20,7 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
@@ -55,7 +55,7 @@ fun RegistrationScreen(
     val registrationState by viewModel.state.collectAsStateWithLifecycle()
 
     val onSuccessState = rememberUpdatedState(onSuccess)
-    LaunchedEffect(registrationState) {
+    SideEffect(registrationState) {
         if (registrationState is RegistrationState.Success) {
             onSuccessState.value()
         }

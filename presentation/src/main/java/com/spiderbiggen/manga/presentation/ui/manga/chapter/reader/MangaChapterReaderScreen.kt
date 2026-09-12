@@ -32,7 +32,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -234,7 +234,7 @@ private fun ReadyImagesOverview(
                     )
                 }
                 val setReadState = rememberUpdatedState(setRead)
-                LaunchedEffect(true) {
+                SideEffect(true) {
                     readyTracker.onContentReady()
                     setReadState.value()
                 }
@@ -253,7 +253,7 @@ private fun ListImage(
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
     DisplayImageState(painterState, modifier)
     val onSuccessState = rememberUpdatedState(onSuccess)
-    LaunchedEffect(painterState) {
+    SideEffect(painterState) {
         if (painterState is AsyncImagePainter.State.Success) onSuccessState.value()
     }
 }
