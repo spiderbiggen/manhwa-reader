@@ -135,8 +135,8 @@ public fun com.spiderbiggen.manga.presentation.components.SectionItem(isFirst: k
   params:
     - isFirst: STABLE (primitive type)
     - isLast: STABLE (primitive type)
-    - largeShape: STABLE (known stable type)
-    - smallShape: STABLE (known stable type)
+    - largeShape: STABLE (marked @Stable or @Immutable)
+    - smallShape: STABLE (marked @Stable or @Immutable)
     - content: STABLE (composable function type)
 
 @Composable
@@ -144,7 +144,7 @@ public fun com.spiderbiggen.manga.presentation.components.StickyTopEffect(items:
   skippable: true
   restartable: true
   params:
-    - items: STABLE (class with no mutable properties)
+    - items: UNKNOWN (interface or non-final class; concrete implementation unknown)
     - listState: STABLE (marked @Stable or @Immutable)
     - isManuallyScrolled: STABLE (function type)
 
@@ -170,8 +170,8 @@ public fun com.spiderbiggen.manga.presentation.components.fusedShape(topShape: a
   skippable: false
   restartable: false
   params:
-    - topShape: STABLE (known stable type)
-    - bottomShape: STABLE (known stable type)
+    - topShape: STABLE (marked @Stable or @Immutable)
+    - bottomShape: STABLE (marked @Stable or @Immutable)
     - density: STABLE (marked @Stable or @Immutable)
 
 @Composable
@@ -186,7 +186,7 @@ public fun com.spiderbiggen.manga.presentation.components.input.ButtonWithLoadin
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.input.PasswordTextField(state: androidx.compose.foundation.text.input.TextFieldState, modifier: androidx.compose.ui.Modifier, imeAction: androidx.compose.ui.text.input.ImeAction, enabled: kotlin.Boolean, onKeyboardAction: androidx.compose.foundation.text.input.KeyboardActionHandler?): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - state: STABLE (marked @Stable or @Immutable)
@@ -309,10 +309,10 @@ private fun com.spiderbiggen.manga.presentation.ui.main.MangaNavHost(snackbarHos
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.ChapterListScreen(viewModel: com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MangaChapterListViewModel, snackbarHostState: androidx.compose.material3.SnackbarHostState, onBackClick: kotlin.Function0<kotlin.Unit>, onChapterClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.ChapterId, kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - viewModel: RUNTIME (requires runtime check)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
     - snackbarHostState: STABLE (marked @Stable or @Immutable)
     - onBackClick: STABLE (function type)
     - onChapterClick: STABLE (function type)
@@ -394,7 +394,7 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.list.rememberMa
 
 @Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.DisplayImageState(state: coil3.compose.AsyncImagePainter.State, modifier: androidx.compose.ui.Modifier): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - state: UNSTABLE (cross-module type without @Stable/@Immutable)
@@ -411,10 +411,10 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.ListImag
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.MangaChapterReaderScreen(viewModel: com.spiderbiggen.manga.presentation.ui.manga.chapter.reader.MangaChapterReaderViewModel, snackbarHostState: androidx.compose.material3.SnackbarHostState, onBackClick: kotlin.Function0<kotlin.Unit>, onChapterClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.ChapterId, kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - viewModel: RUNTIME (requires runtime check)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
     - snackbarHostState: STABLE (marked @Stable or @Immutable)
     - onBackClick: STABLE (function type)
     - onChapterClick: STABLE (function type)
@@ -486,7 +486,7 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: 
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListScreen(viewModel: com.spiderbiggen.manga.presentation.ui.manga.list.MangaListViewModel, snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, onProfileClick: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
     - viewModel: UNSTABLE (has mutable properties or unstable members)
@@ -568,10 +568,10 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.favorite
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen(viewModel: com.spiderbiggen.manga.presentation.ui.profile.login.LoginViewModel, onBackClick: kotlin.Function0<kotlin.Unit>, onRegisterClick: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - viewModel: RUNTIME (requires runtime check)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
     - onBackClick: STABLE (function type)
     - onRegisterClick: STABLE (function type)
     - onSuccess: STABLE (function type)
@@ -632,10 +632,10 @@ private fun com.spiderbiggen.manga.presentation.ui.profile.overview.LoadingUserP
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverview(viewModel: com.spiderbiggen.manga.presentation.ui.profile.overview.ProfileOverviewViewModel, snackbarHostState: androidx.compose.material3.SnackbarHostState, onBackClick: kotlin.Function0<kotlin.Unit>, onLogout: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - viewModel: RUNTIME (requires runtime check)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
     - snackbarHostState: STABLE (marked @Stable or @Immutable)
     - onBackClick: STABLE (function type)
     - onLogout: STABLE (function type)
@@ -678,10 +678,10 @@ private fun com.spiderbiggen.manga.presentation.ui.profile.registration.EmailTex
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationScreen(viewModel: com.spiderbiggen.manga.presentation.ui.profile.registration.RegistrationViewModel, onBackClick: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
-  skippable: false
+  skippable: true
   restartable: true
   params:
-    - viewModel: RUNTIME (requires runtime check)
+    - viewModel: UNSTABLE (has mutable properties or unstable members)
     - onBackClick: STABLE (function type)
     - onSuccess: STABLE (function type)
 
