@@ -69,14 +69,14 @@ private fun MangaNavHost(snackbarHostState: SnackbarHostState, profileState: Sta
         backStack = backStack,
         transitionSpec = {
             slideInHorizontally(animationSpec) { it } togetherWith
-                slideOutHorizontally(animationSpec) { -it / 2 }
+                slideOutHorizontally(animationSpec)
         },
         popTransitionSpec = {
-            slideInHorizontally(animationSpec) { -it / 2 } togetherWith
+            slideInHorizontally(animationSpec) togetherWith
                 slideOutHorizontally(animationSpec) { it }
         },
         predictivePopTransitionSpec = { _ ->
-            slideInHorizontally(animationSpec) { -it / 2 } togetherWith
+            slideInHorizontally(animationSpec) togetherWith
                 slideOutHorizontally(animationSpec) { it }
         },
         entryProvider =
