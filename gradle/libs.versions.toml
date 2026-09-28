@@ -34,7 +34,7 @@ room3 = "3.0.3"
 spotless-plugin-gradle = "8.10.3"
 stability-analyser = "0.15.0"
 sonarqube = "7.5.0.8588"
-kover = "0.9.9"
+kover = "0.9.10"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
