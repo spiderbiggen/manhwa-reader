@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.google.gms.google.services)
     alias(libs.plugins.google.crashlytics)
     alias(libs.plugins.stability.analyzer)
+    id("manga.android")
     id("manga.spotless")
     id("manga.detekt")
     id("manga.coverage")
@@ -16,12 +17,6 @@ plugins {
 
 android {
     namespace = "com.spiderbiggen.manga"
-    compileSdk {
-        version =
-            release(37) {
-                minorApiLevel = 2
-            }
-    }
 
     buildFeatures {
         compose = true
@@ -30,7 +25,6 @@ android {
 
     defaultConfig {
         applicationId = "com.spiderbiggen.manga"
-        minSdk = 26
         targetSdk = 37
         versionCode = 87
         versionName = "1.32.2"
