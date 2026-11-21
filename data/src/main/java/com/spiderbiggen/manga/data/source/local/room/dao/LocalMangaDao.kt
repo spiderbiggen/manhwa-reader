@@ -16,7 +16,7 @@ interface LocalMangaDao {
 
     @Query(
         """
-        SELECT *, COALESCE(f.is_favorite, 0) as is_favorite
+        SELECT m.*, COALESCE(f.is_favorite, 0) as is_favorite
         FROM manga m
             LEFT JOIN manga_favorite_status f on f.id = m.id
         WHERE m.id = :id
