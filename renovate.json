@@ -4,7 +4,24 @@
     "config:recommended",
     ":semanticCommitTypeAll(chore)"
   ],
+  "minimumReleaseAge": "3 days",
   "packageRules": [
+    {
+      "description": "Disable minimum release age for androidx, google, and kotlin dependencies.",
+      "matchManagers": [
+        "maven",
+        "gradle"
+      ],
+      "matchPackageNames": [
+        "/^androidx\\./",
+        "/^com\\.google\\./",
+        "/^org\\.jetbrains\\.kotlin:/",
+        "/^org\\.jetbrains\\.kotlin\\./",
+        "/^org\\.jetbrains\\.kotlinx:/",
+        "/^org\\.jetbrains\\.kotlinx\\./"
+      ],
+      "minimumReleaseAge": null
+    },
     {
       "matchUpdateTypes": [
         "minor",
