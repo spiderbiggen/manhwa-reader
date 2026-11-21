@@ -29,7 +29,7 @@ interface LocalChapterDao {
 
     @Query(
         """
-        SELECT *, COALESCE(r.is_read, 0) as is_read
+        SELECT c.*, COALESCE(r.is_read, 0) as is_read
         FROM chapter c
             LEFT JOIN chapter_read_status r ON c.id = r.id
         WHERE c.manga_id = :mangaId 
@@ -40,7 +40,7 @@ interface LocalChapterDao {
 
     @Query(
         """
-        SELECT *, COALESCE(r.is_read, 0) as is_read
+        SELECT c.*, COALESCE(r.is_read, 0) as is_read
         FROM chapter c
             LEFT JOIN chapter_read_status r ON c.id = r.id
         WHERE c.id = :id
