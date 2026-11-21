@@ -221,21 +221,37 @@ private fun MangaOverviewContent(
         }
 
         if (isFilterSheetVisible) {
-            ModalBottomSheet(
-                onDismissRequest = { isFilterSheetVisible = false },
-                sheetState =
-                    rememberBottomSheetState(
-                        initialValue = SheetValue.Hidden,
-                        enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
-                    ),
-            ) {
-                FilterBottomSheetContent(
-                    activeFilters = activeFilters,
-                    activeFilterCount = activeFilterCount,
-                    onAction = onAction,
-                )
-            }
+            FilterSheet(
+                activeFilters = activeFilters,
+                activeFilterCount = activeFilterCount,
+                onAction = onAction,
+                onDismiss = { isFilterSheetVisible = false },
+            )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterSheet(
+    activeFilters: ImmutableSet<MangaFilter>,
+    activeFilterCount: Int,
+    onAction: (MangaListAction) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState =
+            rememberBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+            ),
+    ) {
+        FilterBottomSheetContent(
+            activeFilters = activeFilters,
+            activeFilterCount = activeFilterCount,
+            onAction = onAction,
+        )
     }
 }
 
