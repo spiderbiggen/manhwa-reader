@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 import com.spiderbiggen.manga.presentation.theme.coerceLightnessAtMost
 
 // Keeps the white title text legible; colors at or below the cap are left untouched.
-internal const val MAX_ACCENT_LIGHTNESS_FOR_WHITE_TEXT = 0.45f
+internal const val MAX_ACCENT_LIGHTNESS_FOR_WHITE_TEXT = 0.35f
 
 internal fun coverAccentColor(dominantColor: Int?, fallback: Color): Color =
     dominantColor?.let {
