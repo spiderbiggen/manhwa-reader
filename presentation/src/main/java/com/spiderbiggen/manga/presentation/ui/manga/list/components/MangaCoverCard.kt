@@ -29,7 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -51,6 +50,7 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.GappedLinearProgressIndicator
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
+import com.spiderbiggen.manga.presentation.theme.coerceLightnessAtMost
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 
 @Composable
@@ -166,14 +166,15 @@ private fun BoxScope.CoverDetails(
     }
 }
 
+private const val MAX_ACCENT_LIGHTNESS = 0.45f
+
 val MangaViewData.coverAccentColor: Color
     @ReadOnlyComposable
     @Composable
     get() {
         val dominantColor = dominantColor ?: return MaterialTheme.colorScheme.scrim
-        return Color(dominantColor)
-            .copy(alpha = 0.75f)
-            .compositeOver(MaterialTheme.colorScheme.scrim)
+        // The backend guarantees a minimum lightness, so only cap the top end for the white text.
+        return Color(dominantColor).copy(alpha = 1f).coerceLightnessAtMost(MAX_ACCENT_LIGHTNESS)
     }
 
 val MangaViewData.favoriteButtonBrush: Brush
@@ -226,5 +227,14 @@ internal class MangaCardViewDataProvider : MangaViewDataProvider() {
                     it.copy(readChapterCount = 199, totalChapterCount = 200),
                     it.copy(readChapterCount = 200, totalChapterCount = 200),
                 )
-            }
+            } +
+                super.values.first().let {
+                    sequenceOf(
+                        it.copy(dominantColor = LIGHT_DOMINANT_COLOR, totalChapterCount = 200),
+                        it.copy(dominantColor = DARK_DOMINANT_COLOR, totalChapterCount = 200),
+                    )
+                }
 }
+
+private const val LIGHT_DOMINANT_COLOR = 0x00F8D890
+private const val DARK_DOMINANT_COLOR = 0x00201818
