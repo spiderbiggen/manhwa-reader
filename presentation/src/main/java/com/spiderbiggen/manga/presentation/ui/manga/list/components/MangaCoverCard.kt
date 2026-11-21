@@ -50,7 +50,6 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.GappedLinearProgressIndicator
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
-import com.spiderbiggen.manga.presentation.theme.coerceLightnessAtMost
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
 
 @Composable
@@ -170,24 +169,8 @@ private fun BoxScope.CoverDetails(
     }
 }
 
-// Keeps the white title text legible; colors at or below the cap are left untouched.
-private const val MAX_ACCENT_LIGHTNESS_FOR_WHITE_TEXT = 0.45f
-
-private fun coverAccentColor(dominantColor: Int?, fallback: Color): Color =
-    dominantColor?.let {
-        Color(it).copy(alpha = 1f).coerceLightnessAtMost(MAX_ACCENT_LIGHTNESS_FOR_WHITE_TEXT)
-    } ?: fallback
-
 private fun favoriteButtonBrush(accentColor: Color): Brush =
-    Brush.radialGradient(
-        colorStops =
-            arrayOf(
-                0f to accentColor.copy(alpha = 0.9f),
-                0.35f to accentColor.copy(alpha = 0.7f),
-                0.7f to accentColor.copy(alpha = 0.3f),
-                1f to Color.Transparent,
-            )
-    )
+    Brush.radialGradient(colorStops = favoriteButtonColorStops(accentColor).toTypedArray())
 
 @OptIn(ExperimentalCoilApi::class)
 @PreviewLightDark
