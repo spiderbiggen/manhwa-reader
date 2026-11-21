@@ -14,7 +14,7 @@ This is a multi-module Android application for reading manga/manhwa built with m
 - **presentation**: UI layer with Compose screens, ViewModels, and UI components
 
 ### Build Requirements
-- **Android API**: Min SDK 26, target SDK 37, compile SDK API 37.1
+- **Android API**: Min SDK 26, target SDK 37, compile SDK API 37.2
 - **Java Version**: Java 21 via the Kotlin JVM toolchain
 - **Kotlin**: 2.4.10 with the Compose compiler plugin
 - **Android Gradle Plugin**: 9.3.1
