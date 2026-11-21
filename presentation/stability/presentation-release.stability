@@ -473,6 +473,16 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterOption(label
     - onToggle: STABLE (function type)
 
 @Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterSheet(activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, activeFilterCount: kotlin.Int, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onDismiss: kotlin.Function0<kotlin.Unit>): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - activeFilters: STABLE (known stable type)
+    - activeFilterCount: STABLE (primitive type)
+    - onAction: STABLE (function type)
+    - onDismiss: STABLE (function type)
+
+@Composable
 private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

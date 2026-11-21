@@ -28,12 +28,14 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
@@ -219,14 +221,37 @@ private fun MangaOverviewContent(
         }
 
         if (isFilterSheetVisible) {
-            ModalBottomSheet(onDismissRequest = { isFilterSheetVisible = false }) {
-                FilterBottomSheetContent(
-                    activeFilters = activeFilters,
-                    activeFilterCount = activeFilterCount,
-                    onAction = onAction,
-                )
-            }
+            FilterSheet(
+                activeFilters = activeFilters,
+                activeFilterCount = activeFilterCount,
+                onAction = onAction,
+                onDismiss = { isFilterSheetVisible = false },
+            )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun FilterSheet(
+    activeFilters: ImmutableSet<MangaFilter>,
+    activeFilterCount: Int,
+    onAction: (MangaListAction) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState =
+            rememberBottomSheetState(
+                initialValue = SheetValue.Hidden,
+                enabledValues = setOf(SheetValue.Hidden, SheetValue.Expanded),
+            ),
+    ) {
+        FilterBottomSheetContent(
+            activeFilters = activeFilters,
+            activeFilterCount = activeFilterCount,
+            onAction = onAction,
+        )
     }
 }
 
