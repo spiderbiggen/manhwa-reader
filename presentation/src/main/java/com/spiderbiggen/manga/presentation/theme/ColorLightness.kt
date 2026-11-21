@@ -22,13 +22,13 @@ private fun Color.withLightness(target: Float): Color {
     if (delta == 0f) return Color(target, target, target, alpha)
 
     val saturation = delta / (1f - abs(2f * lightness - 1f))
-    val hue =
-        60f *
-            when (max) {
-                red -> ((green - blue) / delta).mod(6f)
-                green -> (blue - red) / delta + 2f
-                else -> (red - green) / delta + 4f
-            }
+    val sector =
+        when (max) {
+            red -> ((green - blue) / delta).mod(6f)
+            green -> (blue - red) / delta + 2f
+            else -> (red - green) / delta + 4f
+        }
+    val hue = 60f * sector
 
     // HSL to RGB: channel(n) = L - a * clamp(min(k - 3, 9 - k), -1, 1) with k = (n + H / 30) mod
     // 12.
