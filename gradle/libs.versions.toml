@@ -62,7 +62,7 @@ androidX-lifecycle-viewmodel-savedstate = { group = "androidx.lifecycle", name =
 
 # Compose
 androidX-compose-activity = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
-androidX-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+androidX-compose-bom = { group = "androidx.compose", name = "compose-bom-alpha", version.ref = "compose-bom" }
 androidX-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidX-compose-animation = { group = "androidx.compose.animation", name = "animation" }
 androidX-compose-ui = { group = "androidx.compose.ui", name = "ui" }
