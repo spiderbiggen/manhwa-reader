@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlinX.serialization)
     alias(libs.plugins.google.ksp)
     alias(libs.plugins.stability.analyzer)
+    id("manga.android")
     id("manga.spotless")
     id("manga.detekt")
     id("manga.coverage")
@@ -13,16 +14,8 @@ plugins {
 
 android {
     namespace = "com.spiderbiggen.manga.presentation"
-    compileSdk {
-        version =
-            release(37) {
-                minorApiLevel = 2
-            }
-    }
 
     defaultConfig {
-        minSdk = 26
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
