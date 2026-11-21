@@ -32,11 +32,12 @@ interface LocalMangaDao {
             COALESCE(r.total_chapter_count, 0) as total_chapter_count
         FROM manga m 
             LEFT JOIN manga_favorite_status f on f.id = m.id
-            LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
+            LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.last_chapter_updated_at
             LEFT JOIN (
                 SELECT c.manga_id,
                     MIN(COALESCE(r.is_read, 0)) as is_read,
-                    MAX(m.updated_at = c.updated_at) as has_last_update,
+                    MAX(m.last_chapter_updated_at IS NULL
+                        OR c.updated_at >= m.last_chapter_updated_at) as has_last_update,
                     CAST(SUM(CASE WHEN COALESCE(r.is_read, 0) = 1 THEN 1 ELSE 0 END) AS INTEGER) as read_chapter_count,
                     CAST(COUNT(c.id) AS INTEGER) as total_chapter_count
                     FROM manga m 
@@ -52,10 +53,13 @@ interface LocalMangaDao {
 
     @Query(
         """
-        SELECT DISTINCT(m.id) 
+        SELECT m.id
         FROM manga m
-            LEFT JOIN chapter c on c.manga_id = m.id AND c.updated_at = m.updated_at
-        WHERE c.id IS NULL
+        WHERE m.last_chapter_updated_at IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1 FROM chapter c
+                WHERE c.manga_id = m.id AND c.updated_at >= m.last_chapter_updated_at
+            )
         """
     )
     suspend fun getForUpdate(): List<MangaId>

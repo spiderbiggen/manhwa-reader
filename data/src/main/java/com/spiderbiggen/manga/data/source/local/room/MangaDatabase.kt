@@ -29,11 +29,12 @@ import com.spiderbiggen.manga.data.source.local.room.model.manga.MangaFavoriteSt
             MangaFavoriteStatusEntity::class,
             ChapterReadStatusEntity::class,
         ],
-    version = 8,
+    version = 9,
     autoMigrations =
         [
             AutoMigration(from = 6, to = 7),
             AutoMigration(from = 7, to = 8),
+            AutoMigration(from = 8, to = 9),
         ],
     exportSchema = true,
 )

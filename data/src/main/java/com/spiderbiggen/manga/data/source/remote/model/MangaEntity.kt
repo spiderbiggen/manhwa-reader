@@ -16,4 +16,5 @@ data class MangaEntity(
     val description: String,
     val status: String,
     @Contextual @SerialName("updated_at") val updatedAt: Instant,
+    @Contextual @SerialName("last_chapter_updated_at") val lastChapterUpdatedAt: Instant? = null,
 )
