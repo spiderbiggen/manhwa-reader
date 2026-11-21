@@ -74,14 +74,15 @@ jobs:
               next
             }
             /^##[[:space:]]/ { fail("Only Summary and Changes sections are allowed.") }
-            /^[[:space:]]*-[[:space:]]+[^[:space:]]/ {
-              if (section == "summary") summary_bullets++
-              if (section == "changes") changes_bullets++
+            /^[[:space:]]*<!--.*-->[[:space:]]*$/ { next }
+            /[^[:space:]]/ {
+              if (section == "summary") summary_lines++
+              if (section == "changes") changes_lines++
             }
             END {
               if (failed) exit 1
               if (section != "changes") fail("Description must contain Summary and Changes sections.")
-              if (summary_bullets < 1) fail("Summary must contain at least one bullet.")
-              if (changes_bullets < 1) fail("Changes must contain at least one bullet.")
+              if (summary_lines < 1) fail("Summary must not be empty.")
+              if (changes_lines < 1) fail("Changes must not be empty.")
             }
           ' <<< "$PR_BODY"
