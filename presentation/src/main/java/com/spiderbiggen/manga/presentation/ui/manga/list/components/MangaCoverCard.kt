@@ -20,7 +20,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -29,7 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewLightDark
@@ -61,6 +60,10 @@ fun MangaCoverCard(
     modifier: Modifier = Modifier,
     coverSizeResolver: ConstraintsSizeResolver = rememberConstraintsSizeResolver(),
 ) {
+    val scrim = MaterialTheme.colorScheme.scrim
+    val accentColor =
+        remember(manga.dominantColor, scrim) { coverAccentColor(manga.dominantColor, scrim) }
+    val favoriteButtonBrush = remember(accentColor) { favoriteButtonBrush(accentColor) }
     Card(
         onClick = dropUnlessStarted { onMangaClick(manga.id) },
         modifier = modifier,
@@ -86,7 +89,7 @@ fun MangaCoverCard(
             CoverDetails(
                 title = manga.title,
                 isRead = manga.isRead,
-                accentColor = manga.coverAccentColor,
+                accentColor = accentColor,
                 progress = { manga.readProgress },
             )
 
@@ -96,7 +99,7 @@ fun MangaCoverCard(
                         .padding(4.dp)
                         .size(36.dp)
                         .clip(CircleShape)
-                        .background(manga.favoriteButtonBrush),
+                        .background(favoriteButtonBrush),
                 onClick = { onMangaFavoriteToggleClick(manga.id) },
             ) {
                 FavoriteToggle(
@@ -166,29 +169,8 @@ private fun BoxScope.CoverDetails(
     }
 }
 
-val MangaViewData.coverAccentColor: Color
-    @ReadOnlyComposable
-    @Composable
-    get() {
-        val dominantColor = dominantColor ?: return MaterialTheme.colorScheme.scrim
-        return Color(dominantColor)
-            .copy(alpha = 0.75f)
-            .compositeOver(MaterialTheme.colorScheme.scrim)
-    }
-
-val MangaViewData.favoriteButtonBrush: Brush
-    @ReadOnlyComposable
-    @Composable
-    get() =
-        Brush.radialGradient(
-            colorStops =
-                arrayOf(
-                    0f to coverAccentColor.copy(alpha = 0.9f),
-                    0.35f to coverAccentColor.copy(alpha = 0.7f),
-                    0.7f to coverAccentColor.copy(alpha = 0.3f),
-                    1f to Color.Transparent,
-                )
-        )
+private fun favoriteButtonBrush(accentColor: Color): Brush =
+    Brush.radialGradient(colorStops = favoriteButtonColorStops(accentColor).toTypedArray())
 
 @OptIn(ExperimentalCoilApi::class)
 @PreviewLightDark
@@ -226,5 +208,11 @@ internal class MangaCardViewDataProvider : MangaViewDataProvider() {
                     it.copy(readChapterCount = 199, totalChapterCount = 200),
                     it.copy(readChapterCount = 200, totalChapterCount = 200),
                 )
-            }
+            } +
+                listOf(LIGHT_DOMINANT_COLOR, DARK_DOMINANT_COLOR).map {
+                    super.values.first().copy(dominantColor = it, totalChapterCount = 200)
+                }
 }
+
+private const val LIGHT_DOMINANT_COLOR = 0xFFF8D890.toInt()
+private const val DARK_DOMINANT_COLOR = 0xFF201818.toInt()

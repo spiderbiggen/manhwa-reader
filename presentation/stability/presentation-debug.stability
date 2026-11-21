@@ -555,18 +555,6 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCov
     - coverSizeResolver: STABLE (marked @Stable or @Immutable)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.coverAccentColor(): androidx.compose.ui.graphics.Color
-  skippable: false
-  restartable: false
-  params:
-
-@Composable
-public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.favoriteButtonBrush(): androidx.compose.ui.graphics.Brush
-  skippable: false
-  restartable: false
-  params:
-
-@Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen(viewModel: com.spiderbiggen.manga.presentation.ui.profile.login.LoginViewModel, onBackClick: kotlin.Function0<kotlin.Unit>, onRegisterClick: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
