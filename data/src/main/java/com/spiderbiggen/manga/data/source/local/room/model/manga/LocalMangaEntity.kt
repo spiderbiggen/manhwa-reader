@@ -20,4 +20,6 @@ data class LocalMangaEntity(
     val description: String,
     val status: String,
     @ColumnInfo("updated_at") val updatedAt: Instant,
+    @ColumnInfo("last_chapter_updated_at", defaultValue = "NULL")
+    val lastChapterUpdatedAt: Instant? = null,
 )

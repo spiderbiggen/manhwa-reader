@@ -14,5 +14,6 @@ class ToLocalManga {
             description = entity.description,
             status = entity.status,
             updatedAt = entity.updatedAt,
+            lastChapterUpdatedAt = entity.lastChapterUpdatedAt,
         )
 }
