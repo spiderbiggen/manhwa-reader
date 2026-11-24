@@ -33,9 +33,9 @@ class LocalMangaDaoTest {
     fun setUp() {
         database =
             Room.inMemoryDatabaseBuilder(
-                ApplicationProvider.getApplicationContext(),
-                MangaDatabase::class.java,
-            )
+                    ApplicationProvider.getApplicationContext(),
+                    MangaDatabase::class.java,
+                )
                 .build()
         mangaDao = database.localMangaDao()
     }
@@ -54,8 +54,8 @@ class LocalMangaDaoTest {
                     manga(
                         updatedAt = Instant.fromEpochSeconds(500),
                         lastChapterUpdatedAt = chapterUpdatedAt,
-                    ),
-                ),
+                    )
+                )
             )
 
             assertTrue(mangaDao.getAllNotDropped().first().single().isRead)
@@ -71,8 +71,8 @@ class LocalMangaDaoTest {
                     manga(
                         updatedAt = Instant.fromEpochSeconds(500),
                         lastChapterUpdatedAt = Instant.fromEpochSeconds(500),
-                    ),
-                ),
+                    )
+                )
             )
 
             assertFalse(mangaDao.getAllNotDropped().first().single().isRead)
@@ -106,7 +106,7 @@ class LocalMangaDaoTest {
                         id = "no-chapter",
                         updatedAt = Instant.fromEpochSeconds(500),
                     ),
-                ),
+                )
             )
 
             assertEquals(
@@ -128,8 +128,8 @@ class LocalMangaDaoTest {
                         subIndex = null,
                         updatedAt = chapterUpdatedAt,
                         imageChunks = 0,
-                    ),
-                ),
+                    )
+                )
             )
         database
             .chapterReadStatusDao()
