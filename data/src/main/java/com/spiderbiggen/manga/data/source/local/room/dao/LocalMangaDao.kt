@@ -46,7 +46,7 @@ interface LocalMangaDao {
                 GROUP BY c.manga_id
             ) r ON r.manga_id = m.id
         WHERE m.status <> 'Dropped'
-        ORDER BY updated_at DESC
+        ORDER BY COALESCE(m.last_chapter_updated_at, m.updated_at) DESC
         """
     )
     fun getAllNotDropped(): Flow<List<LocalMangaForOverviewEntity>>
