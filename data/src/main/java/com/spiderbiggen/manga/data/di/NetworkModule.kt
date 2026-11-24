@@ -1,13 +1,17 @@
 package com.spiderbiggen.manga.data.di
 
 import com.spiderbiggen.manga.data.source.remote.AuthService
+import com.spiderbiggen.manga.data.source.remote.GitHubReleaseService
 import com.spiderbiggen.manga.data.source.remote.HttpClientFactory
 import com.spiderbiggen.manga.data.source.remote.HttpLogger
 import com.spiderbiggen.manga.data.source.remote.MangaService
 import com.spiderbiggen.manga.data.source.remote.UserService
 import com.spiderbiggen.manga.data.source.remote.impl.AuthServiceImpl
+import com.spiderbiggen.manga.data.source.remote.impl.GitHubReleaseServiceImpl
 import com.spiderbiggen.manga.data.source.remote.impl.MangaServiceImpl
 import com.spiderbiggen.manga.data.source.remote.impl.UserServiceImpl
+import com.spiderbiggen.manga.data.source.remote.impl.createGitHubClient
+import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.logging.Logger
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
@@ -37,4 +41,7 @@ val networkModule = module {
     singleOf(::MangaServiceImpl) bind MangaService::class
     singleOf(::AuthServiceImpl) bind AuthService::class
     singleOf(::UserServiceImpl) bind UserService::class
+    single<GitHubReleaseService> {
+        GitHubReleaseServiceImpl { createGitHubClient(get(), OkHttp.create()) }
+    }
 }

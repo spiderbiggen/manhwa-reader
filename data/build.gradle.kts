@@ -83,6 +83,7 @@ dependencies {
     // Testing
     testImplementation(libs.junit)
     testImplementation(libs.androidX.room3.test)
+    testImplementation(libs.ktor.client.mock)
     androidTestImplementation(libs.androidX.test.core)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
