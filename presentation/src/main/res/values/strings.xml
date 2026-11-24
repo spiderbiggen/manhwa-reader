@@ -9,4 +9,15 @@
     <string name="manga_filter_clear">Clear</string>
     <string name="manga_filter_unread">Unread chapters</string>
     <string name="manga_filter_favorites">Favorite manga</string>
+    <string name="update_notice_title">Update available</string>
+    <string name="update_notice_summary">Version %1$s is out. You have %2$s.</string>
+    <string name="update_notice_whats_new">What\'s new</string>
+    <string name="update_notice_dismiss">Dismiss</string>
+    <string name="update_changelog_title">What\'s new in %1$s</string>
+    <string name="update_changelog_current">You\'re on %1$s</string>
+    <string name="update_changelog_maintenance">Maintenance release</string>
+    <string name="update_changelog_view_release">View release on GitHub</string>
+    <string name="update_change_kind_feature">New features</string>
+    <string name="update_change_kind_fix">Bug fixes</string>
+    <string name="update_change_kind_performance">Performance</string>
 </resources>

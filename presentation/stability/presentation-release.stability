@@ -483,11 +483,14 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterSheet(active
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, updateNotice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData?, onWhatsNewClick: kotlin.Function0<kotlin.Unit>, onDismissUpdateClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - mangas: STABLE (known stable type)
+    - updateNotice: STABLE (marked @Stable or @Immutable)
+    - onWhatsNewClick: STABLE (function type)
+    - onDismissUpdateClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - lazyGridState: STABLE (marked @Stable or @Immutable)
@@ -530,7 +533,7 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaListTopAppBar
     - onFilterClick: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewContent(snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, manga: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClick: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewContent(snackbarHostState: androidx.compose.material3.SnackbarHostState, profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, manga: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, activeFilters: kotlinx.collections.immutable.ImmutableSet<com.spiderbiggen.manga.presentation.ui.manga.list.MangaFilter>, updateNotice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData?, isRefreshing: kotlin.Boolean, onAction: kotlin.Function1<com.spiderbiggen.manga.presentation.ui.manga.list.MangaListAction, kotlin.Unit>, onProfileClick: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -538,6 +541,7 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaOverviewConte
     - profileState: STABLE (marked @Stable or @Immutable)
     - manga: STABLE (known stable type)
     - activeFilters: STABLE (known stable type)
+    - updateNotice: STABLE (marked @Stable or @Immutable)
     - isRefreshing: STABLE (primitive type)
     - onAction: STABLE (function type)
     - onProfileClick: STABLE (function type)
@@ -554,6 +558,13 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.CoverDe
     - progress: STABLE (function type)
 
 @Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.GroupSection(group: com.spiderbiggen.manga.presentation.ui.manga.list.model.ChangeGroupViewData): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - group: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCoverCard(manga: com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onMangaFavoriteToggleClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, modifier: androidx.compose.ui.Modifier, coverSizeResolver: coil3.compose.ConstraintsSizeResolver): kotlin.Unit
   skippable: true
   restartable: true
@@ -563,6 +574,39 @@ public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCov
     - onMangaFavoriteToggleClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - coverSizeResolver: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.ReleaseSection(release: com.spiderbiggen.manga.presentation.ui.manga.list.model.ReleaseChangesViewData): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - release: STABLE (marked @Stable or @Immutable)
+
+@Composable
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.components.UpdateChangelogContent(notice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - notice: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.UpdateChangelogSheet(notice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData, onDismiss: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - notice: STABLE (marked @Stable or @Immutable)
+    - onDismiss: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.ui.manga.list.components.UpdateNoticeCard(notice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData, onWhatsNewClick: kotlin.Function0<kotlin.Unit>, onDismissClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - notice: STABLE (marked @Stable or @Immutable)
+    - onWhatsNewClick: STABLE (function type)
+    - onDismissClick: STABLE (function type)
+    - modifier: STABLE (marked @Stable or @Immutable)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.ui.profile.login.LoginScreen(viewModel: com.spiderbiggen.manga.presentation.ui.profile.login.LoginViewModel, onBackClick: kotlin.Function0<kotlin.Unit>, onRegisterClick: kotlin.Function0<kotlin.Unit>, onSuccess: kotlin.Function0<kotlin.Unit>): kotlin.Unit

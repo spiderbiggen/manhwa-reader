@@ -6,18 +6,28 @@ import com.spiderbiggen.manga.domain.model.id.ChapterId
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.model.manga.Manga
 import com.spiderbiggen.manga.domain.model.manga.MangaForOverview
+import com.spiderbiggen.manga.domain.model.update.AppVersion
+import com.spiderbiggen.manga.domain.model.update.ChangeGroup
+import com.spiderbiggen.manga.domain.model.update.ChangeKind
+import com.spiderbiggen.manga.domain.model.update.ReleaseChanges
+import com.spiderbiggen.manga.domain.model.update.UpdateNotice
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
+import com.spiderbiggen.manga.domain.usecase.update.CheckForUpdate
+import com.spiderbiggen.manga.domain.usecase.update.DismissUpdateNotice
+import com.spiderbiggen.manga.domain.usecase.update.ObserveUpdateNotice
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.time.Instant
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -179,11 +189,69 @@ class MangaListViewModelTest {
         assertEquals(expectedId, actualId)
     }
 
+    @Test
+    fun `given an update notice when state is collected then it is mapped into the screen state`() =
+        runBlocking {
+            val notice =
+                UpdateNotice(
+                    currentVersion = AppVersion(1, 32, 2),
+                    latestVersion = AppVersion(1, 32, 4),
+                    releaseUrl = "https://example.com/release",
+                    releases =
+                        persistentListOf(
+                            ReleaseChanges(
+                                version = AppVersion(1, 32, 4),
+                                groups =
+                                    persistentListOf(
+                                        ChangeGroup(ChangeKind.Fix, persistentListOf("Fix it"))
+                                    ),
+                            )
+                        ),
+                )
+
+            val state = viewModel(updateNotice = notice).state.first { it.updateNotice != null }
+            val viewData = state.updateNotice!!
+
+            assertEquals("1.32.4", viewData.latestVersion)
+            assertEquals("1.32.2", viewData.currentVersion)
+            assertEquals("https://example.com/release", viewData.releaseUrl)
+            assertEquals(listOf("Fix it"), viewData.releases.single().groups.single().messages)
+        }
+
+    @Test
+    fun `given no update notice when state is collected then the screen has none`() = runBlocking {
+        val state = viewModel().state.first { it.state is MangaScreenState.Ready }
+
+        assertNull(state.updateNotice)
+    }
+
+    @Test
+    fun `given a new view model when it is created then an update check is started`() {
+        val checked = CountDownLatch(1)
+
+        viewModel(onCheckForUpdate = { checked.countDown() })
+
+        assertTrue(checked.await(5, TimeUnit.SECONDS))
+    }
+
+    @Test
+    fun `given a visible notice when dismiss update action is dispatched then it is dismissed`() {
+        val dismissed = CountDownLatch(1)
+        val viewModel = viewModel(onDismissUpdate = { dismissed.countDown() })
+
+        viewModel.onAction(MangaListAction.DismissUpdate)
+
+        assertTrue(dismissed.await(5, TimeUnit.SECONDS))
+    }
+
     private fun viewModel(
         savedStateHandle: SavedStateHandle = SavedStateHandle(),
         manga: List<MangaForOverview> = emptyList(),
+        updateNotice: UpdateNotice? = null,
         onFavoriteClicked: (MangaId) -> Unit = {},
         onRefresh: (Boolean) -> Unit = {},
+        onCheckForUpdate: () -> Unit = {},
+        onDismissUpdate: () -> Unit = {},
     ) =
         MangaListViewModel(
             savedStateHandle = savedStateHandle,
@@ -197,6 +265,17 @@ class MangaListViewModelTest {
             updateStateFromRemote =
                 UpdateStateFromRemote { skipCache ->
                     onRefresh(skipCache)
+                    Unit.right()
+                },
+            observeUpdateNotice = ObserveUpdateNotice { flowOf(updateNotice) },
+            dismissUpdateNotice =
+                DismissUpdateNotice {
+                    onDismissUpdate()
+                    Unit.right()
+                },
+            checkForUpdate =
+                CheckForUpdate {
+                    onCheckForUpdate()
                     Unit.right()
                 },
             formatAppError = FormatAppError(),
