@@ -16,6 +16,10 @@ private val ENTRY_REGEX =
  *
  * Only features, bug fixes and performance improvements are kept; sections such as refactors and
  * chores, as well as commit hashes, scopes and authors, are dropped.
+ *
+ * This is coupled to the format produced by the `requarks/changelog-action` step in
+ * `.github/workflows/ci_release.yaml`. If that step or its configuration changes, update this
+ * parser and its tests together, otherwise releases silently show up as maintenance releases.
  */
 class ReleaseNotesParser {
 

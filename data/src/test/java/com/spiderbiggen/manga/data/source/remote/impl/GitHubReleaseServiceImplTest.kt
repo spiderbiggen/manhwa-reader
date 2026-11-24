@@ -32,7 +32,7 @@ class GitHubReleaseServiceImplTest {
                 defaultRequest { url("https://api.github.com/") }
                 install(ContentNegotiation) { json(Json { ignoreUnknownKeys = true }) }
             }
-        return GitHubReleaseServiceImpl(client)
+        return GitHubReleaseServiceImpl { client }
     }
 
     @Test

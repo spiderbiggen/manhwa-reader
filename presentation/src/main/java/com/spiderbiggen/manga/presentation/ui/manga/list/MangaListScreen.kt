@@ -332,11 +332,11 @@ private fun MangaListTopAppBar(
 private fun MangaGrid(
     mangas: ImmutableList<MangaViewData>,
     updateNotice: UpdateNoticeViewData?,
+    onWhatsNewClick: () -> Unit,
+    onDismissUpdateClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyGridState: LazyGridState = rememberLazyGridState(),
-    onWhatsNewClick: () -> Unit = {},
-    onDismissUpdateClick: () -> Unit = {},
     onMangaClick: (MangaId) -> Unit = {},
     onFavoriteClick: (MangaId) -> Unit = {},
 ) {

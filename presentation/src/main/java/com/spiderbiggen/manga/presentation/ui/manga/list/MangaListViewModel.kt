@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -81,7 +82,8 @@ class MangaListViewModel(
         combine(
             getOverviewManga(),
             activeFiltersFlow,
-            observeUpdateNotice(),
+            // Mapped before combining so the view data is not rebuilt on every manga emission.
+            observeUpdateNotice().map { it?.toViewData() }.distinctUntilChanged(),
         ) { mangas, activeFilters, updateNotice ->
             val timeZone = TimeZone.currentSystemDefault()
             val viewData =
@@ -94,7 +96,7 @@ class MangaListViewModel(
             MangaScreenData(
                 activeFilters = activeFilters,
                 state = MangaScreenState.Ready(viewData),
-                updateNotice = updateNotice?.toViewData(),
+                updateNotice = updateNotice,
             )
         }
 

@@ -12,7 +12,6 @@ import kotlin.time.Instant
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -32,7 +31,6 @@ class CheckForUpdateImplTest {
             service = service,
             store = store,
             config = UpdateConfig(currentVersion, enabled),
-            buildUpdateNotice = BuildUpdateNotice(),
             clock =
                 object : Clock {
                     override fun now() = now
@@ -156,8 +154,17 @@ class CheckForUpdateImplTest {
             service.releases = listOf(entity("v1.33.0-rc.1", prerelease = true))
             checker()()
 
-            assertFalse(store.state.value.releases.isNotEmpty())
             assertNull(observer()().first())
+        }
+
+    @Test
+    fun `given a cached pre-release when the installed version is a pre-release then it is offered`() =
+        runBlocking {
+            service.releases = listOf(entity("v1.33.0-rc.2", prerelease = true))
+            checker(currentVersion = "1.33.0-rc.1")()
+
+            assertEquals("1.33.0-rc.2", observer("1.33.0-rc.1")().first()!!.latestVersion)
+            assertNull(observer("1.32.4")().first())
         }
 
     private fun entity(

@@ -483,17 +483,17 @@ private fun com.spiderbiggen.manga.presentation.ui.manga.list.FilterSheet(active
     - onDismiss: STABLE (function type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, updateNotice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData?, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, onWhatsNewClick: kotlin.Function0<kotlin.Unit>, onDismissUpdateClick: kotlin.Function0<kotlin.Unit>, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.ui.manga.list.MangaGrid(mangas: kotlinx.collections.immutable.ImmutableList<com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData>, updateNotice: com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData?, onWhatsNewClick: kotlin.Function0<kotlin.Unit>, onDismissUpdateClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, contentPadding: androidx.compose.foundation.layout.PaddingValues, lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, onMangaClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>, onFavoriteClick: kotlin.Function1<com.spiderbiggen.manga.domain.model.id.MangaId, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - mangas: STABLE (known stable type)
     - updateNotice: STABLE (marked @Stable or @Immutable)
+    - onWhatsNewClick: STABLE (function type)
+    - onDismissUpdateClick: STABLE (function type)
     - modifier: STABLE (marked @Stable or @Immutable)
     - contentPadding: STABLE (marked @Stable or @Immutable)
     - lazyGridState: STABLE (marked @Stable or @Immutable)
-    - onWhatsNewClick: STABLE (function type)
-    - onDismissUpdateClick: STABLE (function type)
     - onMangaClick: STABLE (function type)
     - onFavoriteClick: STABLE (function type)
 

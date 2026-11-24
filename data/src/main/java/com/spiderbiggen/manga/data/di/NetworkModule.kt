@@ -40,5 +40,8 @@ val networkModule = module {
     singleOf(::MangaServiceImpl) bind MangaService::class
     singleOf(::AuthServiceImpl) bind AuthService::class
     singleOf(::UserServiceImpl) bind UserService::class
-    single<GitHubReleaseService> { GitHubReleaseServiceImpl(createGitHubClient(get())) }
+    single<GitHubReleaseService> {
+        val json = get<Json>()
+        GitHubReleaseServiceImpl { createGitHubClient(json) }
+    }
 }

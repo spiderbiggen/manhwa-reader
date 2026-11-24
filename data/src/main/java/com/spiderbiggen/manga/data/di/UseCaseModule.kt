@@ -95,7 +95,7 @@ val useCaseModule = module {
     singleOf(::UpdateStateFromRemoteImpl) { bind<UpdateStateFromRemote>() }
     singleOf(::UpdateMangaFromRemoteImpl) { bind<UpdateMangaFromRemote>() }
     singleOf(::UpdateChaptersFromRemoteImpl) { bind<UpdateChaptersFromRemote>() }
-    single { CheckForUpdateImpl(get(), get(), get(), get()) } bind CheckForUpdate::class
+    single { CheckForUpdateImpl(get(), get(), get()) } bind CheckForUpdate::class
     singleOf(::ObserveUpdateNoticeImpl) { bind<ObserveUpdateNotice>() }
     singleOf(::DismissUpdateNoticeImpl) { bind<DismissUpdateNotice>() }
 

@@ -19,7 +19,9 @@ private const val GITHUB_API_URL = "https://api.github.com/"
 private const val RELEASES_PATH = "repos/spiderbiggen/manhwa-reader/releases"
 private const val RELEASES_PAGE_SIZE = 30
 
-class GitHubReleaseServiceImpl(private val client: HttpClient) : GitHubReleaseService {
+/** The client is created on first use, so building the OkHttp engine stays off the startup path. */
+class GitHubReleaseServiceImpl(clientProvider: () -> HttpClient) : GitHubReleaseService {
+    private val client by lazy(clientProvider)
 
     override suspend fun getReleases(): List<GitHubReleaseEntity> =
         client.get(RELEASES_PATH) { parameter("per_page", RELEASES_PAGE_SIZE) }.body()

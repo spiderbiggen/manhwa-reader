@@ -12,12 +12,9 @@ private const val MAX_RELEASES = 10
 class BuildUpdateNotice(private val parser: ReleaseNotesParser = ReleaseNotesParser()) {
 
     /**
-     * The newest releases above [current], newest first. Pre-releases are only relevant to users
-     * who already run a pre-release.
+     * Describes the newest releases above [current], newest first. Pre-releases are only relevant
+     * to users who already run a pre-release.
      */
-    fun relevant(current: AppVersion, releases: List<CachedRelease>): List<CachedRelease> =
-        candidates(current, releases).map { it.second }
-
     operator fun invoke(current: AppVersion, releases: List<CachedRelease>): UpdateNotice? {
         val candidates = candidates(current, releases)
         val (latestVersion, latest) = candidates.firstOrNull() ?: return null

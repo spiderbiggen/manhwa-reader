@@ -18,13 +18,13 @@ class CheckForUpdateImpl(
     private val service: GitHubReleaseService,
     private val store: UpdateStore,
     private val config: UpdateConfig,
-    private val buildUpdateNotice: BuildUpdateNotice,
     private val clock: Clock = Clock.System,
 ) : CheckForUpdate {
 
     override suspend fun invoke(): Either<AppError, Unit> = either {
         if (!config.enabled) return@either
-        val current = AppVersion.parse(config.currentVersion) ?: return@either
+        // Without a comparable version no notice can ever be built, so skip the request.
+        AppVersion.parse(config.currentVersion) ?: return@either
 
         val now = clock.now()
         val lastCheckedAt = store.getLastCheckedAt().bind()
@@ -37,6 +37,7 @@ class CheckForUpdateImpl(
             releases
                 .filterNot { it.draft }
                 .map { CachedRelease(it.tagName, it.htmlUrl, it.body.orEmpty(), it.prerelease) }
-        store.saveCheck(buildUpdateNotice.relevant(current, cached), now).bind()
+        // Cache everything; which releases matter is decided once, when the notice is observed.
+        store.saveCheck(cached, now).bind()
     }
 }
