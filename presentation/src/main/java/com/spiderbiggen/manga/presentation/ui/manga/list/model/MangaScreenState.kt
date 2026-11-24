@@ -10,6 +10,7 @@ import kotlinx.collections.immutable.persistentSetOf
 data class MangaScreenData(
     val activeFilters: ImmutableSet<MangaFilter> = persistentSetOf(),
     val state: MangaScreenState = MangaScreenState.Loading,
+    val updateNotice: UpdateNoticeViewData? = null,
 )
 
 @Immutable

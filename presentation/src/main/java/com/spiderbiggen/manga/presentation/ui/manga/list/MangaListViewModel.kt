@@ -6,12 +6,16 @@ import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.domain.usecase.favorite.ToggleFavorite
 import com.spiderbiggen.manga.domain.usecase.manga.GetOverviewManga
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
+import com.spiderbiggen.manga.domain.usecase.update.CheckForUpdate
+import com.spiderbiggen.manga.domain.usecase.update.DismissUpdateNotice
+import com.spiderbiggen.manga.domain.usecase.update.ObserveUpdateNotice
 import com.spiderbiggen.manga.presentation.components.snackbar.SnackbarData
 import com.spiderbiggen.manga.presentation.extensions.defaultScope
 import com.spiderbiggen.manga.presentation.extensions.launchDefault
 import com.spiderbiggen.manga.presentation.extensions.suspended
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.toViewData
 import com.spiderbiggen.manga.presentation.usecases.FormatAppError
 import kotlinx.collections.immutable.ImmutableSet
 import kotlinx.collections.immutable.toImmutableList
@@ -37,8 +41,16 @@ class MangaListViewModel(
     private val mapMangaListViewData: MapMangaListViewData,
     private val toggleFavorite: ToggleFavorite,
     private val updateStateFromRemote: UpdateStateFromRemote,
+    private val observeUpdateNotice: ObserveUpdateNotice,
+    private val dismissUpdateNotice: DismissUpdateNotice,
+    checkForUpdate: CheckForUpdate,
     private val formatAppError: FormatAppError,
 ) : ViewModel() {
+
+    init {
+        // A failed check is not worth bothering the user with; it is retried on the next launch.
+        suspended { checkForUpdate() }
+    }
 
     private val activeFilterKeysFlow: StateFlow<List<Any?>> =
         savedStateHandle.getStateFlow(ACTIVE_FILTER_KEYS_KEY, emptyList())
@@ -69,7 +81,8 @@ class MangaListViewModel(
         combine(
             getOverviewManga(),
             activeFiltersFlow,
-        ) { mangas, activeFilters ->
+            observeUpdateNotice(),
+        ) { mangas, activeFilters, updateNotice ->
             val timeZone = TimeZone.currentSystemDefault()
             val viewData =
                 mangas
@@ -81,6 +94,7 @@ class MangaListViewModel(
             MangaScreenData(
                 activeFilters = activeFilters,
                 state = MangaScreenState.Ready(viewData),
+                updateNotice = updateNotice?.toViewData(),
             )
         }
 
@@ -89,6 +103,7 @@ class MangaListViewModel(
             MangaListAction.Refresh -> onRefresh()
             is MangaListAction.SetFilter -> setFilter(action.filter, action.enabled)
             MangaListAction.ClearFilters -> clearFilters()
+            MangaListAction.DismissUpdate -> onDismissUpdate()
             is MangaListAction.FavoriteClicked -> onFavoriteClick(action.id)
         }
     }
@@ -117,6 +132,10 @@ class MangaListViewModel(
 
     private fun onRefresh() = suspended {
         updateMangas(skipCache = true)
+    }
+
+    private fun onDismissUpdate() = suspended {
+        dismissUpdateNotice()
     }
 
     private fun onFavoriteClick(mangaId: MangaId) = suspended {
