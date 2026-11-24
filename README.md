@@ -62,3 +62,18 @@ To enable local commit validation, run this once from the repository root:
 ```text
 git config core.hooksPath .githooks
 ```
+
+## Releasing
+
+Releases are published by `.github/workflows/ci_release.yaml` when a semantic version tag (`vMAJOR.MINOR.PATCH`) is pushed.
+
+1. Pick the next version from the Conventional Commits merged since the previous tag: `fix` and similar changes bump the patch, `feat` bumps the minor, and breaking changes bump the major.
+2. Open a pull request titled `chore(release): bump version to X.Y.Z` that sets `versionName` to `X.Y.Z` and increments `versionCode` by one in `app/build.gradle.kts`, then merge it.
+3. Tag the merge commit on `master` and push the tag:
+
+   ```text
+   git tag vX.Y.Z <merge-commit>
+   git push origin vX.Y.Z
+   ```
+
+The workflow builds the signed release APK and bundle, generates release notes from the commit messages since the previous release tag (skipping the `deps`, `release`, `ci`, `docs`, `build` and similar scopes), and publishes a GitHub release marked as the latest one with the APK attached.
