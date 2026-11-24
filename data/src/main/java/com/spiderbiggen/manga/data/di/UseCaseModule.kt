@@ -34,6 +34,7 @@ import com.spiderbiggen.manga.data.usecase.update.BuildUpdateNotice
 import com.spiderbiggen.manga.data.usecase.update.CheckForUpdateImpl
 import com.spiderbiggen.manga.data.usecase.update.DismissUpdateNoticeImpl
 import com.spiderbiggen.manga.data.usecase.update.ObserveUpdateNoticeImpl
+import com.spiderbiggen.manga.data.usecase.update.ReleaseNotesParser
 import com.spiderbiggen.manga.data.usecase.user.GetLastSynchronizationTimeImpl
 import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
 import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
@@ -105,6 +106,7 @@ val useCaseModule = module {
     factoryOf(::RefreshAccessToken)
     factoryOf(::GetRemoteChapters)
     factoryOf(::GetRemoteManga)
+    factoryOf(::ReleaseNotesParser)
     factoryOf(::BuildUpdateNotice)
     factoryOf(::ToLocalChapter)
     factoryOf(::ToDomainChapter)

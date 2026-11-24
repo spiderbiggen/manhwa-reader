@@ -47,6 +47,20 @@ class ReleaseNotesParserTest {
     }
 
     @Test
+    fun `given the older commit author format when parsed then the suffix is stripped`() {
+        val groups =
+            parser.parse(
+                "### :bug: Bug Fixes\n" +
+                    "- [`abc1234`](https://x/y) - update setup android action after google deprecation *(commit by @someone)*\n"
+            )
+
+        assertEquals(
+            listOf("Update setup android action after google deprecation"),
+            groups.single().messages,
+        )
+    }
+
+    @Test
     fun `given an empty body when parsed then there are no groups`() {
         assertTrue(parser.parse("").isEmpty())
     }

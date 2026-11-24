@@ -6,9 +6,10 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 
 // Matches "- [`sha`](url) - **scope**: message *(PR #1 by @user)*" and captures the message.
+// Older releases end in "*(commit by @user)*" instead of the pull request reference.
 private val ENTRY_REGEX =
     Regex(
-        """^[-*] \[[^\]]*]\([^)]*\) - (?:\*\*[^*]+\*\*: )?(.*?)(?: \*\(PR #\d+ by @[^)]*\)\*)?$"""
+        """^[-*] \[[^\]]*]\([^)]*\) - (?:\*\*[^*]+\*\*: )?(.*?)(?: \*\((?:PR #\d+|commit) by @[^)]*\)\*)?$"""
     )
 
 /**
