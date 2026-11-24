@@ -14,7 +14,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
@@ -63,7 +62,7 @@ class LocalMangaDaoTest {
         }
 
     @Test
-    fun given_newer_chapter_on_remote_when_reading_overview_then_manga_is_unread_and_needs_update() =
+    fun given_newer_chapter_on_remote_when_reading_overview_then_manga_stays_read_and_needs_update() =
         runTest {
             givenReadChapter()
             mangaDao.insert(
@@ -75,7 +74,7 @@ class LocalMangaDaoTest {
                 )
             )
 
-            assertFalse(mangaDao.getAllNotDropped().first().single().isRead)
+            assertTrue(mangaDao.getAllNotDropped().first().single().isRead)
             assertEquals(listOf(mangaId), mangaDao.getForUpdate())
         }
 
