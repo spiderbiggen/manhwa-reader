@@ -5,6 +5,15 @@
 //   ./gradlew :presentation:stabilityDump
 
 @Composable
+public fun com.spiderbiggen.manga.presentation.components.AvatarImage(model: kotlin.String?, contentDescription: kotlin.String, modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - model: STABLE (class with no mutable properties)
+    - contentDescription: STABLE (String is immutable)
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.spiderbiggen.manga.presentation.components.FavoriteToggle(isFavorite: kotlin.Boolean, modifier: androidx.compose.ui.Modifier, contentColor: androidx.compose.ui.graphics.Color, favoriteContentColor: androidx.compose.ui.graphics.Color): kotlin.Unit
   skippable: true
   restartable: true
