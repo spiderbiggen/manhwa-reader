@@ -75,9 +75,9 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
-import com.spiderbiggen.manga.presentation.image.ChapterImageLoader
 import com.spiderbiggen.manga.presentation.components.ReaderScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
+import com.spiderbiggen.manga.presentation.image.ChapterImageLoader
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
 import org.koin.compose.koinInject
@@ -201,7 +201,7 @@ private fun ReadyImagesOverview(
         PreloadImages(
             lazyListState = lazyListState,
             items = state.images,
-            imageLoader = koinInject<ChapterImageLoader>().imageLoader,
+            imageLoader = koinInject<ChapterImageLoader>(),
         )
         LazyColumn(
             contentPadding = contentPadding,
