@@ -106,6 +106,7 @@ ktor-client-content-negotiation = { group = "io.ktor", name = "ktor-client-conte
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json" }
 ktor-client-auth = { group = "io.ktor", name = "ktor-client-auth" }
 ktor-client-encoding = { group = "io.ktor", name = "ktor-client-encoding" }
+ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock" }
 
 # Kotlin std
 kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlin" }
