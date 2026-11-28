@@ -1,0 +1,10 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="288dp"
+    android:height="288dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Fills the middle two thirds, the part the splash screen leaves visible. -->
+    <path
+        android:fillColor="@color/launcher_background"
+        android:pathData="M54,18A36,36 0 1 1 54,90A36,36 0 1 1 54,18Z" />
+</vector>

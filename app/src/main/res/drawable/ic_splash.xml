@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Splash icon for versions below Android 12, which don't use the launcher icon by themselves. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:drawable="@drawable/ic_splash_background"
+        android:width="288dp"
+        android:height="288dp" />
+    <item
+        android:drawable="@drawable/ic_launcher_foreground"
+        android:width="288dp"
+        android:height="288dp" />
+</layer-list>
