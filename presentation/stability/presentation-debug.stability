@@ -29,6 +29,13 @@ public fun com.spiderbiggen.manga.presentation.components.GappedLinearProgressIn
     - drawStopIndicator: STABLE (function type)
 
 @Composable
+public fun com.spiderbiggen.manga.presentation.components.InkyLogo(modifier: androidx.compose.ui.Modifier): kotlin.Unit
+  skippable: true
+  restartable: true
+  params:
+    - modifier: STABLE (marked @Stable or @Immutable)
+
+@Composable
 public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, preloadCount: kotlin.Int, imageLoader: coil3.ImageLoader?): kotlin.Unit
   skippable: true
   restartable: true
