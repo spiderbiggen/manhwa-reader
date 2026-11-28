@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- The drop of the launcher icon without its background. logo_inky_fold goes on top of it. -->
+<!-- The drop of the launcher icon without its background. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="30dp"
     android:height="30dp"
@@ -9,13 +9,19 @@
     <group
         android:translateX="-23"
         android:translateY="-22">
+        <!-- Ink drop -->
         <path
             android:fillColor="#E8006A"
             android:pathData="M54,24C54,24 32,47 32,60C32,72.15 41.85,82 54,82L76,60C76,47 54,24 54,24Z" />
+        <!-- Shine -->
         <path
             android:pathData="M43,49C39.5,54 38,57.5 38,61.5"
             android:strokeColor="#FFF"
             android:strokeLineCap="round"
             android:strokeWidth="3" />
+        <!-- Folded page corner -->
+        <path
+            android:fillColor="@color/logo_fold"
+            android:pathData="M76,60L54,82C56,74 54.5,68.5 58.5,64.5C62.5,60.5 68,62 76,60Z" />
     </group>
 </vector>
