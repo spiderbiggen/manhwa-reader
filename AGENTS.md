@@ -185,7 +185,11 @@ value class MangaId(val value: String)
 1. Run code formatting: `./gradlew spotlessApply`
 2. Run tests: `./gradlew test`
 3. Generate and inspect coverage: `./gradlew coverage`
-4. Ensure build passes: `./gradlew build` (if necessary)
+4. Run static analysis: `./gradlew detekt lint`
+5. Check Compose stability: `./gradlew app:stabilityCheck presentation:stabilityCheck`
+6. Ensure build passes: `./gradlew build` (if necessary)
+
+CI runs these checks for every pull request; see `.github/workflows/ci_check.yaml`. If the stability check fails because of an intentional change, such as a new composable, run `./gradlew stabilityDump`, review the diff of the `.stability` files, and commit it.
 
 ### Coverage
 - Kover `0.9.9` is the project coverage engine; `./gradlew coverage` runs host unit tests and generates the aggregate XML and HTML reports.
