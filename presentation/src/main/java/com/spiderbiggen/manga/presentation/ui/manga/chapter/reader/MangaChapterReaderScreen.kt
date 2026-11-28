@@ -59,6 +59,7 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessStarted
+import coil3.ImageLoader
 import coil3.annotation.ExperimentalCoilApi
 import coil3.asImage
 import coil3.compose.AsyncImagePainter
@@ -77,8 +78,10 @@ import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.ReaderScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
+import com.spiderbiggen.manga.presentation.image.ChapterImageLoaderQualifier
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
+import org.koin.compose.koinInject
 
 @Composable
 fun MangaChapterReaderScreen(
@@ -196,7 +199,11 @@ private fun ReadyImagesOverview(
             animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
         )
     Box(modifier) {
-        PreloadImages(lazyListState, state.images)
+        PreloadImages(
+            lazyListState = lazyListState,
+            items = state.images,
+            imageLoader = koinInject<ImageLoader>(ChapterImageLoaderQualifier),
+        )
         LazyColumn(
             contentPadding = contentPadding,
             state = lazyListState,
@@ -249,7 +256,11 @@ private fun ListImage(
     modifier: Modifier = Modifier,
     onSuccess: () -> Unit = {},
 ) {
-    val asyncPainter = rememberAsyncImagePainter(model)
+    val asyncPainter =
+        rememberAsyncImagePainter(
+            model = model,
+            imageLoader = koinInject<ImageLoader>(ChapterImageLoaderQualifier),
+        )
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
     DisplayImageState(painterState, modifier)
     val onSuccessState = rememberUpdatedState(onSuccess)

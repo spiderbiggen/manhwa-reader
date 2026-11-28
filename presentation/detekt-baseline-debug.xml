@@ -14,9 +14,11 @@
     <ID>LongParameterList:MangaListScreen.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable private fun MangaOverviewContent</ID>
     <ID>LongParameterList:MangaListScreen.kt:@Suppress("ModifierMissing") @Composable fun MangaListScreen</ID>
     <ID>LongParameterList:MangaTopAppBar.kt:@Composable fun MangaTopAppBar</ID>
+    <ID>LongParameterList:PreloadImages.kt:@Composable private fun PreloadImagesInternal</ID>
     <ID>LongParameterList:ProfileOverview.kt:@Suppress("ModifierMissing") @Composable fun ProfileOverviewContent</ID>
     <ID>LongParameterList:PullToRefresh.kt:@OptIn(ExperimentalMaterial3ExpressiveApi::class) @Composable fun PullToRefreshBox</ID>
     <ID>LongParameterList:ReaderScaffold.kt:@Composable fun ReaderScaffold</ID>
+    <ID>MissingReadOnlyComposable:Padding.kt:@Composable operator fun PaddingValues.plus: PaddingValues</ID>
     <ID>StateParam:MainContent.kt:profileState: State&lt;ProfileState&gt;</ID>
     <ID>UnsafeCallOnNullableType:MangaChapterReaderScreen.kt:ResourcesCompat.getDrawable( context.resources, R.mipmap.preview_cover_placeholder, null, )!!</ID>
     <ID>UnsafeCallOnNullableType:MangaCoverCard.kt:ResourcesCompat.getDrawable(context.resources, R.mipmap.preview_cover_placeholder, null)!!</ID>
