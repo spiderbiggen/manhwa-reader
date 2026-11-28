@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches onSurface of the light colour scheme. -->
+    <color name="logo_fold">#1A1A1C</color>
+</resources>

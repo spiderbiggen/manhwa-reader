@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
@@ -73,6 +74,7 @@ import coil3.compose.rememberConstraintsSizeResolver
 import com.spiderbiggen.manga.domain.model.id.MangaId
 import com.spiderbiggen.manga.presentation.BuildConfig
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.InkyLogo
 import com.spiderbiggen.manga.presentation.components.PreloadImages
 import com.spiderbiggen.manga.presentation.components.ProfileIcon
 import com.spiderbiggen.manga.presentation.components.plus
@@ -94,6 +96,9 @@ private val MangaGridPhoneMinCardWidth = 110.dp
 private val MangaGridTabletMinCardWidth = 180.dp
 private val MangaGridTabletBreakpoint = 600.dp
 private val MangaFilterSheetHorizontalPadding = 16.dp
+
+// The drop is narrower than its square icon. This keeps its edge close to the start of the bar.
+private val MangaListLogoOffset = (-4).dp
 
 private data class MangaFilterDefinition(
     val filter: MangaFilter,
@@ -264,15 +269,16 @@ private fun MangaListTopAppBar(
     onFilterClick: () -> Unit,
 ) {
     MangaTopAppBar(
-        navigationIcon = {
-            IconButton(onClick = onProfileClick) {
-                ProfileIcon(profileState)
-            }
-        },
-        title = {
-            // Empty
-        },
+        title = { InkyLogo(Modifier.offset(x = MangaListLogoOffset)) },
         actions = {
+            if (BuildConfig.DEBUG) {
+                IconButton(onClick = { error("crash report") }) {
+                    Icon(
+                        painter = painterResource(R.drawable.bug_report),
+                        contentDescription = "Create a crash report (by crashing)",
+                    )
+                }
+            }
             BadgedBox(
                 badge = {
                     if (activeFilterCount > 0) {
@@ -298,13 +304,8 @@ private fun MangaListTopAppBar(
                     )
                 }
             }
-            if (BuildConfig.DEBUG) {
-                IconButton(onClick = { error("crash report") }) {
-                    Icon(
-                        painter = painterResource(R.drawable.bug_report),
-                        contentDescription = "Create a crash report (by crashing)",
-                    )
-                }
+            IconButton(onClick = onProfileClick) {
+                ProfileIcon(profileState)
             }
         },
         scrollBehavior = topAppBarScrollBehavior,

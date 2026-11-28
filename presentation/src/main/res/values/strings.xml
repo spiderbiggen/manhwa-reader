@@ -1,4 +1,5 @@
 <resources>
+    <string name="logo_description">Inky</string>
     <string name="action_back">Back</string>
     <string name="action_favorite">Favorite</string>
     <string name="action_unfavorite">Unfavorite</string>
