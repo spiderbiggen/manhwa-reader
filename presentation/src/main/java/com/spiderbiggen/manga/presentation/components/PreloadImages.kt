@@ -24,7 +24,6 @@ import coil3.size.Dimension
 import coil3.size.Precision
 import coil3.size.Size
 import coil3.size.SizeResolver
-import com.spiderbiggen.manga.presentation.image.ChapterImageLoader
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -33,7 +32,7 @@ fun PreloadImages(
     lazyListState: LazyListState,
     items: ImmutableList<String>,
     preloadCount: Int = 5,
-    imageLoader: ChapterImageLoader? = null,
+    imageLoader: ImageLoader? = null,
 ) {
     val width = LocalWindowInfo.current.containerSize.width
     val sizeResolver by rememberUpdatedState {
@@ -53,7 +52,7 @@ fun PreloadImages(
     items: ImmutableList<String>,
     sizeResolver: () -> SizeResolver,
     preloadCount: Int = 5,
-    imageLoader: ChapterImageLoader? = null,
+    imageLoader: ImageLoader? = null,
 ) {
     PreloadImagesInternal(
         firstVisibleItemIndex = { lazyListState.firstVisibleItemIndex },
@@ -88,7 +87,7 @@ private fun PreloadImagesInternal(
     items: ImmutableList<String>,
     sizeResolver: () -> SizeResolver,
     preloadCount: Int = 5,
-    imageLoader: ChapterImageLoader? = null,
+    imageLoader: ImageLoader? = null,
 ) {
     if (items.isEmpty() || preloadCount <= 0) return
 
@@ -114,7 +113,7 @@ private fun PreloadImagesInternal(
 
     val context = LocalContext.current
     SideEffect(context, items, range, sizeResolver, imageLoader) {
-        val loader = imageLoader?.imageLoader ?: SingletonImageLoader.get(context)
+        val loader = imageLoader ?: SingletonImageLoader.get(context)
         state.preload(
             context = context,
             desiredIndices = range,

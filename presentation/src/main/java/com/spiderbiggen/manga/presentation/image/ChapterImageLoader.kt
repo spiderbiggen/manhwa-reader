@@ -1,7 +1,6 @@
 package com.spiderbiggen.manga.presentation.image
 
 import android.content.Context
-import androidx.compose.runtime.Immutable
 import coil3.ImageLoader
 import coil3.disk.DiskCache
 import java.io.File
@@ -13,7 +12,7 @@ import okio.Path.Companion.toOkioPath
  * Chapter pages are large and numerous, so they get their own disk and memory caches. Otherwise
  * they evict the small, long-lived images (covers, avatars) held by the default Coil loader.
  */
-@Immutable class ChapterImageLoader(val imageLoader: ImageLoader)
+@JvmInline value class ChapterImageLoader(val imageLoader: ImageLoader)
 
 internal const val CHAPTER_IMAGE_CACHE_DIRECTORY = "chapter_image_cache"
 

@@ -201,7 +201,7 @@ private fun ReadyImagesOverview(
         PreloadImages(
             lazyListState = lazyListState,
             items = state.images,
-            imageLoader = koinInject<ChapterImageLoader>(),
+            imageLoader = koinInject<ChapterImageLoader>().imageLoader,
         )
         LazyColumn(
             contentPadding = contentPadding,

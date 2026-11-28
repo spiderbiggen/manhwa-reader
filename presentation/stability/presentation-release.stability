@@ -29,17 +29,17 @@ public fun com.spiderbiggen.manga.presentation.components.GappedLinearProgressIn
     - drawStopIndicator: STABLE (function type)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, preloadCount: kotlin.Int, imageLoader: com.spiderbiggen.manga.presentation.image.ChapterImageLoader?): kotlin.Unit
+public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, preloadCount: kotlin.Int, imageLoader: coil3.ImageLoader?): kotlin.Unit
   skippable: true
   restartable: true
   params:
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - items: STABLE (known stable type)
     - preloadCount: STABLE (primitive type)
-    - imageLoader: STABLE (marked @Stable or @Immutable)
+    - imageLoader: UNSTABLE (cross-module type without @Stable/@Immutable)
 
 @Composable
-public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int, imageLoader: com.spiderbiggen.manga.presentation.image.ChapterImageLoader?): kotlin.Unit
+public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int, imageLoader: coil3.ImageLoader?): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -47,7 +47,7 @@ public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyList
     - items: STABLE (known stable type)
     - sizeResolver: STABLE (function type)
     - preloadCount: STABLE (primitive type)
-    - imageLoader: STABLE (marked @Stable or @Immutable)
+    - imageLoader: UNSTABLE (cross-module type without @Stable/@Immutable)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int): kotlin.Unit
@@ -60,7 +60,7 @@ public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyGrid
     - preloadCount: STABLE (primitive type)
 
 @Composable
-private fun com.spiderbiggen.manga.presentation.components.PreloadImagesInternal(firstVisibleItemIndex: kotlin.Function0<kotlin.Int>, visibleItemsCount: kotlin.Function0<kotlin.Int>, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int, imageLoader: com.spiderbiggen.manga.presentation.image.ChapterImageLoader?): kotlin.Unit
+private fun com.spiderbiggen.manga.presentation.components.PreloadImagesInternal(firstVisibleItemIndex: kotlin.Function0<kotlin.Int>, visibleItemsCount: kotlin.Function0<kotlin.Int>, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int, imageLoader: coil3.ImageLoader?): kotlin.Unit
   skippable: true
   restartable: true
   params:
@@ -69,7 +69,7 @@ private fun com.spiderbiggen.manga.presentation.components.PreloadImagesInternal
     - items: STABLE (known stable type)
     - sizeResolver: STABLE (function type)
     - preloadCount: STABLE (primitive type)
-    - imageLoader: STABLE (marked @Stable or @Immutable)
+    - imageLoader: UNSTABLE (cross-module type without @Stable/@Immutable)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.ProfileIcon(profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
