@@ -30,6 +30,11 @@ import com.spiderbiggen.manga.data.usecase.read.SetReadImpl
 import com.spiderbiggen.manga.data.usecase.read.SetReadUpToChapterImpl
 import com.spiderbiggen.manga.data.usecase.read.ToggleReadImpl
 import com.spiderbiggen.manga.data.usecase.remote.UpdateStateFromRemoteImpl
+import com.spiderbiggen.manga.data.usecase.update.BuildUpdateNotice
+import com.spiderbiggen.manga.data.usecase.update.CheckForUpdateImpl
+import com.spiderbiggen.manga.data.usecase.update.DismissUpdateNoticeImpl
+import com.spiderbiggen.manga.data.usecase.update.ObserveUpdateNoticeImpl
+import com.spiderbiggen.manga.data.usecase.update.ReleaseNotesParser
 import com.spiderbiggen.manga.data.usecase.user.GetLastSynchronizationTimeImpl
 import com.spiderbiggen.manga.data.usecase.user.GetUserImpl
 import com.spiderbiggen.manga.data.usecase.user.MapUserEntity
@@ -53,10 +58,14 @@ import com.spiderbiggen.manga.domain.usecase.read.ToggleRead
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateChaptersFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateMangaFromRemote
 import com.spiderbiggen.manga.domain.usecase.remote.UpdateStateFromRemote
+import com.spiderbiggen.manga.domain.usecase.update.CheckForUpdate
+import com.spiderbiggen.manga.domain.usecase.update.DismissUpdateNotice
+import com.spiderbiggen.manga.domain.usecase.update.ObserveUpdateNotice
 import com.spiderbiggen.manga.domain.usecase.user.GetLastSynchronizationTime
 import com.spiderbiggen.manga.domain.usecase.user.GetUser
 import com.spiderbiggen.manga.domain.usecase.user.SynchronizeWithRemote
 import com.spiderbiggen.manga.domain.usecase.user.profile.UpdateAvatar
+import kotlin.time.Clock
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -88,6 +97,10 @@ val useCaseModule = module {
     singleOf(::UpdateStateFromRemoteImpl) { bind<UpdateStateFromRemote>() }
     singleOf(::UpdateMangaFromRemoteImpl) { bind<UpdateMangaFromRemote>() }
     singleOf(::UpdateChaptersFromRemoteImpl) { bind<UpdateChaptersFromRemote>() }
+    single<Clock> { Clock.System }
+    singleOf(::CheckForUpdateImpl) { bind<CheckForUpdate>() }
+    singleOf(::ObserveUpdateNoticeImpl) { bind<ObserveUpdateNotice>() }
+    singleOf(::DismissUpdateNoticeImpl) { bind<DismissUpdateNotice>() }
 
     factoryOf(::FetchCurrentUser)
     factoryOf(::ResetBearerToken) { bind<BearerTokenResetter>() }
@@ -95,6 +108,8 @@ val useCaseModule = module {
     factoryOf(::RefreshAccessToken)
     factoryOf(::GetRemoteChapters)
     factoryOf(::GetRemoteManga)
+    factoryOf(::ReleaseNotesParser)
+    factoryOf(::BuildUpdateNotice)
     factoryOf(::ToLocalChapter)
     factoryOf(::ToDomainChapter)
     factoryOf(::ToLocalManga)
