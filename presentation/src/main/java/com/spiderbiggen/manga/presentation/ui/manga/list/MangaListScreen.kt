@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -80,9 +81,13 @@ import com.spiderbiggen.manga.presentation.components.pulltorefresh.PullToRefres
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import com.spiderbiggen.manga.presentation.ui.manga.list.components.MangaCoverCard
+import com.spiderbiggen.manga.presentation.ui.manga.list.components.UpdateChangelogSheet
+import com.spiderbiggen.manga.presentation.ui.manga.list.components.UpdateNoticeCard
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenData
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaScreenState
 import com.spiderbiggen.manga.presentation.ui.manga.list.model.MangaViewData
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.ReleaseChangesViewData
+import com.spiderbiggen.manga.presentation.ui.manga.list.model.UpdateNoticeViewData
 import com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.ImmutableSet
@@ -105,6 +110,8 @@ private val mangaFilterDefinitions =
         MangaFilterDefinition(MangaFilter.Unread, R.string.manga_filter_unread),
         MangaFilterDefinition(MangaFilter.Favorites, R.string.manga_filter_favorites),
     )
+
+private const val UPDATE_NOTICE_KEY = "update-notice"
 
 internal fun mangaGridMinCardWidth(maxWidth: Dp) =
     if (maxWidth >= MangaGridTabletBreakpoint) {
@@ -157,6 +164,7 @@ fun MangaListScreen(
         profileState = profileState,
         manga = manga,
         activeFilters = state.activeFilters,
+        updateNotice = state.updateNotice,
         isRefreshing = isRefreshing,
         onAction = onAction,
         onProfileClick = onProfileClick,
@@ -171,6 +179,7 @@ private fun MangaOverviewContent(
     profileState: ProfileState,
     manga: ImmutableList<MangaViewData>,
     activeFilters: ImmutableSet<MangaFilter>,
+    updateNotice: UpdateNoticeViewData?,
     isRefreshing: Boolean,
     onAction: (MangaListAction) -> Unit = {},
     onProfileClick: () -> Unit = {},
@@ -178,6 +187,7 @@ private fun MangaOverviewContent(
 ) {
     val lazyGridState = rememberLazyGridState()
     var isFilterSheetVisible by rememberSaveable { mutableStateOf(false) }
+    var isChangelogVisible by rememberSaveable { mutableStateOf(false) }
     val activeFilterCount = activeFilters.size
     val topAppBarScrollBehavior =
         TopAppBarDefaults.enterAlwaysScrollBehavior(
@@ -209,11 +219,14 @@ private fun MangaOverviewContent(
             ) {
                 MangaGrid(
                     mangas = manga,
+                    updateNotice = updateNotice,
                     modifier =
                         Modifier.fillMaxSize()
                             .nestedScroll(topAppBarScrollBehavior.nestedScrollConnection),
                     contentPadding = contentPadding,
                     lazyGridState = lazyGridState,
+                    onWhatsNewClick = { isChangelogVisible = true },
+                    onDismissUpdateClick = { onAction(MangaListAction.DismissUpdate) },
                     onMangaClick = onMangaClick,
                     onFavoriteClick = { onAction(MangaListAction.FavoriteClicked(it)) },
                 )
@@ -227,6 +240,10 @@ private fun MangaOverviewContent(
                 onAction = onAction,
                 onDismiss = { isFilterSheetVisible = false },
             )
+        }
+
+        if (isChangelogVisible && updateNotice != null) {
+            UpdateChangelogSheet(updateNotice, onDismiss = { isChangelogVisible = false })
         }
     }
 }
@@ -314,6 +331,9 @@ private fun MangaListTopAppBar(
 @Composable
 private fun MangaGrid(
     mangas: ImmutableList<MangaViewData>,
+    updateNotice: UpdateNoticeViewData?,
+    onWhatsNewClick: () -> Unit,
+    onDismissUpdateClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
     lazyGridState: LazyGridState = rememberLazyGridState(),
@@ -344,6 +364,21 @@ private fun MangaGrid(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
+            if (updateNotice != null) {
+                item(key = UPDATE_NOTICE_KEY, span = { GridItemSpan(maxLineSpan) }) {
+                    UpdateNoticeCard(
+                        notice = updateNotice,
+                        onWhatsNewClick = onWhatsNewClick,
+                        onDismissClick = onDismissUpdateClick,
+                        modifier =
+                            Modifier.animateItem(
+                                fadeInSpec = floatAnimationSpec,
+                                placementSpec = intOffsetAnimateSpec,
+                                fadeOutSpec = floatAnimationSpec,
+                            ),
+                    )
+                }
+            }
             items(
                 items = mangas,
                 key = { it.id.value },
@@ -454,6 +489,22 @@ class MangaOverviewScreenDataProvider : PreviewParameterProvider<MangaScreenData
                 MangaScreenData(),
                 MangaScreenData(
                     state = MangaScreenState.Ready(manga = MangaProvider.values.toImmutableList())
+                ),
+                MangaScreenData(
+                    state = MangaScreenState.Ready(manga = MangaProvider.values.toImmutableList()),
+                    updateNotice =
+                        UpdateNoticeViewData(
+                            currentVersion = "1.32.2",
+                            latestVersion = "1.32.4",
+                            releaseUrl = "https://github.com/spiderbiggen/manhwa-reader/releases",
+                            releases =
+                                persistentListOf(
+                                    ReleaseChangesViewData(
+                                        version = "1.32.4",
+                                        groups = persistentListOf(),
+                                    )
+                                ),
+                        ),
                 ),
                 MangaScreenData(
                     activeFilters = persistentSetOf(MangaFilter.Unread),

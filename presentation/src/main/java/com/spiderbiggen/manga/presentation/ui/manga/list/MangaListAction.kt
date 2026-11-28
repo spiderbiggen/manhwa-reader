@@ -9,5 +9,7 @@ sealed interface MangaListAction {
 
     data object ClearFilters : MangaListAction
 
+    data object DismissUpdate : MangaListAction
+
     data class FavoriteClicked(val id: MangaId) : MangaListAction
 }

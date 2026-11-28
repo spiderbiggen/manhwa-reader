@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.compose.runtime.Composer
 import androidx.compose.runtime.tooling.ComposeStackTraceMode
 import com.spiderbiggen.manga.data.di.dataModule
+import com.spiderbiggen.manga.di.appModule
 import com.spiderbiggen.manga.presentation.di.presentationModule
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -17,7 +18,7 @@ class MangaApp : Application() {
         startKoin {
             androidLogger()
             androidContext(this@MangaApp)
-            modules(dataModule, presentationModule)
+            modules(appModule, dataModule, presentationModule)
         }
     }
 }
