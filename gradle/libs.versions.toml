@@ -96,6 +96,7 @@ koin-android = { group = "io.insert-koin", name = "koin-android" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose" }
 koin-core = { group = "io.insert-koin", name = "koin-core" }
 koin-navigation3 = { group = "io.insert-koin", name = "koin-compose-navigation3" }
+koin-test = { group = "io.insert-koin", name = "koin-test" }
 
 # Ktor
 ktor-bom = { group = "io.ktor", name = "ktor-bom", version.ref = "ktor" }

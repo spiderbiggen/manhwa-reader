@@ -118,6 +118,9 @@ dependencies {
 
     // Testing
     testImplementation(libs.junit)
+    testImplementation(libs.koin.test)
+    testImplementation(platform(libs.ktor.bom))
+    testImplementation(libs.ktor.client.core)
     androidTestImplementation(libs.androidX.test.ext.junit)
     androidTestImplementation(libs.espresso.core)
     // this is required for linting even though the IDE says it is duplicated
