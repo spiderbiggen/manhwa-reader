@@ -1,5 +1,6 @@
 package com.spiderbiggen.manga.presentation.di
 
+import com.spiderbiggen.manga.presentation.image.ChapterImageLoaderQualifier
 import com.spiderbiggen.manga.presentation.image.createChapterImageLoader
 import com.spiderbiggen.manga.presentation.ui.manga.chapter.list.MapChapterRowData
 import com.spiderbiggen.manga.presentation.ui.manga.list.MapMangaListViewData
@@ -12,5 +13,5 @@ val uiModule = module {
     factoryOf(::MapMangaListViewData)
     factoryOf(::MapChapterRowData)
     factoryOf(::FormatAppError)
-    single { createChapterImageLoader(androidContext()) }
+    single(ChapterImageLoaderQualifier) { createChapterImageLoader(androidContext()) }
 }

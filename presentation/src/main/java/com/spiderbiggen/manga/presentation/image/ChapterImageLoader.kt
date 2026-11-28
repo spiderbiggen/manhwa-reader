@@ -5,29 +5,28 @@ import coil3.ImageLoader
 import coil3.disk.DiskCache
 import java.io.File
 import okio.Path.Companion.toOkioPath
+import org.koin.core.qualifier.named
 
 /**
- * Image loader dedicated to chapter pages.
+ * Qualifier for the image loader dedicated to chapter pages.
  *
  * Chapter pages are large and numerous, so they get their own disk and memory caches. Otherwise
  * they evict the small, long-lived images (covers, avatars) held by the default Coil loader.
  */
-@JvmInline value class ChapterImageLoader(val imageLoader: ImageLoader)
+val ChapterImageLoaderQualifier = named("chapterImageLoader")
 
 internal const val CHAPTER_IMAGE_CACHE_DIRECTORY = "chapter_image_cache"
 
 internal fun chapterImageCacheDirectory(cacheDir: File): File =
     File(cacheDir, CHAPTER_IMAGE_CACHE_DIRECTORY)
 
-fun createChapterImageLoader(context: Context): ChapterImageLoader {
+fun createChapterImageLoader(context: Context): ImageLoader {
     val appContext = context.applicationContext
-    val loader =
-        ImageLoader.Builder(appContext)
-            .diskCache {
-                DiskCache.Builder()
-                    .directory(chapterImageCacheDirectory(appContext.cacheDir).toOkioPath())
-                    .build()
-            }
-            .build()
-    return ChapterImageLoader(loader)
+    return ImageLoader.Builder(appContext)
+        .diskCache {
+            DiskCache.Builder()
+                .directory(chapterImageCacheDirectory(appContext.cacheDir).toOkioPath())
+                .build()
+        }
+        .build()
 }
