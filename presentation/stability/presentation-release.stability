@@ -36,7 +36,7 @@ public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyList
     - lazyListState: STABLE (marked @Stable or @Immutable)
     - items: STABLE (known stable type)
     - preloadCount: STABLE (primitive type)
-    - imageLoader: UNSTABLE (cross-module type without @Stable/@Immutable)
+    - imageLoader: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyListState: androidx.compose.foundation.lazy.LazyListState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int, imageLoader: coil3.ImageLoader?): kotlin.Unit
@@ -47,7 +47,7 @@ public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyList
     - items: STABLE (known stable type)
     - sizeResolver: STABLE (function type)
     - preloadCount: STABLE (primitive type)
-    - imageLoader: UNSTABLE (cross-module type without @Stable/@Immutable)
+    - imageLoader: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.PreloadImages(lazyGridState: androidx.compose.foundation.lazy.grid.LazyGridState, items: kotlinx.collections.immutable.ImmutableList<kotlin.String>, sizeResolver: kotlin.Function0<coil3.size.SizeResolver>, preloadCount: kotlin.Int): kotlin.Unit
@@ -69,7 +69,7 @@ private fun com.spiderbiggen.manga.presentation.components.PreloadImagesInternal
     - items: STABLE (known stable type)
     - sizeResolver: STABLE (function type)
     - preloadCount: STABLE (primitive type)
-    - imageLoader: UNSTABLE (cross-module type without @Stable/@Immutable)
+    - imageLoader: UNKNOWN (interface or non-final class; concrete implementation unknown)
 
 @Composable
 public fun com.spiderbiggen.manga.presentation.components.ProfileIcon(profileState: com.spiderbiggen.manga.presentation.ui.profile.state.ProfileState, modifier: androidx.compose.ui.Modifier): kotlin.Unit
