@@ -32,6 +32,7 @@ fun PreloadImages(
     lazyListState: LazyListState,
     items: ImmutableList<String>,
     preloadCount: Int = 5,
+    imageLoader: ImageLoader? = null,
 ) {
     val width = LocalWindowInfo.current.containerSize.width
     val sizeResolver by rememberUpdatedState {
@@ -42,7 +43,7 @@ fun PreloadImages(
             )
         )
     }
-    PreloadImages(lazyListState, items, sizeResolver, preloadCount)
+    PreloadImages(lazyListState, items, sizeResolver, preloadCount, imageLoader)
 }
 
 @Composable
@@ -51,6 +52,7 @@ fun PreloadImages(
     items: ImmutableList<String>,
     sizeResolver: () -> SizeResolver,
     preloadCount: Int = 5,
+    imageLoader: ImageLoader? = null,
 ) {
     PreloadImagesInternal(
         firstVisibleItemIndex = { lazyListState.firstVisibleItemIndex },
@@ -58,6 +60,7 @@ fun PreloadImages(
         items = items,
         sizeResolver = sizeResolver,
         preloadCount = preloadCount,
+        imageLoader = imageLoader,
     )
 }
 
@@ -67,6 +70,7 @@ fun PreloadImages(
     items: ImmutableList<String>,
     sizeResolver: () -> SizeResolver,
     preloadCount: Int = 5,
+    imageLoader: ImageLoader? = null,
 ) {
     PreloadImagesInternal(
         firstVisibleItemIndex = { lazyGridState.firstVisibleItemIndex },
@@ -74,6 +78,7 @@ fun PreloadImages(
         items = items,
         sizeResolver = sizeResolver,
         preloadCount = preloadCount,
+        imageLoader = imageLoader,
     )
 }
 
@@ -84,6 +89,7 @@ private fun PreloadImagesInternal(
     items: ImmutableList<String>,
     sizeResolver: () -> SizeResolver,
     preloadCount: Int = 5,
+    imageLoader: ImageLoader? = null,
 ) {
     if (items.isEmpty() || preloadCount <= 0) return
 
@@ -108,12 +114,12 @@ private fun PreloadImagesInternal(
         }
 
     val context = LocalContext.current
-    SideEffect(context, items, range, sizeResolver) {
-        val imageLoader = SingletonImageLoader.get(context)
+    SideEffect(context, items, range, sizeResolver, imageLoader) {
+        val loader = imageLoader ?: SingletonImageLoader.get(context)
         state.preload(
             context = context,
             desiredIndices = range,
-            imageLoader = imageLoader,
+            imageLoader = loader,
             sizeResolver = sizeResolver(),
         )
 

@@ -75,10 +75,12 @@ import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.R.drawable.arrow_back
 import com.spiderbiggen.manga.presentation.components.FavoriteToggle
 import com.spiderbiggen.manga.presentation.components.PreloadImages
+import com.spiderbiggen.manga.presentation.image.ChapterImageLoader
 import com.spiderbiggen.manga.presentation.components.ReaderScaffold
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
 import kotlinx.collections.immutable.persistentListOf
+import org.koin.compose.koinInject
 
 @Composable
 fun MangaChapterReaderScreen(
@@ -196,7 +198,11 @@ private fun ReadyImagesOverview(
             animationSpec = MaterialTheme.motionScheme.defaultEffectsSpec(),
         )
     Box(modifier) {
-        PreloadImages(lazyListState, state.images)
+        PreloadImages(
+            lazyListState = lazyListState,
+            items = state.images,
+            imageLoader = koinInject<ChapterImageLoader>().imageLoader,
+        )
         LazyColumn(
             contentPadding = contentPadding,
             state = lazyListState,
@@ -249,7 +255,9 @@ private fun ListImage(
     modifier: Modifier = Modifier,
     onSuccess: () -> Unit = {},
 ) {
-    val asyncPainter = rememberAsyncImagePainter(model)
+    val chapterImageLoader = koinInject<ChapterImageLoader>()
+    val asyncPainter =
+        rememberAsyncImagePainter(model = model, imageLoader = chapterImageLoader.imageLoader)
     val painterState by asyncPainter.state.collectAsStateWithLifecycle()
     DisplayImageState(painterState, modifier)
     val onSuccessState = rememberUpdatedState(onSuccess)
