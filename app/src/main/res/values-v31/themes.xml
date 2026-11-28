@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12 and later show the launcher icon when no splash icon is set. -->
+    <style name="Theme.App.Starting" parent="Base.Theme.App.Starting"/>
+</resources>
