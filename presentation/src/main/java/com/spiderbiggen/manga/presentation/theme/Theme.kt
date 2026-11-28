@@ -5,8 +5,8 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
 internal val lightScheme =
     lightColorScheme(
@@ -93,21 +93,17 @@ internal val darkScheme =
 private const val READ_CONTENT_ALPHA_LIGHT = 0.8f
 private const val READ_CONTENT_ALPHA_DARK = 0.65f
 
-/** Read content is dimmed further on the dark page, so that it still recedes there. */
-internal fun readContentAlpha(darkTheme: Boolean): Float =
-    if (darkTheme) READ_CONTENT_ALPHA_DARK else READ_CONTENT_ALPHA_LIGHT
-
-internal val LocalReadContentAlpha = staticCompositionLocalOf { READ_CONTENT_ALPHA_LIGHT }
+/** Read content is dimmed further on a dark surface, so that it still recedes there. */
+internal fun readContentAlpha(surface: Color): Float =
+    if (surface.luminance() < 0.5f) READ_CONTENT_ALPHA_DARK else READ_CONTENT_ALPHA_LIGHT
 
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
-    CompositionLocalProvider(LocalReadContentAlpha provides readContentAlpha(darkTheme)) {
-        MaterialExpressiveTheme(
-            colorScheme = if (darkTheme) darkScheme else lightScheme,
-            typography = AppTypography,
-            content = content,
-        )
-    }
+    MaterialExpressiveTheme(
+        colorScheme = if (darkTheme) darkScheme else lightScheme,
+        typography = AppTypography,
+        content = content,
+    )
 }
 
 @Composable

@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
-import com.spiderbiggen.manga.presentation.theme.LocalReadContentAlpha
+import com.spiderbiggen.manga.presentation.theme.readContentAlpha
 
 @Composable
 fun ReadStateCard(
@@ -18,7 +18,7 @@ fun ReadStateCard(
     shape: Shape = RectangleShape,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    val readContentAlpha = LocalReadContentAlpha.current
+    val readContentAlpha = readContentAlpha(MaterialTheme.colorScheme.surface)
     val colors =
         CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer).let {
             when {

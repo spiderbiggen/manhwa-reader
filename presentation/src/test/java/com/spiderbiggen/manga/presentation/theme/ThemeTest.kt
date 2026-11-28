@@ -11,38 +11,43 @@ import org.junit.Test
 
 class ThemeTest {
 
-    private val schemes = mapOf(false to lightScheme, true to darkScheme)
+    private val schemes = mapOf("light" to lightScheme, "dark" to darkScheme)
 
     @Test
     fun `given each scheme when text is drawn on its surface then the contrast is readable`() {
-        schemes.forEach { (darkTheme, scheme) ->
+        schemes.forEach { (name, scheme) ->
             with(scheme) {
-                assertReadable("text on page, dark=$darkTheme", onSurface, surface)
-                assertReadable("muted text on page, dark=$darkTheme", onSurfaceVariant, surface)
-                assertReadable("accent on page, dark=$darkTheme", primary, surface)
-                assertReadable("accent on rows, dark=$darkTheme", primary, surfaceContainer)
-                assertReadable("accent on sheet, dark=$darkTheme", primary, surfaceContainerLow)
-                assertReadable("checkmark, dark=$darkTheme", onPrimary, primary)
+                assertReadable("text on page, $name scheme", onSurface, surface)
+                assertReadable("muted text on page, $name scheme", onSurfaceVariant, surface)
+                assertReadable("accent on page, $name scheme", primary, surface)
+                assertReadable("accent on rows, $name scheme", primary, surfaceContainer)
+                assertReadable("accent on sheet, $name scheme", primary, surfaceContainerLow)
+                assertReadable("checkmark, $name scheme", onPrimary, primary)
                 assertReadable(
-                    "button label, dark=$darkTheme",
+                    "button label, $name scheme",
                     onPrimaryContainer,
                     primaryContainer,
                 )
-                assertReadable("snackbar action, dark=$darkTheme", inversePrimary, inverseSurface)
+                assertReadable("snackbar action, $name scheme", inversePrimary, inverseSurface)
             }
         }
     }
 
     @Test
     fun `given each scheme when a row is read then its dimmed text stays readable`() {
-        schemes.forEach { (darkTheme, scheme) ->
+        schemes.forEach { (name, scheme) ->
             val dimmed =
                 scheme.onSurface
-                    .copy(alpha = readContentAlpha(darkTheme))
+                    .copy(alpha = readContentAlpha(scheme.surface))
                     .compositeOver(scheme.surfaceContainer)
 
-            assertReadable("read row, dark=$darkTheme", dimmed, scheme.surfaceContainer)
+            assertReadable("read row, $name scheme", dimmed, scheme.surfaceContainer)
         }
+    }
+
+    @Test
+    fun `given each scheme when a row is read then the dark one dims it further`() {
+        assertTrue(readContentAlpha(darkScheme.surface) < readContentAlpha(lightScheme.surface))
     }
 
     @Test
