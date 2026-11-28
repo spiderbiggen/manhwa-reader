@@ -5,8 +5,10 @@ import androidx.compose.material3.MaterialExpressiveTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 
-private val lightScheme =
+internal val lightScheme =
     lightColorScheme(
         primary = primaryLight,
         onPrimary = onPrimaryLight,
@@ -29,6 +31,8 @@ private val lightScheme =
         surface = surfaceLight,
         onSurface = onSurfaceLight,
         surfaceVariant = surfaceVariantLight,
+        // Neutral, so that tonal elevation does not tint surfaces with the accent.
+        surfaceTint = onSurfaceLight,
         onSurfaceVariant = onSurfaceVariantLight,
         outline = outlineLight,
         outlineVariant = outlineVariantLight,
@@ -45,7 +49,7 @@ private val lightScheme =
         surfaceContainerHighest = surfaceContainerHighestLight,
     )
 
-private val darkScheme =
+internal val darkScheme =
     darkColorScheme(
         primary = primaryDark,
         onPrimary = onPrimaryDark,
@@ -68,6 +72,8 @@ private val darkScheme =
         surface = surfaceDark,
         onSurface = onSurfaceDark,
         surfaceVariant = surfaceVariantDark,
+        // Neutral, so that tonal elevation does not tint surfaces with the accent.
+        surfaceTint = onSurfaceDark,
         onSurfaceVariant = onSurfaceVariantDark,
         outline = outlineDark,
         outlineVariant = outlineVariantDark,
@@ -83,6 +89,13 @@ private val darkScheme =
         surfaceContainerHigh = surfaceContainerHighDark,
         surfaceContainerHighest = surfaceContainerHighestDark,
     )
+
+private const val READ_CONTENT_ALPHA_LIGHT = 0.8f
+private const val READ_CONTENT_ALPHA_DARK = 0.65f
+
+/** Read content is dimmed further on a dark surface, so that it still recedes there. */
+internal fun readContentAlpha(surface: Color): Float =
+    if (surface.luminance() < 0.5f) READ_CONTENT_ALPHA_DARK else READ_CONTENT_ALPHA_LIGHT
 
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {

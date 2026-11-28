@@ -34,8 +34,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.contentType
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.LinkAnnotation
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextLinkStyles
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -45,6 +48,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.input.AccentButtonDefaults
 import com.spiderbiggen.manga.presentation.components.input.PasswordTextField
 import com.spiderbiggen.manga.presentation.extensions.asString
 import com.spiderbiggen.manga.presentation.framework.adapter.InterruptBackHandler
@@ -173,16 +177,23 @@ private fun ColumnScope.LoginStateContent(
         is LoginState.Loading -> LoadingIndicator()
 
         else -> {
-            Button(onClick = onLoginClick) {
+            Button(onClick = onLoginClick, colors = AccentButtonDefaults.buttonColors()) {
                 Text("Login")
             }
             HorizontalDivider()
+            val linkStyles =
+                TextLinkStyles(
+                    SpanStyle(
+                        color = MaterialTheme.colorScheme.primary,
+                        textDecoration = TextDecoration.Underline,
+                    )
+                )
             Text(
                 text =
                     buildAnnotatedString {
                         append("Don't have an account? ")
                         withLink(
-                            LinkAnnotation.Clickable("Register") {
+                            LinkAnnotation.Clickable("Register", linkStyles) {
                                 onRegisterClick()
                             }
                         ) {

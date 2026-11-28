@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
@@ -300,6 +301,8 @@ private fun ChapterRow(
 private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
     val maxTextWidth = rememberMaxTextWidth(MaterialTheme.typography.titleLargeEmphasized)
     val padding = with(LocalDensity.current) { 3.sp.toDp() }
+    // Read numbers follow the dimmed content colour of their card.
+    val color = if (item.isRead) Color.Unspecified else MaterialTheme.colorScheme.primary
     Row(
         modifier = modifier.widthIn(min = maxTextWidth),
         horizontalArrangement = Arrangement.spacedBy(padding),
@@ -307,6 +310,7 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
     ) {
         Text(
             text = item.index.toString(),
+            color = color,
             style =
                 when {
                     item.isRead -> MaterialTheme.typography.titleLarge
@@ -318,6 +322,7 @@ private fun NumberDisplay(item: ChapterRowData, modifier: Modifier = Modifier) {
         item.subIndex?.let {
             Text(
                 text = it.toString(),
+                color = color,
                 style =
                     when {
                         item.isRead -> MaterialTheme.typography.titleMedium

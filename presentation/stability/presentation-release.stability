@@ -178,6 +178,18 @@ public fun com.spiderbiggen.manga.presentation.components.fusedShape(topShape: a
     - density: STABLE (marked @Stable or @Immutable)
 
 @Composable
+public fun com.spiderbiggen.manga.presentation.components.input.AccentButtonDefaults.buttonColors(): androidx.compose.material3.ButtonColors
+  skippable: false
+  restartable: false
+  params:
+
+@Composable
+public fun com.spiderbiggen.manga.presentation.components.input.AccentButtonDefaults.filledIconButtonColors(): androidx.compose.material3.IconButtonColors
+  skippable: false
+  restartable: false
+  params:
+
+@Composable
 public fun com.spiderbiggen.manga.presentation.components.input.ButtonWithLoadingState(isLoading: kotlin.Boolean, onClick: kotlin.Function0<kotlin.Unit>, modifier: androidx.compose.ui.Modifier, content: @[Composable] @[ExtensionFunctionType] androidx.compose.runtime.internal.ComposableFunction1<androidx.compose.foundation.layout.RowScope, kotlin.Unit>): kotlin.Unit
   skippable: true
   restartable: true

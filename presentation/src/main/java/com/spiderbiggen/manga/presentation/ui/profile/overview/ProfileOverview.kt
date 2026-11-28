@@ -58,6 +58,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
+import com.spiderbiggen.manga.presentation.components.input.AccentButtonDefaults
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
 import com.spiderbiggen.manga.presentation.components.topappbar.scrollWithContentBehavior
 import com.spiderbiggen.manga.presentation.theme.MangaReaderTheme
@@ -182,7 +183,7 @@ private fun AuthenticatedUserProfile(
             SyncIconButton(isSynchronizing = state.isSynchronizing, onSyncClick = onSyncClick)
         }
         HorizontalDivider()
-        Button(onClick = onLogoutClick) {
+        Button(onClick = onLogoutClick, colors = AccentButtonDefaults.buttonColors()) {
             Text("Logout")
         }
         Spacer(modifier = Modifier.weight(1f))
@@ -229,6 +230,7 @@ private fun AvatarWithUpdater(
                 pickMedia.launch(PickVisualMediaRequest(PickVisualMedia.ImageOnly))
             },
             modifier = Modifier.align(Alignment.BottomEnd),
+            colors = AccentButtonDefaults.filledIconButtonColors(),
             enabled = !state.isUpdatingAvatar,
         ) {
             Icon(painterResource(R.drawable.edit), "Edit Avatar")
@@ -242,7 +244,7 @@ private fun SyncIconButton(
     onSyncClick: () -> Unit,
 ) {
     val rotation = rememberRotationAnimation(isSynchronizing)
-    FilledIconButton(onSyncClick) {
+    FilledIconButton(onSyncClick, colors = AccentButtonDefaults.filledIconButtonColors()) {
         Icon(
             painterResource(R.drawable.sync),
             contentDescription = "Sync",
