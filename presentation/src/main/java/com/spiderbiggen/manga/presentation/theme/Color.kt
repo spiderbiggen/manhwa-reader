@@ -2,32 +2,33 @@ package com.spiderbiggen.manga.presentation.theme
 
 import androidx.compose.ui.graphics.Color
 
-// ─── Cosmic Pop ──────────────────────────────────────────────────────────────
-// Seed colours: primary #7B3FF2 (violet-purple), secondary #E8006A (hot pink),
-//               tertiary #A06000 (warm amber)
-// Generated following the M3 HCT tonal palette system.
+// ─── Neutral ─────────────────────────────────────────────────────────────────
+// Gray surfaces that stay out of the way of the cover art, with the pink of the
+// app icon as the accent.
 
-// ── Primary – Vibrant Purple ─────────────────────────────────────────────────
-val primaryLight = Color(0xFF6B2ECD)
+// ── Primary – Pink ────────────────────────────────────────────────────────────
+// primary colours text and controls on the page, so it is lighter in the dark scheme.
+// primaryContainer fills buttons and is the same in both schemes.
+val primaryLight = Color(0xFFB8005E)
 val onPrimaryLight = Color(0xFFFFFFFF)
-val primaryContainerLight = Color(0xFFECDCFF)
-val onPrimaryContainerLight = Color(0xFF200059)
+val primaryContainerLight = Color(0xFFB8005E)
+val onPrimaryContainerLight = Color(0xFFFFFFFF)
 
-val primaryDark = Color(0xFFC8A8F8)
-val onPrimaryDark = Color(0xFF310070)
-val primaryContainerDark = Color(0xFF4A0099)
-val onPrimaryContainerDark = Color(0xFFECDCFF)
+val primaryDark = Color(0xFFFF7AAE)
+val onPrimaryDark = Color(0xFF4A0026)
+val primaryContainerDark = Color(0xFFB8005E)
+val onPrimaryContainerDark = Color(0xFFFFFFFF)
 
-// ── Secondary – Hot Pink ─────────────────────────────────────────────────────
+// ── Secondary – Pink and gray ─────────────────────────────────────────────────
 val secondaryLight = Color(0xFFB8005E)
 val onSecondaryLight = Color(0xFFFFFFFF)
-val secondaryContainerLight = Color(0xFFFFD9E6)
-val onSecondaryContainerLight = Color(0xFF3D001C)
+val secondaryContainerLight = Color(0xFFE4E4E7)
+val onSecondaryContainerLight = Color(0xFF1A1A1C)
 
-val secondaryDark = Color(0xFFFFAACB)
-val onSecondaryDark = Color(0xFF640031)
-val secondaryContainerDark = Color(0xFF8D0045)
-val onSecondaryContainerDark = Color(0xFFFFD9E6)
+val secondaryDark = Color(0xFFFF7AAE)
+val onSecondaryDark = Color(0xFF4A0026)
+val secondaryContainerDark = Color(0xFF343439)
+val onSecondaryContainerDark = Color(0xFFEDEDEF)
 
 // ── Tertiary – Warm Amber ────────────────────────────────────────────────────
 val tertiaryLight = Color(0xFF7C4D00)
@@ -52,43 +53,43 @@ val errorContainerDark = Color(0xFF93000A)
 val onErrorContainerDark = Color(0xFFFFDAD6)
 
 // ── Neutral surfaces – Light ──────────────────────────────────────────────────
-val backgroundLight = Color(0xFFFCF8FF)
-val onBackgroundLight = Color(0xFF1C1B21)
-val surfaceLight = Color(0xFFFCF8FF)
-val onSurfaceLight = Color(0xFF1C1B21)
-val surfaceVariantLight = Color(0xFFE4E1EC)
-val onSurfaceVariantLight = Color(0xFF47464F)
-val outlineLight = Color(0xFF787680)
-val outlineVariantLight = Color(0xFFC8C5D0)
+val backgroundLight = Color(0xFFFAFAFA)
+val onBackgroundLight = Color(0xFF1A1A1C)
+val surfaceLight = Color(0xFFFAFAFA)
+val onSurfaceLight = Color(0xFF1A1A1C)
+val surfaceVariantLight = Color(0xFFE4E4E7)
+val onSurfaceVariantLight = Color(0xFF48484C)
+val outlineLight = Color(0xFF77777D)
+val outlineVariantLight = Color(0xFFD4D4D8)
 val scrimLight = Color(0xFF000000)
-val inverseSurfaceLight = Color(0xFF313036)
-val inverseOnSurfaceLight = Color(0xFFF3EFF7)
-val inversePrimaryLight = Color(0xFFC8A8F8)
-val surfaceDimLight = Color(0xFFDCD8E0)
-val surfaceBrightLight = Color(0xFFFCF8FF)
+val inverseSurfaceLight = Color(0xFF2F2F32)
+val inverseOnSurfaceLight = Color(0xFFF3F3F4)
+val inversePrimaryLight = Color(0xFFFF7AAE)
+val surfaceDimLight = Color(0xFFDADADD)
+val surfaceBrightLight = Color(0xFFFAFAFA)
 val surfaceContainerLowestLight = Color(0xFFFFFFFF)
-val surfaceContainerLowLight = Color(0xFFF6F2FA)
-val surfaceContainerLight = Color(0xFFF0ECF4)
-val surfaceContainerHighLight = Color(0xFFEBE7EF)
-val surfaceContainerHighestLight = Color(0xFFE5E1E9)
+val surfaceContainerLowLight = Color(0xFFF3F3F4)
+val surfaceContainerLight = Color(0xFFEEEEF0)
+val surfaceContainerHighLight = Color(0xFFE9E9EB)
+val surfaceContainerHighestLight = Color(0xFFE4E4E7)
 
 // ── Neutral surfaces – Dark ───────────────────────────────────────────────────
-val backgroundDark = Color(0xFF131318)
-val onBackgroundDark = Color(0xFFE5E1E9)
-val surfaceDark = Color(0xFF131318)
-val onSurfaceDark = Color(0xFFE5E1E9)
-val surfaceVariantDark = Color(0xFF47464F)
-val onSurfaceVariantDark = Color(0xFFC8C5D0)
-val outlineDark = Color(0xFF928F99)
-val outlineVariantDark = Color(0xFF47464F)
+val backgroundDark = Color(0xFF121214)
+val onBackgroundDark = Color(0xFFEDEDEF)
+val surfaceDark = Color(0xFF121214)
+val onSurfaceDark = Color(0xFFEDEDEF)
+val surfaceVariantDark = Color(0xFF3A3A40)
+val onSurfaceVariantDark = Color(0xFFB9B9BF)
+val outlineDark = Color(0xFF8E8E96)
+val outlineVariantDark = Color(0xFF3A3A40)
 val scrimDark = Color(0xFF000000)
-val inverseSurfaceDark = Color(0xFFE5E1E9)
-val inverseOnSurfaceDark = Color(0xFF313036)
-val inversePrimaryDark = Color(0xFF6B2ECD)
-val surfaceDimDark = Color(0xFF131318)
-val surfaceBrightDark = Color(0xFF39383F)
-val surfaceContainerLowestDark = Color(0xFF0E0E13)
-val surfaceContainerLowDark = Color(0xFF1C1B21)
-val surfaceContainerDark = Color(0xFF201F25)
-val surfaceContainerHighDark = Color(0xFF2A292F)
-val surfaceContainerHighestDark = Color(0xFF35343A)
+val inverseSurfaceDark = Color(0xFFE4E4E7)
+val inverseOnSurfaceDark = Color(0xFF2F2F32)
+val inversePrimaryDark = Color(0xFFB8005E)
+val surfaceDimDark = Color(0xFF121214)
+val surfaceBrightDark = Color(0xFF39393E)
+val surfaceContainerLowestDark = Color(0xFF0D0D0F)
+val surfaceContainerLowDark = Color(0xFF1C1C1F)
+val surfaceContainerDark = Color(0xFF1F1F23)
+val surfaceContainerHighDark = Color(0xFF2A2A2F)
+val surfaceContainerHighestDark = Color(0xFF343439)

@@ -105,7 +105,7 @@ fun MangaCoverCard(
                 FavoriteToggle(
                     isFavorite = manga.isFavorite,
                     contentColor = Color.White,
-                    favoriteContentColor = MaterialTheme.colorScheme.secondary,
+                    favoriteContentColor = Color.White,
                     modifier = Modifier.size(20.dp),
                 )
             }
@@ -162,8 +162,9 @@ private fun BoxScope.CoverDetails(
             GappedLinearProgressIndicator(
                 progress = progress,
                 modifier = Modifier.fillMaxWidth().padding(top = 4.dp),
-                color = MaterialTheme.colorScheme.primary,
-                trackColor = Color.White.copy(alpha = 0.35f),
+                // White on a dark track stays visible on any cover colour.
+                color = Color.White,
+                trackColor = Color.Black.copy(alpha = 0.5f),
             )
         }
     }

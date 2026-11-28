@@ -21,6 +21,7 @@ fun ButtonWithLoadingState(
         Button(
             onClick = onClick,
             modifier = modifier,
+            colors = AccentButtonDefaults.buttonColors(),
             content = content,
         )
     }
