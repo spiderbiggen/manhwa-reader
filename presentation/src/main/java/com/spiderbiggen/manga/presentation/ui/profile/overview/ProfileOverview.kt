@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularWavyProgressIndicator
 import androidx.compose.material3.FilledIconButton
@@ -43,10 +42,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.PreviewDynamicColors
 import androidx.compose.ui.tooling.preview.PreviewFontScale
@@ -55,8 +52,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import coil3.compose.AsyncImage
 import com.spiderbiggen.manga.presentation.R
+import com.spiderbiggen.manga.presentation.components.AvatarImage
 import com.spiderbiggen.manga.presentation.components.animation.ExpressiveAnimatedVisibility
 import com.spiderbiggen.manga.presentation.components.input.AccentButtonDefaults
 import com.spiderbiggen.manga.presentation.components.topappbar.MangaTopAppBar
@@ -210,12 +207,10 @@ private fun AvatarWithUpdater(
 
     Box(contentAlignment = Alignment.Center) {
         key(state.avatarUrl, state.updatedAt) {
-            AsyncImage(
+            AvatarImage(
                 model = state.avatarUrl,
-                error = painterResource(R.drawable.account_circle),
                 contentDescription = "User Avatar",
-                contentScale = ContentScale.Crop,
-                modifier = avatarSizeModifier.clip(CircleShape),
+                modifier = avatarSizeModifier,
             )
         }
         ExpressiveAnimatedVisibility(
