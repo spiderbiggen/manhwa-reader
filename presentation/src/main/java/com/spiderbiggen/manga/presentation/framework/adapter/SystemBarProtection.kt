@@ -13,6 +13,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import com.spiderbiggen.manga.presentation.coverage.CoverageExcluded
 
+/** How far the protection reaches, relative to the height of the status bar. */
+private const val GRADIENT_HEIGHT_SCALE = 1.25f
+
+/**
+ * Alpha at evenly spaced points from top to bottom, following `1 - smoothstep(position ^ 1.6)`. The
+ * small steps avoid sharp changes in slope, which can show up as a visible line.
+ */
+private val gradientAlphas =
+    floatArrayOf(1f, 1f, 0.98f, 0.94f, 0.86f, 0.75f, 0.59f, 0.4f, 0.22f, 0.07f, 0f)
+
 @Composable
 @CoverageExcluded
 fun StatusBarProtection(
@@ -22,13 +32,14 @@ fun StatusBarProtection(
 ) {
     Canvas(modifier.fillMaxSize()) {
         val calculatedHeight = heightProvider()
+        val colorStops =
+            Array(gradientAlphas.size) { index ->
+                index / gradientAlphas.lastIndex.toFloat() to
+                    color.copy(alpha = gradientAlphas[index])
+            }
         val gradient =
             Brush.verticalGradient(
-                colors =
-                    listOf(
-                        color.copy(alpha = 1f),
-                        Color.Transparent,
-                    ),
+                colorStops = colorStops,
                 startY = 0f,
                 endY = calculatedHeight,
             )
@@ -43,5 +54,5 @@ fun StatusBarProtection(
 private fun calculateStatusBarGradientHeight(): () -> Float {
     val statusBars = WindowInsets.statusBars
     val density = LocalDensity.current
-    return { statusBars.getTop(density).toFloat() }
+    return { statusBars.getTop(density) * GRADIENT_HEIGHT_SCALE }
 }
